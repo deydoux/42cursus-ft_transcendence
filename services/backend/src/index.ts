@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import {randomBytes} from 'crypto';
 import fastify, {FastifyRequest} from 'fastify';
-import fsRoutes from './lib/fsRoutes';
+import fsRoutes from '@lib/fsRoutes';
 import jwt from '@fastify/jwt';
 
 const {NODE_ENV} = process.env;
