@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import {randomBytes} from 'crypto';
 import fastify, {FastifyRequest} from 'fastify';
+import fsRoutes from './lib/fsRoutes';
 import jwt from '@fastify/jwt';
 
 const {NODE_ENV} = process.env;
@@ -33,6 +34,8 @@ server.decorate('authenticate', async (request: FastifyRequest) => {
   await request.jwtVerify();
 });
 
+void server.register(fsRoutes);
+
 server.post<{
   Body: {
     username: string;
@@ -54,7 +57,7 @@ server.post<{
   },
   (request, reply) => {
     const access_token = server.jwt.sign(request.body, {expiresIn: '10m'});
-    return {access_token};
+    void reply.send({access_token});
   },
 );
 
