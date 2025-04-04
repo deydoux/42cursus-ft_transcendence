@@ -1,10 +1,11 @@
-import {FastifyInstance, FastifyRequest} from 'fastify';
+import {FastifyRequest} from 'fastify';
 import {randomBytes} from 'node:crypto';
+import fp from 'fastify-plugin';
 
 const {NODE_ENV} = process.env;
 let {JWT_SECRET} = process.env;
 
-export default function (server: FastifyInstance) {
+export default fp(async server => {
   if (!JWT_SECRET) {
     const message = 'JWT_SECRET environment variable is not set';
 
@@ -19,4 +20,4 @@ export default function (server: FastifyInstance) {
   server.decorate('authenticate', async (request: FastifyRequest) => {
     await request.jwtVerify();
   });
-}
+});
