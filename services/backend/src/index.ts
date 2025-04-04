@@ -1,7 +1,8 @@
 import 'dotenv/config';
 import {randomBytes} from 'crypto';
-import fastify from 'fastify';
+import fastify, {FastifyReply, FastifyRequest} from 'fastify';
 import jwt from '@fastify/jwt';
+import { request } from 'http';
 
 const {NODE_ENV} = process.env;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -29,8 +30,48 @@ if (!JWT_SECRET) {
 
 void server.register(jwt, {secret: JWT_SECRET});
 
-server.get('/ping', async (request, reply) => {
-  return 'pong\n';
+server.decorate(
+  'authenticate',
+  async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      await request.jwtVerify();
+    } catch (error) {
+      void reply.send(error);
+    }
+  },
+);
+
+server.post<{
+  Body: {
+    username: string;
+    password: string;
+  };
+}>(
+  '/signup',
+  {
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          username: {type: 'string'},
+          password: {type: 'string'},
+        },
+        required: ['username', 'password'],
+      },
+    },
+  },
+  (request, reply) => {
+    const token = server.jwt.sign(request.body, {expiresIn: '2m'});
+    return {token};
+  },
+);
+
+server.get('/verify', {onRequest: [server.authenticate]}, (request, reply) => {
+  void reply.send({user: request.user, verified: true});
+});
+
+server.get('/user', (request, reply) => {
+  void reply.send({user: request.user});
 });
 
 void server.listen({host: HOST, port: PORT});
