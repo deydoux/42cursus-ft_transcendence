@@ -5,12 +5,12 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/healthcheck
+  url: {{baseURL}}/api/healthcheck
   body: none
   auth: inherit
 }
 
 assert {
   res.status: eq 200
-  res.body.status: eq healthy
+  res.body.status: eq ok
 }
