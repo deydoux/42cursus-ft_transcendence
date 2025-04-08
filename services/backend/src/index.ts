@@ -16,6 +16,7 @@ const server = Fastify({
   },
 });
 
+void server.register(import('./plugins/db'));
 void server.register(import('./plugins/jwt'));
 void server.register(import('@fastify/autoload'), {
   dir: join(__dirname, 'routes'),

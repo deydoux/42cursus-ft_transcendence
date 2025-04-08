@@ -1,4 +1,4 @@
-import {Database} from 'sqlite3';
+import {Database} from 'sqlite';
 
 declare module 'fastify' {
   interface FastifyInstance {
