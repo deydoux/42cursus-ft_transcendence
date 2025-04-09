@@ -17,7 +17,7 @@ const server = Fastify({
 });
 
 void server.register(import('@fastify/static'), {
-  root: join(__dirname, '../public'),
+  root: join(__dirname, '..', 'public'),
 });
 void server.register(import('./plugins/db'));
 void server.register(import('./plugins/jwt'));
