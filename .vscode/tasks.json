@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "dev:client",
+      "label": "npm: dev:client",
+      "detail": "tsc -p tsconfig.client.json -w"
+    },
+    {
+      "type": "npm",
+      "script": "dev:server",
+      "label": "npm: dev:server",
+      "detail": "nodemon -e ts -w src/server -x 'tsc -p tsconfig.server.json && npm start'"
+    },
+    {
+      "label": "npm: dev",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "dependsOn": ["npm: dev:client", "npm: dev:server"]
+    }
+  ]
+}
