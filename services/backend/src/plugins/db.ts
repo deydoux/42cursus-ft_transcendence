@@ -12,7 +12,7 @@ const plugin: FastifyPluginAsync = async server => {
 
     if (NODE_ENV === 'development') {
       DB_PATH = 'ft_transcendence.db';
-      server.log.warn(`${message}, using as default: ${DB_PATH}`);
+      server.log.warn(`${message}, using "${DB_PATH}" as default`);
     } else throw new Error(message);
   }
 
