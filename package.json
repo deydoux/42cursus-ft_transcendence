@@ -1,7 +1,7 @@
 {
-  "name": "",
+  "name": "ft_transcendence",
   "version": "0.0.0",
-  "description": "",
+  "description": "This project is centered around the design, development, and organization of a full-stack web application.",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
   "files": [
@@ -10,15 +10,15 @@
   "license": "Apache-2.0",
   "keywords": [],
   "scripts": {
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "vite build",
+    "build:server": "tsc",
     "start": "node build",
     "dev": "concurrently -p '{name}' -n 'client,server' -c 'bgMagenta.bold,bgCyan.bold' 'npm run dev:client' 'npm run dev:server'",
-    "dev:client": "tsc -p tsconfig.client.json -w",
-    "dev:server": "nodemon -e ts -w src/server -x 'tsc -p tsconfig.server.json && npm start'",
+    "dev:client": "npm run build:client -- -w",
+    "dev:server": "nodemon -e ts -w src/server -x 'npm run build:server && npm start'",
     "lint": "gts lint",
     "clean": "gts clean",
-    "compile": "npm run compile:client && npm run compile:server",
-    "compile:client": "tsc -p tsconfig.client.json",
-    "compile:server": "tsc -p tsconfig.server.json",
     "fix": "gts fix"
   },
   "devDependencies": {
@@ -38,6 +38,7 @@
     "fastify": "^5.2.2",
     "fastify-plugin": "^5.0.1",
     "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "vite": "^6.2.6"
   }
 }

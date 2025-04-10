@@ -1,7 +1,5 @@
 /.env
 /build/
+/dist/
 /ft_transcendence.db
 /node_modules/
-/public/js/
-/tsconfig.client.tsbuildinfo
-/tsconfig.json

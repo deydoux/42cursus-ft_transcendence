@@ -1,5 +1,7 @@
+import print from './print';
+
 function greet() {
-  console.log('Hello, world!');
+  print('Hello, world!');
 }
 
 greet();

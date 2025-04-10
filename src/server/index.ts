@@ -16,11 +16,10 @@ const server = Fastify({
   },
 });
 
-void server.register(import('@fastify/static'), {
-  root: join(__dirname, '..', 'public'),
-});
+void server.register(import('./plugins/dist'));
 void server.register(import('./plugins/db'));
 void server.register(import('./plugins/jwt'));
+
 void server.register(import('@fastify/autoload'), {
   dir: join(__dirname, 'routes'),
 });
