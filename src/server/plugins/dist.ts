@@ -1,11 +1,16 @@
 import {createReadStream} from 'node:fs';
 import {FastifyPluginAsync} from 'fastify';
 import {join} from 'node:path';
+import {watch} from 'node:fs';
 import fp from 'fastify-plugin';
 
 const distPath = join(__dirname, '..', '..', 'dist');
 
 const plugin: FastifyPluginAsync = async server => {
+  watch(distPath, () => {
+    console.log('change');
+  });
+
   server.get('*', (request, reply) => {
     const {url} = request;
     if (
