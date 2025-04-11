@@ -9,10 +9,6 @@ export default defineConfig(() => {
   return {
     root: 'src/client',
     mode: DEV ? 'development' : 'production',
-    define: {
-      __DEV__: DEV,
-      __PROD__: PROD,
-    },
     build: {
       outDir: '../../dist',
       emptyOutDir: true,
