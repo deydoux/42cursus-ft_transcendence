@@ -1,8 +1,11 @@
 import {FastifyPluginAsync} from 'fastify';
+import fp from 'fastify-plugin';
 
-export default <FastifyPluginAsync>async function (server) {
+const plugin: FastifyPluginAsync = async server => {
   server.get('/api/healthcheck', () => ({
     status: 'ok',
     uptime: process.uptime(),
   }));
 };
+
+export default fp(plugin);
