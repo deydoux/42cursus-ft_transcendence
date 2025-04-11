@@ -24,6 +24,8 @@ const plugin: FastifyPluginAsync = async server => {
     server.log.trace(`${DB_PATH}: ${sql}`);
   });
 
+  await db.migrate();
+
   server.decorate('db', db);
 
   server.addHook('onClose', async server => {
