@@ -10,13 +10,13 @@
   "license": "Apache-2.0",
   "keywords": [],
   "scripts": {
+    "start": "node build",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build",
     "build:server": "tsc",
-    "start": "node build",
     "dev": "concurrently -p '{name}' -n 'client,server' -c 'bgMagenta.bold,bgCyan.bold' 'npm run dev:client' 'npm run dev:server'",
-    "dev:client": "npm run build:client -- -w",
-    "dev:server": "nodemon -e ts -w src/server -x 'npm run build:server && npm start'",
+    "dev:client": "vite build -w",
+    "dev:server": "nodemon -e ts -w src/server -x 'tsc && node build'",
     "lint": "gts lint",
     "clean": "gts clean",
     "fix": "gts fix"
