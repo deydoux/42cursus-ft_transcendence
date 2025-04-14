@@ -4,7 +4,7 @@
 
 CREATE TABLE users (
   id       INTEGER PRIMARY KEY AUTOINCREMENT,
-  user     TEXT UNIQUE NOT NULL,
+  username TEXT UNIQUE NOT NULL,
   password TEXT NOT NULL
 )
 
