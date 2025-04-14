@@ -3,14 +3,13 @@ import {open} from 'sqlite';
 import * as sqlite3 from 'sqlite3';
 import fp from 'fastify-plugin';
 
-const {NODE_ENV} = process.env;
 let {DB_PATH} = process.env;
 
 const plugin: FastifyPluginAsync = async server => {
   if (!DB_PATH) {
     const message = 'DB_PATH environment variable is not set';
 
-    if (NODE_ENV === 'development') {
+    if (server.dev) {
       DB_PATH = 'ft_transcendence.db';
       server.log.warn(`${message}, using "${DB_PATH}" as default`);
     } else throw new Error(message);
