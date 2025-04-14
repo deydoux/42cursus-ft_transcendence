@@ -107,9 +107,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
         sql`INSERT INTO users (username, password) VALUES (${username}, ${password})`,
       );
 
-      return reply.send(
-        `Hello ${username}, your password hash is ${password}, and your ID is ${id}`,
-      );
+      return reply.send({success: true, id});
     },
   );
 };
