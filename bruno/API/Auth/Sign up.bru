@@ -1,0 +1,18 @@
+meta {
+  name: Sign up
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseURL}}/api/auth/signup
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username": "deydoux-",
+    "password": "hellogregregre"
+  }
+}
