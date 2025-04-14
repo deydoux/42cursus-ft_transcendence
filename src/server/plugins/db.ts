@@ -20,11 +20,11 @@ const plugin: FastifyPluginAsync = async server => {
     driver: sqlite3.verbose().Database,
   });
 
+  await db.migrate();
+
   db.on('trace', (sql: string) => {
     server.log.trace(`${DB_PATH}: ${sql}`);
   });
-
-  await db.migrate();
 
   server.decorate('db', db);
 

@@ -1,5 +1,6 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import fp from 'fastify-plugin';
+import hash from '#lib/hash';
 
 const schema = {
   body: {
@@ -17,12 +18,16 @@ const schema = {
       },
     },
     required: ['username', 'password'],
+    additionalProperties: false,
   } as const,
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.post('/api/auth/signup', {schema}, (request, reply) => {
     const {username, password} = request.body;
+    return reply.send(
+      `Hello ${username}, your password hash is ${hash(password)}`,
+    );
   });
 };
 

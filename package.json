@@ -7,6 +7,9 @@
   "files": [
     "build/src"
   ],
+  "imports": {
+    "#lib/*": "./build/lib/*.js"
+  },
   "license": "Apache-2.0",
   "keywords": [],
   "scripts": {

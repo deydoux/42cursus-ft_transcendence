@@ -4,7 +4,7 @@ import {watch} from 'node:fs';
 import {WebSocket} from '@fastify/websocket';
 import fp from 'fastify-plugin';
 
-const viewPath = join(__dirname, '..', '..', '..', 'dist');
+const distPath = join(__dirname, '..', '..', '..', 'dist');
 
 const plugin: FastifyPluginAsync = async server => {
   if (!server.dev) return;
@@ -23,7 +23,7 @@ const plugin: FastifyPluginAsync = async server => {
     });
   });
 
-  watch(viewPath, (eventType, filename) => {
+  watch(distPath, (eventType, filename) => {
     if (filename !== 'index.html' || eventType !== 'change') return;
 
     sockets.forEach(async socket => {
@@ -33,7 +33,7 @@ const plugin: FastifyPluginAsync = async server => {
     server.log.trace('Watched dist change');
   });
 
-  server.log.info(`Watching "${viewPath}" dist`);
+  server.log.info(`Watching "${distPath}" dist`);
 };
 
 export default fp(plugin);
