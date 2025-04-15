@@ -18,13 +18,17 @@ const server = Fastify({
 
 server.decorate('dev', DEV);
 
-void server.register(import('./plugins/dist'));
-void server.register(import('./plugins/db'));
-void server.register(import('./plugins/jwt'));
+async function main() {
+  await server.register(import('./plugins/dist'));
+  await server.register(import('./plugins/db'));
+  await server.register(import('./plugins/jwt'));
 
-void server.register(import('@fastify/websocket'));
-void server.register(import('@fastify/autoload'), {
-  dir: join(__dirname, 'routes'),
-});
+  await server.register(import('@fastify/websocket'));
+  await server.register(import('@fastify/autoload'), {
+    dir: join(__dirname, 'routes'),
+  });
 
-void server.listen({host: HOST, port: PORT});
+  await server.listen({host: HOST, port: PORT});
+}
+
+void main();
