@@ -19,9 +19,10 @@ const server = Fastify({
 server.decorate('dev', DEV);
 
 async function main() {
-  await server.register(import('./plugins/dist'));
   await server.register(import('./plugins/db'));
+  await server.register(import('./plugins/cookie'));
   await server.register(import('./plugins/jwt'));
+  await server.register(import('./plugins/dist'));
 
   await server.register(import('@fastify/websocket'));
   await server.register(import('@fastify/autoload'), {

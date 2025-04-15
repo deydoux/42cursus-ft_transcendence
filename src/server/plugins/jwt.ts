@@ -19,6 +19,16 @@ const plugin: FastifyPluginAsync = async server => {
   server.decorate('authenticate', async request => {
     await request.jwtVerify();
   });
+
+  server.decorate('authenticateRefresh', async request => {
+    const refreshToken = request.cookies.refreshToken;
+    if (!refreshToken) throw new Error('No refresh token provided');
+
+    const decoded = server.jwt.verify(refreshToken);
+    console.log(request.user);
+    console.log(decoded);
+    request.user = decoded;
+  });
 };
 
 export default fp(plugin);
