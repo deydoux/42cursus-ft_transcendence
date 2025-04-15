@@ -19,7 +19,7 @@ const plugin: FastifyPluginAsync = async server => {
     return reply.type('text/html').send(stream);
   });
 
-  void server.register(import('@fastify/static'), {
+  await server.register(import('@fastify/static'), {
     root: join(distPath, 'assets'),
     prefix: '/assets/',
   });

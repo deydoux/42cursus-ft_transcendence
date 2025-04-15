@@ -14,7 +14,7 @@ const plugin: FastifyPluginAsync = async server => {
     } else throw new Error(message);
   }
 
-  void server.register(import('@fastify/jwt'), {secret: JWT_SECRET});
+  await server.register(import('@fastify/jwt'), {secret: JWT_SECRET});
 
   server.decorate('authenticate', async request => {
     await request.jwtVerify();
