@@ -34,6 +34,25 @@ const schema = {
   } as const,
 };
 
+function formatValidationErrorMessage(
+  field: string,
+  keyword: string,
+  params: any,
+) {
+  const details: {[key: string]: (params: any) => string} = {
+    required: () => 'field is required',
+    type: params => `must be a ${params.type}`,
+    minLength: params => `length must be at least ${params.limit} characters`,
+    maxLength: params => `length must not exceed ${params.limit} characters`,
+    pattern: params => `must match the pattern ${params.pattern}`,
+  };
+
+  const detail = details[keyword];
+  if (!detail) return;
+
+  return `${capitalize(field)} ${detail(params)}`;
+}
+
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   function formatValidationError(error: ValidationError) {
     if (!error) return;
@@ -46,50 +65,31 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     server.log.trace(`Validation error: ${JSON.stringify(validation)}`);
 
-    let message = capitalize(`${field} field `);
+    const message = formatValidationErrorMessage(
+      field,
+      validation.keyword,
+      params,
+    );
 
-    switch (validation.keyword) {
-      case 'required':
-        message += 'is required';
-        break;
-      case 'type':
-        message += `should be ${params.type}`;
-        break;
-      case 'minLength':
-        message += `should be at least ${params.limit} characters`;
-        break;
-      case 'maxLength':
-        message += `should be at most ${params.limit} characters`;
-        break;
-      case 'pattern':
-        if (field === 'username') {
-          message +=
-            'should only contain alphanumeric characters and underscores';
-        } else if (field === 'password') {
-          message +=
-            'should contain at least one uppercase letter, one lowercase letter, one number, and one special character';
-        } else {
-          message += `should match the pattern ${params.pattern}`;
-        }
-        break;
-      default:
-        throw error;
+    const customError: {message?: string; field?: string} = {};
+    if (message) {
+      customError.message = message;
+      customError.field = field;
     }
 
-    error.message = message;
-    throw error;
+    throw {...error, ...customError};
   }
 
   async function checkUsername(username: string) {
     const user = await server.db.get(
-      sql`SELECT * FROM users WHERE username = ${username}`,
+      sql`SELECT * FROM users WHERE LOWER(username) = LOWER(${username})`,
     );
 
     if (!user) return;
 
     const error = errorCodes.FST_ERR_VALIDATION('Username already taken');
     error.statusCode = 409;
-    throw error;
+    throw {...error, ...{field: 'username'}};
   }
 
   server.post(
