@@ -20,7 +20,8 @@ const plugin: FastifyPluginAsync = async server => {
       maxAge: 30 * 24 * 60 * 60, // 30 days
       httpOnly: true,
       sameSite: 'strict',
-      secure: true,
+      secure: server.prod,
+      path: '/',
     },
   });
 };

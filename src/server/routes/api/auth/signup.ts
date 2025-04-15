@@ -4,6 +4,7 @@ import capitalize from '#lib/capitalize';
 import fp from 'fastify-plugin';
 import hash from '#lib/hash';
 import SQL from 'sql-template-strings';
+import {error} from 'console';
 
 type ValidationError =
   | (Error & {
@@ -107,7 +108,19 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
         SQL`INSERT INTO users (username, password) VALUES (${username}, ${password})`,
       );
 
-      return reply.send({success: true, id});
+      if (!id) throw new Error('Failed to create user');
+
+      const refreshToken = server.jwt.sign({id}, {expiresIn: '30d'});
+      const accessToken = server.jwt.sign({id}, {expiresIn: '10m'});
+
+      await server.db.run(
+        SQL`INSERT INTO tokens (refresh, access, user_id) VALUES (${refreshToken}, ${accessToken}, ${id})`,
+      );
+
+      return reply
+        .setCookie('refreshToken', refreshToken, {signed: true})
+        .send({accessToken})
+        .code(201);
     },
   );
 };

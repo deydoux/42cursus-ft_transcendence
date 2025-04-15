@@ -1,3 +1,4 @@
+import {AssertionError} from 'node:assert';
 import {FastifyPluginAsync} from 'fastify';
 import {randomBytes} from 'node:crypto';
 import fp from 'fastify-plugin';
@@ -14,20 +15,38 @@ const plugin: FastifyPluginAsync = async server => {
     } else throw new Error(message);
   }
 
-  await server.register(import('@fastify/jwt'), {secret: JWT_SECRET});
+  await server.register(import('@fastify/jwt'), {
+    secret: JWT_SECRET,
+    cookie: {
+      cookieName: 'refreshToken',
+      signed: true,
+    },
+    sign: {
+      expiresIn: '10m',
+    },
+  });
 
   server.decorate('authenticate', async request => {
     await request.jwtVerify();
   });
 
   server.decorate('authenticateRefresh', async request => {
-    const refreshToken = request.cookies.refreshToken;
-    if (!refreshToken) throw new Error('No refresh token provided');
+    try {
+      await request.jwtVerify({onlyCookie: true});
+    } catch (error) {
+      if (!(error instanceof AssertionError) || !request.cookies.refreshToken)
+        throw error;
 
-    const decoded = server.jwt.verify(refreshToken);
-    console.log(request.user);
-    console.log(decoded);
-    request.user = decoded;
+      const cookie = server.unsignCookie(request.cookies.refreshToken);
+      if (!cookie.valid)
+        throw server.httpErrors.createError(
+          401,
+          'Untrusted authorization token',
+          {
+            code: 'FST_JWT_AUTHORIZATION_TOKEN_UNTRUSTED',
+          },
+        );
+    }
   });
 };
 

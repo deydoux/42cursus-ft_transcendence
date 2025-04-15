@@ -17,6 +17,7 @@ const server = Fastify({
 });
 
 server.decorate('dev', DEV);
+server.decorate('prod', !DEV);
 
 async function main() {
   await server.register(import('./plugins/db'));
@@ -24,6 +25,7 @@ async function main() {
   await server.register(import('./plugins/jwt'));
   await server.register(import('./plugins/dist'));
 
+  await server.register(import('@fastify/sensible'));
   await server.register(import('@fastify/websocket'));
   await server.register(import('@fastify/autoload'), {
     dir: join(__dirname, 'routes'),

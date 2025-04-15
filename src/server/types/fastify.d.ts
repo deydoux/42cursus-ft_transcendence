@@ -6,5 +6,6 @@ declare module 'fastify' {
     authenticateRefresh: (request: FastifyRequest) => Promise<void>;
     db: Database;
     dev: boolean;
+    prod: boolean;
   }
 }
