@@ -12,10 +12,7 @@ const plugin: FastifyPluginAsync = async server => {
         request.cookies.refreshToken || '',
       ).value;
 
-      const accessToken = server.jwt.sign(
-        {id, type: 'access'},
-        {expiresIn: '10m'},
-      );
+      const accessToken = server.jwt.sign({id, type: 'access'});
 
       await server.db.run(
         SQL`UPDATE tokens SET access = ${accessToken} WHERE refresh = ${refreshToken}`,

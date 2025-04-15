@@ -114,10 +114,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
         {id, type: 'refresh'},
         {expiresIn: '30d'},
       );
-      const accessToken = server.jwt.sign(
-        {id, type: 'access'},
-        {expiresIn: '10m'},
-      );
+      const accessToken = server.jwt.sign({id, type: 'access'});
 
       await server.db.run(
         SQL`INSERT INTO tokens (refresh, access, user_id) VALUES (${refreshToken}, ${accessToken}, ${id})`,
