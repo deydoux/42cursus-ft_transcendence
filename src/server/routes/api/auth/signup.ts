@@ -110,8 +110,14 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
       if (!id) throw new Error('Failed to create user');
 
-      const refreshToken = server.jwt.sign({id}, {expiresIn: '30d'});
-      const accessToken = server.jwt.sign({id}, {expiresIn: '10m'});
+      const refreshToken = server.jwt.sign(
+        {id, type: 'refresh'},
+        {expiresIn: '30d'},
+      );
+      const accessToken = server.jwt.sign(
+        {id, type: 'access'},
+        {expiresIn: '10m'},
+      );
 
       await server.db.run(
         SQL`INSERT INTO tokens (refresh, access, user_id) VALUES (${refreshToken}, ${accessToken}, ${id})`,

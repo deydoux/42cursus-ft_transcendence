@@ -2,6 +2,7 @@ import {AssertionError} from 'node:assert';
 import {FastifyPluginAsync} from 'fastify';
 import {randomBytes} from 'node:crypto';
 import fp from 'fastify-plugin';
+import SQL from 'sql-template-strings';
 
 let {JWT_SECRET} = process.env;
 
@@ -23,6 +24,36 @@ const plugin: FastifyPluginAsync = async server => {
     },
     sign: {
       expiresIn: '10m',
+    },
+    async trusted(request, decodedToken) {
+      if (decodedToken.type === 'access') {
+        const {authorization} = request.headers;
+        if (!authorization) return false;
+
+        const token = authorization.split(' ')[1];
+        if (!token) return false;
+
+        return (
+          (await server.db.get(
+            SQL`SELECT user_id FROM tokens WHERE user_id = ${decodedToken.id} AND access = ${token}`,
+          )) !== undefined
+        );
+      }
+
+      if (decodedToken.type === 'refresh') {
+        const token = server.unsignCookie(
+          request.cookies.refreshToken || '',
+        ).value;
+        if (!token) return false;
+
+        return (
+          (await server.db.get(
+            SQL`SELECT user_id FROM tokens WHERE user_id = ${decodedToken.id} AND refresh = ${token}`,
+          )) !== undefined
+        );
+      }
+
+      return false;
     },
   });
 

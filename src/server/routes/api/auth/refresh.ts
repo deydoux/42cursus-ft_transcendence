@@ -8,17 +8,17 @@ const plugin: FastifyPluginAsync = async server => {
     {onRequest: server.authenticateRefresh},
     async (request, reply) => {
       const {id} = request.user;
-      const cookie = server.unsignCookie(
-        request.cookies.refreshToken as string,
+      const refreshToken = server.unsignCookie(
+        request.cookies.refreshToken || '',
+      ).value;
+
+      const accessToken = server.jwt.sign(
+        {id, type: 'access'},
+        {expiresIn: '10m'},
       );
 
-      // if (!cookie.valid)
-      //   return reply.status(401).send({message: 'Invalid refresh token'});
-
-      const accessToken = server.jwt.sign({id}, {expiresIn: '10m'});
-
       await server.db.run(
-        SQL`UPDATE tokens SET access = ${accessToken} WHERE refresh = ${cookie.value}`,
+        SQL`UPDATE tokens SET access = ${accessToken} WHERE refresh = ${refreshToken}`,
       );
 
       return reply.send({accessToken}).code(201);

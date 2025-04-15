@@ -1,9 +1,14 @@
 import '@fastify/jwt';
 // import {FastifyJWT} from '@fastify/jwt';
 
+type JWTData = {
+  id: number;
+  type: 'access' | 'refresh';
+};
+
 declare module '@fastify/jwt' {
   interface FastifyJWT {
-    payload: {id: number};
-    user: {id: number};
+    payload: JWTData;
+    user: JWTData;
   }
 }
