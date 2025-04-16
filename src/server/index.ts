@@ -31,6 +31,7 @@ async function main() {
     },
   });
   await server.register(import('./plugins/jwt'));
+  await server.register(import('./plugins/generateTokens'));
   await server.register(import('@fastify/sensible'));
   await server.register(import('@fastify/websocket'));
   await server.register(import('./plugins/dist'));

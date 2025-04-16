@@ -28,15 +28,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       throw server.httpErrors.unauthorized('Invalid username or password');
 
     const {id} = user;
-    const refreshToken = server.jwt.sign(
-      {id, type: 'refresh'},
-      {expiresIn: '30d'},
-    );
-    const accessToken = server.jwt.sign({id, type: 'access'});
-
-    await server.db.run(
-      SQL`INSERT INTO tokens (refresh, access, user_id) VALUES (${refreshToken}, ${accessToken}, ${id})`,
-    );
+    const {accessToken, refreshToken} = await server.generateTokens(id);
 
     return reply.setCookie('refreshToken', refreshToken).send({accessToken});
   });
