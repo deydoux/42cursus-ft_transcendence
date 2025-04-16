@@ -1,0 +1,15 @@
+meta {
+  name: User ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseURL}}/api/users/:userId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  userId: 1
+}
