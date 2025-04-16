@@ -4,7 +4,6 @@ import capitalize from '#lib/capitalize';
 import fp from 'fastify-plugin';
 import hash from '#lib/hash';
 import SQL from 'sql-template-strings';
-import {error} from 'console';
 
 type ValidationError =
   | (Error & {
@@ -121,7 +120,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       );
 
       return reply
-        .setCookie('refreshToken', refreshToken, {signed: true})
+        .setCookie('refreshToken', refreshToken)
         .send({accessToken})
         .code(201);
     },

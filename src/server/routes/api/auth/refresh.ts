@@ -8,9 +8,7 @@ const plugin: FastifyPluginAsync = async server => {
     {onRequest: server.authenticateRefresh},
     async (request, reply) => {
       const {id} = request.user;
-      const refreshToken = server.unsignCookie(
-        request.cookies.refreshToken || '',
-      ).value;
+      const {refreshToken} = request.cookies;
 
       const accessToken = server.jwt.sign({id, type: 'access'});
 

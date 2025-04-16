@@ -38,9 +38,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       SQL`INSERT INTO tokens (refresh, access, user_id) VALUES (${refreshToken}, ${accessToken}, ${id})`,
     );
 
-    return reply
-      .setCookie('refreshToken', refreshToken, {signed: true})
-      .send({accessToken});
+    return reply.setCookie('refreshToken', refreshToken).send({accessToken});
   });
 };
 
