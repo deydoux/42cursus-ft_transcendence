@@ -3,7 +3,7 @@ import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-sche
 import capitalize from '#lib/capitalize';
 import fp from 'fastify-plugin';
 import hash from '#lib/hash';
-import SQL from 'sql-template-strings';
+import sql from 'sql-template-strings';
 
 type ValidationError =
   | (Error & {
@@ -82,7 +82,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
   async function checkUsername(username: string) {
     const user = await server.db.get(
-      SQL`SELECT * FROM users WHERE LOWER(username) = LOWER(${username})`,
+      sql`SELECT * FROM users WHERE LOWER(username) = LOWER(${username})`,
     );
 
     if (!user) return;
@@ -104,7 +104,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       const password = hash(request.body.password);
 
       const {lastID: id} = await server.db.run(
-        SQL`INSERT INTO users (username, password) VALUES (${username}, ${password})`,
+        sql`INSERT INTO users (username, password) VALUES (${username}, ${password})`,
       );
 
       if (!id) throw new Error('Failed to create user');

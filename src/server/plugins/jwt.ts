@@ -1,7 +1,7 @@
 import {FastifyPluginAsync} from 'fastify';
 import {randomBytes} from 'node:crypto';
 import fp from 'fastify-plugin';
-import SQL from 'sql-template-strings';
+import sql from 'sql-template-strings';
 
 let {JWT_SECRET} = process.env;
 
@@ -34,7 +34,7 @@ const plugin: FastifyPluginAsync = async server => {
 
         return (
           (await server.db.get(
-            SQL`SELECT user_id FROM tokens WHERE user_id = ${decodedToken.id} AND access = ${token}`,
+            sql`SELECT user_id FROM tokens WHERE user_id = ${decodedToken.id} AND access = ${token}`,
           )) !== undefined
         );
       }
@@ -45,7 +45,7 @@ const plugin: FastifyPluginAsync = async server => {
 
         return (
           (await server.db.get(
-            SQL`SELECT user_id FROM tokens WHERE user_id = ${decodedToken.id} AND refresh = ${token}`,
+            sql`SELECT user_id FROM tokens WHERE user_id = ${decodedToken.id} AND refresh = ${token}`,
           )) !== undefined
         );
       }

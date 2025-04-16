@@ -1,7 +1,7 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import fp from 'fastify-plugin';
 import hash from '#lib/hash';
-import SQL from 'sql-template-strings';
+import sql from 'sql-template-strings';
 
 const schema = {
   body: {
@@ -20,7 +20,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const {username} = request.body;
     const password = hash(request.body.password);
 
-    const user = await server.db.get(SQL`
+    const user = await server.db.get(sql`
       SELECT id FROM users WHERE username = ${username} AND password = ${password}
     `);
 
