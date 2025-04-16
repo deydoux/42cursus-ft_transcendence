@@ -1,6 +1,6 @@
 import {FastifyPluginAsync} from 'fastify';
 import fp from 'fastify-plugin';
-import sql from 'sql-template-strings';
+import SQL from 'sql-template-strings';
 
 const plugin: FastifyPluginAsync = async server => {
   let it = 0;
@@ -20,7 +20,7 @@ const plugin: FastifyPluginAsync = async server => {
     const accessToken = server.generateAccessToken(userId);
 
     await server.db.run(
-      sql`INSERT INTO tokens (refresh, access, user_id) VALUES (${refreshToken}, ${accessToken}, ${userId})`,
+      SQL`INSERT INTO tokens (refresh, access, user_id) VALUES (${refreshToken}, ${accessToken}, ${userId})`,
     );
 
     return {accessToken, refreshToken};

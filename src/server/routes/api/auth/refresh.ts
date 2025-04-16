@@ -1,6 +1,6 @@
 import {FastifyPluginAsync} from 'fastify';
 import fp from 'fastify-plugin';
-import sql from 'sql-template-strings';
+import SQL from 'sql-template-strings';
 
 const plugin: FastifyPluginAsync = async server => {
   server.post(
@@ -11,7 +11,7 @@ const plugin: FastifyPluginAsync = async server => {
       const {refreshToken} = request.cookies;
 
       await server.db.run(
-        sql`UPDATE tokens SET access = ${accessToken} WHERE refresh = ${refreshToken}`,
+        SQL`UPDATE tokens SET access = ${accessToken} WHERE refresh = ${refreshToken}`,
       );
 
       return reply.send({accessToken}).code(201);
