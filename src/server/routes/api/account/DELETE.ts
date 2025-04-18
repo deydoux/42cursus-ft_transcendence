@@ -15,7 +15,7 @@ const schema = {
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.delete(
-    '/api/users/me',
+    '/api/account',
     {schema, onRequest: server.authenticate},
     async (request, reply) => {
       const password = hash(request.body.password);
