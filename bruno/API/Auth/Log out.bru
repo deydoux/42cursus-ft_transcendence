@@ -1,11 +1,11 @@
 meta {
-  name: Refresh
+  name: Log out
   type: http
-  seq: 3
+  seq: 2
 }
 
 post {
-  url: {{baseURL}}/api/auth/refresh
+  url: {{baseURL}}/api/auth/logout
   body: json
   auth: inherit
 }
