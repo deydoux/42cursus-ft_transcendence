@@ -2,13 +2,13 @@
 -- Up
 --------------------------------------------------------------------------------
 
-CREATE TABLE users (
+CREATE TABLE users(
   id       INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT UNIQUE NOT NULL,
   password TEXT NOT NULL
 );
 
-CREATE TABLE tokens (
+CREATE TABLE tokens(
   refresh TEXT PRIMARY KEY,
   access  TEXT NOT NULL,
   user_id INTEGER NOT NULL,

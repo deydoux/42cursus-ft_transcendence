@@ -20,7 +20,7 @@ const plugin: FastifyPluginAsync = async server => {
     const accessToken = server.generateAccessToken(userId);
 
     await server.db.run(
-      SQL`INSERT INTO tokens (refresh, access, user_id) VALUES (${refreshToken}, ${accessToken}, ${userId})`,
+      SQL`INSERT INTO tokens(refresh, access, user_id) VALUES(${refreshToken}, ${accessToken}, ${userId})`,
     );
 
     return {accessToken, refreshToken};
