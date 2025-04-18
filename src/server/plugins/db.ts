@@ -20,6 +20,7 @@ const plugin: FastifyPluginAsync = async server => {
     driver: sqlite3.verbose().Database,
   });
 
+  await db.run('PRAGMA foreign_keys = ON');
   await db.migrate();
 
   db.on('trace', (sql: string) => {
