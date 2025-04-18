@@ -15,13 +15,12 @@ const schema = {
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   async function getUser(userId: number) {
     const user = await server.db.get(
-      SQL`SELECT username FROM users WHERE id = ${userId}`,
+      SQL`SELECT id, username FROM users WHERE id = ${userId}`,
     );
 
     if (!user) throw server.httpErrors.notFound('User not found');
 
-    const {username} = user;
-    return {username};
+    return user;
   }
 
   server.get(
