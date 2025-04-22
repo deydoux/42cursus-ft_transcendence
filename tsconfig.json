@@ -1,12 +1,23 @@
 {
-  "extends": "./node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "lib": ["ES2023"],
     "rootDir": "src/server",
     "outDir": "build",
     "baseUrl": "src/server",
     "paths": {
       "#lib/*": ["lib/*"]
-    }
+    },
+    "allowUnusedLabels": false,
+    "composite": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "sourceMap": true,
+    "strict": true,
+    "stripInternal": true
   },
+  "exclude": ["node_modules"],
   "include": ["src/server/**/*.ts"]
 }
