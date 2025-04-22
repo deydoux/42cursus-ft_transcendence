@@ -5,9 +5,25 @@ import {errorCodes} from 'fastify';
 import fp from 'fastify-plugin';
 import hash from '#lib/hash';
 
+interface ValidationItemParams {
+  missingProperty?: string;
+  limit?: number;
+  type?: string;
+  pattern?: string;
+  [key: string]: unknown;
+}
+
+interface ValidationItem {
+  instancePath: string;
+  schemaPath: string;
+  keyword: string;
+  params: ValidationItemParams;
+  message: string;
+}
+
 type ValidationError =
   | (Error & {
-      validation: any;
+      validation: ValidationItem[];
       validationContext: string;
     })
   | undefined;
@@ -37,9 +53,9 @@ const schema = {
 function formatValidationErrorMessage(
   field: string,
   keyword: string,
-  params: any,
+  params: ValidationItemParams,
 ) {
-  const details: Record<string, (params: any) => string> = {
+  const details: Record<string, (params: ValidationItemParams) => string> = {
     required: () => 'field is required',
     type: params => `must be a ${params.type}`,
     minLength: params => `length must be at least ${params.limit} characters`,
@@ -56,12 +72,13 @@ function formatValidationErrorMessage(
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   function formatValidationError(error: ValidationError) {
     if (!error) return;
+    console.log(JSON.stringify(error.validation));
 
     const validation = error.validation[0];
     const {params} = validation;
     const field = validation.instancePath
       ? validation.instancePath.slice(1)
-      : params.missingProperty;
+      : params.missingProperty || 'field';
 
     server.log.trace(`Validation error: ${JSON.stringify(validation)}`);
 
