@@ -1,5 +1,7 @@
-import {createHash} from 'node:crypto';
+import {hashSync} from 'bcrypt';
+
+const rounds = 10;
 
 export default function hash(data: string) {
-  return createHash('sha256').update(data).digest('hex');
+  return hashSync(data, rounds);
 }
