@@ -2,8 +2,8 @@
   "name": "ft_transcendence",
   "version": "0.0.0",
   "description": "This project is centered around the design, development, and organization of a full-stack web application.",
-  "main": "build/src/index.js",
-  "types": "build/src/index.d.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "imports": {
     "#lib/*": "./build/lib/*.js"
   },
