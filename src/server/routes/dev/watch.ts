@@ -1,8 +1,8 @@
 import {FastifyPluginAsync} from 'fastify';
-import {join} from 'node:path';
-import {watch} from 'node:fs';
 import {WebSocket} from '@fastify/websocket';
 import fp from 'fastify-plugin';
+import {join} from 'node:path';
+import {watch} from 'node:fs';
 
 const distPath = join(__dirname, '..', '..', '..', 'dist');
 

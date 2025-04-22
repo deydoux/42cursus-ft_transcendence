@@ -1,6 +1,6 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
-import fp from 'fastify-plugin';
 import SQL from 'sql-template-strings';
+import fp from 'fastify-plugin';
 
 const schema = {
   params: {

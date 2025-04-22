@@ -1,7 +1,7 @@
 import {FastifyPluginAsync} from 'fastify';
-import {randomBytes} from 'node:crypto';
-import fp from 'fastify-plugin';
 import SQL from 'sql-template-strings';
+import fp from 'fastify-plugin';
+import {randomBytes} from 'node:crypto';
 
 let {JWT_SECRET} = process.env;
 

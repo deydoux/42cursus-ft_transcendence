@@ -1,7 +1,7 @@
-import {FastifyPluginAsync} from 'fastify';
-import {open} from 'sqlite';
 import * as sqlite3 from 'sqlite3';
+import {FastifyPluginAsync} from 'fastify';
 import fp from 'fastify-plugin';
+import {open} from 'sqlite';
 
 let {DB_PATH} = process.env;
 

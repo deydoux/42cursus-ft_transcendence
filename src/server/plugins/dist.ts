@@ -1,7 +1,7 @@
-import {createReadStream} from 'node:fs';
 import {FastifyPluginAsync} from 'fastify';
-import {join} from 'node:path';
+import {createReadStream} from 'node:fs';
 import fp from 'fastify-plugin';
+import {join} from 'node:path';
 
 const distPath = join(__dirname, '..', '..', 'dist');
 

@@ -1,6 +1,6 @@
 import 'dotenv/config';
-import {join} from 'node:path';
 import Fastify from 'fastify';
+import {join} from 'node:path';
 
 const DEV = process.env.NODE_ENV === 'development';
 const HOST = process.env.HOST || '0.0.0.0';

@@ -1,9 +1,9 @@
-import {errorCodes} from 'fastify';
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
+import SQL from 'sql-template-strings';
 import capitalize from '#lib/capitalize';
+import {errorCodes} from 'fastify';
 import fp from 'fastify-plugin';
 import hash from '#lib/hash';
-import SQL from 'sql-template-strings';
 
 type ValidationError =
   | (Error & {
@@ -39,7 +39,7 @@ function formatValidationErrorMessage(
   keyword: string,
   params: any,
 ) {
-  const details: {[key: string]: (params: any) => string} = {
+  const details: Record<string, (params: any) => string> = {
     required: () => 'field is required',
     type: params => `must be a ${params.type}`,
     minLength: params => `length must be at least ${params.limit} characters`,

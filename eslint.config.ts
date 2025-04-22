@@ -12,7 +12,7 @@ export default tseslint.config(
   prettier,
   {
     rules: {
-      'sort-imports': ['error', {ignoreCase: true}],
+      'sort-imports': 'error',
     },
   },
 );

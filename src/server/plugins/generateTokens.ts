@@ -1,6 +1,6 @@
 import {FastifyPluginAsync} from 'fastify';
-import fp from 'fastify-plugin';
 import SQL from 'sql-template-strings';
+import fp from 'fastify-plugin';
 
 const plugin: FastifyPluginAsync = async server => {
   let it = 0;
