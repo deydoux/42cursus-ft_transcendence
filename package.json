@@ -4,6 +4,7 @@
   "description": "This project is centered around the design, development, and organization of a full-stack web application.",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
+  "type": "module",
   "imports": {
     "#lib/*": "./build/lib/*.js"
   },
@@ -20,7 +21,8 @@
     "lint:server": "npm run lint -- src/server",
     "fix": "eslint --fix",
     "fix:client": "npm run fix -- src/client",
-    "fix:server": "npm run fix -- src/server"
+    "fix:server": "npm run fix -- src/server",
+    "prepare": "npm run build"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.1",
