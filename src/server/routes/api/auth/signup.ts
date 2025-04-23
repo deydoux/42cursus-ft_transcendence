@@ -42,7 +42,7 @@ const schema = {
         type: 'string',
         minLength: 8,
         maxLength: 1024,
-        pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).+$',
+        pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).+$',
       },
     },
     required: ['username', 'password'],
