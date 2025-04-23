@@ -46,7 +46,6 @@ const schema = {
       },
     },
     required: ['username', 'password'],
-    additionalProperties: false,
   } as const,
 };
 

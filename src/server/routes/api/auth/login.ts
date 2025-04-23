@@ -11,7 +11,6 @@ const schema = {
       password: {type: 'string'},
     },
     required: ['username', 'password'],
-    additionalProperties: false,
   } as const,
 };
 
