@@ -1,6 +1,7 @@
 import {FastifyPluginAsync} from 'fastify';
-import {randomBytes} from 'node:crypto';
+import SQL from 'sql-template-strings';
 import fp from 'fastify-plugin';
+import {randomBytes} from 'node:crypto';
 
 let {JWT_SECRET} = process.env;
 
@@ -14,10 +15,51 @@ const plugin: FastifyPluginAsync = async server => {
     } else throw new Error(message);
   }
 
-  void server.register(import('@fastify/jwt'), {secret: JWT_SECRET});
+  await server.register(import('@fastify/jwt'), {
+    secret: JWT_SECRET,
+    cookie: {
+      cookieName: 'refreshToken',
+      signed: false,
+    },
+    sign: {
+      expiresIn: '10m',
+    },
+    async trusted(request, decodedToken) {
+      if (decodedToken.type === 'access') {
+        const {authorization} = request.headers;
+        if (!authorization) return false;
+
+        const token = authorization.split(' ')[1];
+        if (!token) return false;
+
+        return (
+          (await server.db.get(
+            SQL`SELECT user_id FROM tokens WHERE user_id = ${decodedToken.id} AND access = ${token}`,
+          )) !== undefined
+        );
+      }
+
+      if (decodedToken.type === 'refresh') {
+        const token = request.cookies.refreshToken;
+        if (!token) return false;
+
+        return (
+          (await server.db.get(
+            SQL`SELECT user_id FROM tokens WHERE user_id = ${decodedToken.id} AND refresh = ${token}`,
+          )) !== undefined
+        );
+      }
+
+      return false;
+    },
+  });
 
   server.decorate('authenticate', async request => {
     await request.jwtVerify();
+  });
+
+  server.decorate('authenticateRefresh', async request => {
+    await request.jwtVerify({onlyCookie: true});
   });
 };
 

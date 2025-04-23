@@ -1,7 +1,7 @@
-import {createReadStream} from 'node:fs';
 import {FastifyPluginAsync} from 'fastify';
-import {join} from 'node:path';
+import {createReadStream} from 'node:fs';
 import fp from 'fastify-plugin';
+import {join} from 'node:path';
 
 const distPath = join(__dirname, '..', '..', 'dist');
 
@@ -19,7 +19,7 @@ const plugin: FastifyPluginAsync = async server => {
     return reply.type('text/html').send(stream);
   });
 
-  void server.register(import('@fastify/static'), {
+  await server.register(import('@fastify/static'), {
     root: join(distPath, 'assets'),
     prefix: '/assets/',
   });

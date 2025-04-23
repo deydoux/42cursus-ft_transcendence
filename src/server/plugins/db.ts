@@ -1,7 +1,7 @@
-import {FastifyPluginAsync} from 'fastify';
-import {open} from 'sqlite';
 import * as sqlite3 from 'sqlite3';
+import {FastifyPluginAsync} from 'fastify';
 import fp from 'fastify-plugin';
+import {open} from 'sqlite';
 
 let {DB_PATH} = process.env;
 
@@ -19,6 +19,9 @@ const plugin: FastifyPluginAsync = async server => {
     filename: DB_PATH,
     driver: sqlite3.verbose().Database,
   });
+
+  await db.run('PRAGMA foreign_keys = ON');
+  await db.migrate();
 
   db.on('trace', (sql: string) => {
     server.log.trace(`${DB_PATH}: ${sql}`);
