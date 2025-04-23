@@ -21,7 +21,7 @@ const plugin: FastifyPluginAsync = async server => {
         const userAgent = this.headers['user-agent'] || null;
 
         await server.db.run(
-          SQL`UPDATE connections SET access_token = ${accessToken}, ip = ${ip}, user_agent = ${userAgent} WHERE refresh_token = ${refreshToken}`,
+          SQL`UPDATE connections SET ip = ${ip}, user_agent = ${userAgent}, access_token = ${accessToken} WHERE refresh_token = ${refreshToken}`,
         );
       }
 
@@ -37,7 +37,7 @@ const plugin: FastifyPluginAsync = async server => {
     const userAgent = this.headers['user-agent'] || null;
 
     await server.db.run(
-      SQL`INSERT INTO connections(refresh_token, access_token, ip, user_agent, user_id) VALUES(${refreshToken}, ${accessToken}, ${ip}, ${userAgent}, ${id})`,
+      SQL`INSERT INTO connections(user_id, ip, user_agent, access_token, refresh_token) VALUES(${id}, ${ip}, ${userAgent}, ${accessToken}, ${refreshToken})`,
     );
 
     return {accessToken, refreshToken};

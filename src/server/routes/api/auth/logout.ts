@@ -5,9 +5,7 @@ import fp from 'fastify-plugin';
 const plugin: FastifyPluginAsync = async server => {
   server.post(
     '/api/auth/logout',
-    {
-      onRequest: server.authenticate,
-    },
+    {onRequest: server.authenticate},
     async (request, reply) => {
       const accessToken = request.headers.authorization?.split(' ')[1];
       const {refreshToken} = request.cookies;

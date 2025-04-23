@@ -9,16 +9,26 @@ CREATE TABLE users(
 );
 
 CREATE TABLE connections(
-  refresh_token TEXT PRIMARY KEY,
-  access_token  TEXT NOT NULL,
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id       INTEGER NOT NULL,
   ip            TEXT NOT NULL,
   user_agent    TEXT,
+  access_token  TEXT NOT NULL,
+  refresh_token TEXT NOT NULL,
 
-  user_id       INTEGER NOT NULL,
-  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-
+  created_at    INTEGER NOT NULL DEFAULT (unixepoch()),
+  updated_at    INTEGER NOT NULL DEFAULT (unixepoch()),
   expires_at    INTEGER NOT NULL DEFAULT (unixepoch() + 30 * 24 * 60 * 60), -- 30 days
+
+  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+CREATE TRIGGER update_connections_updated_at
+AFTER UPDATE ON connections
+FOR EACH ROW
+BEGIN
+  UPDATE connections SET updated_at = unixepoch() WHERE id = NEW.id;
+END;
 
 
 --------------------------------------------------------------------------------
