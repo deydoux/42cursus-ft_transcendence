@@ -12,7 +12,7 @@ const plugin: FastifyPluginAsync = async server => {
         SQL`SELECT id, ip, user_agent AS userAgent, created_at AS createdAt, updated_at AS updatedAt FROM connections WHERE user_id = ${id}`,
       );
 
-      return reply.send(connections);
+      return reply.send({currentConnection: request.connection, connections});
     },
   );
 };
