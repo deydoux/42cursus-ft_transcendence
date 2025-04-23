@@ -11,23 +11,20 @@ const plugin: FastifyPluginAsync = async server => {
       {expiresIn: '30d'},
     );
 
-  server.decorateRequest(
-    'generateAccessToken',
-    async function (id: number, refreshToken?: string) {
-      const accessToken = server.jwt.sign({id, type: 'access', it: ++it});
+  server.decorateRequest('generateAccessToken', async function (id: number) {
+    const accessToken = server.jwt.sign({id, type: 'access', it: ++it});
 
-      if (refreshToken) {
-        const {ip} = this;
-        const userAgent = this.headers['user-agent'] || null;
+    if (this.connection) {
+      const {ip, headers, connection} = this;
+      const userAgent = headers['user-agent'] || null;
 
-        await server.db.run(
-          SQL`UPDATE connections SET ip = ${ip}, user_agent = ${userAgent}, access_token = ${accessToken} WHERE refresh_token = ${refreshToken}`,
-        );
-      }
+      await server.db.run(
+        SQL`UPDATE connections SET ip = ${ip}, user_agent = ${userAgent}, access_token = ${accessToken} WHERE id = ${connection}`,
+      );
+    }
 
-      return accessToken;
-    },
-  );
+    return accessToken;
+  });
 
   server.decorateRequest('generateTokens', async function (id: number) {
     const refreshToken = generateRefreshToken(id);
