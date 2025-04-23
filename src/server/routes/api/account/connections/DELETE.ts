@@ -33,6 +33,18 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       return reply.code(204).send();
     },
   );
+
+  server.delete(
+    '/api/account/connections',
+    {onRequest: server.authenticate},
+    async (request, reply) => {
+      await server.db.run(
+        SQL`DELETE FROM connections WHERE NOT id = ${request.connection} AND user_id = ${request.user.id}`,
+      );
+
+      return reply.code(204).send();
+    },
+  );
 };
 
 export default fp(plugin);
