@@ -39,7 +39,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     {onRequest: server.authenticate},
     async (request, reply) => {
       await server.db.run(
-        SQL`DELETE FROM connections WHERE NOT id = ${request.connection} AND user_id = ${request.user.id}`,
+        SQL`DELETE FROM connections WHERE id != ${request.connection} AND user_id = ${request.user.id}`,
       );
 
       return reply.code(204).send();
