@@ -11,16 +11,33 @@ const plugin: FastifyPluginAsync = async server => {
       {expiresIn: '30d'},
     );
 
-  server.decorate('generateAccessToken', (userId: number) =>
-    server.jwt.sign({id: userId, type: 'access', it: ++it}),
+  server.decorateRequest(
+    'generateAccessToken',
+    async function (id: number, refreshToken?: string) {
+      const accessToken = server.jwt.sign({id, type: 'access', it: ++it});
+
+      if (refreshToken) {
+        const {ip} = this;
+        const userAgent = this.headers['user-agent'] || null;
+
+        await server.db.run(
+          SQL`UPDATE connections SET access_token = ${accessToken}, ip = ${ip}, user_agent = ${userAgent} WHERE refresh_token = ${refreshToken}`,
+        );
+      }
+
+      return accessToken;
+    },
   );
 
-  server.decorate('generateTokens', async (userId: number) => {
-    const refreshToken = generateRefreshToken(userId);
-    const accessToken = server.generateAccessToken(userId);
+  server.decorateRequest('generateTokens', async function (id: number) {
+    const refreshToken = generateRefreshToken(id);
+    const accessToken = await this.generateAccessToken(id);
+
+    const {ip} = this;
+    const userAgent = this.headers['user-agent'] || null;
 
     await server.db.run(
-      SQL`INSERT INTO tokens(refresh, access, user_id) VALUES(${refreshToken}, ${accessToken}, ${userId})`,
+      SQL`INSERT INTO connections(refresh_token, access_token, ip, user_agent, user_id) VALUES(${refreshToken}, ${accessToken}, ${ip}, ${userAgent}, ${id})`,
     );
 
     return {accessToken, refreshToken};

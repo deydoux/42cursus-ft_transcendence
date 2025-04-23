@@ -1,5 +1,4 @@
 import '@fastify/jwt';
-// import {FastifyJWT} from '@fastify/jwt';
 
 interface JWTData {
   id: number;

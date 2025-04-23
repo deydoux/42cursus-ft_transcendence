@@ -13,7 +13,7 @@ const plugin: FastifyPluginAsync = async server => {
       const {refreshToken} = request.cookies;
 
       await server.db.run(
-        SQL`DELETE FROM tokens WHERE access = ${accessToken} OR refresh = ${refreshToken}`,
+        SQL`DELETE FROM connections WHERE access_token = ${accessToken} OR refresh_token = ${refreshToken}`,
       );
 
       return reply.clearCookie('refreshToken').code(204).send();

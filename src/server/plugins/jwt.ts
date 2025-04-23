@@ -29,23 +29,23 @@ const plugin: FastifyPluginAsync = async server => {
         const {authorization} = request.headers;
         if (!authorization) return false;
 
-        const token = authorization.split(' ')[1];
-        if (!token) return false;
+        const accessToken = authorization.split(' ')[1];
+        if (!accessToken) return false;
 
         return (
           (await server.db.get(
-            SQL`SELECT user_id FROM tokens WHERE user_id = ${decodedToken.id} AND access = ${token}`,
+            SQL`SELECT user_id FROM connections WHERE user_id = ${decodedToken.id} AND access_token = ${accessToken}`,
           )) !== undefined
         );
       }
 
       if (decodedToken.type === 'refresh') {
-        const token = request.cookies.refreshToken;
-        if (!token) return false;
+        const refreshToken = request.cookies.refreshToken;
+        if (!refreshToken) return false;
 
         return (
           (await server.db.get(
-            SQL`SELECT user_id FROM tokens WHERE user_id = ${decodedToken.id} AND refresh = ${token}`,
+            SQL`SELECT user_id FROM connections WHERE user_id = ${decodedToken.id} AND refresh_token = ${refreshToken}`,
           )) !== undefined
         );
       }
