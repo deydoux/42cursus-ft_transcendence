@@ -12,26 +12,22 @@ const schema = {
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  server.delete(
-    '',
-    {schema, onRequest: server.authenticate},
-    async (request, reply) => {
-      const {id} = request.params;
+  server.delete('', {schema}, async (request, reply) => {
+    const {id} = request.params;
 
-      const connection = await server.db.get(
-        SQL`SELECT user_id FROM connections WHERE id = ${id}`,
+    const connection = await server.db.get(
+      SQL`SELECT user_id FROM connections WHERE id = ${id}`,
+    );
+
+    if (!connection) throw server.httpErrors.notFound('Connection not found');
+    if (connection.user_id !== request.user.id)
+      throw server.httpErrors.forbidden(
+        'You do not have permission to delete this connection',
       );
 
-      if (!connection) throw server.httpErrors.notFound('Connection not found');
-      if (connection.user_id !== request.user.id)
-        throw server.httpErrors.forbidden(
-          'You do not have permission to delete this connection',
-        );
-
-      await server.db.run(SQL`DELETE FROM connections WHERE id = ${id}`);
-      return reply.code(204).send();
-    },
-  );
+    await server.db.run(SQL`DELETE FROM connections WHERE id = ${id}`);
+    return reply.code(204).send();
+  });
 };
 
 export default plugin;

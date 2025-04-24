@@ -46,6 +46,8 @@ async function main() {
 
   await server.register(autoload, {
     dir: join(__dirname, 'routes'),
+    autoHooks: true,
+    cascadeHooks: true,
     routeParams: true,
   });
 

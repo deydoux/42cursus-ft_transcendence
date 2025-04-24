@@ -13,25 +13,21 @@ const schema = {
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  server.delete(
-    '',
-    {schema, onRequest: server.authenticate},
-    async (request, reply) => {
-      const {id} = request.user;
+  server.delete('', {schema}, async (request, reply) => {
+    const {id} = request.user;
 
-      const user = await server.db.get(
-        SQL`SELECT password FROM users WHERE id = ${id}`,
-      );
+    const user = await server.db.get(
+      SQL`SELECT password FROM users WHERE id = ${id}`,
+    );
 
-      const {password} = request.body;
-      if (!user || !compareSync(password, user.password))
-        throw server.httpErrors.unauthorized('Invalid password');
+    const {password} = request.body;
+    if (!user || !compareSync(password, user.password))
+      throw server.httpErrors.unauthorized('Invalid password');
 
-      await server.db.run(SQL`DELETE FROM users WHERE id = ${id}`);
+    await server.db.run(SQL`DELETE FROM users WHERE id = ${id}`);
 
-      return reply.clearCookie('refreshToken').code(204).send();
-    },
-  );
+    return reply.clearCookie('refreshToken').code(204).send();
+  });
 };
 
 export default plugin;

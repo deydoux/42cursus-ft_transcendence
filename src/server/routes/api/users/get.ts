@@ -22,13 +22,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     return user;
   }
 
-  server.get(
-    ':id',
-    {schema, onRequest: server.authenticate},
-    async (request, reply) => reply.send(await getUser(request.params.id)),
+  server.get('/:id', {schema}, async (request, reply) =>
+    reply.send(await getUser(request.params.id)),
   );
 
-  server.get('me', {onRequest: server.authenticate}, async (request, reply) =>
+  server.get('/me', async (request, reply) =>
     reply.send(await getUser(request.user.id)),
   );
 };
