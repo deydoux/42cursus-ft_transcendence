@@ -1,6 +1,5 @@
 import {FastifyPluginAsync} from 'fastify';
 import SQL from 'sql-template-strings';
-import fp from 'fastify-plugin';
 import {randomBytes} from 'node:crypto';
 
 let {JWT_SECRET} = process.env;
@@ -57,4 +56,4 @@ const plugin: FastifyPluginAsync = async server => {
   });
 };
 
-export default fp(plugin);
+export default plugin;

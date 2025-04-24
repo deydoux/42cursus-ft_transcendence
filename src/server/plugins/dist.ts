@@ -1,6 +1,5 @@
 import {FastifyPluginAsync} from 'fastify';
 import {createReadStream} from 'node:fs';
-import fp from 'fastify-plugin';
 import {join} from 'node:path';
 
 const distPath = join(__dirname, '..', '..', 'dist');
@@ -25,4 +24,4 @@ const plugin: FastifyPluginAsync = async server => {
   });
 };
 
-export default fp(plugin);
+export default plugin;
