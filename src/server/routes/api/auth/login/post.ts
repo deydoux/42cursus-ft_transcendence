@@ -1,7 +1,6 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
 import {compareSync} from 'bcrypt';
-import fp from 'fastify-plugin';
 
 const schema = {
   body: {
@@ -15,7 +14,7 @@ const schema = {
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  server.post('/api/auth/login', {schema}, async (request, reply) => {
+  server.post('', {schema}, async (request, reply) => {
     const {username, password} = request.body;
     const user = await server.db.get(SQL`
       SELECT id, password FROM users WHERE username = ${username}
@@ -29,4 +28,4 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   });
 };
 
-export default fp(plugin);
+export default plugin;

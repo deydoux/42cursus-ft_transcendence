@@ -1,7 +1,6 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
 import {compareSync} from 'bcrypt';
-import fp from 'fastify-plugin';
 
 const schema = {
   body: {
@@ -15,7 +14,7 @@ const schema = {
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.delete(
-    '/api/account',
+    '',
     {schema, onRequest: server.authenticate},
     async (request, reply) => {
       const {id} = request.user;
@@ -35,4 +34,4 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   );
 };
 
-export default fp(plugin);
+export default plugin;

@@ -1,6 +1,5 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
-import fp from 'fastify-plugin';
 
 const schema = {
   params: {
@@ -14,7 +13,7 @@ const schema = {
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.delete(
-    '/api/account/connections/:id',
+    '',
     {schema, onRequest: server.authenticate},
     async (request, reply) => {
       const {id} = request.params;
@@ -33,18 +32,6 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       return reply.code(204).send();
     },
   );
-
-  server.delete(
-    '/api/account/connections',
-    {onRequest: server.authenticate},
-    async (request, reply) => {
-      await server.db.run(
-        SQL`DELETE FROM connections WHERE id != ${request.connection} AND user_id = ${request.user.id}`,
-      );
-
-      return reply.code(204).send();
-    },
-  );
 };
 
-export default fp(plugin);
+export default plugin;

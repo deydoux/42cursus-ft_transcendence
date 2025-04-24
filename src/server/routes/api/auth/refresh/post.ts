@@ -1,9 +1,8 @@
 import {FastifyPluginAsync} from 'fastify';
-import fp from 'fastify-plugin';
 
 const plugin: FastifyPluginAsync = async server => {
   server.post(
-    '/api/auth/refresh',
+    '',
     {onRequest: server.authenticateRefresh},
     async (request, reply) => {
       const accessToken = await request.generateAccessToken(
@@ -16,4 +15,4 @@ const plugin: FastifyPluginAsync = async server => {
   );
 };
 
-export default fp(plugin);
+export default plugin;

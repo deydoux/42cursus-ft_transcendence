@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
+import autoload from '@fastify/autoload';
 import {join} from 'node:path';
 
 const DEV = process.env.NODE_ENV === 'development';
@@ -20,7 +21,6 @@ server.decorate('dev', DEV);
 server.decorate('prod', !DEV);
 
 async function main() {
-  await server.register(import('./plugins/db'));
   await server.register(import('@fastify/cookie'), {
     parseOptions: {
       maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -30,13 +30,23 @@ async function main() {
       path: '/',
     },
   });
-  await server.register(import('./plugins/jwt'));
-  await server.register(import('./plugins/generateTokens'));
+
   await server.register(import('@fastify/sensible'));
   await server.register(import('@fastify/websocket'));
-  await server.register(import('./plugins/dist'));
-  await server.register(import('@fastify/autoload'), {
+
+  await server.register(autoload, {
+    dir: join(__dirname, 'plugins'),
+    encapsulate: false,
+  });
+
+  await server.register(autoload, {
+    dir: join(__dirname, 'decorators'),
+    encapsulate: false,
+  });
+
+  await server.register(autoload, {
     dir: join(__dirname, 'routes'),
+    routeParams: true,
   });
 
   await server.listen({host: HOST, port: PORT});

@@ -1,10 +1,9 @@
 import {FastifyPluginAsync} from 'fastify';
 import {WebSocket} from '@fastify/websocket';
-import fp from 'fastify-plugin';
 import {join} from 'node:path';
 import {watch} from 'node:fs';
 
-const distPath = join(__dirname, '..', '..', '..', 'dist');
+const distPath = join(__dirname, '..', '..', '..', '..', 'dist');
 
 const plugin: FastifyPluginAsync = async server => {
   if (!server.dev) return;
@@ -36,4 +35,4 @@ const plugin: FastifyPluginAsync = async server => {
   server.log.info(`Watching "${distPath}" dist`);
 };
 
-export default fp(plugin);
+export default plugin;

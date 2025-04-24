@@ -55,14 +55,6 @@ const plugin: FastifyPluginAsync = async server => {
       return true;
     },
   });
-
-  server.decorate('authenticate', async request => {
-    await request.jwtVerify();
-  });
-
-  server.decorate('authenticateRefresh', async request => {
-    await request.jwtVerify({onlyCookie: true});
-  });
 };
 
 export default fp(plugin);
