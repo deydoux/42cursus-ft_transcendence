@@ -2,31 +2,7 @@ import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-sche
 import SQL from 'sql-template-strings';
 import capitalize from '#lib/capitalize';
 import {errorCodes} from 'fastify';
-import fp from 'fastify-plugin';
 import hash from '#lib/hash';
-
-interface ValidationItemParams {
-  missingProperty?: string;
-  limit?: number;
-  type?: string;
-  pattern?: string;
-  [key: string]: unknown;
-}
-
-interface ValidationItem {
-  instancePath: string;
-  schemaPath: string;
-  keyword: string;
-  params: ValidationItemParams;
-  message: string;
-}
-
-type ValidationError =
-  | (Error & {
-      validation: ValidationItem[];
-      validationContext: string;
-    })
-  | undefined;
 
 const schema = {
   body: {
@@ -52,15 +28,16 @@ const schema = {
 function formatValidationErrorMessage(
   field: string,
   keyword: string,
-  params: ValidationItemParams,
+  params: ValidationErrorItemParams,
 ) {
-  const details: Record<string, (params: ValidationItemParams) => string> = {
-    required: () => 'field is required',
-    type: params => `must be a ${params.type}`,
-    minLength: params => `length must be at least ${params.limit} characters`,
-    maxLength: params => `length must not exceed ${params.limit} characters`,
-    pattern: params => `must match the pattern ${params.pattern}`,
-  };
+  const details: Record<string, (params: ValidationErrorItemParams) => string> =
+    {
+      required: () => 'field is required',
+      type: params => `must be a ${params.type}`,
+      minLength: params => `length must be at least ${params.limit} characters`,
+      maxLength: params => `length must not exceed ${params.limit} characters`,
+      pattern: params => `must match the pattern ${params.pattern}`,
+    };
 
   const detail = details[keyword];
   if (!detail) return;
@@ -109,7 +86,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   }
 
   server.post(
-    '/api/auth/signup',
+    '/signup',
     {schema, attachValidation: true},
     async (request, reply) => {
       formatValidationError(request.validationError);
@@ -133,4 +110,4 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   );
 };
 
-export default fp(plugin);
+export default plugin;

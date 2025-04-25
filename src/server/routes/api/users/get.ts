@@ -1,6 +1,5 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
-import fp from 'fastify-plugin';
 
 const schema = {
   params: {
@@ -23,17 +22,13 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     return user;
   }
 
-  server.get(
-    '/api/users/:id',
-    {schema, onRequest: server.authenticate},
-    async (request, reply) => reply.send(await getUser(request.params.id)),
+  server.get('/:id', {schema}, async (request, reply) =>
+    reply.send(await getUser(request.params.id)),
   );
 
-  server.get(
-    '/api/users/me',
-    {onRequest: server.authenticate},
-    async (request, reply) => reply.send(await getUser(request.user.id)),
+  server.get('/me', async (request, reply) =>
+    reply.send(await getUser(request.user.id)),
   );
 };
 
-export default fp(plugin);
+export default plugin;

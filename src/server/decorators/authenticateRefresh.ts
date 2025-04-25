@@ -1,10 +1,9 @@
 import {FastifyPluginAsync} from 'fastify';
 
 const plugin: FastifyPluginAsync = async server => {
-  server.get('/healthcheck', () => ({
-    status: 'ok',
-    uptime: process.uptime(),
-  }));
+  server.decorate('authenticateRefresh', async request => {
+    await request.jwtVerify({onlyCookie: true});
+  });
 };
 
 export default plugin;

@@ -1,7 +1,6 @@
 import * as sqlite3 from 'sqlite3';
 import {FastifyPluginAsync} from 'fastify';
 import SQL from 'sql-template-strings';
-import fp from 'fastify-plugin';
 import {open} from 'sqlite';
 
 let {DB_PATH} = process.env;
@@ -43,4 +42,4 @@ const plugin: FastifyPluginAsync = async server => {
   });
 };
 
-export default fp(plugin);
+export default plugin;
