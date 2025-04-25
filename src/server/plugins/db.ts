@@ -1,7 +1,7 @@
-import {FastifyPluginAsync} from 'fastify';
-import {open} from 'sqlite';
 import * as sqlite3 from 'sqlite3';
-import fp from 'fastify-plugin';
+import {FastifyPluginAsync} from 'fastify';
+import SQL from 'sql-template-strings';
+import {open} from 'sqlite';
 
 let {DB_PATH} = process.env;
 
@@ -20,6 +20,17 @@ const plugin: FastifyPluginAsync = async server => {
     driver: sqlite3.verbose().Database,
   });
 
+  await db.run('PRAGMA foreign_keys = ON');
+  await db.migrate();
+
+  const clean = () => {
+    server.log.info('Cleaning database');
+    db.run(SQL`DELETE FROM connections WHERE expires_at <= unixepoch()`);
+  };
+
+  clean();
+  setInterval(clean, 60 * 60 * 1000); // 1 hour
+
   db.on('trace', (sql: string) => {
     server.log.trace(`${DB_PATH}: ${sql}`);
   });
@@ -31,4 +42,4 @@ const plugin: FastifyPluginAsync = async server => {
   });
 };
 
-export default fp(plugin);
+export default plugin;

@@ -1,10 +1,7 @@
 import {FastifyPluginAsync} from 'fastify';
 
 const plugin: FastifyPluginAsync = async server => {
-  server.get('/healthcheck', () => ({
-    status: 'ok',
-    uptime: process.uptime(),
-  }));
+  server.addHook('onRequest', server.authenticate);
 };
 
 export default plugin;

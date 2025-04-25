@@ -1,0 +1,17 @@
+meta {
+  name: Delete account
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseURL}}/api/account
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "password": "Hello World42"
+  }
+}
