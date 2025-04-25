@@ -1,10 +1,7 @@
 import HotReload from './HotReload';
-import print from './print';
+import {router} from './router';
 
 new HotReload();
 
-function greet() {
-  print('Hello, world!');
-}
-
-greet();
+window.addEventListener('hashchange', router);
+window.addEventListener('load', router);
