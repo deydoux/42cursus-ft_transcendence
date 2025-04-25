@@ -9,14 +9,10 @@ const schema = {
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  server.patch(
-    '/',
-    {schema, attachValidation: true},
-    async (request, reply) => {
-      void request;
-      void reply;
-    },
-  );
+  server.patch('/', {schema}, async (request, reply) => {
+    void request;
+    void reply;
+  });
 };
 
 export default plugin;
