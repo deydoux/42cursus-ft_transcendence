@@ -11,7 +11,7 @@ declare module 'fastify' {
 
   interface FastifyRequest {
     connection: number | null;
-    generateAccessToken: (id: number, refreshToken?: string) => Promise<string>;
+    generateAccessToken: (id: number) => Promise<string>;
     generateTokens: (
       id: number,
     ) => Promise<{accessToken: string; refreshToken: string}>;
