@@ -1,7 +1,7 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
+import {compareSync} from 'bcrypt';
 import fp from 'fastify-plugin';
-import hash from '#lib/hash';
 
 const schema = {
   body: {
@@ -18,15 +18,17 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     '/api/account',
     {schema, onRequest: server.authenticate},
     async (request, reply) => {
-      const password = hash(request.body.password);
+      const {id} = request.user;
 
       const user = await server.db.get(
-        SQL`SELECT id FROM users WHERE id = ${request.user.id} AND password = ${password}`,
+        SQL`SELECT password FROM users WHERE id = ${id}`,
       );
 
-      if (!user) throw server.httpErrors.unauthorized('Invalid password');
+      const {password} = request.body;
+      if (!user || !compareSync(password, user.password))
+        throw server.httpErrors.unauthorized('Invalid password');
 
-      await server.db.run(SQL`DELETE FROM users WHERE id = ${request.user.id}`);
+      await server.db.run(SQL`DELETE FROM users WHERE id = ${id}`);
 
       return reply.clearCookie('refreshToken').code(204).send();
     },

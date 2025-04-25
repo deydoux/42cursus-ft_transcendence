@@ -42,11 +42,10 @@ const schema = {
         type: 'string',
         minLength: 8,
         maxLength: 1024,
-        pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).+$',
+        pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).+$',
       },
     },
     required: ['username', 'password'],
-    additionalProperties: false,
   } as const,
 };
 
@@ -99,7 +98,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
   async function checkUsername(username: string) {
     const user = await server.db.get(
-      SQL`SELECT * FROM users WHERE LOWER(username) = LOWER(${username})`,
+      SQL`SELECT * FROM users WHERE lower(username) = lower(${username})`,
     );
 
     if (!user) return;
@@ -123,11 +122,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       const {lastID: id} = await server.db.run(
         SQL`INSERT INTO users(username, password) VALUES(${username}, ${password})`,
       );
-
       if (!id) throw new Error('Failed to create user');
 
-      const {accessToken, refreshToken} = await server.generateTokens(id);
-
+      const {accessToken, refreshToken} = await request.generateTokens(id);
       return reply
         .setCookie('refreshToken', refreshToken)
         .send({accessToken})

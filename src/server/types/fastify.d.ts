@@ -6,10 +6,14 @@ declare module 'fastify' {
     authenticateRefresh: (request: FastifyRequest) => Promise<void>;
     db: Database;
     dev: boolean;
-    generateAccessToken: (userId: number) => string;
-    generateTokens: (
-      userId: number,
-    ) => Promise<{accessToken: string; refreshToken: string}>;
     prod: boolean;
+  }
+
+  interface FastifyRequest {
+    connection: number | null;
+    generateAccessToken: (id: number) => Promise<string>;
+    generateTokens: (
+      id: number,
+    ) => Promise<{accessToken: string; refreshToken: string}>;
   }
 }

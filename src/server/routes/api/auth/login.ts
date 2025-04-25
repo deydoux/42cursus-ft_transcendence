@@ -1,7 +1,7 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
+import {compareSync} from 'bcrypt';
 import fp from 'fastify-plugin';
-import hash from '#lib/hash';
 
 const schema = {
   body: {
@@ -11,25 +11,20 @@ const schema = {
       password: {type: 'string'},
     },
     required: ['username', 'password'],
-    additionalProperties: false,
   } as const,
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.post('/api/auth/login', {schema}, async (request, reply) => {
-    const {username} = request.body;
-    const password = hash(request.body.password);
-
+    const {username, password} = request.body;
     const user = await server.db.get(SQL`
-      SELECT id FROM users WHERE username = ${username} AND password = ${password}
+      SELECT id, password FROM users WHERE username = ${username}
     `);
 
-    if (!user)
+    if (!user || !compareSync(password, user.password))
       throw server.httpErrors.unauthorized('Invalid username or password');
 
-    const {id} = user;
-    const {accessToken, refreshToken} = await server.generateTokens(id);
-
+    const {accessToken, refreshToken} = await request.generateTokens(user.id);
     return reply.setCookie('refreshToken', refreshToken).send({accessToken});
   });
 };

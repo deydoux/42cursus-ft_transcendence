@@ -1,11 +1,11 @@
 meta {
-  name: Delete
+  name: Delete account
   type: http
   seq: 1
 }
 
 delete {
-  url: {{baseURL}}/api/users/me
+  url: {{baseURL}}/api/account
   body: json
   auth: inherit
 }

@@ -6,16 +6,16 @@ const schema = {
   params: {
     type: 'object',
     properties: {
-      userId: {type: 'number'},
+      id: {type: 'number'},
     },
-    required: ['userId'],
+    required: ['id'],
   } as const,
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  async function getUser(userId: number) {
+  async function getUser(id: number) {
     const user = await server.db.get(
-      SQL`SELECT id, username FROM users WHERE id = ${userId}`,
+      SQL`SELECT id, username FROM users WHERE id = ${id}`,
     );
 
     if (!user) throw server.httpErrors.notFound('User not found');
@@ -24,9 +24,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   }
 
   server.get(
-    '/api/users/:userId',
+    '/api/users/:id',
     {schema, onRequest: server.authenticate},
-    async (request, reply) => reply.send(await getUser(request.params.userId)),
+    async (request, reply) => reply.send(await getUser(request.params.id)),
   );
 
   server.get(
