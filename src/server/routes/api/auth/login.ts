@@ -21,7 +21,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     `);
 
     if (!user || !compareSync(password, user.password))
-      throw server.httpErrors.unauthorized('Invalid username or password');
+      return reply.unauthorized('Invalid username or password');
 
     const {accessToken, refreshToken} = await request.generateTokens(user.id);
     return reply.setCookie('refreshToken', refreshToken).send({accessToken});

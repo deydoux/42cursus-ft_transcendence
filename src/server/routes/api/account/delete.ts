@@ -22,7 +22,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     const {password} = request.body;
     if (!user || !compareSync(password, user.password))
-      throw server.httpErrors.unauthorized('Invalid password');
+      return reply.unauthorized('Invalid password');
 
     await server.db.run(SQL`DELETE FROM users WHERE id = ${id}`);
 
