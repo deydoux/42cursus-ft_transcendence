@@ -107,25 +107,29 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     throw {...error, ...{field: 'username'}};
   }
 
-  server.post('', {schema, attachValidation: true}, async (request, reply) => {
-    formatValidationError(request.validationError);
+  server.post(
+    '/signup',
+    {schema, attachValidation: true},
+    async (request, reply) => {
+      formatValidationError(request.validationError);
 
-    const {username} = request.body;
-    await checkUsername(username);
+      const {username} = request.body;
+      await checkUsername(username);
 
-    const password = hash(request.body.password);
+      const password = hash(request.body.password);
 
-    const {lastID: id} = await server.db.run(
-      SQL`INSERT INTO users(username, password) VALUES(${username}, ${password})`,
-    );
-    if (!id) throw new Error('Failed to create user');
+      const {lastID: id} = await server.db.run(
+        SQL`INSERT INTO users(username, password) VALUES(${username}, ${password})`,
+      );
+      if (!id) throw new Error('Failed to create user');
 
-    const {accessToken, refreshToken} = await request.generateTokens(id);
-    return reply
-      .setCookie('refreshToken', refreshToken)
-      .send({accessToken})
-      .code(201);
-  });
+      const {accessToken, refreshToken} = await request.generateTokens(id);
+      return reply
+        .setCookie('refreshToken', refreshToken)
+        .send({accessToken})
+        .code(201);
+    },
+  );
 };
 
 export default plugin;

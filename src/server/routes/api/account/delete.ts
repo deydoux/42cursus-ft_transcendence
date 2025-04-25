@@ -13,7 +13,7 @@ const schema = {
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  server.delete('', {schema}, async (request, reply) => {
+  server.delete('/', {schema}, async (request, reply) => {
     const {id} = request.user;
 
     const user = await server.db.get(

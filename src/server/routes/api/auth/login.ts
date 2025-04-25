@@ -14,7 +14,7 @@ const schema = {
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  server.post('', {schema}, async (request, reply) => {
+  server.post('/login', {schema}, async (request, reply) => {
     const {username, password} = request.body;
     const user = await server.db.get(SQL`
       SELECT id, password FROM users WHERE username = ${username}

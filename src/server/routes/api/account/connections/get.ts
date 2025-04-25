@@ -2,7 +2,7 @@ import {FastifyPluginAsync} from 'fastify';
 import SQL from 'sql-template-strings';
 
 const plugin: FastifyPluginAsync = async server => {
-  server.get('', async (request, reply) => {
+  server.get('/', async (request, reply) => {
     const {id} = request.user;
     const connections = (
       await server.db.all(

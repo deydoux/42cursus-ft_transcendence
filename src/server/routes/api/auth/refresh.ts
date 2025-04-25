@@ -2,7 +2,7 @@ import {FastifyPluginAsync} from 'fastify';
 
 const plugin: FastifyPluginAsync = async server => {
   server.post(
-    '',
+    '/refresh',
     {onRequest: server.authenticateRefresh},
     async (request, reply) => {
       const accessToken = await request.generateAccessToken(
