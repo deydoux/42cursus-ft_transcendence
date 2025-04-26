@@ -1,7 +1,7 @@
 interface FastifySchemaValidationErrorParams {
-  missingProperty?: string;
   limit?: number;
-  type?: string;
+  missingProperty?: string;
   pattern?: string;
+  type?: string;
   [key: string]: unknown;
 }

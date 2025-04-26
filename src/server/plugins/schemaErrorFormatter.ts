@@ -37,7 +37,7 @@ const plugin: FastifyPluginAsync = async server => {
     const params: FastifySchemaValidationErrorParams = error.params;
     const field = error.instancePath
       ? error.instancePath.slice(1)
-      : (params.missingProperty as string) || 'field';
+      : params.missingProperty || 'field';
 
     const message = schemaErrorMessageFormatter(field, keyword, params);
 
