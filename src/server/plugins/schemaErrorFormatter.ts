@@ -14,7 +14,12 @@ function schemaErrorMessageFormatter(
     type: params => `must be a ${params.type}`,
     minLength: params => `length must be at least ${params.limit} characters`,
     maxLength: params => `length must not exceed ${params.limit} characters`,
-    pattern: params => `must match the pattern ${params.pattern}`,
+    pattern: params =>
+      ({
+        username: 'must only contain alphanumeric characters and underscores',
+        password:
+          'must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+      })[field] || `must match the pattern ${params.pattern}`,
   };
 
   const template = templates[keyword];
