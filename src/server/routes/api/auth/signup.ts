@@ -20,13 +20,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     if (!user) return;
 
-    const error = {
+    throw {
       ...errorCodes.FST_ERR_VALIDATION('Username already taken'),
       statusCode: 409,
       field: 'username',
     };
-
-    throw error;
   }
 
   server.post('/signup', {schema}, async (request, reply) => {
