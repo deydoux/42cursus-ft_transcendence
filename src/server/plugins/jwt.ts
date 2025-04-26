@@ -28,17 +28,20 @@ const plugin: FastifyPluginAsync = async server => {
     async trusted(request, decodedToken) {
       const {id, type} = decodedToken;
 
-      let query;
+      const query = SQL`SELECT id FROM connections WHERE user_id = ${id} AND `;
+      let token;
       if (type === 'access') {
         const {authorization} = request.headers;
         if (!authorization) return false;
 
-        const accessToken = authorization.split(' ')[1];
-        query = SQL`SELECT id FROM connections WHERE user_id = ${id} AND access_token = ${accessToken}`;
+        token = authorization.split(' ')[1];
+        query.append(SQL`access_token = ${token}`);
       } else if (type === 'refresh') {
-        const {refreshToken} = request.cookies;
-        query = SQL`SELECT id FROM connections WHERE user_id = ${id} AND refresh_token = ${refreshToken}`;
-      } else return false;
+        token = request.cookies.refreshToken;
+        query.append(SQL`refresh_token = ${token}`);
+      }
+
+      if (!token) return false;
 
       const connection = await server.db.get(query);
       if (!connection) return false;

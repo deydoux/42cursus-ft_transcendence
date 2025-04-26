@@ -1,7 +1,6 @@
 import {password, username} from '#lib/schemas';
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
-import {errorCodes} from 'fastify';
 import hash from '#lib/hash';
 
 const schema = {
@@ -13,23 +12,9 @@ const schema = {
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  async function checkUsername(username: string) {
-    const user = await server.db.get(
-      SQL`SELECT * FROM users WHERE lower(username) = lower(${username})`,
-    );
-
-    if (!user) return;
-
-    throw {
-      ...errorCodes.FST_ERR_VALIDATION('Username already taken'),
-      statusCode: 409,
-      field: 'username',
-    };
-  }
-
   server.post('/signup', {schema}, async (request, reply) => {
     const {username} = request.body;
-    await checkUsername(username);
+    await server.validateUsernameAvailability(username);
 
     const password = hash(request.body.password);
 

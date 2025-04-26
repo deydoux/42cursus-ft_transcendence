@@ -7,6 +7,10 @@ declare module 'fastify' {
     db: Database;
     dev: boolean;
     prod: boolean;
+    validateUsernameAvailability: (
+      username: string,
+      id?: number,
+    ) => Promise<void>;
   }
 
   interface FastifyRequest {

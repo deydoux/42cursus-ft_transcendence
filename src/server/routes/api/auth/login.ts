@@ -17,7 +17,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.post('/login', {schema}, async (request, reply) => {
     const {username, password} = request.body;
     const user = await server.db.get(SQL`
-      SELECT id, password FROM users WHERE username = ${username}
+      SELECT id, password FROM users WHERE lower(username) = lower(${username})
     `);
 
     if (!user || !compareSync(password, user.password))
