@@ -2,22 +2,14 @@ import * as sqlite3 from 'sqlite3';
 import {FastifyPluginAsync} from 'fastify';
 import SQL from 'sql-template-strings';
 import {join} from 'node:path';
-import {mkdirSync} from 'node:fs';
+import {mkdir} from 'node:fs/promises';
 import {open} from 'sqlite';
 
-let {DATA_PATH} = process.env;
-
 const plugin: FastifyPluginAsync = async server => {
-  if (!DATA_PATH) {
-    const message = 'DATA_PATH environment variable is not set';
+  await mkdir(join(server.paths.data, 'cache'), {recursive: true});
+  await mkdir(join(server.paths.data, 'avatars'), {recursive: true});
 
-    if (server.dev) {
-      DATA_PATH = 'data';
-      server.log.warn(`${message}, using "${DATA_PATH}" as default`);
-    } else throw new Error(message);
-  }
-  if (server.dev) mkdirSync(DATA_PATH, {recursive: true});
-  const filename = join(DATA_PATH, 'db.sqlite');
+  const filename = join(server.paths.data, 'db.sqlite');
   const db = await open({filename, driver: sqlite3.verbose().Database});
 
   await db.run('PRAGMA foreign_keys = ON');

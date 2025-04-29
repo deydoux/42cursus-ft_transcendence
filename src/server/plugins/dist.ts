@@ -2,8 +2,6 @@ import {FastifyPluginAsync} from 'fastify';
 import {createReadStream} from 'node:fs';
 import {join} from 'node:path';
 
-const distPath = join(__dirname, '..', '..', 'dist');
-
 const plugin: FastifyPluginAsync = async server => {
   server.get('*', (request, reply) => {
     const {url} = request;
@@ -14,12 +12,12 @@ const plugin: FastifyPluginAsync = async server => {
     )
       return reply.callNotFound();
 
-    const stream = createReadStream(join(distPath, 'index.html'));
+    const stream = createReadStream(join(server.paths.dist, 'index.html'));
     return reply.type('text/html').send(stream);
   });
 
   await server.register(import('@fastify/static'), {
-    root: join(distPath, 'assets'),
+    root: join(server.paths.dist, 'assets'),
     prefix: '/assets/',
   });
 };
