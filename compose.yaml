@@ -6,9 +6,9 @@ services:
     ports:
       - ${PORT:-3000}:${PORT:-3000}
     volumes:
-      - data:/data
+      - ${DEV_MOUNT:-data:/data}
     environment:
-      DATA_PATH: /data
+      DATA_PATH: ${DATA_PATH:-/data}
       JWT_SECRET:
     restart: on-failure
 
