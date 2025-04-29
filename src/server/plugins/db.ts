@@ -1,15 +1,14 @@
 import * as sqlite3 from 'sqlite3';
 import {FastifyPluginAsync} from 'fastify';
 import SQL from 'sql-template-strings';
-import {join} from 'node:path';
 import {mkdir} from 'node:fs/promises';
 import {open} from 'sqlite';
 
 const plugin: FastifyPluginAsync = async server => {
-  await mkdir(join(server.paths.data, 'cache'), {recursive: true});
-  await mkdir(join(server.paths.data, 'avatars'), {recursive: true});
+  await mkdir(server.paths.cache, {recursive: true});
+  await mkdir(server.paths.avatars, {recursive: true});
 
-  const filename = join(server.paths.data, 'db.sqlite');
+  const filename = server.paths.db;
   const db = await open({filename, driver: sqlite3.verbose().Database});
 
   await db.run('PRAGMA foreign_keys = ON');

@@ -7,7 +7,10 @@ declare module 'fastify' {
     db: Database;
     dev: boolean;
     paths: {
+      avatars: string;
+      cache: string;
       data: string;
+      db: string;
       dist: string;
     };
     prod: boolean;

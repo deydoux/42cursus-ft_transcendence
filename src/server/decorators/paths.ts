@@ -1,5 +1,5 @@
+import {join, resolve} from 'node:path';
 import {FastifyPluginAsync} from 'fastify';
-import {resolve} from 'node:path';
 
 let {DATA_PATH} = process.env;
 
@@ -13,8 +13,12 @@ const plugins: FastifyPluginAsync = async server => {
     } else throw new Error(message);
   }
 
+  const data = resolve(DATA_PATH);
   server.decorate('paths', {
-    data: resolve(DATA_PATH),
+    avatars: join(data, 'avatars'),
+    cache: join(data, 'cache'),
+    data,
+    db: join(data, 'db.sqlite'),
     dist: resolve('dist'),
   });
 };
