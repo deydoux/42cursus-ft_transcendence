@@ -34,7 +34,6 @@ const plugin: FastifyPluginAsync = async server => {
   db.on('trace', (sql: string) => {
     server.log.trace(`${filename}: ${sql}`);
   });
-  server.log.trace(`${filename}: HELLO`);
 
   server.decorate('db', db);
 
