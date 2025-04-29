@@ -1,5 +1,5 @@
-/.env
+.env*
 /build/
+/data/
 /dist/
-/ft_transcendence.db
 /node_modules/

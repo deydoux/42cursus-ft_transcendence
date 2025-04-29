@@ -1,24 +1,25 @@
 import * as sqlite3 from 'sqlite3';
 import {FastifyPluginAsync} from 'fastify';
 import SQL from 'sql-template-strings';
+import {join} from 'node:path';
+import {mkdirSync} from 'node:fs';
 import {open} from 'sqlite';
 
-let {DB_PATH} = process.env;
+let {DATA_PATH} = process.env;
 
 const plugin: FastifyPluginAsync = async server => {
-  if (!DB_PATH) {
-    const message = 'DB_PATH environment variable is not set';
+  if (!DATA_PATH) {
+    const message = 'DATA_PATH environment variable is not set';
 
     if (server.dev) {
-      DB_PATH = 'ft_transcendence.db';
-      server.log.warn(`${message}, using "${DB_PATH}" as default`);
+      DATA_PATH = 'data';
+      server.log.warn(`${message}, using "${DATA_PATH}" as default`);
+      mkdirSync(DATA_PATH, {recursive: true});
     } else throw new Error(message);
   }
 
-  const db = await open({
-    filename: DB_PATH,
-    driver: sqlite3.verbose().Database,
-  });
+  const filename = join(DATA_PATH, 'db.sqlite');
+  const db = await open({filename, driver: sqlite3.verbose().Database});
 
   await db.run('PRAGMA foreign_keys = ON');
   await db.migrate();
@@ -32,8 +33,9 @@ const plugin: FastifyPluginAsync = async server => {
   setInterval(clean, 60 * 60 * 1000); // 1 hour
 
   db.on('trace', (sql: string) => {
-    server.log.trace(`${DB_PATH}: ${sql}`);
+    server.log.trace(`${filename}: ${sql}`);
   });
+  server.log.trace(`${filename}: HELLO`);
 
   server.decorate('db', db);
 

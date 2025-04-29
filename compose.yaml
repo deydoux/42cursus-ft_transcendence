@@ -1,0 +1,16 @@
+services:
+  app:
+    build:
+      context: .
+      target: ${COMPOSE_TARGET:-production}
+    ports:
+      - ${HTTP_PORT:-3000}:${HTTP_PORT:-3000}
+    volumes:
+      - data:/data
+    environment:
+      DATA_PATH: /data
+      JWT_SECRET:
+    restart: on-failure
+
+volumes:
+  data:
