@@ -6,15 +6,13 @@ const plugin: FastifyPluginAsync = async server => {
     const {id} = request.user;
     const connections = (
       await server.db.all(
-        SQL`SELECT id, ip, user_agent AS userAgent, created_at AS createdAt, updated_at AS updatedAt FROM connections WHERE user_id = ${id}`,
+        SQL`SELECT id, ip, user_agent AS userAgent, created_at AS createdAt, updated_at AS updatedAt FROM connections WHERE user_id = ${id} ORDER BY updated_at DESC`,
       )
-    )
-      .sort((a, b) => b.updatedAt - a.updatedAt)
-      .map(connection => ({
-        ...connection,
-        createdAt: new Date(connection.createdAt * 1000),
-        updatedAt: new Date(connection.updatedAt * 1000),
-      }));
+    ).map(connection => {
+      connection.createdAt = new Date(connection.createdAt * 1000);
+      connection.updatedAt = new Date(connection.updatedAt * 1000);
+      return connection;
+    });
 
     return reply.send({currentConnection: request.connection, connections});
   });
