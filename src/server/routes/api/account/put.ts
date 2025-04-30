@@ -20,7 +20,7 @@ const plugin: FastifyPluginAsync = async server => {
     if (!data) return reply.badRequest('No file uploaded');
 
     if (!data.mimetype.startsWith('image/'))
-      return reply.notAcceptable('File type not supported');
+      return reply.unsupportedMediaType('File type not supported');
 
     if (data.file.truncated)
       throw {
