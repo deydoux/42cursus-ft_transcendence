@@ -7,7 +7,7 @@ const plugin: FastifyPluginAsync = async server => {
     'validateUsernameAvailability',
     async (username: string, id?: number) => {
       const user = await server.db.get(
-        SQL`SELECT NULL FROM users WHERE id != ${id || 0} AND lower(username) = lower(${username})`,
+        SQL`SELECT NULL FROM users WHERE id != ${id ?? 0} AND lower(username) = lower(${username})`,
       );
 
       if (!user) return;
