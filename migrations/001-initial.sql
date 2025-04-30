@@ -3,9 +3,10 @@
 --------------------------------------------------------------------------------
 
 CREATE TABLE users(
-  id       INTEGER PRIMARY KEY AUTOINCREMENT,
-  username TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL
+  id             INTEGER PRIMARY KEY AUTOINCREMENT,
+  username       TEXT UNIQUE NOT NULL,
+  password       TEXT NOT NULL,
+  avatar_version INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE connections(

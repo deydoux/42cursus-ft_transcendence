@@ -1,10 +1,11 @@
 import * as sqlite3 from 'sqlite3';
+import {mkdir, rm} from 'node:fs/promises';
 import {FastifyPluginAsync} from 'fastify';
 import SQL from 'sql-template-strings';
-import {mkdir} from 'node:fs/promises';
 import {open} from 'sqlite';
 
 const plugin: FastifyPluginAsync = async server => {
+  await rm(server.paths.cache, {recursive: true, force: true});
   await mkdir(server.paths.cache, {recursive: true});
   await mkdir(server.paths.avatars, {recursive: true});
 
@@ -19,17 +20,18 @@ const plugin: FastifyPluginAsync = async server => {
     db.run(SQL`DELETE FROM connections WHERE expires_at <= unixepoch()`);
   };
 
-  clean();
-  setInterval(clean, 60 * 60 * 1000); // 1 hour
-
   db.on('trace', (sql: string) => {
     server.log.trace(`${filename}: ${sql}`);
   });
+
+  clean();
+  setInterval(clean, 60 * 60 * 1000); // 1 hour
 
   server.decorate('db', db);
 
   server.addHook('onClose', async server => {
     await server.db.close();
+    await rm(server.paths.cache, {recursive: true, force: true});
   });
 };
 
