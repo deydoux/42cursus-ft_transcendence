@@ -4,7 +4,7 @@ import {renderSigninForm} from '../containers/signinForm';
 import {renderSignupForm} from '../containers/signupForm';
 import {welcome_emojies} from '../utils/content';
 
-const change_emoji = (): void => {
+const change_emoji = () => {
   const emoji_span = document.getElementById('emoji');
   if (!emoji_span) return;
 
