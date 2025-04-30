@@ -28,9 +28,11 @@ const plugin: FastifyPluginAsync = async server => {
         message: 'File too large (max 5MB)',
       };
 
+    const buffer = await data.toBuffer();
+
     let avatar;
     try {
-      avatar = sharp(await data.toBuffer());
+      avatar = sharp(buffer);
     } catch (error) {
       throw server.httpErrors.badRequest(
         error instanceof Error ? error.message : String(error),
