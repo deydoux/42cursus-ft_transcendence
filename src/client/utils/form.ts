@@ -1,7 +1,7 @@
 import {api} from './Api';
 import {renderFormErrorBox} from '../components/formErrorBox';
 
-const formErrorBoxClassList = ['max-h-16', 'opacity-100', 'mb-4'];
+const formErrorBoxClassList = ['max-h-17', 'opacity-100', 'mb-4'];
 
 const submitForm = (
   form: HTMLFormElement,
@@ -39,11 +39,12 @@ export const addFormListener = (
   formName: string,
   apiEndpoint: string,
   fields: string[],
+  errorLabelExtra?: HTMLElement,
 ) => {
   const form = document.getElementById(formName + '-form') as HTMLFormElement;
   if (!form) return;
 
-  form.insertBefore(renderFormErrorBox(), form.firstChild);
+  form.insertBefore(renderFormErrorBox(errorLabelExtra), form.firstChild);
   fields.forEach(field => {
     (form.querySelector('#' + field) as HTMLInputElement)?.addEventListener(
       'keydown',

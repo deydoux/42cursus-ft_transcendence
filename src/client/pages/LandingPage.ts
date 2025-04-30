@@ -1,5 +1,6 @@
 import '../styles/landing-page.css';
 import {addFormListener} from '../utils/form';
+import {html} from '../utils/html';
 import {renderSigninForm} from '../containers/signinForm';
 import {renderSignupForm} from '../containers/signupForm';
 import {welcome_emojies} from '../utils/content';
@@ -36,6 +37,17 @@ export const renderLandingPage = (path: string): void => {
   const emojiSpan = document.getElementById('emoji');
   if (emojiSpan) emojiSpan.addEventListener('click', change_emoji, false);
 
-  addFormListener('signin', 'auth/login', ['username', 'password']);
+  addFormListener(
+    'signin',
+    'auth/login',
+    ['username', 'password'],
+    html`<div>
+      <span>Have you already</span>
+      <a class="text-md cursor-pointer font-bold hover:underline" href="signup">
+        signed up
+      </a>
+      <span>?</span>
+    </div>`,
+  );
   addFormListener('signup', 'auth/signup', ['username', 'password']);
 };
