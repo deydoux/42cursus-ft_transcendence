@@ -1,53 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Special+Gothic&family=Special+Gothic+Expanded+One&display=swap');
 @import 'tailwindcss';
 
-.slide-up-animation {
-  opacity: 0;
-  animation: slide-up 1.3s ease-out forwards, fade-in 1.3s ease-out forwards;
-  /*animation-delay: 1s;*/
-}
-
-.slide-up-animation-slow {
-  opacity: 0;
-  animation: slide-up .8s ease-out forwards, fade-in .8s ease-out forwards;
-  animation-delay: .5s;
-}
-
-@keyframes slide-up {
-  from {transform: translateY(100px)}
-  to {transform: translateY(0)}
-}
-
-.fade-in {
-  animation: fade-in 300ms ease forwards;
-}
-.fade-out {
-  animation: fade-out 300ms ease forwards;
-}
-
-@keyframes fade-in {
-  from {opacity: 0;}
-  to {opacity: 100%;}
-}
-@keyframes fade-out {
-  from {opacity: 100%;}
-  to {opacity: 0;}
-}
-
-.icon-user {
-  background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS11c2VyLWljb24gbHVjaWRlLXVzZXIiPjxwYXRoIGQ9Ik0xOSAyMXYtMmE0IDQgMCAwIDAtNC00SDlhNCA0IDAgMCAwLTQgNHYyIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSI3IiByPSI0Ii8+PC9zdmc+) no-repeat right;
-  background-position: 10px 50%;
-  background-size: 20px;
-  padding-left: 40px;
-}
-
-.icon-password {
-  background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1rZXktcm91bmQtaWNvbiBsdWNpZGUta2V5LXJvdW5kIj48cGF0aCBkPSJNMi41ODYgMTcuNDE0QTIgMiAwIDAgMCAyIDE4LjgyOFYyMWExIDEgMCAwIDAgMSAxaDNhMSAxIDAgMCAwIDEtMXYtMWExIDEgMCAwIDEgMS0xaDFhMSAxIDAgMCAwIDEtMXYtMWExIDEgMCAwIDEgMS0xaC4xNzJhMiAyIDAgMCAwIDEuNDE0LS41ODZsLjgxNC0uODE0YTYuNSA2LjUgMCAxIDAtNC00eiIvPjxjaXJjbGUgY3g9IjE2LjUiIGN5PSI3LjUiIHI9Ii41IiBmaWxsPSJjdXJyZW50Q29sb3IiLz48L3N2Zz4=) no-repeat right;
-  background-position: 10px 50%;
-  background-size: 20px;
-  padding-left: 40px;
-}
-
 .visible-icon-on-hover {
   @apply max-w-0 max-h-0 ml-0 opacity-0 -translate-x-4 group-hover:max-w-5 group-hover:max-h-5 group-hover:translate-x-0 group-hover:ml-2 group-hover:opacity-100 duration-200 transition-all;
 }
@@ -73,10 +26,20 @@
 }
 
 button.btn {
-  @apply w-full py-2 border border-white hover:bg-white hover:text-black;
+  width: 100%;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border: 1px solid var(--primary);
+}
+button.btn:hover {
+  background-color: var(--primary);
+  color: var(--background);
 }
 
-.card-title {
-  @apply w-full text-center leading-12 text-[3.5em];
-  font-family: "Special Gothic Expanded One", sans-serif;
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

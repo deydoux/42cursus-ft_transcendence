@@ -1,8 +1,8 @@
+import '../styles/landing-page.css';
+import {addFormListener} from '../utils/form';
 import {renderSigninForm} from '../containers/signinForm';
 import {renderSignupForm} from '../containers/signupForm';
 import {welcome_emojies} from '../utils/content';
-import '../styles/landing-page.css';
-import {navigate} from '../utils/navigate';
 
 const change_emoji = (): void => {
   const emoji_span = document.getElementById('emoji');
@@ -17,31 +17,25 @@ const change_emoji = (): void => {
   emoji_span.textContent = random_emoji;
 };
 
-setTimeout(() => {
-  const container = document.getElementById('fg-container');
+export const renderLandingPage = (path: string): void => {
+  const right = document.getElementById('right-container');
+  const left = document.getElementById('left-container');
+  if (!(right && left))
+    return console.error('Could not find right and left containers');
+
+  left.className = 'flex-1 bg-image scale-x-[-1] h-full rounded-[30px] border';
+  right.className =
+    'w-[550px] flex-none h-full flex items-center justify-center border p-10 py-15 rounded-[30px] backdrop-blur-lg';
+
+  if (path === '/signin' || path === '/') right.appendChild(renderSigninForm());
+  else if (path === '/signup') right.appendChild(renderSignupForm());
+
+  const container = document.getElementById('right-container');
   if (container) container.addEventListener('mouseenter', change_emoji, false);
 
   const emojiSpan = document.getElementById('emoji');
   if (emojiSpan) emojiSpan.addEventListener('click', change_emoji, false);
 
-  const signinButton = document.getElementById('signin-btn');
-  if (signinButton)
-    signinButton.addEventListener('click', () =>
-      navigate('PongPong | Homepage', '/homepage'),
-    );
-}, 50);
-
-export const renderLandingPage = (
-  fgContainer: HTMLElement,
-  bgContainer: HTMLElement,
-  path: string,
-): void => {
-  bgContainer.className =
-    'bg-image scale-x-[-1] w-2/3 mr-[15%] h-full rounded-[30px] border border-white';
-  fgContainer.className =
-    'w-[600px] h-[600px] flex items-center justify-center right-[10%] text-white absolute border p-10 py-15 rounded-[30px] backdrop-blur-lg';
-
-  if (path === '/signin' || path === '/')
-    fgContainer.appendChild(renderSigninForm());
-  else if (path === '/signup') fgContainer.appendChild(renderSignupForm());
+  addFormListener('signin', 'auth/login', ['username', 'password']);
+  addFormListener('signup', 'auth/signup', ['username', 'password']);
 };

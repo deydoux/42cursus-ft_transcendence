@@ -10,7 +10,7 @@ export function renderHome(
 
   bgContainer.appendChild(
     html`<div
-      class="text-white font-bold w-full h-screen text-[3em] flex items-center justify-center"
+      class="flex h-screen w-full items-center justify-center text-[3em] font-bold text-white"
     >
       Welcome to the homepage
     </div>`,

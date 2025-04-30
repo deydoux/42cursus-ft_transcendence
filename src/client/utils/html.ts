@@ -1,6 +1,6 @@
 export function html<T extends HTMLElement = HTMLDivElement>(
   strings: TemplateStringsArray,
-  ...values: any[]
+  ...values: unknown[]
 ): T {
   const template = document.createElement('template');
   //values = values.map((value: string) =>

@@ -2,61 +2,72 @@ import {html} from '../utils/html';
 
 export const renderSigninForm = (): HTMLElement => {
   return html`<div>
-    <div class="flex items-center text-[3em]">
-      <h1 class="special-gothic-expanded leading-12">Welcome back!</h1>
-      <span
+    <div class="relative flex items-center text-[3em]">
+      <h1 class="special-gothic-expanded z-10 leading-12">Welcome back!</h1>
+      <button
         id="emoji"
-        class="cursor-default ml-4 transition-transform duration-200 select-none"
+        class="absolute z-0 ml-12 cursor-default text-[2.2em] transition-transform duration-200 select-none"
       >
         🏓
-      </span>
+      </button>
     </div>
-    <p class="text-lg ml-60 -mt-4">Still want to play ?</p>
-    <div class="mt-10 max-w-80 mx-auto flex flex-col items-center gap-1">
-      <p class="text-white/80 mb-2">Sign in to play some pong with us</p>
-      <button class="btn rounded-t-2xl">
-        Log in with <strong>Google</strong>
+    <p class="-mt-2 ml-60 text-lg">Still want to play ?</p>
+    <div class="mx-auto mt-20 flex max-w-80 flex-col items-center gap-1">
+      <p class="text-primary/80 mb-2">Sign in to play some pong with us</p>
+      <button
+        class="btn group flex items-center justify-center gap-1 rounded-t-2xl"
+      >
+        Log in with
+        <strong class="flex">
+          <span class="group-hover:text-[#4285F4]">G</span>
+          <span class="group-hover:text-[#EA4335]">o</span>
+          <span class="group-hover:text-[#FBBC04]">o</span>
+          <span class="group-hover:text-[#4285F4]">g</span>
+          <span class="group-hover:text-[#34A853]">l</span>
+          <span class="group-hover:text-[#EA4335]">e</span>
+        </strong>
       </button>
-      <button class="btn rounded-b-2xl">
-        Log in with <strong>42</strong>
-      </button>
+      <button class="btn rounded-b-2xl">Log in with <strong>42</strong></button>
 
-      <div class="flex w-full items-center gap-2 px-4 my-4">
-        <div class="border-b border-white/50 flex-1"></div>
+      <div class="my-4 flex w-full items-center gap-2 px-4">
+        <div class="border-primary/50 flex-1 border-b"></div>
         <span>or</span>
-        <div class="border-b border-white/50 flex-1"></div>
+        <div class="border-primary/50 flex-1 border-b"></div>
       </div>
 
-      <div class="w-full">
+      <form id="signin-form" class="w-full">
         <input
-          class="mb-2 outline-none icon-user border w-full rounded-lg px-4 py-2"
+          class="mb-2 w-full rounded-lg border px-4 py-2 pl-10 transition-all outline-none"
           placeholder="Username"
+          id="username"
+          type="text"
+          input-icon="user"
         />
         <input
-          class="outline-none icon-password border w-full rounded-lg px-4 py-2"
+          class="w-full rounded-lg border px-4 py-2 transition-all outline-none"
           placeholder="Password"
           type="password"
+          id="password"
+          autocomplete="on"
+          input-icon="key"
         />
         <button
-          id="signin-btn"
-          class="w-full cursor-pointer group flex items-center justify-center uppercase font-bold bg-white text-lg text-black mt-4 py-2 rounded-full"
+          type="submit"
+          class="group bg-primary text-background mt-4 flex w-full cursor-pointer items-center justify-center rounded-full py-2 text-lg font-bold uppercase transition-transform active:scale-105"
         >
           <span>Log In</span>
-          <img
-            src="https://cdn-icons-png.flaticon.com/512/2500/2500356.png"
-            class="visible-icon-on-hover"
-          />
+          <i icon="pingpong" class="visible-icon-on-hover"></i>
         </button>
-        <p class="w-full text-center mt-4 text-sm text-white/80">
+        <p class="text-primary/80 mt-4 w-full text-center text-sm">
           Don't have a pong account yet?
           <a
-            class="text-white font-bold text-md hover:underline cursor-pointer"
+            class="text-md text-primary cursor-pointer font-bold hover:underline"
             href="signup"
           >
             Sign Up
-          </button>
+          </a>
         </p>
-      </div>
+      </form>
     </div>
   </div>`;
 };
