@@ -3,11 +3,20 @@
 --------------------------------------------------------------------------------
 
 CREATE TABLE users(
-  id             INTEGER PRIMARY KEY AUTOINCREMENT,
-  username       TEXT UNIQUE NOT NULL,
-  password       TEXT NOT NULL,
-  avatar_version INTEGER NOT NULL DEFAULT 0
+  id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+  username           TEXT UNIQUE NOT NULL,
+  password           TEXT NOT NULL,
+
+  avatar_version     INTEGER NOT NULL DEFAULT 0,
+  password_edited_at INTEGER NOT NULL DEFAULT (unixepoch())
 );
+
+CREATE TRIGGER update_users_password_edited_at
+AFTER UPDATE ON users
+FOR EACH ROW
+BEGIN
+  UPDATE users SET password_edited_at = unixepoch() WHERE id = NEW.id;
+END;
 
 CREATE TABLE connections(
   id            INTEGER PRIMARY KEY AUTOINCREMENT,

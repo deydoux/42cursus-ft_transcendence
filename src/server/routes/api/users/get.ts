@@ -1,5 +1,6 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
+import generateAvatarURL from '#lib/generateAvatarURL';
 
 const schema = {
   params: {
@@ -12,23 +13,30 @@ const schema = {
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  async function getUser(id: number) {
+  server.get('/:id', {schema}, async (request, reply) => {
+    const {id} = request.params;
     const user = await server.db.get(
-      SQL`SELECT id, username FROM users WHERE id = ${id}`,
+      SQL`SELECT id, username, avatar_version FROM users WHERE id = ${id}`,
     );
 
-    if (!user) throw server.httpErrors.notFound('User not found');
+    if (!user) return reply.notFound('User not found');
 
+    generateAvatarURL(user);
     return user;
-  }
+  });
 
-  server.get('/:id', {schema}, async (request, reply) =>
-    reply.send(await getUser(request.params.id)),
-  );
+  server.get('/:id/avatar', {schema}, async (request, reply) => {
+    const {id} = request.params;
+    const user = await server.db.get(
+      SQL`SELECT avatar_version FROM users WHERE id = ${id}`,
+    );
 
-  server.get('/me', async (request, reply) =>
-    reply.send(await getUser(request.user.id)),
-  );
+    if (!user) return reply.notFound('User not found');
+    if (!user.avatar_version)
+      return reply.redirect('/static/default_avatar.webp', 302);
+
+    return reply.sendFile(`${id}.webp`, server.paths.avatars);
+  });
 };
 
 export default plugin;

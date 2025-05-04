@@ -1,8 +1,19 @@
 import {FastifyPluginAsync} from 'fastify';
-import {createReadStream} from 'node:fs';
+import fastifyStatic from '@fastify/static';
 import {join} from 'node:path';
 
 const plugin: FastifyPluginAsync = async server => {
+  await server.register(fastifyStatic, {
+    root: join(server.paths.dist, 'assets'),
+    prefix: '/assets/',
+  });
+
+  await server.register(fastifyStatic, {
+    root: server.paths.static,
+    prefix: '/static/',
+    decorateReply: false,
+  });
+
   server.get('*', (request, reply) => {
     const {url} = request;
     if (
@@ -12,13 +23,7 @@ const plugin: FastifyPluginAsync = async server => {
     )
       return reply.callNotFound();
 
-    const stream = createReadStream(join(server.paths.dist, 'index.html'));
-    return reply.type('text/html').send(stream);
-  });
-
-  await server.register(import('@fastify/static'), {
-    root: join(server.paths.dist, 'assets'),
-    prefix: '/assets/',
+    return reply.sendFile('index.html', server.paths.dist);
   });
 };
 

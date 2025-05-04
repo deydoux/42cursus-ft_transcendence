@@ -20,6 +20,7 @@ const plugins: FastifyPluginAsync = async server => {
     data,
     db: join(data, 'db.sqlite'),
     dist: resolve('dist'),
+    static: resolve('static'),
   });
 };
 

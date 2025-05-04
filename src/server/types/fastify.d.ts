@@ -12,6 +12,7 @@ declare module 'fastify' {
       data: string;
       db: string;
       dist: string;
+      static: string;
     };
     prod: boolean;
     validateUsernameAvailability: (
