@@ -6,7 +6,7 @@ const plugin: FastifyPluginAsync = async server => {
   server.get('/', async (request, reply) => {
     const {id} = request.user;
     const account = await server.db.get(
-      SQL`SELECT id, username, avatar_version, password_edited_at AS passwordEditedAt FROM users WHERE id = ${id}`,
+      SQL`SELECT id, username, has_avatar, avatar_version, password_edited_at AS passwordEditedAt FROM users WHERE id = ${id}`,
     );
 
     if (!account) return reply.notFound('Account not found');

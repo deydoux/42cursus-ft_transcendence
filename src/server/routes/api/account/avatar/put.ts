@@ -15,7 +15,7 @@ const plugin: FastifyPluginAsync = async server => {
     },
   });
 
-  server.put('/avatar', async (request, reply) => {
+  server.put('/', async (request, reply) => {
     const data = await request.file();
     if (!data) return reply.badRequest('No file uploaded');
 
@@ -51,8 +51,8 @@ const plugin: FastifyPluginAsync = async server => {
     await rename(cacheFile, avatarFile);
 
     const {id} = request.user;
-    server.db.run(
-      SQL`UPDATE users SET avatar_version = avatar_version + 1 WHERE id = ${id}`,
+    await server.db.run(
+      SQL`UPDATE users SET has_avatar = TRUE, avatar_version = avatar_version + 1 WHERE id = ${id}`,
     );
 
     return reply.code(204).send();

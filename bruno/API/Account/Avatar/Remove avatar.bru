@@ -1,0 +1,11 @@
+meta {
+  name: Remove avatar
+  type: http
+  seq: 2
+}
+
+delete {
+  url: {{baseURL}}/api/account/avatar
+  body: none
+  auth: inherit
+}

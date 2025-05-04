@@ -7,13 +7,16 @@ CREATE TABLE users(
   username           TEXT UNIQUE NOT NULL,
   password           TEXT NOT NULL,
 
+  has_avatar         INTEGER NOT NULL DEFAULT 0,
   avatar_version     INTEGER NOT NULL DEFAULT 0,
+
   password_edited_at INTEGER NOT NULL DEFAULT (unixepoch())
 );
 
 CREATE TRIGGER update_users_password_edited_at
 AFTER UPDATE ON users
 FOR EACH ROW
+WHEN NEW.password != OLD.password
 BEGIN
   UPDATE users SET password_edited_at = unixepoch() WHERE id = NEW.id;
 END;

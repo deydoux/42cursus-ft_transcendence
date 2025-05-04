@@ -16,7 +16,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.get('/:id', {schema}, async (request, reply) => {
     const {id} = request.params;
     const user = await server.db.get(
-      SQL`SELECT id, username, avatar_version FROM users WHERE id = ${id}`,
+      SQL`SELECT id, username, has_avatar, avatar_version FROM users WHERE id = ${id}`,
     );
 
     if (!user) return reply.notFound('User not found');
@@ -32,10 +32,12 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     );
 
     if (!user) return reply.notFound('User not found');
-    if (!user.avatar_version)
-      return reply.redirect('/static/default_avatar.webp', 302);
 
-    return reply.sendFile(`${id}.webp`, server.paths.avatars);
+    try {
+      return reply.sendFile(`${id}.webp`, server.paths.avatars);
+    } catch {
+      return reply.redirect('/static/default_avatar.webp', 302);
+    }
   });
 };
 
