@@ -16,7 +16,6 @@ const submitForm = (
   api
     .post(apiEndpoint, body)
     .then(answer => answer.json())
-    .then(answer => console.log({answer}))
     .catch(error => {
       const formErrorBox = form.querySelector('#form-error-box');
       if (!formErrorBox) return;
