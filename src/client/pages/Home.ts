@@ -1,18 +1,19 @@
 import {html} from '../utils/html';
 
-export function renderHome(
-  fgContainer: HTMLElement,
-  bgContainer: HTMLElement,
-): void {
-  bgContainer.className = 'flex-1 h-full rounded-[30px] border border-white';
-  fgContainer.className =
-    'w-[500px] ml-10 h-full flex items-center justify-center text-white left-40 border p-10 py-15 rounded-[30px] backdrop-blur-lg';
+export function renderHome(): void {
+  const right = document.getElementById('right-container');
+  const left = document.getElementById('left-container');
+  if (!(right && left))
+    return console.error('Could not find right and left containers');
 
-  bgContainer.appendChild(
-    html`<div
-      class="flex h-screen w-full items-center justify-center text-[3em] font-bold text-white"
-    >
-      Welcome to the homepage
-    </div>`,
+  left.className = 'flex-1 h-full rounded-[30px] border';
+  right.className =
+    'w-[550px] flex-none h-full flex flex-col gap-5 items-center';
+
+  right.appendChild(
+    html`<div class="w-full flex-1 rounded-[30px] border"></div>`,
+  );
+  right.appendChild(
+    html`<div class="h-14 w-full flex-none rounded-[30px] border"></div>`,
   );
 }

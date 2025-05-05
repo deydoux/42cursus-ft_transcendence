@@ -1,4 +1,4 @@
-//import {renderHome} from '../pages/Home';
+import {renderHome} from '../pages/Home';
 import {renderLandingPage} from '../pages/LandingPage';
 
 window.onpopstate = router;
@@ -14,7 +14,7 @@ export function router(): void {
       break;
     case '/homepage':
     default:
-      //renderHome(fgContainer, bgContainer);
+      renderHome();
       break;
   }
 }
