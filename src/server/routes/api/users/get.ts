@@ -32,12 +32,6 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     instance.get('/:id/avatar', {schema}, async (request, reply) => {
       const {id} = request.params;
-      const user = await server.db.get(
-        SQL`SELECT NULL FROM users WHERE id = ${id}`,
-      );
-
-      if (!user) return reply.notFound('User not found');
-
       return reply.sendFile(`${id}.webp`, server.paths.avatars);
     });
   }) as FastifyPluginAsyncJsonSchemaToTs);
