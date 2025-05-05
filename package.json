@@ -16,7 +16,7 @@
     "dev:c": "npm run dev:client",
     "dev:s": "npm run dev:server",
     "dev:client": "vite build -w",
-    "dev:server": "nodemon -e ts -w src/server -x 'tsc && node build'",
+    "dev:server": "nodemon -e ts -w src/server -x 'tsc && dotenvx run -- node build'",
     "lint": "eslint",
     "lint:client": "npm run lint -- src/client",
     "lint:server": "npm run lint -- src/server",
@@ -25,6 +25,7 @@
     "fix:server": "npm run fix -- src/server"
   },
   "devDependencies": {
+    "@dotenvx/dotenvx": "^1.43.0",
     "@eslint/js": "^9.25.1",
     "@tailwindcss/vite": "^4.1.4",
     "@types/bcrypt": "^5.0.2",

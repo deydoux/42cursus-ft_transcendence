@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import Fastify from 'fastify';
 import autoload from '@fastify/autoload';
 import {join} from 'node:path';
