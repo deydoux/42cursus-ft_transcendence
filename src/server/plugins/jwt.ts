@@ -39,7 +39,7 @@ const plugin: FastifyPluginAsync = async server => {
       } else if (type === 'refresh') {
         token = request.cookies.refreshToken;
         query.append(SQL`refresh_token = ${token}`);
-      }
+      } else if (type === 'partial') return true;
 
       if (!token) return false;
 
