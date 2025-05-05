@@ -25,7 +25,3 @@ export const renderFormErrorBox = (errorLabelExtra?: HTMLElement) => {
 
   return box;
 };
-
-/*
-
-*/

@@ -37,17 +37,14 @@ export const renderLandingPage = (path: string): void => {
   const emojiSpan = document.getElementById('emoji');
   if (emojiSpan) emojiSpan.addEventListener('click', change_emoji, false);
 
-  addFormListener(
-    'signin',
-    'auth/login',
-    ['username', 'password'],
-    html`<div>
-      <span>Have you already</span>
-      <a class="text-md cursor-pointer font-bold hover:underline" href="signup">
-        signed up
-      </a>
-      <span>?</span>
-    </div>`,
-  );
+  const signUpLink = html`<div>
+    <span>Have you already</span>
+    <a class="text-md cursor-pointer font-bold hover:underline" href="signup">
+      signed up
+    </a>
+    <span>?</span>
+  </div>`;
+
+  addFormListener('signin', 'auth/login', ['username', 'password'], signUpLink);
   addFormListener('signup', 'auth/signup', ['username', 'password']);
 };
