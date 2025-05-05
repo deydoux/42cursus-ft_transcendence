@@ -15,21 +15,25 @@ const submitForm = (
 
   api
     .post(apiEndpoint, body)
-    .then(answer => answer.json())
-    .catch(error => {
+    .then(answer => {
+      console.log(answer.json);
+      return answer.json;
+    })
+    .catch(async error => {
       const formErrorBox = form.querySelector('#form-error-box');
       if (!formErrorBox) return;
-      error.json().then(body => {
-        const label = formErrorBox.querySelector('#error-label');
-        if (label) label.textContent = body.message;
 
-        formErrorBoxClassList.forEach(classAttr =>
-          formErrorBox.classList.add(classAttr),
-        );
+      const body = await error.json;
 
-        fields.forEach(field => {
-          form.querySelector('#' + field)?.classList.add('border-error');
-        });
+      const label = formErrorBox.querySelector('#error-label');
+      if (label) label.textContent = body.message;
+
+      formErrorBoxClassList.forEach(classAttr =>
+        formErrorBox.classList.add(classAttr),
+      );
+
+      fields.forEach(field => {
+        form.querySelector('#' + field)?.classList.add('border-error');
       });
     });
 };

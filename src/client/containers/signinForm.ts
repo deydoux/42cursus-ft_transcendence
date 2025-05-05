@@ -3,8 +3,8 @@ import {renderAuthenticationInputs} from './authenticationInputs';
 import {renderRemoteAuthButtons} from './remoteAuthButtons';
 import {renderVerticalSeparator} from '../components/verticalSeparator';
 
-export const renderSigninForm = (): HTMLElement => {
-  const form = html`<div>
+export const renderSigninForm = () =>
+  html`<div>
     <div class="relative flex items-center">
       <h1 class="title">Welcome back!</h1>
       <button id="emoji">🏓</button>
@@ -12,11 +12,10 @@ export const renderSigninForm = (): HTMLElement => {
     <p class="-mt-2 ml-60 text-lg">Still want to play ?</p>
     <div class="mx-auto mt-20 flex max-w-80 flex-col items-center gap-1">
       <p class="text-primary/60 mb-2">Sign in to play some pong with us</p>
-      <div id="remote-auth-buttons"></div>
-      <div id="vertical-separator"></div>
+      ${renderRemoteAuthButtons()} ${renderVerticalSeparator('or')}
 
       <form id="signin-form" class="w-full">
-        <div id="authentication-inputs"></div>
+        ${renderAuthenticationInputs()}
         <button
           type="submit"
           class="group btn filled strong mt-4 flex items-center justify-center rounded-full"
@@ -36,16 +35,3 @@ export const renderSigninForm = (): HTMLElement => {
       </form>
     </div>
   </div>`;
-
-  form
-    .querySelector('#remote-auth-buttons')
-    ?.replaceWith(renderRemoteAuthButtons());
-  form
-    .querySelector('#vertical-separator')
-    ?.replaceWith(renderVerticalSeparator('or'));
-  form
-    .querySelector('#authentication-inputs')
-    ?.replaceWith(renderAuthenticationInputs());
-
-  return form;
-};

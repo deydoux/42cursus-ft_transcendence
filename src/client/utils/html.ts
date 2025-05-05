@@ -11,6 +11,12 @@ export function html<T extends HTMLElement = HTMLDivElement>(
   //    .replace(/"/g, '&quot;')
   //    .replace(/'/g, '&#39;'),
   //);
+
+  values = values.map((value: unknown) => {
+    if (value instanceof HTMLElement) return value.outerHTML;
+    else return value;
+  });
+
   template.innerHTML = String.raw(strings, ...values).trim();
   return template.content.firstElementChild as T;
 }

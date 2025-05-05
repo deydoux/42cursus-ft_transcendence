@@ -3,13 +3,13 @@ import {addFormListener} from '../utils/form';
 import {html} from '../utils/html';
 import {renderSigninForm} from '../containers/signinForm';
 import {renderSignupForm} from '../containers/signupForm';
-import {welcome_emojies} from '../utils/content';
+import {welcomeEmojis} from '../utils/content';
 
 const change_emoji = () => {
   const emoji_span = document.getElementById('emoji');
   if (!emoji_span) return;
 
-  const array = welcome_emojies.filter(e => e !== emoji_span.textContent);
+  const array = welcomeEmojis.filter(e => e !== emoji_span.textContent);
   const random_emoji = array[Math.floor(Math.random() * array.length)];
 
   emoji_span.classList.add('scale-110');

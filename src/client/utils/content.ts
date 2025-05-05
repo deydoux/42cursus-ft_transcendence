@@ -1,4 +1,4 @@
-export const welcome_emojies = [
+export const welcomeEmojis = [
   '👋',
   '🤌',
   '🙏',

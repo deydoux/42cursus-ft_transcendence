@@ -17,8 +17,7 @@
 }
 
 .bg-image {
-  background-image: url('https://i.pinimg.com/736x/b2/3f/c3/b23fc3943d88a9b57de469b662c418a8.jpg');
-  /*background-image: url('https://i.pinimg.com/736x/3c/7b/38/3c7b383b17e0af63a003e22c73106160.jpg');*/
+  background-image: url('../assets/tennis.jpg');
   background-repeat: no-repeat;
   background-position: right;
   background-size: cover;
