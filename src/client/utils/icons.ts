@@ -111,7 +111,5 @@ export const loadIcons = () => {
 
       inputCopy.classList.add('pl-10');
       inputContainer.appendChild(inputCopy);
-
-      console.log('found input icon!', inputContainer);
     });
 };
