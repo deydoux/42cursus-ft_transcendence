@@ -1,5 +1,5 @@
 import {html} from '../utils/html';
-import {renderAuthenticationInputs} from './AuthenticationInputs';
+import {renderAuthenticationInputs} from './authenticationInputs';
 import {renderRemoteAuthButtons} from './remoteAuthButtons';
 import {renderVerticalSeparator} from '../components/verticalSeparator';
 
