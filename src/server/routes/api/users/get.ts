@@ -25,20 +25,22 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     return user;
   });
 
-  server.get('/:id/avatar', {schema}, async (request, reply) => {
-    const {id} = request.params;
-    const user = await server.db.get(
-      SQL`SELECT avatar_version FROM users WHERE id = ${id}`,
+  await server.register((async instance => {
+    instance.setNotFoundHandler((_, reply) =>
+      reply.redirect('/static/default_avatar.webp', 302),
     );
 
-    if (!user) return reply.notFound('User not found');
+    instance.get('/:id/avatar', {schema}, async (request, reply) => {
+      const {id} = request.params;
+      const user = await server.db.get(
+        SQL`SELECT NULL FROM users WHERE id = ${id}`,
+      );
 
-    try {
+      if (!user) return reply.notFound('User not found');
+
       return reply.sendFile(`${id}.webp`, server.paths.avatars);
-    } catch {
-      return reply.redirect('/static/default_avatar.webp', 302);
-    }
-  });
+    });
+  }) as FastifyPluginAsyncJsonSchemaToTs);
 };
 
 export default plugin;
