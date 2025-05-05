@@ -7,7 +7,7 @@ const plugin: FastifyPluginAsync = async server => {
 
   const sockets: WebSocket[] = [];
 
-  server.get('/dev/watch', {websocket: true}, socket => {
+  server.get('/', {websocket: true}, socket => {
     const index = sockets.length;
 
     sockets.push(socket);
