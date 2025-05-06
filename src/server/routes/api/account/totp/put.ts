@@ -21,15 +21,17 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     if (!account) return reply.notFound('Account not found');
     if (account.totp) return reply.badRequest('TOTP already enabled');
-    if (!account.secret) return reply.badRequest('TOTP secret not generated');
 
-    const totp = new TOTP({secret: account.secret});
+    const {secret} = account;
+    if (!secret) return reply.badRequest('TOTP secret not generated');
+
+    const totp = new TOTP({secret});
     const {token} = request.body;
     if (totp.validate({token}) === null)
       return reply.badRequest('Invalid TOTP code');
 
     await server.db.run(
-      SQL`UPDATE users SET totp_enabled = 1 WHERE id = ${id}`,
+      SQL`UPDATE users SET totp_enabled = 1, totp_secret = ${secret} WHERE id = ${id}`,
     );
 
     return reply.code(204).send();
