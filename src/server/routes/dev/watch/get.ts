@@ -5,6 +5,8 @@ import {watch} from 'node:fs';
 const plugin: FastifyPluginAsync = async server => {
   if (!server.dev) return;
 
+  await server.register(import('@fastify/websocket'));
+
   const sockets: WebSocket[] = [];
 
   server.get('/', {websocket: true}, socket => {

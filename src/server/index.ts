@@ -31,7 +31,6 @@ async function main() {
   });
 
   await server.register(import('@fastify/sensible'));
-  await server.register(import('@fastify/websocket'));
 
   await server.register(autoload, {
     dir: join(__dirname, 'decorators'),
