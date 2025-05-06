@@ -15,14 +15,14 @@ const schema = {
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.delete('/', {schema}, async (request, reply) => {
     const {id} = request.user;
-    const account = await server.db.get(
+    const user = await server.db.get(
       SQL`SELECT totp_enabled AS totp, totp_secret AS secret FROM users WHERE id = ${id}`,
     );
 
-    if (!account) return reply.notFound('Account not found');
-    if (!account.totp) return reply.badRequest('TOTP already disabled');
+    if (!user) return reply.notFound('Account not found');
+    if (!user.totp) return reply.badRequest('TOTP already disabled');
 
-    const {secret} = account;
+    const {secret} = user;
     const totp = new TOTP({secret});
     const {token} = request.body;
     if (totp.validate({token}) === null)

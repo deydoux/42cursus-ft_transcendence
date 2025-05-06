@@ -7,7 +7,7 @@ const plugin: FastifyPluginAsync = async server => {
     const {id} = request.user;
     const {connection} = request;
 
-    const [account, connections] = await Promise.all([
+    const [user, connections] = await Promise.all([
       server.db.get(
         SQL`SELECT id, username, password_edited_at AS passwordEditedAt, totp_enabled AS totp, has_avatar, avatar_version FROM users WHERE id = ${id}`,
       ),
@@ -16,18 +16,18 @@ const plugin: FastifyPluginAsync = async server => {
       ),
     ]);
 
-    if (!account) return reply.notFound('Account not found');
+    if (!user) return reply.notFound('Account not found');
 
-    account.totp = Boolean(account.totp);
-    account.passwordEditedAt = new Date(account.passwordEditedAt * 1000);
-    generateAvatarURL(account);
+    user.totp = Boolean(user.totp);
+    user.passwordEditedAt = new Date(user.passwordEditedAt * 1000);
+    generateAvatarURL(user);
 
     connections.forEach(connection => {
       connection.createdAt = new Date(connection.createdAt * 1000);
       connection.updatedAt = new Date(connection.updatedAt * 1000);
     });
 
-    return reply.send({...account, connection, connections});
+    return reply.send({...user, connection, connections});
   });
 };
 

@@ -8,16 +8,16 @@ const plugin: FastifyPluginAsync = async server => {
   server.get('/', async (request, reply) => {
     const {id} = request.user;
 
-    const account = await server.db.get(
+    const user = await server.db.get(
       SQL`SELECT username, totp_enabled AS totp FROM users WHERE id = ${id}`,
     );
 
-    if (!account) return reply.notFound('Account not found');
-    if (account.totp) return reply.badRequest('TOTP already enabled');
+    if (!user) return reply.notFound('Account not found');
+    if (user.totp) return reply.badRequest('TOTP already enabled');
 
     const totp = new TOTP({
       issuer: DOMAIN_NAME || 'ft_transcendence',
-      label: account.username,
+      label: user.username,
     });
 
     const secret = totp.secret.base32;
