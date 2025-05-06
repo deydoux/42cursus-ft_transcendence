@@ -9,7 +9,7 @@ const plugin: FastifyPluginAsync = async server => {
 
     const [account, connections] = await Promise.all([
       server.db.get(
-        SQL`SELECT id, username, password_edited_at AS passwordEditedAt totp_enabled AS totp, has_avatar, avatar_version FROM users WHERE id = ${id}`,
+        SQL`SELECT id, username, password_edited_at AS passwordEditedAt, totp_enabled AS totp, has_avatar, avatar_version FROM users WHERE id = ${id}`,
       ),
       server.db.all(
         SQL`SELECT id, ip, user_agent AS userAgent, created_at AS createdAt, updated_at AS updatedAt FROM connections WHERE user_id = ${id} ORDER BY updated_at DESC`,
