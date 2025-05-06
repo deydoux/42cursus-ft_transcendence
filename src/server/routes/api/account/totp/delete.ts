@@ -1,6 +1,6 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
-import {TOTP} from 'otpauth';
 import SQL from 'sql-template-strings';
+import {TOTP} from 'otpauth';
 
 const schema = {
   body: {
