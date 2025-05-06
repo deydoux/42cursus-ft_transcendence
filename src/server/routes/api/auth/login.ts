@@ -22,9 +22,10 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     const {ip} = request;
     const userAgent = request.headers['user-agent'] || null;
+    const expiresAt = Math.floor(Date.now() / 1000) + 10 * 60; // 10 min
 
     await server.db.run(
-      SQL`INSERT INTO connections(user_id, ip, user_agent, access_token) VALUES(${id}, ${ip}, ${userAgent}, ${loginToken})`,
+      SQL`INSERT INTO connections(user_id, ip, user_agent, access_token, expires_at) VALUES(${id}, ${ip}, ${userAgent}, ${loginToken}, ${expiresAt})`,
     );
 
     return loginToken;
