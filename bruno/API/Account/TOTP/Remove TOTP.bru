@@ -1,0 +1,11 @@
+meta {
+  name: Remove TOTP
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{baseURL}}/api/account/totp
+  body: none
+  auth: inherit
+}
