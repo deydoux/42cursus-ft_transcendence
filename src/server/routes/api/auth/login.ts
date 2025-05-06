@@ -40,8 +40,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       return reply.unauthorized('Invalid username or password');
 
     if (user.totp) {
-      const loginToken = await generateLoginToken(request, user.id);
-      return reply.send({loginToken, totp: true});
+      const accessToken = await generateLoginToken(request, user.id);
+      return reply.send({accessToken, totp: true});
     }
 
     const {accessToken, refreshToken} = await request.generateTokens(user.id);
