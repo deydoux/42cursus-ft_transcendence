@@ -2,7 +2,7 @@ import '@fastify/jwt';
 
 interface jwtData {
   id: number;
-  type: 'access' | 'partial' | 'refresh';
+  type: 'access' | 'refresh' | 'login';
   it: number;
 }
 

@@ -30,7 +30,7 @@ CREATE TABLE connections(
   ip            TEXT NOT NULL,
   user_agent    TEXT,
   access_token  TEXT NOT NULL,
-  refresh_token TEXT NOT NULL,
+  refresh_token TEXT,
 
   created_at    INTEGER NOT NULL DEFAULT (unixepoch()),
   updated_at    INTEGER NOT NULL DEFAULT (unixepoch()),

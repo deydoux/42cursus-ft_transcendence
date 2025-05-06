@@ -1,4 +1,5 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
+import {FastifyRequest} from 'fastify';
 import SQL from 'sql-template-strings';
 import {compareSync} from 'bcrypt';
 
@@ -14,17 +15,39 @@ const schema = {
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
+  let it = 0;
+
+  const generateLoginToken = async (request: FastifyRequest, id: number) => {
+    const loginToken = server.jwt.sign({id, type: 'login', it: ++it});
+
+    const {ip} = request;
+    const userAgent = request.headers['user-agent'] || null;
+
+    await server.db.run(
+      SQL`INSERT INTO connections(user_id, ip, user_agent, access_token) VALUES(${id}, ${ip}, ${userAgent}, ${loginToken})`,
+    );
+
+    return loginToken;
+  };
+
   server.post('/login', {schema}, async (request, reply) => {
     const {username, password} = request.body;
     const user = await server.db.get(SQL`
-      SELECT id, password FROM users WHERE lower(username) = lower(${username})
+      SELECT id, password, totp_enabled AS totp FROM users WHERE lower(username) = lower(${username})
     `);
 
     if (!user || !compareSync(password, user.password))
       return reply.unauthorized('Invalid username or password');
 
+    if (user.totp) {
+      const loginToken = await generateLoginToken(request, user.id);
+      return reply.send({loginToken, totp: true});
+    }
+
     const {accessToken, refreshToken} = await request.generateTokens(user.id);
-    return reply.setCookie('refreshToken', refreshToken).send({accessToken});
+    return reply
+      .setCookie('refreshToken', refreshToken)
+      .send({accessToken, totp: false});
   });
 };
 

@@ -26,7 +26,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const totp = new TOTP({secret});
     const {token} = request.body;
     if (totp.validate({token}) === null)
-      return reply.badRequest('Invalid TOTP code');
+      return reply.unauthorized('Invalid TOTP code');
 
     await server.db.run(
       SQL`UPDATE users SET totp_enabled = 0, totp_secret = NULL WHERE id = ${id}`,

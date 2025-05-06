@@ -30,16 +30,13 @@ const plugin: FastifyPluginAsync = async server => {
 
       const query = SQL`SELECT id FROM connections WHERE user_id = ${id} AND `;
       let token;
-      if (type === 'access') {
-        const {authorization} = request.headers;
-        if (!authorization) return false;
-
-        token = authorization.split(' ')[1];
+      if (type === 'access' || type === 'login') {
+        token = request.headers.authorization?.split(' ')[1];
         query.append(SQL`access_token = ${token}`);
       } else if (type === 'refresh') {
         token = request.cookies.refreshToken;
         query.append(SQL`refresh_token = ${token}`);
-      } else if (type === 'partial') return true;
+      }
 
       if (!token) return false;
 

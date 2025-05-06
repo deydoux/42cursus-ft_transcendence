@@ -1,8 +1,11 @@
-import {FastifyPluginAsync, FastifyRequest} from 'fastify';
+import {FastifyPluginAsync} from 'fastify';
 
 const plugin: FastifyPluginAsync = async server => {
-  server.decorate('authenticate', async (request: FastifyRequest) => {
+  server.decorate('authenticate', async request => {
     await request.jwtVerify();
+
+    if (request.user.type !== 'access')
+      throw server.httpErrors.unauthorized('Invalid token type');
   });
 };
 
