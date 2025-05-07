@@ -1,0 +1,17 @@
+meta {
+  name: Verify TOTP
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseURL}}/api/auth/verify
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "token": "352434"
+  }
+}

@@ -1,0 +1,17 @@
+meta {
+  name: Remove TOTP
+  type: http
+  seq: 3
+}
+
+delete {
+  url: lintlint{{baseURL}}/api/account/totp
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "token": "954321"
+  }
+}

@@ -7,6 +7,9 @@ CREATE TABLE users(
   username           TEXT UNIQUE NOT NULL,
   password           TEXT NOT NULL,
 
+  totp_secret        TEXT,
+  totp_enabled       INTEGER NOT NULL DEFAULT 0,
+
   has_avatar         INTEGER NOT NULL DEFAULT 0,
   avatar_version     INTEGER NOT NULL DEFAULT 0,
 
@@ -27,7 +30,7 @@ CREATE TABLE connections(
   ip            TEXT NOT NULL,
   user_agent    TEXT,
   access_token  TEXT NOT NULL,
-  refresh_token TEXT NOT NULL,
+  refresh_token TEXT,
 
   created_at    INTEGER NOT NULL DEFAULT (unixepoch()),
   updated_at    INTEGER NOT NULL DEFAULT (unixepoch()),

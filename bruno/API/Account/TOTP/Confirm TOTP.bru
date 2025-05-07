@@ -1,0 +1,17 @@
+meta {
+  name: Confirm TOTP
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{baseURL}}/api/account/totp
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "token": "117035"
+  }
+}

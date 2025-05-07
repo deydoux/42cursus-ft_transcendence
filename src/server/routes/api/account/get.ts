@@ -5,16 +5,29 @@ import generateAvatarURL from '#lib/generateAvatarURL';
 const plugin: FastifyPluginAsync = async server => {
   server.get('/', async (request, reply) => {
     const {id} = request.user;
-    const account = await server.db.get(
-      SQL`SELECT id, username, has_avatar, avatar_version, password_edited_at AS passwordEditedAt FROM users WHERE id = ${id}`,
-    );
+    const {connection} = request;
 
-    if (!account) return reply.notFound('Account not found');
+    const [user, connections] = await Promise.all([
+      server.db.get(
+        SQL`SELECT id, username, password_edited_at AS passwordEditedAt, totp_enabled AS totp, has_avatar, avatar_version FROM users WHERE id = ${id}`,
+      ),
+      server.db.all(
+        SQL`SELECT id, ip, user_agent AS userAgent, created_at AS createdAt, updated_at AS updatedAt FROM connections WHERE user_id = ${id} ORDER BY updated_at DESC`,
+      ),
+    ]);
 
-    account.passwordEditedAt = new Date(account.passwordEditedAt * 1000);
-    generateAvatarURL(account);
+    if (!user) return reply.notFound('Account not found');
 
-    return reply.send(account);
+    user.totp = Boolean(user.totp);
+    user.passwordEditedAt = new Date(user.passwordEditedAt * 1000);
+    generateAvatarURL(user);
+
+    connections.forEach(connection => {
+      connection.createdAt = new Date(connection.createdAt * 1000);
+      connection.updatedAt = new Date(connection.updatedAt * 1000);
+    });
+
+    return reply.send({...user, connection, connections});
   });
 };
 

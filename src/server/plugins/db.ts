@@ -25,7 +25,7 @@ const plugin: FastifyPluginAsync = async server => {
   });
 
   clean();
-  setInterval(clean, 60 * 60 * 1000); // 1 hour
+  setInterval(clean, 10 * 60 * 1000); // 10 min
 
   server.decorate('db', db);
 
