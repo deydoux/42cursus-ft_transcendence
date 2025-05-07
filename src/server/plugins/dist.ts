@@ -19,7 +19,8 @@ const plugin: FastifyPluginAsync = async server => {
     if (
       url === '/favicon.ico' ||
       url.startsWith('/api') ||
-      url.startsWith('/assets')
+      url.startsWith('/assets') ||
+      url.startsWith('/oauth2')
     )
       return reply.callNotFound();
 
