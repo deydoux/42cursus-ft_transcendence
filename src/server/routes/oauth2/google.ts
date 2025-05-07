@@ -1,5 +1,6 @@
 import fastifyOauth2, {OAuth2Namespace} from '@fastify/oauth2';
 import {FastifyPluginAsync} from 'fastify';
+import GoogleClient from '#lib/GoogleClient';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -29,7 +30,7 @@ const plugin: FastifyPluginAsync = async server => {
 
   await server.register(fastifyOauth2, {
     name: 'google',
-    scope: ['profile'],
+    scope: ['profile', 'email'],
     credentials: {
       client: {
         id: GOOGLE_ID,
@@ -42,15 +43,21 @@ const plugin: FastifyPluginAsync = async server => {
   });
 
   server.get('/oauth2/google/callback', async function (request, reply) {
-    const {token} =
-      await server.google.getAccessTokenFromAuthorizationCodeFlow(request);
+    let token;
+    try {
+      token = (
+        await server.google.getAccessTokenFromAuthorizationCodeFlow(request)
+      ).token;
+    } catch {
+      return reply.unauthorized('Invalid code');
+    }
 
-    console.log(token);
+    const client = new GoogleClient(token.access_token);
 
     // if later need to refresh the token this can be used
     // const { token: newToken } = await this.getNewAccessTokenUsingRefreshToken(token)
 
-    reply.send({access_token: token.access_token});
+    return reply.send(await client.getUserInfo());
   });
 };
 
