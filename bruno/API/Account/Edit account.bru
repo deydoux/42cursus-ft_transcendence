@@ -1,0 +1,20 @@
+meta {
+  name: Edit account
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{baseURL}}/api/account
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username": "deydoux",
+    "oldPassword": "Hello World42",
+    "password": "Hello World42",
+    "confirmPassword": "Hello World42"
+  }
+}

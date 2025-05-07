@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import Fastify from 'fastify';
 import autoload from '@fastify/autoload';
 import {join} from 'node:path';
@@ -35,12 +34,12 @@ async function main() {
   await server.register(import('@fastify/websocket'));
 
   await server.register(autoload, {
-    dir: join(__dirname, 'plugins'),
+    dir: join(__dirname, 'decorators'),
     encapsulate: false,
   });
 
   await server.register(autoload, {
-    dir: join(__dirname, 'decorators'),
+    dir: join(__dirname, 'plugins'),
     encapsulate: false,
   });
 

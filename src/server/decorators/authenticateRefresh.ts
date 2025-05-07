@@ -1,7 +1,7 @@
-import {FastifyPluginAsync} from 'fastify';
+import {FastifyPluginAsync, FastifyRequest} from 'fastify';
 
 const plugin: FastifyPluginAsync = async server => {
-  server.decorate('authenticateRefresh', async request => {
+  server.decorate('authenticateRefresh', async (request: FastifyRequest) => {
     await request.jwtVerify({onlyCookie: true});
   });
 };
