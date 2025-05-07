@@ -24,6 +24,13 @@ BEGIN
   UPDATE users SET password_edited_at = unixepoch() WHERE id = NEW.id;
 END;
 
+CREATE TABLE google_user(
+  id      INTEGER PRIMARY KEY,
+  user_id INTEGER NOT NULL,
+
+  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 CREATE TABLE connections(
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id       INTEGER NOT NULL,

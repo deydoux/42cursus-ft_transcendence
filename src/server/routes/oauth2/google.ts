@@ -42,6 +42,8 @@ const plugin: FastifyPluginAsync = async server => {
     callbackUri: `${BASE_URL}/oauth2/google/callback`,
   });
 
+  const generateSingupToken;
+
   server.get('/oauth2/google/callback', async function (request, reply) {
     let token;
     try {
