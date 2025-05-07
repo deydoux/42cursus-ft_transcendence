@@ -1,5 +1,5 @@
 import {FastifyRequest} from 'fastify';
-// import {RawData} from 'ws';
+import {RawData} from 'ws';
 import {WebSocket} from '@fastify/websocket';
 
 export default class Clients {
@@ -20,22 +20,26 @@ export default class Clients {
       if (index !== -1) this.clients.splice(index, 1);
     });
 
-    // socket.on('message', this.handleMessage(socket));
+    socket.on('message', this.handleMessage(socket));
   };
 
-  broadcast = (data: unknown) =>
-    this.clients.forEach(client => client.socket.send(JSON.stringify(data)));
+  private serialize = (message: TunnelMessage) => JSON.stringify(message);
 
-  // private handleMessage = (socket: WebSocket) => (data: RawData) => {
-  //   let message;
-  //   try {
-  //     message = JSON.parse(data.toString());
-  //   } catch {
-  //     return socket.send(
-  //       JSON.stringify({type: 'error', message: 'Invalid JSON'}),
-  //     );
-  //   }
-  // };
+  private handleMessage = (socket: WebSocket) => (data: RawData) => {
+    let message;
+    try {
+      message = JSON.parse(data.toString());
+    } catch {
+      return socket.send(
+        this.serialize({type: 'error', message: 'Invalid JSON'}),
+      );
+    }
+
+    void message;
+  };
+
+  broadcast = (message: TunnelMessage) =>
+    this.clients.forEach(client => client.socket.send(JSON.stringify(message)));
 
   // remove(connection: number) {
   //   this.clients = this.clients.filter(
