@@ -45,12 +45,13 @@ const plugin: FastifyPluginAsync = async server => {
     const size = Math.min(height ?? 0, width ?? 0, 1024);
     avatar.resize(size, size);
 
+    const {id} = request.user;
+
     const cacheFile = join(server.paths.cache, `avatar_${++it}.webp`);
-    const avatarFile = join(server.paths.avatars, `${request.user.id}.webp`);
+    const avatarFile = join(server.paths.avatars, `${id}.webp`);
     await avatar.toFile(cacheFile);
     await rename(cacheFile, avatarFile);
 
-    const {id} = request.user;
     await server.db.run(
       SQL`UPDATE users SET has_avatar = TRUE, avatar_version = avatar_version + 1 WHERE id = ${id}`,
     );
