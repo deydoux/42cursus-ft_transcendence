@@ -15,7 +15,7 @@ export default class Clients {
   closeConnection = (connection: number) => {
     this.clients.forEach(client => {
       if (client.connection === connection) {
-        client.socket.send(this.serialize({type: 'close'}));
+        client.socket.send(this.message({type: 'close'}));
         client.socket.close();
       }
     });
@@ -24,7 +24,7 @@ export default class Clients {
   closeId = (id: number, ignoreConnection = 0) => {
     this.clients.forEach(client => {
       if (client.id === id && client.connection !== ignoreConnection) {
-        client.socket.send(this.serialize({type: 'close'}));
+        client.socket.send(this.message({type: 'close'}));
         client.socket.close();
       }
     });
@@ -36,12 +36,14 @@ export default class Clients {
       message = JSON.parse(data.toString());
     } catch {
       return socket.send(
-        this.serialize({type: 'error', message: 'Invalid JSON'}),
+        this.message({type: 'error', message: 'Invalid JSON'}),
       );
     }
 
     void message;
   };
+
+  private message = (message: TunnelMessage) => JSON.stringify(message);
 
   routeHandler = (socket: WebSocket, request: FastifyRequest) => {
     const connection = request.connection || 0;
@@ -56,6 +58,4 @@ export default class Clients {
 
     socket.on('message', this.handleMessage(socket));
   };
-
-  serialize = (message: TunnelMessage) => JSON.stringify(message);
 }
