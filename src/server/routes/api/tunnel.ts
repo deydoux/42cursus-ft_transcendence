@@ -12,7 +12,7 @@ const plugin: FastifyPluginAsync = async server => {
     }
   });
 
-  server.get('/tunnel', {websocket: true}, server.clients.handler);
+  server.get('/tunnel', {websocket: true}, server.clients.routeHandler);
 };
 
 export default plugin;

@@ -9,21 +9,26 @@ export default class Clients {
     socket: WebSocket;
   }[] = [];
 
-  handler = (socket: WebSocket, request: FastifyRequest) => {
-    const connection = request.connection || 0;
-    const id = request.user?.id || 0;
+  broadcast = (message: TunnelMessage) =>
+    this.clients.forEach(client => client.socket.send(JSON.stringify(message)));
 
-    this.clients.push({id, connection, socket});
-
-    socket.on('close', () => {
-      const index = this.clients.findIndex(client => client.socket === socket);
-      if (index !== -1) this.clients.splice(index, 1);
+  closeConnection = (connection: number) => {
+    this.clients.forEach(client => {
+      if (client.connection === connection) {
+        client.socket.send(this.serialize({type: 'close'}));
+        client.socket.close();
+      }
     });
-
-    socket.on('message', this.handleMessage(socket));
   };
 
-  private serialize = (message: TunnelMessage) => JSON.stringify(message);
+  closeId = (id: number, ignoreConnection = 0) => {
+    this.clients.forEach(client => {
+      if (client.id === id && client.connection !== ignoreConnection) {
+        client.socket.send(this.serialize({type: 'close'}));
+        client.socket.close();
+      }
+    });
+  };
 
   private handleMessage = (socket: WebSocket) => (data: RawData) => {
     let message;
@@ -38,31 +43,19 @@ export default class Clients {
     void message;
   };
 
-  broadcast = (message: TunnelMessage) =>
-    this.clients.forEach(client => client.socket.send(JSON.stringify(message)));
+  routeHandler = (socket: WebSocket, request: FastifyRequest) => {
+    const connection = request.connection || 0;
+    const id = request.user?.id || 0;
 
-  // remove(connection: number) {
-  //   this.clients = this.clients.filter(
-  //     client => client.connection !== connection,
-  //   );
-  // }
+    this.clients.push({id, connection, socket});
 
-  // removeAll(id: number, connection: number) {
-  //   this.clients = this.clients.filter(
-  //     client => client.id !== id || client.connection === connection,
-  //   );
-  // }
+    socket.on('close', () => {
+      const index = this.clients.findIndex(client => client.socket === socket);
+      if (index !== -1) this.clients.splice(index, 1);
+    });
 
-  // send(id: number, data: unknown) {
-  //   this.clients.forEach(client => {
-  //     if (client.id === id) client.socket.send(JSON.stringify(data));
-  //   });
-  // }
+    socket.on('message', this.handleMessage(socket));
+  };
 
-  // sendConnection(connection: number, data: unknown) {
-  //   this.clients.forEach(client => {
-  //     if (client.connection === connection)
-  //       client.socket.send(JSON.stringify(data));
-  //   });
-  // }
+  serialize = (message: TunnelMessage) => JSON.stringify(message);
 }
