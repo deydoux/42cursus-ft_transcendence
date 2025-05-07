@@ -10,7 +10,7 @@ export default class Clients {
   }[] = [];
 
   broadcast = (message: TunnelMessage) =>
-    this.clients.forEach(client => client.socket.send(JSON.stringify(message)));
+    this.clients.forEach(client => client.socket.send(this.message(message)));
 
   closeConnection = (connection: number) => {
     this.clients.forEach(client => {
