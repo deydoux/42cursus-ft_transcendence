@@ -17,6 +17,7 @@ declare module 'fastify' {
       static: string;
     };
     prod: boolean;
+    validateTOTP: (secret: string | null, token: string) => void;
     validateUsernameAvailability: (
       username: string,
       id?: number,
