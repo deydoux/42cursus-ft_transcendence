@@ -1,3 +1,4 @@
+import Clients from '#lib/Clients';
 import Fastify from 'fastify';
 import autoload from '@fastify/autoload';
 import {join} from 'node:path';
@@ -16,6 +17,7 @@ const server = Fastify({
   },
 });
 
+server.decorate('clients', new Clients());
 server.decorate('dev', DEV);
 server.decorate('prod', !DEV);
 
