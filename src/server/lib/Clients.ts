@@ -30,6 +30,8 @@ export default class Clients {
     });
   };
 
+  isOnline = (id: number) => this.clients.some(client => client.id === id);
+
   private handleMessage = (socket: WebSocket) => (data: RawData) => {
     let message;
     try {
