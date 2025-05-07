@@ -13,9 +13,13 @@ const schema = {
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.delete('/', async (request, reply) => {
+    const {connection} = request;
+    const {id} = request.user;
+
     await server.db.run(
-      SQL`DELETE FROM connections WHERE id != ${request.connection} AND user_id = ${request.user.id}`,
+      SQL`DELETE FROM connections WHERE id != ${connection} AND user_id = ${id}`,
     );
+    server.clients.closeId(id, connection);
 
     return reply.code(204).send();
   });
@@ -33,6 +37,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     await server.db.run(
       SQL`DELETE FROM connections WHERE id = ${id} AND user_id = ${userId}`,
     );
+    server.clients.closeConnection(id);
+
     return reply.code(204).send();
   });
 };
