@@ -11,7 +11,6 @@ type jwtData =
   | {
       type: 'signup';
       id: string;
-      nickname: string;
       avatar: string;
       it: number;
     };

@@ -50,13 +50,11 @@ const plugin: FastifyPluginAsync = async server => {
     request: FastifyRequest,
     info: GoogleUserInfo,
   ) => {
-    const {sub: id, picture: avatar, email} = info;
-    const nickname = email.split('@')[0];
+    const {sub: id, picture: avatar} = info;
 
     const signupToken = server.jwt.sign({
       type: 'signup',
       id,
-      nickname,
       avatar,
       it: ++it,
     });
@@ -85,8 +83,9 @@ const plugin: FastifyPluginAsync = async server => {
     const client = new GoogleClient(token.access_token);
     const info = await client.getUserInfo();
 
+    const suggestedUsername = info.email.split('@')[0];
     const accessToken = await generateSignupToken(request, info);
-    return reply.send({accessToken});
+    return reply.send({suggestedUsername, accessToken});
   });
 };
 
