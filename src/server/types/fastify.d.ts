@@ -30,5 +30,6 @@ declare module 'fastify' {
     generateTokens: (
       id: number,
     ) => Promise<{accessToken: string; refreshToken: string}>;
+    removeConnection: () => Promise<void>;
   }
 }

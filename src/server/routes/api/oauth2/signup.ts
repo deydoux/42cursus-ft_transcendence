@@ -24,9 +24,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     );
     if (!id) throw new Error('Failed to create user');
 
-    const {connection} = request;
-    await server.db.run(SQL`DELETE FROM connections WHERE id = ${connection}`);
-    request.connection = null;
+    await request.removeConnection();
 
     const {accessToken, refreshToken} = await request.generateTokens(id);
     return reply

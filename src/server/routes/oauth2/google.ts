@@ -70,7 +70,7 @@ const plugin: FastifyPluginAsync = async server => {
     return signupToken;
   };
 
-  server.get('/oauth2/google/callback', async function (request, reply) {
+  server.get('/api/oauth2/google/callback', async function (request, reply) {
     let token;
     try {
       token = (
@@ -82,10 +82,25 @@ const plugin: FastifyPluginAsync = async server => {
 
     const client = new GoogleClient(token.access_token);
     const info = await client.getUserInfo();
+    const id = info.sub;
 
-    const suggestedUsername = info.email.split('@')[0];
-    const accessToken = await generateSignupToken(request, info);
-    return reply.send({suggestedUsername, accessToken});
+    const user = await server.db.get(
+      SQL`SELECT id FROM users WHERE google_id = ${id}`,
+    );
+
+    if (!user) {
+      const suggestedUsername = info.email.split('@')[0];
+      const accessToken = await generateSignupToken(request, info);
+      return reply.send({signedUp: false, suggestedUsername, accessToken});
+    }
+
+    await request.removeConnection();
+
+    const {accessToken, refreshToken} = await request.generateTokens(user.id);
+    return reply
+      .setCookie('refreshToken', refreshToken)
+      .send({signedUp: true, accessToken})
+      .code(201);
   });
 };
 

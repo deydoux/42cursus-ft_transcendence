@@ -26,11 +26,11 @@ const plugin: FastifyPluginAsync = async server => {
       expiresIn: '10m',
     },
     async trusted(request, decodedToken) {
-      const {id, type} = decodedToken;
-
-      const query = SQL`SELECT id FROM connections WHERE user_id = ${id} AND `;
+      const query = SQL`SELECT id FROM connections WHERE `;
       let token;
-      if (type === 'access' || type === 'login') {
+
+      const {type} = decodedToken;
+      if (type === 'access' || type === 'login' || type === 'signup') {
         token = request.headers.authorization?.split(' ')[1];
         query.append(SQL`access_token = ${token}`);
       } else if (type === 'refresh') {

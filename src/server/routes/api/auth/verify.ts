@@ -27,9 +27,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const {token} = request.body;
     server.validateTOTP(secret, token);
 
-    const {connection} = request;
-    await server.db.run(SQL`DELETE FROM connections WHERE id = ${connection}`);
-    request.connection = null;
+    await request.removeConnection();
 
     const {accessToken, refreshToken} = await request.generateTokens(id);
     return reply
