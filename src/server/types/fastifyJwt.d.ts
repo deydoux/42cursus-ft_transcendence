@@ -1,22 +1,24 @@
 import '@fastify/jwt';
 
 interface jwtDataBase {
-  id: number;
   type: 'access' | 'refresh' | 'login';
+  id: number;
   it: number;
 }
 
 type jwtData =
   | jwtDataBase
-  | (jwtDataBase & {
+  | {
       type: 'signup';
+      id: string;
       nickname: string;
       avatar: string;
-    });
+      it: number;
+    };
 
 declare module '@fastify/jwt' {
   interface FastifyJWT {
     payload: jwtData;
-    user: jwtData;
+    user: jwtDataBase;
   }
 }

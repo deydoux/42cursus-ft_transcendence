@@ -5,7 +5,7 @@ export default class GoogleClient {
     this.accessToken = accessToken;
   }
 
-  private fetch = async (url: string, options: RequestInit = {}) => {
+  private fetch = async <T>(url: string, options: RequestInit = {}) => {
     const response = await fetch(url, {
       ...options,
       headers: {
@@ -16,9 +16,9 @@ export default class GoogleClient {
 
     const body = await response.json();
     if (!response.ok) throw body;
-    return body;
+    return body as T;
   };
 
   getUserInfo = () =>
-    this.fetch('https://www.googleapis.com/oauth2/v3/userinfo');
+    this.fetch<GoogleUserInfo>('https://www.googleapis.com/oauth2/v3/userinfo');
 }

@@ -5,7 +5,7 @@ let it = 0;
 
 const plugin: FastifyPluginAsync = async server => {
   server.decorateRequest('generateAccessToken', async function (id: number) {
-    const accessToken = server.jwt.sign({id, type: 'access', it: ++it});
+    const accessToken = server.jwt.sign({type: 'access', id, it: ++it});
 
     if (this.connection) {
       const {ip, headers, connection} = this;

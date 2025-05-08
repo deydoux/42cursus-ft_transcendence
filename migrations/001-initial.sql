@@ -4,8 +4,10 @@
 
 CREATE TABLE users(
   id                 INTEGER PRIMARY KEY AUTOINCREMENT,
-  username           TEXT UNIQUE NOT NULL,
-  password           TEXT NOT NULL,
+  google_id          TEXT UNIQUE,
+
+  username           TEXT UNIQUE,
+  password           TEXT,
 
   totp_secret        TEXT,
   totp_enabled       INTEGER NOT NULL DEFAULT 0,
@@ -24,16 +26,9 @@ BEGIN
   UPDATE users SET password_edited_at = unixepoch() WHERE id = NEW.id;
 END;
 
-CREATE TABLE google_user(
-  id      INTEGER PRIMARY KEY,
-  user_id INTEGER NOT NULL,
-
-  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
 CREATE TABLE connections(
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id       INTEGER NOT NULL,
+  user_id       INTEGER,
   ip            TEXT NOT NULL,
   user_agent    TEXT,
   access_token  TEXT NOT NULL,

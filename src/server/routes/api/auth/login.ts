@@ -18,7 +18,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   let it = 0;
 
   const generateLoginToken = async (request: FastifyRequest, id: number) => {
-    const loginToken = server.jwt.sign({id, type: 'login', it: ++it});
+    const loginToken = server.jwt.sign({type: 'login', id, it: ++it});
 
     const {ip} = request;
     const userAgent = request.headers['user-agent'] || null;

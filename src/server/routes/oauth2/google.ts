@@ -1,6 +1,7 @@
+import {FastifyPluginAsync, FastifyRequest} from 'fastify';
 import fastifyOauth2, {OAuth2Namespace} from '@fastify/oauth2';
-import {FastifyPluginAsync} from 'fastify';
 import GoogleClient from '#lib/GoogleClient';
+import SQL from 'sql-template-strings';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -14,9 +15,10 @@ let {BASE_URL} = process.env;
 const plugin: FastifyPluginAsync = async server => {
   if (!GOOGLE_ID || !GOOGLE_SECRET) {
     const message =
-      'Google OAuth2 credentials are not set: BASE_URL, GOOGLE_ID, GOOGLE_SECRET';
+      'Google OAuth2 credentials are not set: GOOGLE_ID, GOOGLE_SECRET';
+
     if (server.prod) throw new Error(message);
-    return server.log.warn(message);
+    return server.log.warn(`${message}; skipping Google OAuth2 plugin`);
   }
 
   if (!BASE_URL) {
@@ -30,7 +32,7 @@ const plugin: FastifyPluginAsync = async server => {
 
   await server.register(fastifyOauth2, {
     name: 'google',
-    scope: ['profile', 'email'],
+    scope: ['email'],
     credentials: {
       client: {
         id: GOOGLE_ID,
@@ -42,7 +44,33 @@ const plugin: FastifyPluginAsync = async server => {
     callbackUri: `${BASE_URL}/oauth2/google/callback`,
   });
 
-  const generateSingupToken;
+  let it = 0;
+
+  const generateSignupToken = async (
+    request: FastifyRequest,
+    info: GoogleUserInfo,
+  ) => {
+    const {sub: id, picture: avatar, email} = info;
+    const nickname = email.split('@')[0];
+
+    const signupToken = server.jwt.sign({
+      type: 'signup',
+      id,
+      nickname,
+      avatar,
+      it: ++it,
+    });
+
+    const {ip} = request;
+    const userAgent = request.headers['user-agent'] || null;
+    const expiresAt = Math.floor(Date.now() / 1000) + 10 * 60; // 10 min
+
+    await server.db.run(
+      SQL`INSERT INTO connections(ip, user_agent, access_token, expires_at) VALUES(${ip}, ${userAgent}, ${signupToken}, ${expiresAt})`,
+    );
+
+    return signupToken;
+  };
 
   server.get('/oauth2/google/callback', async function (request, reply) {
     let token;
@@ -55,11 +83,10 @@ const plugin: FastifyPluginAsync = async server => {
     }
 
     const client = new GoogleClient(token.access_token);
+    const info = await client.getUserInfo();
 
-    // if later need to refresh the token this can be used
-    // const { token: newToken } = await this.getNewAccessTokenUsingRefreshToken(token)
-
-    return reply.send(await client.getUserInfo());
+    const accessToken = await generateSignupToken(request, info);
+    return reply.send({accessToken});
   });
 };
 
