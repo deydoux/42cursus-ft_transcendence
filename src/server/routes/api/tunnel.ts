@@ -5,7 +5,7 @@ const plugin: FastifyPluginAsync = async server => {
 
   server.addHook('onRequest', async request => {
     try {
-      await server.authenticate(request);
+      await server.authenticate()(request);
     } catch (error) {
       if (server.prod) throw error;
       server.log.warn('Authentication failed', error);

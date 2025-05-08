@@ -1,31 +1,28 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
+import {JWTDataSignup} from 'types/fastifyJWT';
 import SQL from 'sql-template-strings';
+import {username} from '#lib/schemas';
 
 const schema = {
   body: {
     type: 'object',
-    properties: {
-      token: {type: 'string'},
-    },
-    required: ['token'],
+    properties: {username},
+    required: ['username'],
   } as const,
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  server.addHook('onRequest', server.authenticate('login'));
+  server.addHook('onRequest', server.authenticate('signup'));
 
-  server.post('/verify', {schema}, async (request, reply) => {
-    const {id} = request.user;
-    const user = await server.db.get(
-      SQL`SELECT totp_enabled AS totp, totp_secret AS secret FROM users WHERE id = ${id}`,
+  server.post('/signup', {schema}, async (request, reply) => {
+    const {username} = request.body;
+    await server.validateUsernameAvailability(username);
+
+    const {id: googleId} = request.user as unknown as JWTDataSignup;
+    const {lastID: id} = await server.db.run(
+      SQL`INSERT INTO users(username, google_id) VALUES(${username}, ${googleId})`,
     );
-
-    if (!user) return reply.notFound('Account not found');
-    if (!user.totp) return reply.badRequest('TOTP is not enabled');
-
-    const {secret} = user;
-    const {token} = request.body;
-    server.validateTOTP(secret, token);
+    if (!id) throw new Error('Failed to create user');
 
     const {connection} = request;
     await server.db.run(SQL`DELETE FROM connections WHERE id = ${connection}`);

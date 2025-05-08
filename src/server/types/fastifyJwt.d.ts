@@ -1,23 +1,23 @@
 import '@fastify/jwt';
 
-interface jwtDataBase {
+interface JWTDataBase {
   type: 'access' | 'refresh' | 'login';
   id: number;
   it: number;
 }
 
-type jwtData =
-  | jwtDataBase
-  | {
-      type: 'signup';
-      id: string;
-      avatar: string;
-      it: number;
-    };
+interface JWTDataSignup {
+  type: 'signup';
+  id: string;
+  avatar: string;
+  it: number;
+}
+
+type JWTData = JWTDataBase | JWTDataSignup;
 
 declare module '@fastify/jwt' {
   interface FastifyJWT {
-    payload: jwtData;
-    user: jwtDataBase;
+    payload: JWTData;
+    user: JWTDataBase;
   }
 }
