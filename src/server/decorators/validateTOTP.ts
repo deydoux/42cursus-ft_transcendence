@@ -2,7 +2,7 @@ import {FastifyPluginAsync} from 'fastify';
 import {TOTP} from 'otpauth';
 
 const plugin: FastifyPluginAsync = async server => {
-  server.decorate('validateTOTP', (secret: string | null, token: string) => {
+  server.decorate('validateTOTP', (secret, token) => {
     if (!secret)
       throw server.httpErrors.badRequest('TOTP secret not generated');
 

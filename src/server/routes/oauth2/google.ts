@@ -32,7 +32,7 @@ const plugin: FastifyPluginAsync = async server => {
 
   await server.register(fastifyOauth2, {
     name: 'google',
-    scope: ['email'],
+    scope: ['profile', 'email'],
     credentials: {
       client: {
         id: GOOGLE_ID,

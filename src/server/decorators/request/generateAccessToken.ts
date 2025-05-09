@@ -4,7 +4,7 @@ import SQL from 'sql-template-strings';
 let it = 0;
 
 const plugin: FastifyPluginAsync = async server => {
-  server.decorateRequest('generateAccessToken', async function (id: number) {
+  server.decorateRequest('generateAccessToken', async function (id) {
     const accessToken = server.jwt.sign({type: 'access', id, it: ++it});
 
     if (this.connection) {

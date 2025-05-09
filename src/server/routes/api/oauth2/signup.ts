@@ -1,3 +1,4 @@
+import * as sharp from 'sharp';
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import {JWTDataSignup} from 'types/fastifyJWT';
 import SQL from 'sql-template-strings';
@@ -14,16 +15,28 @@ const schema = {
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.addHook('onRequest', server.authenticate('signup'));
 
-  server.post('/signup', {schema}, async (request, reply) => {
+  const setAvatar = async (id: number, url: string | undefined) => {
+    if (!url) return;
+
+    const response = await fetch(url);
+    if (!response.ok || !response.body) return;
+
+    const avatar = sharp(await response.arrayBuffer());
+    const {width, height} = await avatar.metadata();
+    console.log(`Avatar size: ${width}x${height}`);
+  };
+
+  server.post('/google/signup', {schema}, async (request, reply) => {
     const {username} = request.body;
     await server.validateUsernameAvailability(username);
 
-    const {id: googleId} = request.user as unknown as JWTDataSignup;
+    const {id: googleId, avatar} = request.user as unknown as JWTDataSignup;
     const {lastID: id} = await server.db.run(
       SQL`INSERT INTO users(username, google_id) VALUES(${username}, ${googleId})`,
     );
     if (!id) throw new Error('Failed to create user');
 
+    await setAvatar(id, avatar);
     await request.removeConnection();
 
     const {accessToken, refreshToken} = await request.generateTokens(id);
