@@ -15,14 +15,14 @@ const plugin: FastifyPluginAsync = async server => {
   await db.run('PRAGMA foreign_keys = ON');
   await db.migrate();
 
+  db.on('trace', (sql: string) => {
+    server.log.trace(`${filename}: ${sql}`);
+  });
+
   const clean = () => {
     server.log.info('Cleaning database');
     db.run(SQL`DELETE FROM connections WHERE expires_at <= unixepoch()`);
   };
-
-  db.on('trace', (sql: string) => {
-    server.log.trace(`${filename}: ${sql}`);
-  });
 
   clean();
   setInterval(clean, 10 * 60 * 1000); // 10 min
