@@ -17,7 +17,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   const setAvatar = async (id: number, url: string | undefined) => {
     if (!url) return;
 
-    const response = await fetch(url);
+    const response = await fetch(url.replace('=s96-c', '=s1024-c'));
     if (!response.ok || !response.body) return;
 
     const buffer = await response.arrayBuffer();
