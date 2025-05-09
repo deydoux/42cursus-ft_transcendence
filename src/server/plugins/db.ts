@@ -21,6 +21,9 @@ const plugin: FastifyPluginAsync = async server => {
 
   const clean = () => {
     server.log.info('Cleaning database');
+    db.run(
+      SQL`DELETE FROM users WHERE last_seen <= unixepoch() - 2 * 365 * 24 * 60 * 60`, // 2 years
+    );
     db.run(SQL`DELETE FROM connections WHERE expires_at <= unixepoch()`);
   };
 
