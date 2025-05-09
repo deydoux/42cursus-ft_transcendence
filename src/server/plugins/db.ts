@@ -31,7 +31,6 @@ const plugin: FastifyPluginAsync = async server => {
 
   server.addHook('onClose', async server => {
     await server.db.close();
-    await rm(server.paths.cache, {recursive: true, force: true});
   });
 };
 
