@@ -12,6 +12,8 @@ declare module 'fastify' {
 const {GOOGLE_ID, GOOGLE_SECRET} = process.env;
 let {BASE_URL} = process.env;
 
+let it = 0;
+
 const plugin: FastifyPluginAsync = async server => {
   if (!GOOGLE_ID || !GOOGLE_SECRET) {
     const message =
@@ -43,8 +45,6 @@ const plugin: FastifyPluginAsync = async server => {
     startRedirectPath: '/oauth2/google',
     callbackUri: `${BASE_URL}/oauth2/google/callback`,
   });
-
-  let it = 0;
 
   const generateSignupToken = async (
     request: FastifyRequest,

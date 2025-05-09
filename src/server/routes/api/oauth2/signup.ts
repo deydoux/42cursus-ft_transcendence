@@ -1,4 +1,3 @@
-import * as sharp from 'sharp';
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import {JWTDataSignup} from 'types/fastifyJWT';
 import SQL from 'sql-template-strings';
@@ -21,9 +20,12 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const response = await fetch(url);
     if (!response.ok || !response.body) return;
 
-    const avatar = sharp(await response.arrayBuffer());
-    const {width, height} = await avatar.metadata();
-    console.log(`Avatar size: ${width}x${height}`);
+    const buffer = await response.arrayBuffer();
+    try {
+      await server.storeAvatar(id, buffer);
+    } catch (error) {
+      server.log.warn(error);
+    }
   };
 
   server.post('/google/signup', {schema}, async (request, reply) => {

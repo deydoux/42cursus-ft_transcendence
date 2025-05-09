@@ -1,5 +1,6 @@
 import Clients from '#lib/Clients';
 import {Database} from 'sqlite';
+import {SharpInput} from 'sharp';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -17,6 +18,7 @@ declare module 'fastify' {
       static: string;
     };
     prod: boolean;
+    storeAvatar: (id: number, avatar: SharpInput) => Promise<void>;
     validateTOTP: (secret: string, token: string) => void;
     validateUsernameAvailability: (
       username: string,

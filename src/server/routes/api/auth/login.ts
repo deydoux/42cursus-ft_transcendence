@@ -14,9 +14,9 @@ const schema = {
   } as const,
 };
 
-const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  let it = 0;
+let it = 0;
 
+const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   const generateLoginToken = async (request: FastifyRequest, id: number) => {
     const loginToken = server.jwt.sign({type: 'login', id, it: ++it});
 
