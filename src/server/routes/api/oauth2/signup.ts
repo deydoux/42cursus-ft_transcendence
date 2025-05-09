@@ -32,9 +32,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const {username} = request.body;
     await server.validateUsernameAvailability(username);
 
-    const {id: googleId, avatar} = request.user as unknown as JWTDataSignup;
+    const {id: googleID, avatar} = request.user as unknown as JWTDataSignup;
     const {lastID: id} = await server.db.run(
-      SQL`INSERT INTO users(username, google_id) VALUES(${username}, ${googleId})`,
+      SQL`INSERT INTO users(username, google_id) VALUES(${username}, ${googleID})`,
     );
     if (!id) throw new Error('Failed to create user');
 
