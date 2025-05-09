@@ -34,7 +34,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
         SQL`SELECT password FROM users WHERE id = ${id}`,
       );
 
-      if (!user || !oldPassword || !compareSync(oldPassword, user.password))
+      if (
+        !user ||
+        (user.password &&
+          (!oldPassword || !compareSync(oldPassword, user.password)))
+      )
         throw {
           ...errorCodes.FST_ERR_VALIDATION('Invalid password'),
           statusCode: 401,

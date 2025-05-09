@@ -19,7 +19,8 @@ const plugin: FastifyPluginAsync = async server => {
     if (!user) return reply.notFound('Account not found');
 
     user.totp = Boolean(user.totp);
-    user.passwordEditedAt = new Date(user.passwordEditedAt * 1000);
+    if (user.passwordEditedAt)
+      user.passwordEditedAt = new Date(user.passwordEditedAt * 1000);
     generateAvatarURL(user);
 
     connections.forEach(connection => {

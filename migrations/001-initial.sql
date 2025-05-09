@@ -9,13 +9,14 @@ CREATE TABLE users(
   username           TEXT UNIQUE,
   password           TEXT,
 
+  password_edited_at INTEGER DEFAULT (unixepoch()),
+
   totp_secret        TEXT,
   totp_enabled       INTEGER NOT NULL DEFAULT 0,
 
   has_avatar         INTEGER NOT NULL DEFAULT 0,
-  avatar_version     INTEGER NOT NULL DEFAULT 0,
+  avatar_version     INTEGER NOT NULL DEFAULT 0
 
-  password_edited_at INTEGER NOT NULL DEFAULT (unixepoch())
 );
 
 CREATE TRIGGER update_users_password_edited_at
