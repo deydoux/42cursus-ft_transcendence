@@ -19,11 +19,15 @@ const plugin: FastifyPluginAsync = async server => {
     server.log.trace(`${filename}: ${sql}`);
   });
 
-  const clean = () => {
+  const clean = async () => {
     server.log.info('Cleaning database');
-    db.run(
-      SQL`DELETE FROM users WHERE last_seen <= unixepoch() - 2 * 365 * 24 * 60 * 60`, // 2 years
-    );
+
+    const inactive = Math.floor(Date.now() / 1000) - 2 * 365 * 24 * 60 * 60; // 2 years
+    (
+      await db.all(SQL`SELECT id FROM users WHERE last_seen <= ${inactive}`)
+    ).forEach(user => server.removeAvatar(user.id));
+
+    db.run(SQL`DELETE FROM users WHERE last_seen <= ${inactive}`);
     db.run(SQL`DELETE FROM connections WHERE expires_at <= unixepoch()`);
   };
 

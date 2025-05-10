@@ -18,6 +18,7 @@ declare module 'fastify' {
       static: string;
     };
     prod: boolean;
+    removeAvatar: (id: number) => Promise<void>;
     storeAvatar: (id: number, avatar: SharpInput) => Promise<void>;
     validateTOTP: (secret: string, token: string) => void;
     validateUsernameAvailability: (

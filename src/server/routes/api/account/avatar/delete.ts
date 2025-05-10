@@ -1,7 +1,5 @@
 import {FastifyPluginAsync} from 'fastify';
 import SQL from 'sql-template-strings';
-import {join} from 'node:path';
-import {rm} from 'node:fs/promises';
 
 const plugin: FastifyPluginAsync = async server => {
   server.delete('/', async (request, reply) => {
@@ -10,9 +8,7 @@ const plugin: FastifyPluginAsync = async server => {
       SQL`UPDATE users SET has_avatar = FALSE WHERE id = ${id}`,
     );
 
-    const path = join(server.paths.avatars, `${id}.webp`);
-    await rm(path, {force: true});
-
+    await server.removeAvatar(id);
     return reply.code(204).send();
   });
 };

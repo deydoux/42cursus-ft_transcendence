@@ -1,8 +1,6 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
 import {compareSync} from 'bcrypt';
-import {join} from 'node:path';
-import {rm} from 'node:fs/promises';
 
 const schema = {
   body: {
@@ -30,9 +28,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     await server.db.run(SQL`DELETE FROM users WHERE id = ${id}`);
 
-    const avatar = join(server.paths.avatars, `${id}.webp`);
-    await rm(avatar, {force: true});
-
+    await server.removeAvatar(id);
     return reply.clearCookie('refreshToken').code(204).send();
   });
 };
