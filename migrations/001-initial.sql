@@ -19,6 +19,9 @@ CREATE TABLE users(
   avatar_version     INTEGER NOT NULL DEFAULT 0
 );
 
+CREATE INDEX idx_users_username_lower ON users(lower(username));
+CREATE INDEX idx_users_last_seen ON users(last_seen);
+
 CREATE TRIGGER update_users_password_edited_at
 AFTER UPDATE ON users
 FOR EACH ROW
@@ -42,6 +45,11 @@ CREATE TABLE connections(
   FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE INDEX idx_connections_user_id ON connections(user_id);
+CREATE INDEX idx_connections_access_token ON connections(access_token);
+CREATE INDEX idx_connections_refresh_token ON connections(refresh_token);
+CREATE INDEX idx_connections_expires_at ON connections(expires_at);
+
 CREATE TRIGGER update_connections_updated_at
 AFTER UPDATE ON connections
 FOR EACH ROW
@@ -54,5 +62,18 @@ END;
 -- Down
 --------------------------------------------------------------------------------
 
+DROP TRIGGER update_connections_updated_at;
+
+DROP INDEX idx_connections_expires_at;
+DROP INDEX idx_connections_refresh_token;
+DROP INDEX idx_connections_access_token;
+DROP INDEX idx_connections_user_id;
+
 DROP TABLE connections;
+
+DROP TRIGGER update_users_password_edited_at;
+
+DROP INDEX idx_users_last_seen;
+DROP INDEX idx_users_username_lower;
+
 DROP TABLE users;
