@@ -30,6 +30,23 @@ BEGIN
   UPDATE users SET password_edited_at = unixepoch() WHERE id = NEW.id;
 END;
 
+CREATE TABLE relationships(
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  type       TEXT,
+
+  user_id    INTEGER NOT NULL,
+  other_id   INTEGER NOT NULL,
+
+  created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+
+  CHECK(type IN ('block', 'friend', 'pending')),
+  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY(other_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_relationships_user_id ON relationships(user_id, type);
+CREATE INDEX idx_relationships_other_id ON relationships(other_id, type);
+
 CREATE TABLE connections(
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id       INTEGER,
@@ -63,17 +80,17 @@ END;
 --------------------------------------------------------------------------------
 
 DROP TRIGGER update_connections_updated_at;
-
 DROP INDEX idx_connections_expires_at;
 DROP INDEX idx_connections_refresh_token;
 DROP INDEX idx_connections_access_token;
 DROP INDEX idx_connections_user_id;
-
 DROP TABLE connections;
 
-DROP TRIGGER update_users_password_edited_at;
+DROP INDEX idx_relationships_friend_id;
+DROP INDEX idx_relationships_other_id;
+DROP TABLE relationships;
 
+DROP TRIGGER update_users_password_edited_at;
 DROP INDEX idx_users_last_seen;
 DROP INDEX idx_users_username_lower;
-
 DROP TABLE users;
