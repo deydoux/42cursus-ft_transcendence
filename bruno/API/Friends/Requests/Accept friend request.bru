@@ -1,0 +1,15 @@
+meta {
+  name: Accept friend request
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseURL}}/api/friends/requests/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id:
+}

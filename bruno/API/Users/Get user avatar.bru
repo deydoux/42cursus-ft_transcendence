@@ -1,11 +1,11 @@
 meta {
-  name: Retreive user data
+  name: Get user avatar
   type: http
   seq: 2
 }
 
 get {
-  url: {{baseURL}}/api/users/:id
+  url: {{baseURL}}/api/users/:id/avatar
   body: none
   auth: inherit
 }
