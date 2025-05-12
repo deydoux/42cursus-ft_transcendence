@@ -23,7 +23,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     user.lastSeen = new Date(user.lastSeen * 1000);
 
     generateAvatarURL(user);
-    return {...user, online: server.clients.isOnline(id)};
+    return {...user, online: server.clients.isUserOnline(id)};
   });
 
   await server.register((async instance => {

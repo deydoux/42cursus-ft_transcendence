@@ -51,23 +51,26 @@ export default class Clients {
   broadcast = (message: TunnelMessage) =>
     this.clients.forEach(client => client.socket.send(this.message(message)));
 
-  closeConnection = (connection: number | null) => {
+  closeConnection = (connection: number | null) =>
     this.clients.forEach(client => {
       if (client.connection === connection) {
         client.socket.send(this.message({type: 'close'}));
         client.socket.close();
       }
     });
-  };
 
-  closeUser = (id: number, ignoreConnection: number | null = null) => {
+  closeUser = (id: number, ignoreConnection: number | null = null) =>
     this.clients.forEach(client => {
       if (client.id === id && client.connection !== ignoreConnection) {
         client.socket.send(this.message({type: 'close'}));
         client.socket.close();
       }
     });
-  };
 
-  isOnline = (id: number) => this.clients.some(client => client.id === id);
+  isUserOnline = (id: number) => this.clients.some(client => client.id === id);
+
+  sendUser = (id: number, message: TunnelMessage) =>
+    this.clients.forEach(client => {
+      if (client.id === id) client.socket.send(this.message(message));
+    });
 }

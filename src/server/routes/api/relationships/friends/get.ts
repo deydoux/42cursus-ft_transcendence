@@ -6,9 +6,9 @@ const plugin: FastifyPluginAsync = async server => {
     const {id} = request.user;
 
     const friends = await server.db.all(
-      SQL`SELECT other_id AS id FROM relationships WHERE user_id = ${id} AND type = 'friend'
+      SQL`SELECT id, other_id AS userID FROM relationships WHERE user_id = ${id} AND type = 'friend'
           UNION
-          SELECT user_id AS id FROM relationships WHERE other_id = ${id} AND type = 'friend'`,
+          SELECT id, user_id AS userID FROM relationships WHERE other_id = ${id} AND type = 'friend'`,
     );
 
     return reply.send({friends});
