@@ -22,7 +22,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     if (!user) return reply.notFound('User not found');
 
     generateAvatarURL(user);
-    return user;
+    return {...user, online: server.clients.isOnline(id)};
   });
 
   await server.register((async instance => {

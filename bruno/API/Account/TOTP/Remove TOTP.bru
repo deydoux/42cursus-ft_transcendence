@@ -5,13 +5,13 @@ meta {
 }
 
 delete {
-  url: lintlint{{baseURL}}/api/account/totp
+  url: {{baseURL}}/api/account/totp
   body: json
   auth: inherit
 }
 
 body:json {
   {
-    "token": "954321"
+    "token": "123456"
   }
 }

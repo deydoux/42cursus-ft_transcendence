@@ -1,6 +1,5 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
-import {TOTP} from 'otpauth';
 
 const schema = {
   body: {
@@ -23,12 +22,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     if (user.totp) return reply.badRequest('TOTP already enabled');
 
     const {secret} = user;
-    if (!secret) return reply.badRequest('TOTP secret not generated');
-
-    const totp = new TOTP({secret});
     const {token} = request.body;
-    if (totp.validate({token}) === null)
-      return reply.unauthorized('Invalid TOTP code');
+    server.validateTOTP(secret, token);
 
     await server.db.run(
       SQL`UPDATE users SET totp_enabled = TRUE, totp_secret = ${secret} WHERE id = ${id}`,

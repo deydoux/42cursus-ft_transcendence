@@ -5,9 +5,10 @@ const plugin: FastifyPluginAsync = async server => {
   server.addHook('onRequest', server.authenticateRefresh);
 
   server.post('/logout', async (request, reply) => {
-    await server.db.run(
-      SQL`DELETE FROM connections WHERE id = ${request.connection}`,
-    );
+    const {connection} = request;
+
+    await server.db.run(SQL`DELETE FROM connections WHERE id = ${connection}`);
+    server.clients.closeConnection(connection);
 
     return reply.clearCookie('refreshToken').code(204).send();
   });
