@@ -28,15 +28,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const {id} = request.params;
     const {id: userID} = request.user;
 
-    const connection = await server.db.get(
-      SQL`SELECT user_id FROM connections WHERE id = ${id} AND user_id = ${userID}`,
-    );
-
-    if (!connection) return reply.notFound('Connection not found');
-
-    await server.db.run(
+    const {changes} = await server.db.run(
       SQL`DELETE FROM connections WHERE id = ${id} AND user_id = ${userID}`,
     );
+    if (!changes) return reply.notFound('Connection not found');
+
     server.clients.closeConnection(id);
 
     return reply.code(204).send();
