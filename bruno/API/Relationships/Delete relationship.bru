@@ -1,11 +1,11 @@
 meta {
-  name: Delete friend
+  name: Delete relationship
   type: http
-  seq: 2
+  seq: 1
 }
 
 delete {
-  url: {{baseURL}}/api/friends/:id
+  url: {{baseURL}}/api/relationships/:id
   body: none
   auth: inherit
 }
