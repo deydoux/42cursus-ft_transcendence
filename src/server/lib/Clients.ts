@@ -60,7 +60,7 @@ export default class Clients {
     });
   };
 
-  closeID = (id: number, ignoreConnection: number | null = null) => {
+  closeUser = (id: number, ignoreConnection: number | null = null) => {
     this.clients.forEach(client => {
       if (client.id === id && client.connection !== ignoreConnection) {
         client.socket.send(this.message({type: 'close'}));

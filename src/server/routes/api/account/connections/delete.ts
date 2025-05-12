@@ -19,7 +19,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     await server.db.run(
       SQL`DELETE FROM connections WHERE id != ${connection} AND user_id = ${id}`,
     );
-    server.clients.closeID(id, connection);
+    server.clients.closeUser(id, connection);
 
     return reply.code(204).send();
   });
