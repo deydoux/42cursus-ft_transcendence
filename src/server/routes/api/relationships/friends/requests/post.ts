@@ -22,7 +22,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
           FROM users
           WHERE lower(username) = lower(${otherUsername})`,
     );
+
     if (!other) return reply.notFound('User not found');
+    if (userID === other.id)
+      return reply.badRequest('You cannot send a friend request to yourself');
+
     serializeUserAvatar(other);
 
     const relationship = server.db.get(
