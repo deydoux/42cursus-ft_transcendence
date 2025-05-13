@@ -7,7 +7,8 @@ const plugin: FastifyPluginAsync = async server => {
     const {id} = request.user;
 
     const friends = await server.db.all(
-      SQL`SELECT r.id AS relationshipID, u.id, u.username, u.last_seen AS lastSeen, u.has_avatar, u.avatar_version
+      SQL`SELECT r.id AS relationshipID, u.id, u.username,
+                 u.last_seen AS lastSeen, u.has_avatar, u.avatar_version
           FROM relationships r
           JOIN users u ON (r.user_id = ${id} AND u.id = r.other_id) OR
                           (r.other_id = ${id} AND u.id = r.user_id)
