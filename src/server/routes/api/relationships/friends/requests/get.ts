@@ -8,11 +8,11 @@ const plugin: FastifyPluginAsync = async server => {
 
     const relationships = await server.db.all(
       SQL`SELECT r.id AS relationshipID, r.created_at AS createdAt,
-                 u.id, u.username, u.has_avatar, u.avatar_version
+                 u.id, username, has_avatar, avatar_version
           FROM relationships r
-          JOIN users u ON u.id = r.user_id
+          JOIN users u ON u.id = user_id
           WHERE other_id = ${id} AND type = 'pending'
-          ORDER BY r.created_at DESC`,
+          ORDER BY created_at DESC`,
     );
 
     relationships.forEach(relationship => {
@@ -28,11 +28,11 @@ const plugin: FastifyPluginAsync = async server => {
 
     const relationships = await server.db.all(
       SQL`SELECT r.id AS relationshipID, r.created_at AS createdAt,
-                 u.id, u.username, u.has_avatar, u.avatar_version
+                 u.id, username, has_avatar, avatar_version
           FROM relationships r
-          JOIN users u ON u.id = r.other_id
+          JOIN users u ON u.id = other_id
           WHERE user_id = ${id} AND type = 'pending'
-          ORDER BY r.created_at DESC`,
+          ORDER BY created_at DESC`,
     );
 
     relationships.forEach(relationship => {

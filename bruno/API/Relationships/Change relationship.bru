@@ -1,15 +1,15 @@
 meta {
-  name: Delete relationship
+  name: Change relationship
   type: http
-  seq: 2
+  seq: 1
 }
 
-delete {
+patch {
   url: {{baseURL}}/api/relationships/:id
   body: none
   auth: inherit
 }
 
 params:path {
-  id: 
+  id: 1
 }
