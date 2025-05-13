@@ -1,5 +1,5 @@
 export default class GoogleClient {
-  private accessToken;
+  private accessToken: string;
 
   constructor(accessToken: string) {
     this.accessToken = accessToken;
