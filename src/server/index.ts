@@ -34,6 +34,11 @@ async function main() {
   await server.register(import('@fastify/sensible'));
 
   await server.register(autoload, {
+    dir: join(__dirname, 'decorators'),
+    encapsulate: false,
+  });
+
+  await server.register(autoload, {
     dir: join(__dirname, 'plugins'),
     encapsulate: false,
   });
