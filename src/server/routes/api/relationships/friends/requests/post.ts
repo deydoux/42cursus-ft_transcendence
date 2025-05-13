@@ -1,6 +1,6 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
-import generateAvatarURL from '#lib/generateAvatarURL';
+import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 const schema = {
   body: {
@@ -18,10 +18,12 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const {username: otherUsername} = request.body;
 
     const other = await server.db.get(
-      SQL`SELECT id, username, has_avatar, avatar_version FROM users WHERE lower(username) = lower(${otherUsername})`,
+      SQL`SELECT id, username, has_avatar, avatar_version
+          FROM users
+          WHERE lower(username) = lower(${otherUsername})`,
     );
     if (!other) return reply.notFound('User not found');
-    generateAvatarURL(other);
+    serializeUserAvatar(other);
 
     const relationship = server.db.get(
       SQL`SELECT type FROM relationships WHERE user_id = ${userID} AND other_id = ${other.id}`,

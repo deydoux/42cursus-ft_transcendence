@@ -1,6 +1,6 @@
 import {FastifyPluginAsync} from 'fastify';
 import SQL from 'sql-template-strings';
-import generateAvatarURL from '#lib/generateAvatarURL';
+import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 const plugin: FastifyPluginAsync = async server => {
   server.get('/', async (request, reply) => {
@@ -18,7 +18,7 @@ const plugin: FastifyPluginAsync = async server => {
     user.totp = Boolean(user.totp);
     if (user.passwordEditedAt)
       user.passwordEditedAt = new Date(user.passwordEditedAt * 1000);
-    generateAvatarURL(user);
+    serializeUserAvatar(user);
 
     return reply.send(user);
   });

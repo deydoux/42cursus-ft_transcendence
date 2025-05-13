@@ -1,6 +1,6 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
-import generateAvatarURL from '#lib/generateAvatarURL';
+import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 const schema = {
   params: {
@@ -23,7 +23,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     if (!user) return reply.notFound('User not found');
 
-    generateAvatarURL(user);
+    serializeUserAvatar(user);
     return user;
   });
 
