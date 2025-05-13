@@ -25,35 +25,28 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     if (userID === other.id)
       return reply.badRequest('You cannot block yourself');
 
-    const relationship = await server.db.get(
-      SQL`SELECT type
-          FROM relationships
-          WHERE user_id = ${userID} AND other_id = ${other.id}`,
-    );
+    const relationship = await server.db.get(SQL`
+      SELECT NULL
+      FROM relationships
+      WHERE user_id = ${userID} AND other_id = ${other.id} AND type = 'block'`);
 
     if (relationship)
-      switch (relationship.type) {
-        case 'block':
-          return reply.conflict('You have already blocked this user');
-        case 'pending':
-          return reply.badRequest(
-            'You have sent a friend request to this user',
-          );
-      }
+      return reply.badRequest('You have already blocked this user');
 
-    const otherRelationship = await server.db.get(
-      SQL`SELECT type
-          FROM relationships
-          WHERE user_id = ${other.id} AND other_id = ${userID}`,
-    );
+    await server.db.run(SQL`
+      DELETE FROM relationships
+      WHERE user_id = ${userID} AND other_id = ${other.id}`);
 
-    if (relationship?.type === 'friend' || otherRelationship?.type === 'friend')
-      return reply.badRequest('You are friend with this user');
+    await server.db.run(SQL`
+      DELETE FROM relationships
+      WHERE user_id = ${other.id} AND other_id = ${userID}
+            AND type != 'block'`);
 
-    if (otherRelationship?.type === 'pending')
-      await server.db.run(SQL`
-        DELETE FROM relationships
-        WHERE user_id = ${other.id} AND other_id = ${userID}`);
+    const {lastID: relationshipID} = await server.db.run(SQL`
+      INSERT INTO relationships(user_id, other_id, type)
+      VALUES (${userID}, ${other.id}, 'block')`);
+
+    return reply.code(201).send({id: relationshipID, user: other});
   });
 };
 
