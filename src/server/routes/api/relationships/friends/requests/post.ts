@@ -49,19 +49,27 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     if (relationship?.type === 'friend' || otherRelationship?.type === 'friend')
       return reply.badRequest('Already friends with this user');
 
-    if (otherRelationship)
-      switch (otherRelationship.type) {
-        case 'block':
-          return reply.notFound('User not found');
-        case 'pending':
-          return reply.badRequest('Already received a friend request');
-      }
+    if (otherRelationship?.type === 'block')
+      return reply.notFound('User not found');
+
+    if (otherRelationship?.type === 'pending') {
+      await server.db.run(SQL`
+        UPDATE relationships
+        SET type = 'friend'
+        WHERE id = ${otherRelationship.id}`);
+
+      return reply
+        .status(201)
+        .send({id: otherRelationship.id, type: 'friend', user: other});
+    }
 
     const {lastID: relationshipID} = await server.db.run(SQL`
       INSERT INTO relationships(user_id, other_id, type)
       VALUES (${userID}, ${other.id}, 'pending')`);
 
-    return reply.status(201).send({id: relationshipID, user: other});
+    return reply
+      .status(201)
+      .send({id: relationshipID, type: 'pending', user: other});
   });
 };
 
