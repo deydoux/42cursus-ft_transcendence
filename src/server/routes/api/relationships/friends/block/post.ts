@@ -43,11 +43,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       INSERT INTO relationships(user_id, other_id, type)
       VALUES (${userID}, ${other.id}, 'block')`);
 
-    return reply.code(201).send({
-      id: relationshipID,
-      type: 'block',
-      user: other,
-    });
+    return reply
+      .code(201)
+      .send({id: relationshipID, type: 'block', user: other});
   });
 };
 
