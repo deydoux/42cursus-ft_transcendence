@@ -6,14 +6,14 @@ const plugin: FastifyPluginAsync = async server => {
   server.get('/received', async (request, reply) => {
     const {id} = request.user;
 
-    const relationships = await server.db.all(
-      SQL`SELECT r.id AS relationshipID, r.created_at AS createdAt,
-                 u.id, username, has_avatar, avatar_version
-          FROM relationships r
-          JOIN users u ON u.id = user_id
-          WHERE other_id = ${id} AND type = 'pending'
-          ORDER BY created_at DESC`,
-    );
+    const relationships = await server.db.all(SQL`
+      SELECT r.id AS relationshipID, r.created_at AS createdAt,
+            u.id, username, has_avatar, avatar_version
+      FROM relationships r
+      JOIN users u
+      ON u.id = user_id
+      WHERE other_id = ${id} AND type = 'pending'
+      ORDER BY created_at DESC`);
 
     relationships.forEach(relationship => {
       relationship.createdAt = new Date(relationship.createdAt * 1000);
@@ -26,14 +26,14 @@ const plugin: FastifyPluginAsync = async server => {
   server.get('/sent', async (request, reply) => {
     const {id} = request.user;
 
-    const relationships = await server.db.all(
-      SQL`SELECT r.id AS relationshipID, r.created_at AS createdAt,
-                 u.id, username, has_avatar, avatar_version
-          FROM relationships r
-          JOIN users u ON u.id = other_id
-          WHERE user_id = ${id} AND type = 'pending'
-          ORDER BY created_at DESC`,
-    );
+    const relationships = await server.db.all(SQL`
+      SELECT r.id AS relationshipID, r.created_at AS createdAt,
+             u.id, username, has_avatar, avatar_version
+      FROM relationships r
+      JOIN users u
+      ON u.id = other_id
+      WHERE user_id = ${id} AND type = 'pending'
+      ORDER BY created_at DESC`);
 
     relationships.forEach(relationship => {
       relationship.createdAt = new Date(relationship.createdAt * 1000);

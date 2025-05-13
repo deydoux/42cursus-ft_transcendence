@@ -40,9 +40,8 @@ export default class Clients {
       const index = this.clients.findIndex(client => client.socket === socket);
       if (index !== -1) this.clients.splice(index, 1);
       if (id)
-        this.server.db.run(
-          SQL`UPDATE users SET last_seen = unixepoch() WHERE id = ${id}`,
-        );
+        this.server.db.run(SQL`
+          UPDATE users SET last_seen = unixepoch() WHERE id = ${id}`);
     });
 
     socket.on('message', this.handleMessage(socket));

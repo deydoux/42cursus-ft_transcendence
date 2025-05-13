@@ -7,11 +7,10 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const {id: userID} = request.user;
     const {id} = request.params;
 
-    const relationship = await server.db.get(
-      SQL`SELECT other_id AS otherID, type
-          FROM relationships
-          WHERE id = ${id} AND (user_id = ${userID} OR other_id = ${userID})`,
-    );
+    const relationship = await server.db.get(SQL`
+      SELECT other_id AS otherID, type
+      FROM relationships
+      WHERE id = ${id} AND (user_id = ${userID} OR other_id = ${userID})`);
 
     if (!relationship) return reply.notFound('Relationship not found');
 
@@ -27,11 +26,10 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       );
     }
 
-    await server.db.run(
-      SQL`UPDATE relationships
-          SET type = 'friend'
-          WHERE id = ${id} AND type = 'pending' AND other_id = ${userID}`,
-    );
+    await server.db.run(SQL`
+      UPDATE relationships
+      SET type = 'friend'
+      WHERE id = ${id} AND type = 'pending' AND other_id = ${userID}`);
 
     return reply.code(204).send();
   });

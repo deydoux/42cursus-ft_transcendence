@@ -17,11 +17,10 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const {id: userID} = request.user;
     const {username: otherUsername} = request.body;
 
-    const other = await server.db.get(
-      SQL`SELECT id, username, has_avatar, avatar_version
-          FROM users
-          WHERE lower(username) = lower(${otherUsername})`,
-    );
+    const other = await server.db.get(SQL`
+      SELECT id, username, has_avatar, avatar_version
+      FROM users
+      WHERE lower(username) = lower(${otherUsername})`);
 
     if (!other) return reply.notFound('User not found');
     if (userID === other.id)
@@ -59,9 +58,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
           return reply.badRequest('Already received a friend request');
       }
 
-    const {lastID: relationshipID} = await server.db.run(
-      SQL`INSERT INTO relationships(user_id, other_id, type) VALUES (${userID}, ${other.id}, 'pending')`,
-    );
+    const {lastID: relationshipID} = await server.db.run(SQL`
+      INSERT INTO relationships(user_id, other_id, type)
+      VALUES (${userID}, ${other.id}, 'pending')`);
 
     return reply.status(201).send({id: relationshipID, user: other});
   });

@@ -29,9 +29,8 @@ const plugin: FastifyPluginAsync = async server => {
       ).forEach(user => server.removeAvatar(user.id));
 
       await db.run(SQL`DELETE FROM users WHERE last_seen <= ${inactive}`);
-      await db.run(
-        SQL`DELETE FROM connections WHERE expires_at <= unixepoch()`,
-      );
+      await db.run(SQL`
+        DELETE FROM connections WHERE expires_at <= unixepoch()`);
     } catch (error) {
       server.log.error('Error during database cleaning:', error);
     }

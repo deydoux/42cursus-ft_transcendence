@@ -6,11 +6,10 @@ import serializeUserAvatar from '#lib/serializeUserAvatar';
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.get('/:id', {schema}, async (request, reply) => {
     const {id} = request.params;
-    const user = await server.db.get(
-      SQL`SELECT id, username, has_avatar, avatar_version
-          FROM users
-          WHERE id = ${id}`,
-    );
+    const user = await server.db.get(SQL`
+      SELECT id, username, has_avatar, avatar_version
+      FROM users
+      WHERE id = ${id}`);
 
     if (!user) return reply.notFound('User not found');
 

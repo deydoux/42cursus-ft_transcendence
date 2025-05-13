@@ -7,15 +7,17 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const {id: userID} = request.user;
     const {id: relationshipID} = request.params;
 
-    const relationship = await server.db.get(
-      SQL`SELECT id, user_id AS userID, other_id AS otherID, type FROM relationships WHERE id = ${relationshipID} AND (user_id = ${userID} OR (other_id = ${userID} AND type != 'block'))`,
-    );
+    const relationship = await server.db.get(SQL`
+      SELECT id, user_id AS userID, other_id AS otherID, type
+      FROM relationships
+      WHERE id = ${relationshipID}
+            AND (user_id = ${userID}
+                OR (other_id = ${userID} AND type != 'block'))`);
 
     if (!relationship) return reply.notFound('Relationship not found');
 
-    await server.db.run(
-      SQL`DELETE FROM relationships WHERE id = ${relationshipID}`,
-    );
+    await server.db.run(SQL`
+      DELETE FROM relationships WHERE id = ${relationshipID}`);
 
     // const message: TunnelMessage = {
     //   type: 'relationship',
