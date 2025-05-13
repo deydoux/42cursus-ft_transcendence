@@ -35,12 +35,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     await server.db.run(SQL`
       DELETE FROM relationships
-      WHERE user_id = ${userID} AND other_id = ${other.id}`);
-
-    await server.db.run(SQL`
-      DELETE FROM relationships
-      WHERE user_id = ${other.id} AND other_id = ${userID}
-            AND type != 'block'`);
+      WHERE (user_id = ${userID} AND other_id = ${other.id})
+            OR (user_id = ${other.id} AND other_id = ${userID}
+               AND type != 'block')`);
 
     const {lastID: relationshipID} = await server.db.run(SQL`
       INSERT INTO relationships(user_id, other_id, type)
