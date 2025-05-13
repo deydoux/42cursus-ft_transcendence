@@ -1,0 +1,11 @@
+meta {
+  name: Get all connections
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseURL}}/account/connections
+  body: none
+  auth: inherit
+}
