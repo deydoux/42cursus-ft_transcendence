@@ -1,15 +1,6 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
-
-const schema = {
-  params: {
-    type: 'object',
-    properties: {
-      id: {type: 'number'},
-    },
-    required: ['id'],
-  } as const,
-};
+import {idParamsSchema as schema} from '#lib/schemas';
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.delete('/:id', {schema}, async (request, reply) => {

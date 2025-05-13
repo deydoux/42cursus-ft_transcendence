@@ -1,16 +1,7 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
+import {idParamsSchema as schema} from '#lib/schemas';
 import serializeUserAvatar from '#lib/serializeUserAvatar';
-
-const schema = {
-  params: {
-    type: 'object',
-    properties: {
-      id: {type: 'number'},
-    },
-    required: ['id'],
-  } as const,
-};
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.get('/:id', {schema}, async (request, reply) => {

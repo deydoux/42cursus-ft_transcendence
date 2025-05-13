@@ -1,3 +1,13 @@
+export const idParamsSchema = {
+  params: {
+    type: 'object',
+    properties: {
+      id: {type: 'number'},
+    },
+    required: ['id'],
+  } as const,
+};
+
 export const password = {
   type: 'string',
   minLength: 8,
