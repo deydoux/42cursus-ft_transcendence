@@ -37,8 +37,6 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       switch (relationship.type) {
         case 'block':
           return reply.conflict('You have blocked this user');
-        case 'friend':
-          return reply.badRequest('Already friends with this user');
         case 'pending':
           return reply.badRequest('Friend request already sent');
       }
@@ -48,12 +46,13 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       FROM relationships
       WHERE user_id = ${other.id} AND other_id = ${userID}`);
 
+    if (relationship?.type === 'friend' || otherRelationship?.type === 'friend')
+      return reply.badRequest('Already friends with this user');
+
     if (otherRelationship)
       switch (otherRelationship.type) {
         case 'block':
           return reply.notFound('User not found');
-        case 'friend':
-          return reply.badRequest('Already friends with this user');
         case 'pending':
           return reply.badRequest('Already received a friend request');
       }
