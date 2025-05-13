@@ -1,4 +1,4 @@
-type TunnelMessageType = 'close' | 'error' | 'hotReload' | 'relationship';
+type TunnelMessageType = 'close' | 'error' | 'hotReload';
 
 interface TunnelMessage {
   type: TunnelMessageType;

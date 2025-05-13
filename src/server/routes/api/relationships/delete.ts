@@ -26,15 +26,15 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       SQL`DELETE FROM relationships WHERE id = ${relationshipID}`,
     );
 
-    const message: TunnelMessage = {
-      type: 'relationship',
-      method: 'delete',
-      id: relationshipID,
-    };
+    // const message: TunnelMessage = {
+    //   type: 'relationship',
+    //   method: 'delete',
+    //   id: relationshipID,
+    // };
 
-    server.clients.sendUser(relationship.userID, message);
-    if (relationship.type !== 'block')
-      server.clients.sendUser(relationship.otherID, message);
+    // server.clients.sendUser(relationship.userID, message);
+    // if (relationship.type !== 'block')
+    //   server.clients.sendUser(relationship.otherID, message);
 
     return reply.code(204).send();
   });
