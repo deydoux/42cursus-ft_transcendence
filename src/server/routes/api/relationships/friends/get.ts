@@ -18,7 +18,6 @@ const plugin: FastifyPluginAsync = async server => {
       generateAvatarURL(friend);
       friend.lastSeen = new Date(friend.lastSeen * 1000);
       friend.online = server.clients.isUserOnline(friend.id);
-      // return {...friend, online: server.clients.isUserOnline(friend.id)};
     });
 
     return reply.send({friends});
