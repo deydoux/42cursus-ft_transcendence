@@ -8,7 +8,6 @@ const schema = {
     properties: {
       password: {type: 'string'},
     },
-    required: ['password'],
   } as const,
 };
 
@@ -21,11 +20,15 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     );
 
     const {password} = request.body;
-    if (!user || !compareSync(password, user.password))
+    if (
+      !user ||
+      (user.password && (!password || !compareSync(password, user.password)))
+    )
       return reply.unauthorized('Invalid password');
 
     await server.db.run(SQL`DELETE FROM users WHERE id = ${id}`);
 
+    await server.removeAvatar(id);
     return reply.clearCookie('refreshToken').code(204).send();
   });
 };

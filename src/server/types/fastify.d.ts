@@ -1,9 +1,10 @@
 import Clients from '#lib/Clients';
 import {Database} from 'sqlite';
+import {SharpInput} from 'sharp';
 
 declare module 'fastify' {
   interface FastifyInstance {
-    authenticate: (request: FastifyRequest) => Promise<void>;
+    authenticate: (type?: string) => (request: FastifyRequest) => Promise<void>;
     authenticateRefresh: (request: FastifyRequest) => Promise<void>;
     clients: Clients;
     db: Database;
@@ -17,7 +18,9 @@ declare module 'fastify' {
       static: string;
     };
     prod: boolean;
-    validateTOTP: (secret: string | null, token: string) => void;
+    removeAvatar: (id: number) => Promise<void>;
+    storeAvatar: (id: number, avatar: SharpInput) => Promise<void>;
+    validateTOTP: (secret: string, token: string) => void;
     validateUsernameAvailability: (
       username: string,
       id?: number,
@@ -30,5 +33,6 @@ declare module 'fastify' {
     generateTokens: (
       id: number,
     ) => Promise<{accessToken: string; refreshToken: string}>;
+    removeConnection: () => Promise<void>;
   }
 }

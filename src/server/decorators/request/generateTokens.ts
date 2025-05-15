@@ -5,9 +5,9 @@ let it = 0;
 
 const plugin: FastifyPluginAsync = async server => {
   const generateRefreshToken = (id: number) =>
-    server.jwt.sign({id, type: 'refresh', it: ++it}, {expiresIn: '30d'});
+    server.jwt.sign({type: 'refresh', id, it: ++it}, {expiresIn: '30d'});
 
-  server.decorateRequest('generateTokens', async function (id: number) {
+  server.decorateRequest('generateTokens', async function (id) {
     const refreshToken = generateRefreshToken(id);
     const accessToken = await this.generateAccessToken(id);
 

@@ -1,5 +1,6 @@
-import {FastifyRequest} from 'fastify';
+import {FastifyInstance, FastifyRequest} from 'fastify';
 import {RawData} from 'ws';
+import SQL from 'sql-template-strings';
 import {WebSocket} from '@fastify/websocket';
 
 export default class Clients {
@@ -8,29 +9,11 @@ export default class Clients {
     connection: number;
     socket: WebSocket;
   }[] = [];
+  private server;
 
-  broadcast = (message: TunnelMessage) =>
-    this.clients.forEach(client => client.socket.send(this.message(message)));
-
-  closeConnection = (connection: number | null) => {
-    this.clients.forEach(client => {
-      if (client.connection === connection) {
-        client.socket.send(this.message({type: 'close'}));
-        client.socket.close();
-      }
-    });
-  };
-
-  closeId = (id: number, ignoreConnection: number | null = null) => {
-    this.clients.forEach(client => {
-      if (client.id === id && client.connection !== ignoreConnection) {
-        client.socket.send(this.message({type: 'close'}));
-        client.socket.close();
-      }
-    });
-  };
-
-  isOnline = (id: number) => this.clients.some(client => client.id === id);
+  constructor(server: FastifyInstance) {
+    this.server = server;
+  }
 
   private handleMessage = (socket: WebSocket) => (data: RawData) => {
     let message;
@@ -56,8 +39,35 @@ export default class Clients {
     socket.on('close', () => {
       const index = this.clients.findIndex(client => client.socket === socket);
       if (index !== -1) this.clients.splice(index, 1);
+      if (id)
+        this.server.db.run(
+          SQL`UPDATE users SET last_seen = unixepoch() WHERE id = ${id}`,
+        );
     });
 
     socket.on('message', this.handleMessage(socket));
   };
+
+  broadcast = (message: TunnelMessage) =>
+    this.clients.forEach(client => client.socket.send(this.message(message)));
+
+  closeConnection = (connection: number | null) => {
+    this.clients.forEach(client => {
+      if (client.connection === connection) {
+        client.socket.send(this.message({type: 'close'}));
+        client.socket.close();
+      }
+    });
+  };
+
+  closeID = (id: number, ignoreConnection: number | null = null) => {
+    this.clients.forEach(client => {
+      if (client.id === id && client.connection !== ignoreConnection) {
+        client.socket.send(this.message({type: 'close'}));
+        client.socket.close();
+      }
+    });
+  };
+
+  isOnline = (id: number) => this.clients.some(client => client.id === id);
 }

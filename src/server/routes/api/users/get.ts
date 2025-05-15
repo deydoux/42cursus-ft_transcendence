@@ -16,10 +16,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.get('/:id', {schema}, async (request, reply) => {
     const {id} = request.params;
     const user = await server.db.get(
-      SQL`SELECT id, username, has_avatar, avatar_version FROM users WHERE id = ${id}`,
+      SQL`SELECT id, username, last_seen AS lastSeen, has_avatar, avatar_version FROM users WHERE id = ${id}`,
     );
 
     if (!user) return reply.notFound('User not found');
+    user.lastSeen = new Date(user.lastSeen * 1000);
 
     generateAvatarURL(user);
     return {...user, online: server.clients.isOnline(id)};

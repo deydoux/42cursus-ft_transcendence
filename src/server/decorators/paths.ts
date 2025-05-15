@@ -7,10 +7,10 @@ const plugins: FastifyPluginAsync = async server => {
   if (!DATA_PATH) {
     const message = 'DATA_PATH environment variable is not set';
 
-    if (server.dev) {
-      DATA_PATH = 'data';
-      server.log.warn(`${message}, using "${DATA_PATH}" as default`);
-    } else throw new Error(message);
+    if (server.prod) throw new Error(message);
+
+    DATA_PATH = 'data';
+    server.log.warn(`${message}, using "${DATA_PATH}" as default`);
   }
 
   const data = resolve(DATA_PATH);

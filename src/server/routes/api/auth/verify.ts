@@ -12,12 +12,7 @@ const schema = {
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  server.addHook('onRequest', async (request, reply) => {
-    await request.jwtVerify();
-
-    if (request.user.type !== 'login')
-      return reply.unauthorized('Invalid token type');
-  });
+  server.addHook('onRequest', server.authenticate('login'));
 
   server.post('/verify', {schema}, async (request, reply) => {
     const {id} = request.user;
@@ -32,8 +27,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const {token} = request.body;
     server.validateTOTP(secret, token);
 
-    const {connection} = request;
-    await server.db.run(SQL`DELETE FROM connections WHERE id = ${connection}`);
+    await request.removeConnection();
 
     const {accessToken, refreshToken} = await request.generateTokens(id);
     return reply

@@ -4,16 +4,19 @@
 
 CREATE TABLE users(
   id                 INTEGER PRIMARY KEY AUTOINCREMENT,
-  username           TEXT UNIQUE NOT NULL,
-  password           TEXT NOT NULL,
+  google_id          TEXT UNIQUE,
+
+  username           TEXT UNIQUE,
+  password           TEXT,
+
+  last_seen          INTEGER NOT NULL DEFAULT (unixepoch()),
+  password_edited_at INTEGER DEFAULT (unixepoch()),
 
   totp_secret        TEXT,
   totp_enabled       INTEGER NOT NULL DEFAULT 0,
 
   has_avatar         INTEGER NOT NULL DEFAULT 0,
-  avatar_version     INTEGER NOT NULL DEFAULT 0,
-
-  password_edited_at INTEGER NOT NULL DEFAULT (unixepoch())
+  avatar_version     INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TRIGGER update_users_password_edited_at
@@ -26,7 +29,7 @@ END;
 
 CREATE TABLE connections(
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id       INTEGER NOT NULL,
+  user_id       INTEGER,
   ip            TEXT NOT NULL,
   user_agent    TEXT,
   access_token  TEXT NOT NULL,
