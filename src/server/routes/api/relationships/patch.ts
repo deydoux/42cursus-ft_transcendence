@@ -4,17 +4,17 @@ import {idParamsSchema as schema} from '#lib/schemas';
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.patch('/:id', {schema}, async (request, reply) => {
-    const {id: userID} = request.user;
+    const {user} = request;
     const {id} = request.params;
 
     const relationship = await server.db.get(SQL`
       SELECT other_id AS otherID, type
       FROM relationships
-      WHERE id = ${id} AND (user_id = ${userID} OR other_id = ${userID})`);
+      WHERE id = ${id} AND (user_id = ${user.id} OR other_id = ${user.id})`);
 
     if (!relationship) return reply.notFound('Relationship not found');
 
-    if (relationship.otherID !== userID)
+    if (relationship.otherID !== user.id)
       return reply.badRequest('Cannot change your own relationship');
 
     if (relationship.type !== 'pending') {
@@ -29,7 +29,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     await server.db.run(SQL`
       UPDATE relationships
       SET type = 'friend'
-      WHERE id = ${id} AND type = 'pending' AND other_id = ${userID}`);
+      WHERE id = ${id} AND type = 'pending' AND other_id = ${user.id}`);
 
     return reply.code(204).send();
   });

@@ -13,7 +13,7 @@ const schema = {
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.post('/', {schema}, async (request, reply) => {
-    const {id: userID} = request.user;
+    const {user} = request;
     const {username} = request.body;
 
     const other = await server.db.get(SQL`
@@ -22,26 +22,26 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       WHERE lower(username) = lower(${username})`);
 
     if (!other) return reply.notFound('User not found');
-    if (userID === other.id)
+    if (user.id === other.id)
       return reply.badRequest('You cannot block yourself');
 
     const relationship = await server.db.get(SQL`
       SELECT NULL
       FROM relationships
-      WHERE user_id = ${userID} AND other_id = ${other.id} AND type = 'block'`);
+      WHERE user_id = ${user.id} AND other_id = ${other.id} AND type = 'block'`);
 
     if (relationship)
       return reply.badRequest('You have already blocked this user');
 
     await server.db.run(SQL`
       DELETE FROM relationships
-      WHERE (user_id = ${userID} AND other_id = ${other.id})
-            OR (user_id = ${other.id} AND other_id = ${userID}
+      WHERE (user_id = ${user.id} AND other_id = ${other.id})
+            OR (user_id = ${other.id} AND other_id = ${user.id}
                AND type != 'block')`);
 
     const {lastID: relationshipID} = await server.db.run(SQL`
       INSERT INTO relationships(user_id, other_id, type)
-      VALUES (${userID}, ${other.id}, 'block')`);
+      VALUES (${user.id}, ${other.id}, 'block')`);
 
     return reply
       .code(201)

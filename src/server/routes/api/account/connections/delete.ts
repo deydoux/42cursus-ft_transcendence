@@ -16,11 +16,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   });
 
   server.delete('/:id', {schema}, async (request, reply) => {
+    const {user} = request;
     const {id} = request.params;
-    const {id: userID} = request.user;
 
     const {changes} = await server.db.run(SQL`
-      DELETE FROM connections WHERE id = ${id} AND user_id = ${userID}`);
+      DELETE FROM connections WHERE id = ${id} AND user_id = ${user.id}`);
     if (!changes) return reply.notFound('Connection not found');
 
     server.clients.closeConnection(id);

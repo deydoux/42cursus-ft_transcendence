@@ -14,7 +14,7 @@ const schema = {
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.post('/', {schema}, async (request, reply) => {
-    const {id: userID} = request.user;
+    const {user} = request;
     const {username: otherUsername} = request.body;
 
     const other = await server.db.get(SQL`
@@ -23,7 +23,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       WHERE lower(username) = lower(${otherUsername})`);
 
     if (!other) return reply.notFound('User not found');
-    if (userID === other.id)
+    if (user.id === other.id)
       return reply.badRequest('You cannot send a friend request to yourself');
 
     serializeUserAvatar(other);
@@ -31,7 +31,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const relationship = await server.db.get(SQL`
       SELECT type
       FROM relationships
-      WHERE user_id = ${userID} AND other_id = ${other.id}`);
+      WHERE user_id = ${user.id} AND other_id = ${other.id}`);
 
     if (relationship)
       switch (relationship.type) {
@@ -44,7 +44,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const otherRelationship = await server.db.get(SQL`
       SELECT id, type
       FROM relationships
-      WHERE user_id = ${other.id} AND other_id = ${userID}`);
+      WHERE user_id = ${other.id} AND other_id = ${user.id}`);
 
     if (relationship?.type === 'friend' || otherRelationship?.type === 'friend')
       return reply.badRequest('Already friends with this user');
@@ -65,7 +65,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     const {lastID: relationshipID} = await server.db.run(SQL`
       INSERT INTO relationships(user_id, other_id, type)
-      VALUES (${userID}, ${other.id}, 'pending')`);
+      VALUES (${user.id}, ${other.id}, 'pending')`);
 
     return reply
       .status(201)
