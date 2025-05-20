@@ -52,18 +52,13 @@ export default class Clients {
 
   closeConnection = (connection: number | null) =>
     this.clients.forEach(client => {
-      if (client.connection === connection) {
-        client.socket.send(this.message({type: 'close'}));
-        client.socket.close();
-      }
+      if (client.connection === connection) client.socket.close();
     });
 
   closeUser = (id: number, ignoreConnection: number | null = null) =>
     this.clients.forEach(client => {
-      if (client.id === id && client.connection !== ignoreConnection) {
-        client.socket.send(this.message({type: 'close'}));
+      if (client.id === id && client.connection !== ignoreConnection)
         client.socket.close();
-      }
     });
 
   isUserOnline = (id: number) => this.clients.some(client => client.id === id);
