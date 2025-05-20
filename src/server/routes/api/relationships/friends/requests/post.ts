@@ -14,8 +14,6 @@ const schema = {
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.post('/', {schema}, async (request, reply) => {
-    const {username: otherUsername} = request.body;
-
     const user = await server.db.get(SQL`
       SELECT id, username, has_avatar, avatar_version
       FROM users
@@ -25,7 +23,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const other = await server.db.get(SQL`
       SELECT id, username, has_avatar, avatar_version
       FROM users
-      WHERE lower(username) = lower(${otherUsername})`);
+      WHERE lower(username) = lower(${request.body.username})`);
 
     if (!other) return reply.notFound('User not found');
     if (user.id === other.id)
@@ -57,7 +55,6 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     if (otherRelationship?.type === 'block')
       return reply.notFound('User not found');
 
-    let tunnelUser = other.id;
     const tunnelMessage: TunnelMessage = {type: 'friendRequest', user};
 
     let relationshipID;
@@ -69,10 +66,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
         SET type = 'friend'
         WHERE id = ${otherRelationship.id}`);
 
-      tunnelUser = user.id;
       tunnelMessage.type = 'friendRequestAccepted';
-      tunnelMessage.user = other;
-
       relationshipID = otherRelationship.id;
       type = 'friend';
     } else {
@@ -83,7 +77,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       ).lastID;
     }
 
-    server.clients.sendUser(tunnelUser, tunnelMessage);
+    tunnelMessage.relationship = relationshipID;
+
+    server.clients.sendUser(other.id, tunnelMessage);
     return reply.status(201).send({id: relationshipID, type, user: other});
   });
 };
