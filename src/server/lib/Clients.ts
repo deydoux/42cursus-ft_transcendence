@@ -31,6 +31,11 @@ export default class Clients {
   private message = (message: TunnelMessage) => JSON.stringify(message);
 
   routeHandler = (socket: WebSocket, request: FastifyRequest) => {
+    if (!request.user)
+      socket.send(
+        this.message({type: 'error', message: 'Authentication failed'}),
+      );
+
     const connection = request.connection || 0;
     const id = request.user?.id || 0;
 
