@@ -14,8 +14,13 @@ const schema = {
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.post('/', {schema}, async (request, reply) => {
-    const {user} = request;
     const {username: otherUsername} = request.body;
+
+    const user = await server.db.get(SQL`
+      SELECT id, username, has_avatar, avatar_version
+      FROM users
+      WHERE id = ${request.user.id}`);
+    serializeUserAvatar(user);
 
     const other = await server.db.get(SQL`
       SELECT id, username, has_avatar, avatar_version
