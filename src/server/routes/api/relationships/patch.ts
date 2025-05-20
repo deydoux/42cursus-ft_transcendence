@@ -14,14 +14,14 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     serializeUserAvatar(user);
 
     const relationship = await server.db.get(SQL`
-      SELECT user_id AS userID, other_id AS otherID, type
+      SELECT user_id AS userID, type
       FROM relationships
       WHERE id = ${relationshipID}
             AND (user_id = ${user.id} OR other_id = ${user.id})`);
 
     if (!relationship) return reply.notFound('Relationship not found');
 
-    if (relationship.otherID !== user.id)
+    if (relationship.userID === user.id)
       return reply.badRequest('Cannot change your own relationship');
 
     if (relationship.type !== 'pending') {
