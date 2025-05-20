@@ -1,16 +1,23 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
 import {idParamsSchema as schema} from '#lib/schemas';
+import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.patch('/:id', {schema}, async (request, reply) => {
-    const {user} = request;
-    const {id} = request.params;
+    const {id: relationshipID} = request.params;
+
+    const user = await server.db.get(SQL`
+      SELECT id, username, has_avatar, avatar_version
+      FROM users
+      WHERE id = ${request.user.id}`);
+    serializeUserAvatar(user);
 
     const relationship = await server.db.get(SQL`
       SELECT other_id AS otherID, type
       FROM relationships
-      WHERE id = ${id} AND (user_id = ${user.id} OR other_id = ${user.id})`);
+      WHERE id = ${relationshipID}
+            AND (user_id = ${user.id} OR other_id = ${user.id})`);
 
     if (!relationship) return reply.notFound('Relationship not found');
 
@@ -29,7 +36,12 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     await server.db.run(SQL`
       UPDATE relationships
       SET type = 'friend'
-      WHERE id = ${id} AND type = 'pending' AND other_id = ${user.id}`);
+      WHERE id = ${relationshipID}`);
+
+    server.clients.sendUser(relationship.userID, {
+      type: 'friendRequestAccepted',
+      user,
+    });
 
     return reply.code(204).send();
   });
