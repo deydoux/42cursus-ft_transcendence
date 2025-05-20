@@ -52,24 +52,34 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     if (otherRelationship?.type === 'block')
       return reply.notFound('User not found');
 
+    let tunnelUser = other.id;
+    const tunnelMessage: TunnelMessage = {type: 'friendRequest', user};
+
+    let relationshipID;
+    let type = 'pending';
+
     if (otherRelationship?.type === 'pending') {
       await server.db.run(SQL`
         UPDATE relationships
         SET type = 'friend'
         WHERE id = ${otherRelationship.id}`);
 
-      return reply
-        .status(201)
-        .send({id: otherRelationship.id, type: 'friend', user: other});
+      tunnelUser = user.id;
+      tunnelMessage.type = 'friendRequestAccepted';
+      tunnelMessage.user = other;
+
+      relationshipID = otherRelationship.id;
+      type = 'friend';
+    } else {
+      relationshipID = (
+        await server.db.run(SQL`
+        INSERT INTO relationships(user_id, other_id, type)
+        VALUES (${user.id}, ${other.id}, 'pending')`)
+      ).lastID;
     }
 
-    const {lastID: relationshipID} = await server.db.run(SQL`
-      INSERT INTO relationships(user_id, other_id, type)
-      VALUES (${user.id}, ${other.id}, 'pending')`);
-
-    return reply
-      .status(201)
-      .send({id: relationshipID, type: 'pending', user: other});
+    server.clients.sendUser(tunnelUser, tunnelMessage);
+    return reply.status(201).send({id: relationshipID, type, user: other});
   });
 };
 
