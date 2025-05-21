@@ -2,6 +2,50 @@
 -- Up
 --------------------------------------------------------------------------------
 
+CREATE TABLE connections(
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id       INTEGER,
+  ip            TEXT NOT NULL,
+  user_agent    TEXT,
+  access_token  TEXT NOT NULL,
+  refresh_token TEXT,
+
+  created_at    INTEGER NOT NULL DEFAULT (unixepoch()),
+  updated_at    INTEGER NOT NULL DEFAULT (unixepoch()),
+  expires_at    INTEGER NOT NULL DEFAULT (unixepoch() + 30 * 24 * 60 * 60), -- 30 days
+
+  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_connections_user_id ON connections(user_id);
+CREATE INDEX idx_connections_access_token ON connections(access_token);
+CREATE INDEX idx_connections_refresh_token ON connections(refresh_token);
+CREATE INDEX idx_connections_expires_at ON connections(expires_at);
+
+CREATE TRIGGER update_connections_updated_at
+AFTER UPDATE ON connections
+FOR EACH ROW
+BEGIN
+  UPDATE connections SET updated_at = unixepoch() WHERE id = NEW.id;
+END;
+
+CREATE TABLE relationships(
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  type       TEXT,
+
+  user_id    INTEGER NOT NULL,
+  other_id   INTEGER NOT NULL,
+
+  created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+
+  CHECK(type IN ('block', 'friend', 'pending')),
+  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY(other_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_relationships_user_id_type ON relationships(user_id, type);
+CREATE INDEX idx_relationships_other_id_type ON relationships(other_id, type);
+
 CREATE TABLE users(
   id                 INTEGER PRIMARY KEY AUTOINCREMENT,
   google_id          TEXT UNIQUE,
@@ -30,54 +74,19 @@ BEGIN
   UPDATE users SET password_edited_at = unixepoch() WHERE id = NEW.id;
 END;
 
-CREATE TABLE relationships(
-  id         INTEGER PRIMARY KEY AUTOINCREMENT,
-  type       TEXT,
-
-  user_id    INTEGER NOT NULL,
-  other_id   INTEGER NOT NULL,
-
-  created_at INTEGER NOT NULL DEFAULT (unixepoch()),
-
-  CHECK(type IN ('block', 'friend', 'pending')),
-  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY(other_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
-CREATE INDEX idx_relationships_user_id_type ON relationships(user_id, type);
-CREATE INDEX idx_relationships_other_id_type ON relationships(other_id, type);
-
-CREATE TABLE connections(
-  id            INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id       INTEGER,
-  ip            TEXT NOT NULL,
-  user_agent    TEXT,
-  access_token  TEXT NOT NULL,
-  refresh_token TEXT,
-
-  created_at    INTEGER NOT NULL DEFAULT (unixepoch()),
-  updated_at    INTEGER NOT NULL DEFAULT (unixepoch()),
-  expires_at    INTEGER NOT NULL DEFAULT (unixepoch() + 30 * 24 * 60 * 60), -- 30 days
-
-  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
-CREATE INDEX idx_connections_user_id ON connections(user_id);
-CREATE INDEX idx_connections_access_token ON connections(access_token);
-CREATE INDEX idx_connections_refresh_token ON connections(refresh_token);
-CREATE INDEX idx_connections_expires_at ON connections(expires_at);
-
-CREATE TRIGGER update_connections_updated_at
-AFTER UPDATE ON connections
-FOR EACH ROW
-BEGIN
-  UPDATE connections SET updated_at = unixepoch() WHERE id = NEW.id;
-END;
-
 
 --------------------------------------------------------------------------------
 -- Down
 --------------------------------------------------------------------------------
+
+DROP TRIGGER update_users_password_edited_at;
+DROP INDEX idx_users_last_seen;
+DROP INDEX idx_users_lower_username;
+DROP TABLE users;
+
+DROP INDEX idx_relationships_friend_id_type;
+DROP INDEX idx_relationships_other_id_type;
+DROP TABLE relationships;
 
 DROP TRIGGER update_connections_updated_at;
 DROP INDEX idx_connections_expires_at;
@@ -85,12 +94,3 @@ DROP INDEX idx_connections_refresh_token;
 DROP INDEX idx_connections_access_token;
 DROP INDEX idx_connections_user_id;
 DROP TABLE connections;
-
-DROP INDEX idx_relationships_friend_id_type;
-DROP INDEX idx_relationships_other_id_type;
-DROP TABLE relationships;
-
-DROP TRIGGER update_users_password_edited_at;
-DROP INDEX idx_users_last_seen;
-DROP INDEX idx_users_lower_username;
-DROP TABLE users;
