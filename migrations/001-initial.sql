@@ -29,6 +29,24 @@ BEGIN
   UPDATE connections SET updated_at = unixepoch() WHERE id = NEW.id;
 END;
 
+CREATE TABLE direct_messages(
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+
+  sender_id    INTEGER NOT NULL,
+  recipient_id INTEGER NOT NULL,
+  message      TEXT NOT NULL,
+
+  created_at   INTEGER NOT NULL DEFAULT (unixepoch()),
+  read         INTEGER NOT NULL DEFAULT 0,
+
+  FOREIGN KEY(sender_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY(recipient_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_direct_messages_sender_id ON direct_messages(sender_id);
+CREATE INDEX idx_direct_messages_recipient_id ON direct_messages(recipient_id);
+CREATE INDEX idx_direct_messages_recipient_id_read ON direct_messages(recipient_id, read);
+
 CREATE TABLE relationships(
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
   type       TEXT,
@@ -37,6 +55,7 @@ CREATE TABLE relationships(
   other_id   INTEGER NOT NULL,
 
   created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+  updated_at INTEGER NOT NULL DEFAULT (unixepoch()),
 
   CHECK(type IN ('block', 'friend', 'pending')),
   FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -45,6 +64,13 @@ CREATE TABLE relationships(
 
 CREATE INDEX idx_relationships_user_id_type ON relationships(user_id, type);
 CREATE INDEX idx_relationships_other_id_type ON relationships(other_id, type);
+
+CREATE TRIGGER update_relationships_updated_at
+AFTER UPDATE ON relationships
+FOR EACH ROW
+BEGIN
+  UPDATE relationships SET updated_at = unixepoch() WHERE id = NEW.id;
+END;
 
 CREATE TABLE users(
   id                 INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -84,9 +110,15 @@ DROP INDEX idx_users_last_seen;
 DROP INDEX idx_users_lower_username;
 DROP TABLE users;
 
+DROP TRIGGER update_relationships_updated_at;
 DROP INDEX idx_relationships_friend_id_type;
 DROP INDEX idx_relationships_other_id_type;
 DROP TABLE relationships;
+
+DROP INDEX idx_direct_messages_recipient_id_read;
+DROP INDEX idx_direct_messages_recipient_id;
+DROP INDEX idx_direct_messages_sender_id;
+DROP TABLE direct_messages;
 
 DROP TRIGGER update_connections_updated_at;
 DROP INDEX idx_connections_expires_at;
