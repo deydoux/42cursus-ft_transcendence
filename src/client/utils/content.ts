@@ -116,10 +116,15 @@ export function announceWinner(pong: PongGame) {
   }
 }
 
-export function handleInput(game: PongGame) {
+export function handleInput(
+  game: PongGame,
+  draw: () => void,
+  rafRef: {raf: number | null},
+) {
   document.addEventListener('keydown', e => {
     if ((e.code === 'Space' || e.key === ' ') && !game.gameStarted) {
       game.gameStarted = true;
+      rafRef.raf = window.requestAnimationFrame(draw);
     }
     if (e.key === 'w' || e.key === 'W') game.keys.w = true;
     if (e.key === 's' || e.key === 'S') game.keys.s = true;

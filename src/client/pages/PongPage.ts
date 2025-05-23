@@ -49,7 +49,8 @@ export function renderPongPage(): void {
     leftPlayerScoreElement,
     rightPlayerScoreElement,
   );
-  let raf: number | null = null;
+  const raf = 0;
+  const rafRef = {raf};
 
   function draw() {
     if (!ctx) {
@@ -71,26 +72,35 @@ export function renderPongPage(): void {
       }
       return;
     }
-  }
-  game.ball.draw();
-  game.leftPaddle.draw();
-  game.rightPaddle.draw();
-  game.ball.update(game);
 
-  if (game.leftPlayerScore === 5 || game.rightPlayerScore === 5) {
-    const winner =
-      game.leftPlayerScore === 5 ? game.leftPlayer : game.rightPlayer;
-    if (game.announcement) {
-      const announce = new Announcement(game.announcement);
-      announce.displayMessage("And that's a win for " + winner + '!');
-      if (raf) window.cancelAnimationFrame(raf);
-      return;
+    // Move paddles based on keys
+    const paddleSpeed = 10;
+    if (game.keys.w) game.leftPaddle.move(-paddleSpeed, game.canvasHeight);
+    if (game.keys.s) game.leftPaddle.move(paddleSpeed, game.canvasHeight);
+    if (game.keys.ArrowUp)
+      game.rightPaddle.move(-paddleSpeed, game.canvasHeight);
+    if (game.keys.ArrowDown)
+      game.rightPaddle.move(paddleSpeed, game.canvasHeight);
+
+    // --- MOVE GAME DRAWING/UPDATE LOGIC HERE ---
+    game.ball.draw();
+    game.leftPaddle.draw();
+    game.rightPaddle.draw();
+    game.ball.update(game);
+
+    if (game.leftPlayerScore === 5 || game.rightPlayerScore === 5) {
+      const winner =
+        game.leftPlayerScore === 5 ? game.leftPlayer : game.rightPlayer;
+      if (game.announcement) {
+        const announce = new Announcement(game.announcement);
+        announce.displayMessage("And that's a win for " + winner + '!');
+        if (raf) window.cancelAnimationFrame(raf);
+        return;
+      }
     }
 
-    raf = window.requestAnimationFrame(draw);
+    rafRef.raf = window.requestAnimationFrame(draw);
   }
-
-  handleInput(game);
-
+  handleInput(game, draw, rafRef);
   draw();
 }
