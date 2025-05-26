@@ -40,6 +40,10 @@ export function renderPongPage(): void {
   const rightPlayer = 'Player 2';
   const leftPlayerScoreElement = document.getElementById('leftPlayerScore');
   const rightPlayerScoreElement = document.getElementById('rightPlayerScore');
+  if (!leftPlayerScoreElement || !rightPlayerScoreElement) {
+    console.error('Could not find score elements');
+    return;
+  }
 
   const game: PongGame = initializeGame(
     ctx,
@@ -82,7 +86,6 @@ export function renderPongPage(): void {
     if (game.keys.ArrowDown)
       game.rightPaddle.move(paddleSpeed, game.canvasHeight);
 
-    // --- MOVE GAME DRAWING/UPDATE LOGIC HERE ---
     game.ball.draw();
     game.leftPaddle.draw();
     game.rightPaddle.draw();
@@ -94,7 +97,7 @@ export function renderPongPage(): void {
       if (game.announcement) {
         const announce = new Announcement(game.announcement);
         announce.displayMessage("And that's a win for " + winner + '!');
-        if (raf) window.cancelAnimationFrame(raf);
+        if (rafRef.raf) window.cancelAnimationFrame(rafRef.raf);
         return;
       }
     }
