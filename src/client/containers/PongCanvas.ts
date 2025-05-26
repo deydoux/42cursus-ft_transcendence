@@ -1,46 +1,34 @@
-import {Ball} from '../containers/pongCanvasObjects.ts';
 import {Keys} from '../utils/content';
-import {Paddle} from '../containers/pongCanvasObjects.ts';
 import {PongGame} from '../utils/content';
 import {asciiArt} from '../utils/content';
 
 export class PongCanvas {
   private ctx: CanvasRenderingContext2D;
   private gameContainer: HTMLCanvasElement;
-  private ball: Ball;
-  private leftPaddle: Paddle;
-  private rightPaddle: Paddle;
-  private gameStarted: boolean;
+  private pong: PongGame;
   private raf: number | null;
 
-  constructor(gameContainer: HTMLCanvasElement) {
+  constructor(gameContainer: HTMLCanvasElement, pong: PongGame) {
     this.gameContainer = gameContainer;
-    const ctx = gameContainer.getContext('2d');
-    if (!ctx) {
-      throw new Error('Failed to get 2D context from canvas element.');
-    }
-    this.ctx = ctx;
-    this.ball = new Ball(this.ctx);
-    this.leftPaddle = new Paddle(this.ctx, 10, 0);
-    this.rightPaddle = new Paddle(
-      this.ctx,
-      gameContainer.width - 10 - this.leftPaddle.width,
-      0,
-    );
-    this.gameStarted = false;
+    this.ctx = pong.leftPaddle.ctx;
+    this.pong = pong;
     this.raf = null;
   }
 
-  public startGame(
-    announcement: HTMLElement,
-    leftPlayer: string,
-    rightPlayer: string,
-  ) {
-    if (this.gameStarted) return;
-    this.gameStarted = true;
+  public startGame(announcement: HTMLElement) {
+    console.log('Start game called!');
+    if (this.pong.gameStarted) return;
+    console.log('Start game called & game starting...');
+    this.pong.gameStarted = true;
     announcement.innerText =
-      'Good luck ' + leftPlayer + ' and ' + rightPlayer + '!';
-    this.raf = window.requestAnimationFrame(this.draw.bind(this));
+      'Good luck ' +
+      this.pong.leftPlayer +
+      ' and ' +
+      this.pong.rightPlayer +
+      '!';
+    this.raf = window.requestAnimationFrame(() =>
+      this.draw(announcement, this.pong.keys, this.pong),
+    );
   }
 
   public draw(announcement: HTMLElement, keys: Keys, pong: PongGame) {
@@ -51,16 +39,16 @@ export class PongCanvas {
       this.gameContainer.height,
     );
 
-    if (!this.gameStarted) {
+    if (!pong.gameStarted) {
       this.displayStartMessage();
       return;
     }
 
     this.handlePaddleMovement(keys);
-    this.ball.draw();
-    this.leftPaddle.draw();
-    this.rightPaddle.draw();
-    this.ball.update(pong);
+    pong.ball.draw();
+    pong.leftPaddle.draw();
+    pong.rightPaddle.draw();
+    pong.ball.update(pong);
 
     if (pong.leftPlayerScore === 5 || pong.rightPlayerScore === 5) {
       const winner =
@@ -70,12 +58,12 @@ export class PongCanvas {
       return;
     }
 
-    this.raf = window.requestAnimationFrame(
-      this.draw.bind(this, announcement, keys, pong),
+    this.raf = window.requestAnimationFrame(() =>
+      this.draw(announcement, keys, pong),
     );
   }
 
-  private displayStartMessage() {
+  public displayStartMessage() {
     this.ctx.font = 'bold 32px monospace';
     this.ctx.fillStyle = 'white';
     this.ctx.textAlign = 'center';
@@ -96,13 +84,15 @@ export class PongCanvas {
     }
   }
 
-  private handlePaddleMovement(keys: Keys) {
+  public handlePaddleMovement(keys: Keys) {
     const paddleSpeed = 10;
-    if (keys.w) this.leftPaddle.move(-paddleSpeed, this.gameContainer.height);
-    if (keys.s) this.leftPaddle.move(paddleSpeed, this.gameContainer.height);
+    if (keys.w)
+      this.pong.leftPaddle.move(-paddleSpeed, this.gameContainer.height);
+    if (keys.s)
+      this.pong.leftPaddle.move(paddleSpeed, this.gameContainer.height);
     if (keys.ArrowUp)
-      this.rightPaddle.move(-paddleSpeed, this.gameContainer.height);
+      this.pong.rightPaddle.move(-paddleSpeed, this.gameContainer.height);
     if (keys.ArrowDown)
-      this.rightPaddle.move(paddleSpeed, this.gameContainer.height);
+      this.pong.rightPaddle.move(paddleSpeed, this.gameContainer.height);
   }
 }

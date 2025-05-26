@@ -1,5 +1,3 @@
-// import {html} from '../utils/html.ts';
-
 export class Announcement {
   private element: HTMLElement;
 

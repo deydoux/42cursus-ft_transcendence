@@ -71,7 +71,8 @@ export class Ball {
       pong.rightPlayerScore++;
       pong.rightPlayerScoreElement.innerText = pong.rightPlayerScore;
       pong.announcement.innerText = pong.rightPlayer + ' scores!';
-      pong.announcement.classList.add('animate');
+      //TODO: Add animation for announcement
+      // pong.announcement.classList.add('animate');
       // setTimeout(() => {
       //   pong.announcement.classList.remove('animate');
       // }, 2000); // Remove animation after 2 seconds

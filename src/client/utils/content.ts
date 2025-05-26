@@ -56,7 +56,7 @@ export interface PongGame {
   canvasHeight: number;
   leftPaddle: Paddle;
   rightPaddle: Paddle;
-  ball: Ball; // <-- Add this line
+  ball: Ball;
   leftPlayerScore: number;
   rightPlayerScore: number;
   leftPlayerScoreElement: HTMLElement | null;
@@ -116,15 +116,12 @@ export function announceWinner(pong: PongGame) {
   }
 }
 
-export function handleInput(
-  game: PongGame,
-  draw: () => void,
-  rafRef: {raf: number | null},
-) {
+export function handleInput(game: PongGame, onStart: () => void) {
   document.addEventListener('keydown', e => {
     if ((e.code === 'Space' || e.key === ' ') && !game.gameStarted) {
-      game.gameStarted = true;
-      rafRef.raf = window.requestAnimationFrame(draw);
+      console.log('Space pressed!');
+      // game.gameStarted = true;
+      onStart();
     }
     if (e.key === 'w' || e.key === 'W') game.keys.w = true;
     if (e.key === 's' || e.key === 'S') game.keys.s = true;
