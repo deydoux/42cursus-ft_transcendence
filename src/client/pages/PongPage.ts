@@ -1,4 +1,4 @@
-import '../styles/game.css';
+import '../styles/pong-page.css';
 import {handleInput, initializeGame} from '../utils/content';
 import {PongCanvas} from '../containers/PongCanvas';
 import {html} from '../utils/html';
@@ -36,8 +36,8 @@ export function renderPongPage(): void {
   gameContainer.width = rect.width * dpr;
   gameContainer.height = rect.height * dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.imageSmoothingEnabled = true;
 
-  // Use your shared game state
   const pong = initializeGame(
     ctx,
     gameContainer,
@@ -49,7 +49,7 @@ export function renderPongPage(): void {
 
   const pongCanvas = new PongCanvas(gameContainer, pong);
 
-  pongCanvas.displayStartMessage();
+  pongCanvas.displayStartMessage(pong.announcement as HTMLElement);
 
   handleInput(pong, () => {
     pongCanvas.startGame(pong.announcement as HTMLElement);

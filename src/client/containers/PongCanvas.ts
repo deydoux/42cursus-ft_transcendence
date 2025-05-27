@@ -7,12 +7,14 @@ export class PongCanvas {
   private gameContainer: HTMLCanvasElement;
   private pong: PongGame;
   private raf: number | null;
+  private dpr: number;
 
   constructor(gameContainer: HTMLCanvasElement, pong: PongGame) {
     this.gameContainer = gameContainer;
     this.ctx = pong.leftPaddle.ctx;
     this.pong = pong;
     this.raf = null;
+    this.dpr = window.devicePixelRatio || 1;
   }
 
   public startGame(announcement: HTMLElement) {
@@ -20,12 +22,6 @@ export class PongCanvas {
     if (this.pong.gameStarted) return;
     console.log('Start game called & game starting...');
     this.pong.gameStarted = true;
-    announcement.innerText =
-      'Good luck ' +
-      this.pong.leftPlayer +
-      ' and ' +
-      this.pong.rightPlayer +
-      '!';
     this.raf = window.requestAnimationFrame(() =>
       this.draw(announcement, this.pong.keys, this.pong),
     );
@@ -40,7 +36,7 @@ export class PongCanvas {
     );
 
     if (!pong.gameStarted) {
-      this.displayStartMessage();
+      this.displayStartMessage(announcement);
       return;
     }
 
@@ -63,29 +59,33 @@ export class PongCanvas {
     );
   }
 
-  public displayStartMessage() {
-    this.ctx.font = 'bold 32px monospace';
+  public displayStartMessage(announcement: HTMLElement) {
+    announcement.innerText =
+      'Good luck ' +
+      this.pong.leftPlayer +
+      ' and ' +
+      this.pong.rightPlayer +
+      '!';
+
+    this.ctx.save();
+    this.ctx.translate(this.gameContainer.width / 2, 70 * this.dpr);
+    this.ctx.font = `bold ${32 * this.dpr}px monospace`;
     this.ctx.fillStyle = 'white';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText(
-      'Press SPACE to start!',
-      this.gameContainer.width / 2,
-      70,
-    );
+    this.ctx.textBaseline = 'middle';
+    this.ctx.fillText('Press SPACE to start!', 0, 0);
 
-    this.ctx.font = '16px monospace';
-    const startY = this.gameContainer.height / 2 - (asciiArt.length * 20) / 2;
+    this.ctx.font = `${16 * this.dpr}px monospace`;
+    const lineHeight = 20 * this.dpr;
+    const startY = 60 * this.dpr;
     for (let i = 0; i < asciiArt.length; i++) {
-      this.ctx.fillText(
-        asciiArt[i],
-        this.gameContainer.width / 2,
-        startY + i * 20,
-      );
+      this.ctx.fillText(asciiArt[i], 0, startY + i * lineHeight);
     }
+    this.ctx.restore();
   }
 
   public handlePaddleMovement(keys: Keys) {
-    const paddleSpeed = 10;
+    const paddleSpeed = this.gameContainer.height * 0.01;
     if (keys.w)
       this.pong.leftPaddle.move(-paddleSpeed, this.gameContainer.height);
     if (keys.s)

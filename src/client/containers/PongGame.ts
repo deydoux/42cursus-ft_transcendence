@@ -5,7 +5,7 @@ export const renderPong = () =>
     <div class="relative flex items-center justify-center">
       <h1 id="leftPlayer" class="player">Player 1</h1>
       <h1 id="leftPlayerScore" class="score">0</h1>
-      <i icon="field" class="m-5 text-white"></i>
+      <i icon="field" class="m-2 text-white"></i>
       <h1 id="rightPlayerScore" class="score">0</h1>
       <h1 id="rightPlayer" class="player">Player 2</h1>
     </div>

@@ -62,7 +62,7 @@ export interface PongGame {
   leftPlayerScoreElement: HTMLElement | null;
   rightPlayerScoreElement: HTMLElement | null;
   keys: Keys;
-  gameStarted?: boolean;
+  gameStarted: boolean;
 }
 
 export function initializeGame(
@@ -73,13 +73,26 @@ export function initializeGame(
   leftPlayerScoreElement: HTMLElement | null,
   rightPlayerScoreElement: HTMLElement | null,
 ): PongGame {
-  const leftPaddle = new Paddle(ctx, 10, 0);
+  const leftPaddle = new Paddle(
+    ctx,
+    10,
+    0,
+    gameContainer.width * 0.01,
+    gameContainer.height * 0.15,
+  );
   const rightPaddle = new Paddle(
     ctx,
     gameContainer.width - 10 - leftPaddle.width,
     0,
+    gameContainer.width * 0.01,
+    gameContainer.height * 0.15,
   );
-  const ball = new Ball(ctx, gameContainer.width / 2, gameContainer.height / 2);
+  const ball = new Ball(
+    ctx,
+    gameContainer.width / 2,
+    gameContainer.height / 2,
+    gameContainer.width * 0.01,
+  );
 
   return {
     announcement: document.getElementById('announcement'),
@@ -118,9 +131,8 @@ export function announceWinner(pong: PongGame) {
 
 export function handleInput(game: PongGame, onStart: () => void) {
   document.addEventListener('keydown', e => {
-    if ((e.code === 'Space' || e.key === ' ') && !game.gameStarted) {
+    if (e.code === 'Space' || e.key === ' ') {
       console.log('Space pressed!');
-      // game.gameStarted = true;
       onStart();
     }
     if (e.key === 'w' || e.key === 'W') game.keys.w = true;

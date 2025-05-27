@@ -9,11 +9,11 @@ export class Ball {
 
   constructor(
     ctx: CanvasRenderingContext2D,
-    x = 20,
-    y = 20,
+    x: number,
+    y: number,
+    radius: number,
     vx = 5,
     vy = 2,
-    radius = 10,
     color = 'white',
   ) {
     this.ctx = ctx;
@@ -102,8 +102,8 @@ export class Paddle {
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
-    width = 15,
-    height = 80,
+    width: number,
+    height: number,
     color = 'white',
   ) {
     this.ctx = ctx;

@@ -4,32 +4,28 @@
 h1.score {
   font-family: "Special Gothic Expanded One", sans-serif;
   font-size: 2em;
-  margin-top: 10px;
-  margin-bottom: 5px;
   text-align: center;
-  width: 45px;
+  width: 55px;
 }
 
 h1.player {
   font-family: "Special Gothic Expanded One", sans-serif;
   font-size: 2em;
-  margin-top: 10px;
-  margin-bottom: 5px;
   text-align: center;
-  width: 250px;
+  width: 200px;
 }
 
 h1.announcement {
   font-family: "Special Gothic Expanded One", sans-serif;
-  font-size: 2em;
+  font-size: 1.5em;
   text-align: center;
   width: 100%;
   margin: auto;
 }
 
 .pong {
-  border: 2px solid currentColor;
-  background-color: #201f20;
+  border: 5px solid currentColor;
+  background-color: #000000;
   border-radius: 5px;
   margin-top: 5px;
   margin-left: 50px;
