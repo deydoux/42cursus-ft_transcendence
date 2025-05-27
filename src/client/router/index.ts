@@ -1,6 +1,6 @@
 import {renderHome} from '../pages/Home';
 import {renderLandingPage} from '../pages/LandingPage';
-
+import {renderPongPage} from '../pages/PongPage';
 window.onpopstate = router;
 
 export function router(): void {
@@ -11,6 +11,9 @@ export function router(): void {
     case '/signup':
     case '/signin':
       renderLandingPage(path);
+      break;
+    case '/pong':
+      renderPongPage();
       break;
     case '/homepage':
     default:
