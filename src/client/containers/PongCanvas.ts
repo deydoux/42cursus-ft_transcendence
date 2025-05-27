@@ -60,12 +60,7 @@ export class PongCanvas {
   }
 
   public displayStartMessage(announcement: HTMLElement) {
-    announcement.innerText =
-      'Good luck ' +
-      this.pong.leftPlayer +
-      ' and ' +
-      this.pong.rightPlayer +
-      '!';
+    announcement.innerText = `Good luck ${this.pong.leftPlayer} and ${this.pong.rightPlayer}!`;
 
     this.ctx.save();
     this.ctx.translate(this.gameContainer.width / 2, 70 * this.dpr);
