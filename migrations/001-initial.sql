@@ -76,7 +76,7 @@ CREATE TABLE users(
   id                 INTEGER PRIMARY KEY AUTOINCREMENT,
   google_id          TEXT UNIQUE,
 
-  username           TEXT UNIQUE,
+  username           TEXT UNIQUE NOT NULL,
   password           TEXT,
 
   last_seen          INTEGER NOT NULL DEFAULT (unixepoch()),
