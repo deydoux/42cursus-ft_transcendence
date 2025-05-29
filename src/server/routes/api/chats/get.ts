@@ -7,11 +7,12 @@ const plugin: FastifyPluginAsync = async server => {
     const {id} = request.user;
 
     const chats = await server.db.all(SQL`
-      SELECT COALESCE(dm.created_at, r.updated_at) AS updatedAt,
+      SELECT r.id AS relationshipID,
+             coalesce(dm.created_at, r.updated_at) AS updatedAt,
              u.id, username, last_seen AS lastSeen, has_avatar, avatar_version,
              message,
              (
-               SELECT COUNT(*)
+               SELECT count(*)
                FROM direct_messages
                WHERE sender_id = u.id AND recipient_id = ${id} AND read = 0
              ) AS unread
