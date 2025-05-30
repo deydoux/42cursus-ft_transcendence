@@ -27,7 +27,7 @@ const plugin: FastifyPluginAsync = async server => {
     },
     async trusted(request, decodedToken) {
       const {id: userID, type} = decodedToken;
-      const query = SQL`SELECT id FROM connections WHERE user_id = ${userID} `;
+      const query = SQL`SELECT id FROM connections WHERE user_id = ${userID} AND `;
       let token;
 
       if (type === 'access' || type === 'login' || type === 'signup') {
