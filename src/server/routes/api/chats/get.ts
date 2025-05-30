@@ -18,8 +18,8 @@ const plugin: FastifyPluginAsync = async server => {
              ) AS unread
       FROM relationships r
       JOIN users u
-      ON (user_id = ${id} AND u.id = other_id)
-         OR (other_id = ${id} AND u.id = user_id)
+      ON (user_id = ${id} AND other_id = u.id)
+         OR (user_id = u.id AND other_id = ${id})
       LEFT JOIN direct_messages dm
       ON dm.id = (
                     SELECT id
