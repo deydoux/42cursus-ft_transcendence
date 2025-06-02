@@ -78,20 +78,22 @@ export function initializeGame(
     10,
     0,
     gameContainer.width * 0.01,
-    gameContainer.height * 0.15,
+    gameContainer.height * 0.25,
   );
   const rightPaddle = new Paddle(
     ctx,
     gameContainer.width - 10 - leftPaddle.width,
     0,
     gameContainer.width * 0.01,
-    gameContainer.height * 0.15,
+    gameContainer.height * 0.25,
   );
   const ball = new Ball(
     ctx,
-    gameContainer.width / 2,
-    gameContainer.height / 2,
-    gameContainer.width * 0.01,
+    gameContainer.width / 2, //x
+    gameContainer.height / 2, //y
+    gameContainer.width * 0.012, //radius
+    gameContainer.height * 0.006, // vx
+    gameContainer.width * 0.004, // vy
   );
 
   return {
@@ -147,4 +149,25 @@ export function handleInput(game: PongGame, onStart: () => void) {
     if (e.key === 'ArrowUp') game.keys.ArrowUp = false;
     if (e.key === 'ArrowDown') game.keys.ArrowDown = false;
   });
+}
+
+export function resetPongGame(
+  pong: PongGame,
+  gameContainer: HTMLCanvasElement,
+) {
+  pong.leftPlayerScore = 0;
+  pong.rightPlayerScore = 0;
+  updateScores(pong);
+
+  // Reset ball position and velocity
+  pong.ball.x = gameContainer.width / 2;
+  pong.ball.y = gameContainer.height / 2;
+  pong.ball.vx = gameContainer.height * 0.006;
+  pong.ball.vy = gameContainer.width * 0.004;
+
+  // Reset paddles
+  pong.leftPaddle.y = 0;
+  pong.rightPaddle.y = 0;
+
+  pong.gameStarted = false;
 }

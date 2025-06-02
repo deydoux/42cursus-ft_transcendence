@@ -1,6 +1,6 @@
 import '../styles/pong-page.css';
 import {handleInput, initializeGame} from '../utils/content';
-import {PongCanvas} from '../containers/PongCanvas';
+import {PongCanvas} from '../containers/pongCanvas';
 import {html} from '../utils/html';
 import {renderPong} from '../containers/PongGame';
 
@@ -10,9 +10,9 @@ export function renderPongPage(): void {
   if (!(right && left))
     return console.error('Could not find right and left containers');
 
-  left.className = 'flex-1 h-full rounded-[30px] border';
+  left.className = 'flex-1 h-full';
   right.className =
-    'w-[400px] flex-none h-full flex flex-col gap-5 items-center';
+    'w-[500px] flex-none h-full flex flex-col gap-5 items-center';
   left.appendChild(renderPong());
   right.appendChild(
     html`<div class="w-full flex-1 rounded-[30px] border"></div>`,

@@ -1,3 +1,5 @@
+import hk_ball from '../assets/hk_ball.png';
+
 export class Ball {
   x: number;
   y: number;
@@ -6,15 +8,17 @@ export class Ball {
   radius: number;
   color: string;
   ctx: CanvasRenderingContext2D;
+  maxSpeed: number; // Set your desired max speed
 
   constructor(
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
     radius: number,
-    vx = 5,
-    vy = 2,
+    vx: number,
+    vy: number,
     color = 'white',
+    maxSpeed = 10, // Default max speed
   ) {
     this.ctx = ctx;
     this.x = x;
@@ -23,6 +27,7 @@ export class Ball {
     this.vy = vy;
     this.radius = radius;
     this.color = color;
+    this.maxSpeed = maxSpeed; // Initialize max speed
   }
 
   draw() {
@@ -31,7 +36,25 @@ export class Ball {
     this.ctx.closePath();
     this.ctx.fillStyle = this.color;
     this.ctx.fill();
+
+    if (Ball.helloKittyImg && Ball.helloKittyImg.complete) {
+      const size = this.radius * 1.8; // Adjust as needed
+      this.ctx.drawImage(
+        Ball.helloKittyImg,
+        this.x - size / 2,
+        this.y - size / 2,
+        size,
+        size,
+      );
+    }
   }
+
+  static helloKittyImg: HTMLImageElement = (() => {
+    const img = new window.Image();
+    img.src = hk_ball;
+    img.onerror = () => console.error('Failed to load Hello Kitty image!');
+    return img;
+  })();
 
   update(pong) {
     this.x += this.vx;
@@ -50,6 +73,7 @@ export class Ball {
     ) {
       this.vx = -this.vx;
       this.x = pong.leftPaddle.x + pong.leftPaddle.width + this.radius;
+      this.increaseSpeed();
     }
 
     // Right paddle collision
@@ -60,6 +84,7 @@ export class Ball {
     ) {
       this.vx = -this.vx;
       this.x = pong.rightPaddle.x - this.radius;
+      this.increaseSpeed();
     }
 
     // Ball out of bounds (left or right wall)
@@ -86,6 +111,17 @@ export class Ball {
       pong.leftPlayerScore++;
       pong.leftPlayerScoreElement.innerText = pong.leftPlayerScore;
       pong.announcement.innerText = pong.leftPlayer + ' scores!';
+    }
+  }
+
+  increaseSpeed() {
+    // Increase speed by 5% each paddle hit, but don't exceed maxSpeed
+    const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+    if (speed < this.maxSpeed) {
+      const newSpeed = Math.min(speed * 1.05, this.maxSpeed);
+      const angle = Math.atan2(this.vy, this.vx);
+      this.vx = Math.sign(this.vx) * Math.abs(newSpeed * Math.cos(angle));
+      this.vy = Math.sign(this.vy) * Math.abs(newSpeed * Math.sin(angle));
     }
   }
 }
