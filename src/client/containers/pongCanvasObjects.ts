@@ -1,4 +1,4 @@
-import hk_ball from '../assets/hk_ball.png';
+import hk_ball from '../assets/hk_ball.jpg';
 
 export class Ball {
   x: number;
@@ -7,18 +7,24 @@ export class Ball {
   vy: number;
   radius: number;
   color: string;
+  speed: number;
+  maxSpeed: number;
   ctx: CanvasRenderingContext2D;
-  maxSpeed: number; // Set your desired max speed
+  gameContainer: HTMLCanvasElement;
+  isScoring: boolean;
 
   constructor(
     ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    radius: number,
-    vx: number,
-    vy: number,
+    gameContainer: HTMLCanvasElement,
+    x = gameContainer.width / 2,
+    y = gameContainer.height / 2,
+    vx = gameContainer.height * 0.006,
+    vy = gameContainer.width * 0.004,
+    radius = gameContainer.width * 0.012,
     color = 'white',
-    maxSpeed = 10, // Default max speed
+    speed = Math.sqrt(vx * vx + vy * vy),
+    maxSpeed = Math.max(gameContainer.width, gameContainer.height) * 0.02,
+    isScoring = false,
   ) {
     this.ctx = ctx;
     this.x = x;
@@ -27,7 +33,10 @@ export class Ball {
     this.vy = vy;
     this.radius = radius;
     this.color = color;
-    this.maxSpeed = maxSpeed; // Initialize max speed
+    this.speed = speed;
+    this.maxSpeed = maxSpeed;
+    this.gameContainer = gameContainer;
+    this.isScoring = isScoring;
   }
 
   draw() {
@@ -38,7 +47,7 @@ export class Ball {
     this.ctx.fill();
 
     if (Ball.helloKittyImg && Ball.helloKittyImg.complete) {
-      const size = this.radius * 1.8; // Adjust as needed
+      const size = this.radius * 1.8;
       this.ctx.drawImage(
         Ball.helloKittyImg,
         this.x - size / 2,
@@ -57,6 +66,8 @@ export class Ball {
   })();
 
   update(pong) {
+    if (this.isScoring) return; // Don't update if we're in scoring animation
+
     this.x += this.vx;
     this.y += this.vy;
 
@@ -71,9 +82,7 @@ export class Ball {
       this.y > pong.leftPaddle.y &&
       this.y < pong.leftPaddle.y + pong.leftPaddle.height
     ) {
-      this.vx = -this.vx;
-      this.x = pong.leftPaddle.x + pong.leftPaddle.width + this.radius;
-      this.increaseSpeed();
+      this.handlePaddleCollision(pong.leftPaddle, true);
     }
 
     // Right paddle collision
@@ -82,32 +91,60 @@ export class Ball {
       this.y > pong.rightPaddle.y &&
       this.y < pong.rightPaddle.y + pong.rightPaddle.height
     ) {
-      this.vx = -this.vx;
-      this.x = pong.rightPaddle.x - this.radius;
-      this.increaseSpeed();
+      this.handlePaddleCollision(pong.rightPaddle, false);
     }
 
     // Ball out of bounds (left or right wall)
-    if (this.x - this.radius < 0) {
-      // Ball went past the left wall
-      this.x = pong.canvasWidth / 2;
-      this.y = pong.canvasHeight / 2;
-      this.vx = Math.abs(this.vx); // Ensure it goes right
+    if (this.x - this.radius < 0 || this.x + this.radius > pong.canvasWidth) {
+      const isLeftWall = this.x - this.radius < 0;
+      this.isScoring = true;
+      pong.isScoring = true; // Set game scoring state
+
+      // Stop the ball at the wall
+      this.x = isLeftWall ? this.radius : pong.canvasWidth - this.radius;
+
+      // Wait 1 second before resetting
+      setTimeout(() => {
+        this.isScoring = false;
+        pong.isScoring = false; // Reset game scoring state
+        this.handleScoring(pong, isLeftWall);
+        this.isScoring = false;
+      }, 100);
+    }
+  }
+
+  private handlePaddleCollision(paddle: Paddle, isLeftPaddle: boolean) {
+    // Calculate relative intersection point (-1 to 1)
+    const relativeIntersectY =
+      (this.y - (paddle.y + paddle.height / 2)) / (paddle.height / 2);
+
+    // Calculate bounce angle (maximum 75 degrees)
+    const bounceAngle = (relativeIntersectY * (5 * Math.PI)) / 12;
+
+    // Calculate new velocity
+    const direction = isLeftPaddle ? 1 : -1;
+    this.vx = direction * Math.abs(this.speed * Math.cos(bounceAngle));
+    this.vy = this.speed * Math.sin(bounceAngle);
+
+    // Reposition ball to prevent sticking
+    this.x = isLeftPaddle
+      ? paddle.x + paddle.width + this.radius
+      : paddle.x - this.radius;
+
+    this.increaseSpeed();
+  }
+
+  handleScoring(pong, isLeftWall: boolean) {
+    this.x = pong.canvasWidth / 2;
+    this.y = pong.canvasHeight / 2;
+    this.vx = Math.abs(this.vx) * (Math.random() < 0.5 ? 1 : -1);
+    this.speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy); // Reset speed
+
+    if (isLeftWall) {
       pong.rightPlayerScore++;
       pong.rightPlayerScoreElement.innerText = pong.rightPlayerScore;
       pong.announcement.innerText = pong.rightPlayer + ' scores!';
-      //TODO: Add animation for announcement
-      // pong.announcement.classList.add('animate');
-      // setTimeout(() => {
-      //   pong.announcement.classList.remove('animate');
-      // }, 2000); // Remove animation after 2 seconds
-      // return;
-    }
-    if (this.x + this.radius > pong.canvasWidth) {
-      // Ball went past the right wall
-      this.x = pong.canvasWidth / 2;
-      this.y = pong.canvasHeight / 2;
-      this.vx = -Math.abs(this.vx); // Ensure it goes left
+    } else {
       pong.leftPlayerScore++;
       pong.leftPlayerScoreElement.innerText = pong.leftPlayerScore;
       pong.announcement.innerText = pong.leftPlayer + ' scores!';
@@ -115,13 +152,16 @@ export class Ball {
   }
 
   increaseSpeed() {
-    // Increase speed by 5% each paddle hit, but don't exceed maxSpeed
-    const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-    if (speed < this.maxSpeed) {
-      const newSpeed = Math.min(speed * 1.05, this.maxSpeed);
+    // Increase speed by 10% each paddle hit, but don't exceed maxSpeed
+    console.log(`Current speed: ${this.speed}, maxSpeed: ${this.maxSpeed}`);
+    if (this.speed < this.maxSpeed) {
+      const newSpeed = Math.min(this.speed * 1.15, this.maxSpeed);
       const angle = Math.atan2(this.vy, this.vx);
       this.vx = Math.sign(this.vx) * Math.abs(newSpeed * Math.cos(angle));
       this.vy = Math.sign(this.vy) * Math.abs(newSpeed * Math.sin(angle));
+      console.log(
+        `Ball speed increased: new speed = ${newSpeed}, vx = ${this.vx}, vy = ${this.vy}`,
+      );
     }
   }
 }

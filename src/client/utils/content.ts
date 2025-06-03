@@ -63,6 +63,7 @@ export interface PongGame {
   rightPlayerScoreElement: HTMLElement | null;
   keys: Keys;
   gameStarted: boolean;
+  isScoring: boolean;
 }
 
 export function initializeGame(
@@ -87,14 +88,7 @@ export function initializeGame(
     gameContainer.width * 0.01,
     gameContainer.height * 0.25,
   );
-  const ball = new Ball(
-    ctx,
-    gameContainer.width / 2, //x
-    gameContainer.height / 2, //y
-    gameContainer.width * 0.012, //radius
-    gameContainer.height * 0.006, // vx
-    gameContainer.width * 0.004, // vy
-  );
+  const ball = new Ball(ctx, gameContainer);
 
   return {
     announcement: document.getElementById('announcement'),
@@ -111,6 +105,7 @@ export function initializeGame(
     rightPlayerScoreElement,
     keys: {...keys},
     gameStarted: false,
+    isScoring: false,
   };
 }
 

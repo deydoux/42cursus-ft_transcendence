@@ -120,6 +120,8 @@ export class PongCanvas {
   }
 
   public handlePaddleMovement(keys: Keys) {
+    if (this.pong.isScoring) return;
+
     const paddleSpeed = this.gameContainer.height * 0.01;
     if (keys.w)
       this.pong.leftPaddle.move(-paddleSpeed, this.gameContainer.height);
