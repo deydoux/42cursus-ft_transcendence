@@ -9,6 +9,7 @@ export class PongCanvas {
   private pong: PongGame;
   private raf: number | null;
   private dpr: number;
+  private color = '#fde ';
 
   private bandrollActive = false;
   private bandrollX = 0;
@@ -60,17 +61,15 @@ export class PongCanvas {
         pong.gameStarted = false;
       }
 
-      this.ctx.clearRect(
-        0,
-        0,
-        this.gameContainer.width,
-        this.gameContainer.height,
-      );
-      resetPongGame(pong, this.gameContainer);
-      this.displayStartMessage(announcement);
-
       this.startBandroll(winnerName, () => {
-        announcement.innerText = `Good luck ${this.pong.leftPlayer} and ${this.pong.rightPlayer}!`;
+        this.ctx.clearRect(
+          0,
+          0,
+          this.gameContainer.width,
+          this.gameContainer.height,
+        );
+        resetPongGame(pong, this.gameContainer);
+        this.displayStartMessage(announcement);
       });
 
       return;
@@ -105,7 +104,7 @@ export class PongCanvas {
     let currentY = centerY - totalBlockHeight / 2 + titleHeight / 2;
 
     this.ctx.font = `bold ${baseFontSize}px monospace`;
-    this.ctx.fillStyle = 'white';
+    this.ctx.fillStyle = this.color;
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
     this.ctx.fillText('Press SPACE to start/play again!', centerX, currentY);
@@ -133,7 +132,7 @@ export class PongCanvas {
   }
 
   private startBandroll(winner: string, callback: () => void) {
-    this.bandrollText = `🏆 ${winner} wins! 🏆`;
+    this.bandrollText = `✨ ${winner} wins! Issok tho 'cause ur ass is fatter ✨`;
     this.bandrollX = this.gameContainer.width;
     this.bandrollActive = true;
 
@@ -145,7 +144,7 @@ export class PongCanvas {
         this.gameContainer.height,
       );
       this.ctx.font = `bold ${Math.floor(this.gameContainer.height * 0.08)}px monospace`;
-      this.ctx.fillStyle = 'yellow';
+      this.ctx.fillStyle = this.color;
       this.ctx.textAlign = 'left';
       this.ctx.textBaseline = 'middle';
       this.ctx.fillText(
