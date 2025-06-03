@@ -7,6 +7,7 @@ const submitForm = (
   form: HTMLFormElement,
   apiEndpoint: string,
   fields: string[],
+  onSuccess: Function,
 ) => {
   const body = {};
   fields.forEach(field => {
@@ -16,7 +17,7 @@ const submitForm = (
   api
     .post(apiEndpoint, body)
     .then(answer => {
-      console.log(answer.json);
+      onSuccess(answer);
       return answer.json;
     })
     .catch(async error => {
@@ -42,6 +43,7 @@ export const addFormListener = (
   formName: string,
   apiEndpoint: string,
   fields: string[],
+  onSuccess: Function,
   errorLabelExtra?: HTMLElement,
 ) => {
   const form = document.getElementById(formName + '-form') as HTMLFormElement;
@@ -52,14 +54,14 @@ export const addFormListener = (
     (form.querySelector('#' + field) as HTMLInputElement)?.addEventListener(
       'keydown',
       (evt: KeyboardEvent) => {
-        if (evt.key === 'Enter') submitForm(form, apiEndpoint, fields);
+        if (evt.key === 'Enter') submitForm(form, apiEndpoint, fields, onSuccess);
       },
     );
   });
 
   form?.addEventListener('submit', evt => {
     evt.preventDefault();
-    submitForm(form, apiEndpoint, fields);
+    submitForm(form, apiEndpoint, fields, onSuccess);
   });
 
   form.querySelector('#close-error-box')?.addEventListener('click', evt => {
