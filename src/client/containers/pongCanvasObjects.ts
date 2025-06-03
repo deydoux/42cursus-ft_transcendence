@@ -74,22 +74,29 @@ export class Ball {
     // Wall collision (top/bottom)
     if (this.y - this.radius < 0 || this.y + this.radius > pong.canvasHeight) {
       this.vy = -this.vy;
+      // Clamp ball position to prevent sticking
+      this.y =
+        this.y - this.radius < 0
+          ? this.radius
+          : pong.canvasHeight - this.radius;
     }
 
-    // Left paddle collision
+    // Left paddle collision with corner detection
     if (
       this.x - this.radius < pong.leftPaddle.x + pong.leftPaddle.width &&
-      this.y > pong.leftPaddle.y &&
-      this.y < pong.leftPaddle.y + pong.leftPaddle.height
+      this.x + this.radius > pong.leftPaddle.x &&
+      this.y + this.radius > pong.leftPaddle.y &&
+      this.y - this.radius < pong.leftPaddle.y + pong.leftPaddle.height
     ) {
       this.handlePaddleCollision(pong.leftPaddle, true);
     }
 
-    // Right paddle collision
+    // Right paddle collision with corner detection
     if (
       this.x + this.radius > pong.rightPaddle.x &&
-      this.y > pong.rightPaddle.y &&
-      this.y < pong.rightPaddle.y + pong.rightPaddle.height
+      this.x - this.radius < pong.rightPaddle.x + pong.rightPaddle.width &&
+      this.y + this.radius > pong.rightPaddle.y &&
+      this.y - this.radius < pong.rightPaddle.y + pong.rightPaddle.height
     ) {
       this.handlePaddleCollision(pong.rightPaddle, false);
     }
