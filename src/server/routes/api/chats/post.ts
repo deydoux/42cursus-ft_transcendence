@@ -7,14 +7,20 @@ const schema = {
     type: 'object',
     properties: {
       recipientID: {type: 'string'},
-      message: {type: 'string'},
+      content: {type: 'string'},
     },
-    required: ['recipientID', 'message'],
+    required: ['recipientID', 'content'],
   } as const,
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.post('/', {schema}, async (request, reply) => {
+    const content = request.body.content.trim();
+    if (content.length === 0)
+      return reply.badRequest('Message content cannot be empty');
+    if (content.length > 4096)
+      return reply.badRequest('Message content cannot exceed 4096 characters');
+
     const sender = await server.db.get(SQL`
       SELECT id, username, has_avatar, avatar_version
       FROM users
@@ -52,6 +58,19 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     if (relationship?.type !== 'friend' && otherRelationship?.type !== 'friend')
       return reply.badRequest('You can only send messages to friends');
+
+    await server.db.run(SQL`
+      INSERT INTO direct_messages(sender_id, recipient_id, content)
+      VALUES(${sender.id}, ${recipient.id}, ${content})
+    `);
+
+    server.clients.sendUser(recipient.id, {
+      type: 'directMessage',
+      sender,
+      content,
+    });
+
+    return reply.code(204).send();
   });
 };
 

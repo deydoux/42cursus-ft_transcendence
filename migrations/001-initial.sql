@@ -34,7 +34,7 @@ CREATE TABLE direct_messages(
 
   sender_id    INTEGER NOT NULL,
   recipient_id INTEGER NOT NULL,
-  message      TEXT NOT NULL,
+  content      TEXT NOT NULL,
 
   created_at   INTEGER NOT NULL DEFAULT (unixepoch()),
   read         INTEGER NOT NULL DEFAULT FALSE,

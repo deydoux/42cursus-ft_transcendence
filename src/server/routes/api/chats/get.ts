@@ -10,7 +10,7 @@ const plugin: FastifyPluginAsync = async server => {
       SELECT r.id AS relationshipID,
              coalesce(dm.created_at, r.updated_at) AS updatedAt,
              u.id, username, last_seen AS lastSeen, has_avatar, avatar_version,
-             message,
+             content,
              (
                 SELECT count(*)
                 FROM direct_messages
