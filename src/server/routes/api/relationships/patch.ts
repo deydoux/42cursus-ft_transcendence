@@ -41,14 +41,6 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       WHERE id = ${relationshipID}
     `);
 
-    server.log.trace(
-      JSON.stringify(relationship.userID),
-      JSON.stringify({
-        type: 'friendRequestAccepted',
-        relationship: relationshipID,
-        user,
-      }),
-    );
     server.clients.sendUser(relationship.userID, {
       type: 'friendRequestAccepted',
       relationship: relationshipID,
