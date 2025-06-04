@@ -4,7 +4,7 @@ import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 const plugin: FastifyPluginAsync = async server => {
   server.get('/', async (request, reply) => {
-    const {id} = request.user;
+    const {user} = request;
 
     const chats = await server.db.all(SQL`
       SELECT r.id AS relationshipID,
@@ -14,22 +14,23 @@ const plugin: FastifyPluginAsync = async server => {
              (
                 SELECT count(*)
                 FROM direct_messages
-                WHERE sender_id = u.id AND recipient_id = ${id} AND read = FALSE
+                WHERE sender_id = u.id AND recipient_id = ${user.id}
+                      AND read = FALSE
              ) AS unread
       FROM relationships r
       JOIN users u
-      ON (user_id = ${id} AND other_id = u.id)
-         OR (user_id = u.id AND other_id = ${id})
+      ON (user_id = ${user.id} AND other_id = u.id)
+         OR (user_id = u.id AND other_id = ${user.id})
       LEFT JOIN direct_messages dm
       ON dm.id = (
                     SELECT id
                     FROM direct_messages
-                    WHERE (sender_id = ${id} AND recipient_id = u.id)
-                          OR (sender_id = u.id AND recipient_id = ${id})
+                    WHERE (sender_id = ${user.id} AND recipient_id = u.id)
+                          OR (sender_id = u.id AND recipient_id = ${user.id})
                     ORDER BY created_at DESC
                     LIMIT 1
                  )
-      WHERE type = 'friend' AND (user_id = ${id} OR other_id = ${id})
+      WHERE type = 'friend' AND (user_id = ${user.id} OR other_id = ${user.id})
       ORDER BY updatedAt DESC
     `);
 
