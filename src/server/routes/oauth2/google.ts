@@ -65,7 +65,8 @@ const plugin: FastifyPluginAsync = async server => {
 
     await server.db.run(SQL`
       INSERT INTO connections(ip, user_agent, access_token, expires_at)
-      VALUES(${ip}, ${userAgent}, ${signupToken}, ${expiresAt})`);
+      VALUES(${ip}, ${userAgent}, ${signupToken}, ${expiresAt})
+    `);
 
     return signupToken;
   };
@@ -85,7 +86,10 @@ const plugin: FastifyPluginAsync = async server => {
     const id = info.sub;
 
     const user = await server.db.get(SQL`
-      SELECT id FROM users WHERE google_id = ${id}`);
+      SELECT id
+      FROM users
+      WHERE google_id = ${id}
+    `);
 
     if (!user) {
       const suggestedUsername = info.email

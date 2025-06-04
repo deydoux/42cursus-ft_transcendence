@@ -12,9 +12,9 @@ const plugin: FastifyPluginAsync = async server => {
              u.id, username, last_seen AS lastSeen, has_avatar, avatar_version,
              message,
              (
-               SELECT count(*)
-               FROM direct_messages
-               WHERE sender_id = u.id AND recipient_id = ${id} AND read = 0
+                SELECT count(*)
+                FROM direct_messages
+                WHERE sender_id = u.id AND recipient_id = ${id} AND read = 0
              ) AS unread
       FROM relationships r
       JOIN users u
@@ -30,7 +30,8 @@ const plugin: FastifyPluginAsync = async server => {
                     LIMIT 1
                  )
       WHERE type = 'friend' AND (user_id = ${id} OR other_id = ${id})
-      ORDER BY updatedAt DESC`);
+      ORDER BY updatedAt DESC
+    `);
 
     chats.forEach(chat => {
       serializeUserAvatar(chat);

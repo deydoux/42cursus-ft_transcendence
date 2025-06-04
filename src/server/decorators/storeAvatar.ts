@@ -39,7 +39,8 @@ const plugin: FastifyPluginAsync = async server => {
     await server.db.run(SQL`
       UPDATE users
       SET has_avatar = TRUE, avatar_version = avatar_version + 1
-      WHERE id = ${id}`);
+      WHERE id = ${id}
+    `);
   });
 };
 

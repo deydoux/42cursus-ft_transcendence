@@ -14,7 +14,8 @@ const plugin: FastifyPluginAsync = async server => {
       ON (user_id = ${id} AND other_id = u.id)
          OR (user_id = u.id AND other_id = ${id})
       WHERE type = 'friend' AND (user_id = ${id} OR other_id = ${id})
-      ORDER BY u.username`);
+      ORDER BY u.username
+    `);
 
     friends.forEach(friend => {
       serializeUserAvatar(friend);

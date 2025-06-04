@@ -5,10 +5,10 @@ const schema = {
   body: {
     type: 'object',
     properties: {
-      recipient: {type: 'string'},
+      recipientID: {type: 'string'},
       message: {type: 'string'},
     },
-    required: ['recipient', 'message'],
+    required: ['recipientID', 'message'],
   } as const,
 };
 
@@ -17,7 +17,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const recipient = await server.db.get(SQL`
       SELECT id
       FROM users
-      WHERE username = ${request.body.recipient}
+      WHERE id = ${request.body.recipientID}
     `);
 
     if (!recipient) return reply.notFound('Recipient not found');

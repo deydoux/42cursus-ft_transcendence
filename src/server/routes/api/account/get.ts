@@ -10,7 +10,8 @@ const plugin: FastifyPluginAsync = async server => {
       SELECT id, username, password_edited_at AS passwordEditedAt,
              totp_enabled AS totp, has_avatar, avatar_version
       FROM users
-      WHERE id = ${id}`);
+      WHERE id = ${id}
+    `);
 
     if (!user) return reply.notFound('Account not found');
 

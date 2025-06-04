@@ -13,7 +13,8 @@ const plugin: FastifyPluginAsync = async server => {
       JOIN users u
       ON u.id = user_id
       WHERE other_id = ${id} AND type = 'pending'
-      ORDER BY created_at DESC`);
+      ORDER BY created_at DESC
+    `);
 
     relationships.forEach(relationship => {
       relationship.createdAt = new Date(relationship.createdAt * 1000);
@@ -33,7 +34,8 @@ const plugin: FastifyPluginAsync = async server => {
       JOIN users u
       ON u.id = other_id
       WHERE user_id = ${id} AND type = 'pending'
-      ORDER BY created_at DESC`);
+      ORDER BY created_at DESC
+    `);
 
     relationships.forEach(relationship => {
       relationship.createdAt = new Date(relationship.createdAt * 1000);

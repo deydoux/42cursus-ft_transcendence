@@ -8,10 +8,11 @@ const plugin: FastifyPluginAsync = async server => {
 
     const connections = await server.db.all(SQL`
       SELECT id, ip, user_agent AS userAgent, created_at AS createdAt,
-            updated_at AS updatedAt
+             updated_at AS updatedAt
       FROM connections
       WHERE user_id = ${id}
-      ORDER BY updated_at DESC`);
+      ORDER BY updated_at DESC
+    `);
 
     connections.forEach(connection => {
       connection.createdAt = new Date(connection.createdAt * 1000);

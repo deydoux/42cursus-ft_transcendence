@@ -9,7 +9,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const user = await server.db.get(SQL`
       SELECT id, username, has_avatar, avatar_version
       FROM users
-      WHERE id = ${id}`);
+      WHERE id = ${id}
+    `);
 
     if (!user) return reply.notFound('User not found');
 

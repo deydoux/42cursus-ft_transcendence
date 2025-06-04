@@ -17,7 +17,8 @@ const plugin: FastifyPluginAsync = async server => {
     await server.db.run(SQL`
       INSERT INTO connections(user_id, ip, user_agent, access_token,
                   refresh_token)
-      VALUES(${id}, ${ip}, ${userAgent}, ${accessToken}, ${refreshToken})`);
+      VALUES(${id}, ${ip}, ${userAgent}, ${accessToken}, ${refreshToken})
+    `);
 
     return {accessToken, refreshToken};
   });

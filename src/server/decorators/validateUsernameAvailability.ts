@@ -7,7 +7,8 @@ const plugin: FastifyPluginAsync = async server => {
     const user = await server.db.get(SQL`
       SELECT NULL
       FROM users
-      WHERE id != ${id ?? 0} AND lower(username) = lower(${username})`);
+      WHERE id != ${id ?? 0} AND lower(username) = lower(${username})
+    `);
 
     if (!user) return;
 
