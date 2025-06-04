@@ -25,7 +25,7 @@ const plugin: FastifyPluginAsync = async server => {
   });
 
   server.get('/sent', async (request, reply) => {
-    const {id} = request.user;
+    const {user} = request;
 
     const relationships = await server.db.all(SQL`
       SELECT r.id AS relationshipID, r.created_at AS createdAt,
@@ -33,7 +33,7 @@ const plugin: FastifyPluginAsync = async server => {
       FROM relationships r
       JOIN users u
       ON u.id = other_id
-      WHERE user_id = ${id} AND type = 'pending'
+      WHERE user_id = ${user.id} AND type = 'pending'
       ORDER BY created_at DESC
     `);
 
