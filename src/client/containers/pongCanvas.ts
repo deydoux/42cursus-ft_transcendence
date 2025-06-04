@@ -9,7 +9,7 @@ export class PongCanvas {
   private pong: PongGame;
   private raf: number | null;
   private dpr: number;
-  private color = '#fde ';
+  private color = '#fde';
 
   private bandrollActive = false;
   private bandrollX = 0;
@@ -107,6 +107,8 @@ export class PongCanvas {
     this.ctx.fillStyle = this.color;
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
+    this.ctx.shadowBlur = 15;
+    this.ctx.shadowColor = 'rgba(227, 11, 92, 0.781)';
     this.ctx.fillText('Press SPACE to start/play again!', centerX, currentY);
 
     // Draw ASCII art below the title
@@ -149,6 +151,8 @@ export class PongCanvas {
       this.ctx.fillStyle = this.color;
       this.ctx.textAlign = 'left';
       this.ctx.textBaseline = 'middle';
+      this.ctx.shadowBlur = 15;
+      this.ctx.shadowColor = 'rgba(227, 11, 92, 0.781)';
       this.ctx.fillText(
         this.bandrollText,
         this.bandrollX,

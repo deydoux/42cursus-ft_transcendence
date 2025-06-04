@@ -18,12 +18,13 @@ export class Ball {
     gameContainer: HTMLCanvasElement,
     x = gameContainer.width / 2,
     y = gameContainer.height / 2,
-    vx = gameContainer.height * 0.006,
-    vy = gameContainer.width * 0.004,
+    // Reduced initial velocities
+    vx = gameContainer.width * 0.003, // reduced from 0.006
+    vy = gameContainer.height * 0.002, // reduced from 0.004
     radius = gameContainer.width * 0.012,
     color = 'white',
     speed = Math.sqrt(vx * vx + vy * vy),
-    maxSpeed = Math.max(gameContainer.width, gameContainer.height) * 0.02,
+    maxSpeed = Math.max(gameContainer.width, gameContainer.height) * 0.012, // reduced from 0.02
     isScoring = false,
   ) {
     this.ctx = ctx;
@@ -125,13 +126,27 @@ export class Ball {
     const relativeIntersectY =
       (this.y - (paddle.y + paddle.height / 2)) / (paddle.height / 2);
 
-    // Calculate bounce angle (maximum 75 degrees)
-    const bounceAngle = (relativeIntersectY * (5 * Math.PI)) / 12;
+    // Limit the maximum angle to 60 degrees (instead of 75)
+    const maxAngle = Math.PI / 3; // 60 degrees
+    const bounceAngle = relativeIntersectY * maxAngle;
 
-    // Calculate new velocity
+    // Ensure minimum horizontal velocity (e.g., 60% of total speed)
+    const minHorizontalRatio = 0.6;
     const direction = isLeftPaddle ? 1 : -1;
-    this.vx = direction * Math.abs(this.speed * Math.cos(bounceAngle));
-    this.vy = this.speed * Math.sin(bounceAngle);
+
+    // Calculate velocities
+    let vx = direction * this.speed * Math.cos(bounceAngle);
+    let vy = this.speed * Math.sin(bounceAngle);
+
+    // If horizontal component is too small, adjust the angle
+    if (Math.abs(Math.cos(bounceAngle)) < minHorizontalRatio) {
+      const adjustedAngle = Math.acos(minHorizontalRatio);
+      vx = direction * this.speed * minHorizontalRatio;
+      vy = this.speed * Math.sin(adjustedAngle) * Math.sign(bounceAngle);
+    }
+
+    this.vx = vx;
+    this.vy = vy;
 
     // Reposition ball to prevent sticking
     this.x = isLeftPaddle
@@ -142,10 +157,20 @@ export class Ball {
   }
 
   handleScoring(pong, isLeftWall: boolean) {
+    // Reset position
     this.x = pong.canvasWidth / 2;
     this.y = pong.canvasHeight / 2;
-    this.vx = Math.abs(this.vx) * (Math.random() < 0.5 ? 1 : -1);
-    this.speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy); // Reset speed
+
+    // Reset to initial speed
+    const initialVx = pong.canvasWidth * 0.003;
+    const initialVy = pong.canvasHeight * 0.002;
+
+    // Randomize direction but keep initial speed
+    this.vx = initialVx * (Math.random() < 0.5 ? 1 : -1);
+    this.vy = initialVy * (Math.random() < 0.5 ? 1 : -1);
+
+    // Reset speed to initial value
+    this.speed = Math.sqrt(initialVx * initialVx + initialVy * initialVy);
 
     if (isLeftWall) {
       pong.rightPlayerScore++;
@@ -159,16 +184,18 @@ export class Ball {
   }
 
   increaseSpeed() {
-    // Increase speed by 10% each paddle hit, but don't exceed maxSpeed
-    console.log(`Current speed: ${this.speed}, maxSpeed: ${this.maxSpeed}`);
+    // Reduced speed increase
+    const speedIncrease =
+      Math.max(this.gameContainer.width, this.gameContainer.height) * 0.0015; // reduced from 0.0052
+
     if (this.speed < this.maxSpeed) {
-      const newSpeed = Math.min(this.speed * 1.15, this.maxSpeed);
+      const newSpeed = Math.min(this.speed + speedIncrease, this.maxSpeed);
       const angle = Math.atan2(this.vy, this.vx);
+
+      // Update velocities while maintaining direction
       this.vx = Math.sign(this.vx) * Math.abs(newSpeed * Math.cos(angle));
       this.vy = Math.sign(this.vy) * Math.abs(newSpeed * Math.sin(angle));
-      console.log(
-        `Ball speed increased: new speed = ${newSpeed}, vx = ${this.vx}, vy = ${this.vy}`,
-      );
+      this.speed = newSpeed;
     }
   }
 }
