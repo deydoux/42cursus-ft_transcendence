@@ -1,0 +1,17 @@
+meta {
+  name: Send friend request
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseURL}}/api/relationships/friends/requests
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username": "2doux"
+  }
+}

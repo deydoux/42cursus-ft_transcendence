@@ -1,29 +1,20 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
-import generateAvatarURL from '#lib/generateAvatarURL';
-
-const schema = {
-  params: {
-    type: 'object',
-    properties: {
-      id: {type: 'number'},
-    },
-    required: ['id'],
-  } as const,
-};
+import {idParamsSchema as schema} from '#lib/schemas';
+import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.get('/:id', {schema}, async (request, reply) => {
     const {id} = request.params;
-    const user = await server.db.get(
-      SQL`SELECT id, username, last_seen AS lastSeen, has_avatar, avatar_version FROM users WHERE id = ${id}`,
-    );
+    const user = await server.db.get(SQL`
+      SELECT id, username, has_avatar, avatar_version
+      FROM users
+      WHERE id = ${id}`);
 
     if (!user) return reply.notFound('User not found');
-    user.lastSeen = new Date(user.lastSeen * 1000);
 
-    generateAvatarURL(user);
-    return {...user, online: server.clients.isOnline(id)};
+    serializeUserAvatar(user);
+    return user;
   });
 
   await server.register((async instance => {

@@ -63,9 +63,9 @@ const plugin: FastifyPluginAsync = async server => {
     const userAgent = request.headers['user-agent'] || null;
     const expiresAt = Math.floor(Date.now() / 1000) + 10 * 60; // 10 min
 
-    await server.db.run(
-      SQL`INSERT INTO connections(ip, user_agent, access_token, expires_at) VALUES(${ip}, ${userAgent}, ${signupToken}, ${expiresAt})`,
-    );
+    await server.db.run(SQL`
+      INSERT INTO connections(ip, user_agent, access_token, expires_at)
+      VALUES(${ip}, ${userAgent}, ${signupToken}, ${expiresAt})`);
 
     return signupToken;
   };
@@ -84,14 +84,14 @@ const plugin: FastifyPluginAsync = async server => {
     const info = await client.getUserInfo();
     const id = info.sub;
 
-    const user = await server.db.get(
-      SQL`SELECT id FROM users WHERE google_id = ${id}`,
-    );
+    const user = await server.db.get(SQL`
+      SELECT id FROM users WHERE google_id = ${id}`);
 
     if (!user) {
       const suggestedUsername = info.email
         .split('@')[0]
-        .replace(/[^a-zA-Z0-9_]/g, '_');
+        .substring(0, 16)
+        .replaceAll(/[^a-zA-Z0-9_]/g, '_');
       const accessToken = await generateSignupToken(request, info);
       return reply.send({signedUp: false, suggestedUsername, accessToken});
     }

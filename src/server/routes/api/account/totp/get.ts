@@ -8,9 +8,8 @@ const plugin: FastifyPluginAsync = async server => {
   server.get('/', async (request, reply) => {
     const {id} = request.user;
 
-    const user = await server.db.get(
-      SQL`SELECT username, totp_enabled AS totp FROM users WHERE id = ${id}`,
-    );
+    const user = await server.db.get(SQL`
+      SELECT username, totp_enabled AS totp FROM users WHERE id = ${id}`);
 
     if (!user) return reply.notFound('Account not found');
     if (user.totp) return reply.badRequest('TOTP already enabled');
@@ -21,9 +20,8 @@ const plugin: FastifyPluginAsync = async server => {
     });
 
     const secret = totp.secret.base32;
-    await server.db.run(
-      SQL`UPDATE users SET totp_secret = ${secret} WHERE id = ${id}`,
-    );
+    await server.db.run(SQL`
+      UPDATE users SET totp_secret = ${secret} WHERE id = ${id}`);
 
     const uri = totp.toString();
     return reply.send({uri, secret});
