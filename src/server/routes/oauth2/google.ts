@@ -95,7 +95,7 @@ const plugin: FastifyPluginAsync = async server => {
       const suggestedUsername = info.email
         .split('@')[0]
         .substring(0, 16)
-        .replaceAll(/[^a-zA-Z0-9_]/g, '_');
+        .replace(/[^a-zA-Z0-9_]/g, '_');
       const accessToken = await generateSignupToken(request, info);
       return reply.send({signedUp: false, suggestedUsername, accessToken});
     }
