@@ -1,7 +1,6 @@
-import serializeUserAvatar from '#lib/serializeUserAvatar';
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
-import {serialize} from 'node:v8';
 import SQL from 'sql-template-strings';
+import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 const schema = {
   body: {
