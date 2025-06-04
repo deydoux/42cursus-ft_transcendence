@@ -37,7 +37,7 @@ CREATE TABLE direct_messages(
   message      TEXT NOT NULL,
 
   created_at   INTEGER NOT NULL DEFAULT (unixepoch()),
-  read         INTEGER NOT NULL DEFAULT 0,
+  read         INTEGER NOT NULL DEFAULT FALSE,
 
   FOREIGN KEY(sender_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY(recipient_id) REFERENCES users(id) ON DELETE CASCADE
@@ -83,10 +83,10 @@ CREATE TABLE users(
   password_edited_at INTEGER DEFAULT (unixepoch()),
 
   totp_secret        TEXT,
-  totp_enabled       INTEGER NOT NULL DEFAULT 0,
+  totp_enabled       INTEGER NOT NULL DEFAULT FALSE,
 
-  has_avatar         INTEGER NOT NULL DEFAULT 0,
-  avatar_version     INTEGER NOT NULL DEFAULT 0
+  has_avatar         INTEGER NOT NULL DEFAULT FALSE,
+  avatar_version     INTEGER NOT NULL DEFAULT FALSE
 );
 
 CREATE INDEX idx_users_lower_username ON users(lower(username));

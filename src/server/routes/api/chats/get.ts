@@ -14,7 +14,7 @@ const plugin: FastifyPluginAsync = async server => {
              (
                 SELECT count(*)
                 FROM direct_messages
-                WHERE sender_id = u.id AND recipient_id = ${id} AND read = 0
+                WHERE sender_id = u.id AND recipient_id = ${id} AND read = FALSE
              ) AS unread
       FROM relationships r
       JOIN users u

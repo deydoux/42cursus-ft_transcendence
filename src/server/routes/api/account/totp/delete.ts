@@ -29,7 +29,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     await server.db.run(SQL`
       UPDATE users
-      SET totp_enabled = 0, totp_secret = NULL
+      SET totp_enabled = FALSE, totp_secret = NULL
       WHERE id = ${id}
     `);
 
