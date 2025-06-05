@@ -1,4 +1,5 @@
 import {Ball, Paddle} from '../containers/pongCanvasObjects.ts';
+import {Keys, keys} from './keys.ts';
 
 export const welcomeEmojis = [
   '👋',
@@ -17,15 +18,6 @@ export const welcomeEmojis = [
   '🔫',
   '🍑',
 ];
-
-export const keys = {
-  w: false,
-  s: false,
-  ArrowUp: false,
-  ArrowDown: false,
-};
-
-export type Keys = typeof keys;
 
 export const asciiArt = [
   '⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀',

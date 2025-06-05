@@ -2,7 +2,7 @@ import '../styles/pong-page.css';
 import {handleInput, initializeGame} from '../utils/content';
 import {PongCanvas} from '../containers/pongCanvas';
 import {html} from '../utils/html';
-import {renderPong} from '../containers/PongGame';
+import {renderPong} from '../containers/pongGame';
 
 export function renderPongPage(): void {
   const right = document.getElementById('right-container');
