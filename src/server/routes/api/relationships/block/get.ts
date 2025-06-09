@@ -10,8 +10,7 @@ const plugin: FastifyPluginAsync = async server => {
              u.id, username
       FROM relationships r
       JOIN users u
-      ON u.id = other_id
-      WHERE user_id = ${user.id} AND type = 'block'
+      ON type = 'block' AND user_id = ${user.id} AND other_id = u.id
       ORDER BY created_at DESC
     `);
 

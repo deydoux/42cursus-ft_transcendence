@@ -18,9 +18,9 @@ CREATE TABLE connections(
 );
 
 CREATE INDEX idx_connections_user_id ON connections(user_id);
-CREATE INDEX idx_connections_access_token ON connections(access_token);
-CREATE INDEX idx_connections_refresh_token ON connections(refresh_token);
 CREATE INDEX idx_connections_expires_at ON connections(expires_at);
+CREATE INDEX idx_connections_user_id_access_token ON connections(user_id, access_token);
+CREATE INDEX idx_connections_user_id_refresh_token ON connections(user_id, refresh_token);
 
 CREATE TRIGGER update_connections_updated_at
 AFTER UPDATE ON connections
@@ -43,10 +43,6 @@ CREATE TABLE direct_messages(
   FOREIGN KEY(recipient_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_direct_messages_sender_id ON direct_messages(sender_id);
-CREATE INDEX idx_direct_messages_recipient_id ON direct_messages(recipient_id);
-CREATE INDEX idx_direct_messages_recipient_id_read ON direct_messages(recipient_id, read);
-
 CREATE TABLE relationships(
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
   type       TEXT,
@@ -62,8 +58,8 @@ CREATE TABLE relationships(
   FOREIGN KEY(other_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_relationships_user_id_type ON relationships(user_id, type);
-CREATE INDEX idx_relationships_other_id_type ON relationships(other_id, type);
+CREATE INDEX idx_relationships_user_id_other_id ON relationships(user_id, other_id);
+CREATE INDEX idx_relationships_type_user_id_other_id ON relationships(type, user_id, other_id);
 
 CREATE TRIGGER update_relationships_updated_at
 AFTER UPDATE ON relationships
@@ -89,6 +85,7 @@ CREATE TABLE users(
   avatar_version     INTEGER NOT NULL DEFAULT FALSE
 );
 
+CREATE INDEX idx_users_google_id ON users(google_id);
 CREATE INDEX idx_users_lower_username ON users(lower(username));
 CREATE INDEX idx_users_last_seen ON users(last_seen);
 
@@ -106,23 +103,12 @@ END;
 --------------------------------------------------------------------------------
 
 DROP TRIGGER update_users_password_edited_at;
-DROP INDEX idx_users_last_seen;
-DROP INDEX idx_users_lower_username;
 DROP TABLE users;
 
 DROP TRIGGER update_relationships_updated_at;
-DROP INDEX idx_relationships_friend_id_type;
-DROP INDEX idx_relationships_other_id_type;
 DROP TABLE relationships;
 
-DROP INDEX idx_direct_messages_recipient_id_read;
-DROP INDEX idx_direct_messages_recipient_id;
-DROP INDEX idx_direct_messages_sender_id;
 DROP TABLE direct_messages;
 
 DROP TRIGGER update_connections_updated_at;
-DROP INDEX idx_connections_expires_at;
-DROP INDEX idx_connections_refresh_token;
-DROP INDEX idx_connections_access_token;
-DROP INDEX idx_connections_user_id;
 DROP TABLE connections;
