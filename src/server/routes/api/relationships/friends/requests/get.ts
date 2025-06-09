@@ -34,11 +34,11 @@ const plugin: FastifyPluginAsync = async server => {
   };
 
   server.get('/received', async (request, reply) =>
-    getPendingRelationships(request.user.id, true),
+    reply.send(getPendingRelationships(request.user.id, true)),
   );
 
   server.get('/sent', async (request, reply) =>
-    getPendingRelationships(request.user.id, false),
+    reply.send(getPendingRelationships(request.user.id, false)),
   );
 };
 
