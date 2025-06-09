@@ -43,6 +43,9 @@ CREATE TABLE direct_messages(
   FOREIGN KEY(recipient_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE INDEX idx_direct_messages_sender_id_recipient_id ON direct_messages(sender_id, recipient_id);
+CREATE INDEX idx_direct_messages_sender_id_recipient_id_unread ON direct_messages(sender_id, recipient_id, read) WHERE read = FALSE;
+
 CREATE TABLE relationships(
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
   type       TEXT,
@@ -103,12 +106,23 @@ END;
 --------------------------------------------------------------------------------
 
 DROP TRIGGER update_users_password_edited_at;
+DROP INDEX idx_users_last_seen;
+DROP INDEX idx_users_lower_username;
+DROP INDEX idx_users_google_id;
 DROP TABLE users;
 
 DROP TRIGGER update_relationships_updated_at;
+DROP INDEX idx_relationships_type_user_id_other_id;
+DROP INDEX idx_relationships_user_id_other_id;
 DROP TABLE relationships;
 
+DROP INDEX idx_direct_messages_sender_id_recipient_id_unread;
+DROP INDEX idx_direct_messages_sender_id_recipient_id;
 DROP TABLE direct_messages;
 
 DROP TRIGGER update_connections_updated_at;
+DROP INDEX idx_connections_user_id_refresh_token;
+DROP INDEX idx_connections_user_id_access_token;
+DROP INDEX idx_connections_expires_at;
+DROP INDEX idx_connections_user_id;
 DROP TABLE connections;
