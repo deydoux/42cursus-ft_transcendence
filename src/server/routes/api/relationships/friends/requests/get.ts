@@ -17,8 +17,8 @@ const plugin: FastifyPluginAsync = async server => {
       `);
     else
       query.append(SQL`
-      ON type = 'pending' AND user_id = ${userID} AND other_id = u.id
-    `);
+        ON type = 'pending' AND user_id = ${userID} AND other_id = u.id
+      `);
 
     query.append(SQL`
       ORDER BY created_at DESC
@@ -34,11 +34,11 @@ const plugin: FastifyPluginAsync = async server => {
   };
 
   server.get('/received', async (request, reply) =>
-    reply.send(getPendingRelationships(request.user.id, true)),
+    reply.send(await getPendingRelationships(request.user.id, true)),
   );
 
   server.get('/sent', async (request, reply) =>
-    reply.send(getPendingRelationships(request.user.id, false)),
+    reply.send(await getPendingRelationships(request.user.id, false)),
   );
 };
 
