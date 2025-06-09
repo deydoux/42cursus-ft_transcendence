@@ -19,8 +19,6 @@ CREATE TABLE connections(
 
 CREATE INDEX idx_connections_user_id ON connections(user_id);
 CREATE INDEX idx_connections_expires_at ON connections(expires_at);
-CREATE INDEX idx_connections_user_id_access_token ON connections(user_id, access_token);
-CREATE INDEX idx_connections_user_id_refresh_token ON connections(user_id, refresh_token);
 
 CREATE TRIGGER update_connections_updated_at
 AFTER UPDATE ON connections
@@ -43,7 +41,7 @@ CREATE TABLE direct_messages(
   FOREIGN KEY(recipient_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_direct_messages_sender_id_recipient_id ON direct_messages(sender_id, recipient_id);
+CREATE INDEX idx_direct_messages_sender_id_recipient_id_created_at_desc ON direct_messages(sender_id, recipient_id, created_at DESC);
 CREATE INDEX idx_direct_messages_sender_id_recipient_id_unread ON direct_messages(sender_id, recipient_id, read) WHERE read = FALSE;
 
 CREATE TABLE relationships(
@@ -90,7 +88,7 @@ CREATE TABLE users(
 
 CREATE INDEX idx_users_google_id ON users(google_id);
 CREATE INDEX idx_users_lower_username ON users(lower(username));
-CREATE INDEX idx_users_last_seen ON users(last_seen);
+CREATE INDEX idx_users_last_seen_desc ON users(last_seen DESC);
 
 CREATE TRIGGER update_users_password_edited_at
 AFTER UPDATE ON users
@@ -106,7 +104,7 @@ END;
 --------------------------------------------------------------------------------
 
 DROP TRIGGER update_users_password_edited_at;
-DROP INDEX idx_users_last_seen;
+DROP INDEX idx_users_last_seen_desc;
 DROP INDEX idx_users_lower_username;
 DROP INDEX idx_users_google_id;
 DROP TABLE users;
@@ -117,12 +115,10 @@ DROP INDEX idx_relationships_user_id_other_id;
 DROP TABLE relationships;
 
 DROP INDEX idx_direct_messages_sender_id_recipient_id_unread;
-DROP INDEX idx_direct_messages_sender_id_recipient_id;
+DROP INDEX idx_direct_messages_sender_id_recipient_id_created_at_desc;
 DROP TABLE direct_messages;
 
 DROP TRIGGER update_connections_updated_at;
-DROP INDEX idx_connections_user_id_refresh_token;
-DROP INDEX idx_connections_user_id_access_token;
 DROP INDEX idx_connections_expires_at;
 DROP INDEX idx_connections_user_id;
 DROP TABLE connections;
