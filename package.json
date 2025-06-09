@@ -25,7 +25,7 @@
     "fix:server": "npm run fix -- src/server"
   },
   "devDependencies": {
-    "@dotenvx/dotenvx": "^1.43.0",
+    "@dotenvx/dotenvx": "^1.44.1",
     "@eslint/js": "^9.28.0",
     "@tailwindcss/vite": "^4.1.8",
     "@types/bcrypt": "^5.0.2",
