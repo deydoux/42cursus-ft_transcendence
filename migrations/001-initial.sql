@@ -18,7 +18,7 @@ CREATE TABLE connections(
 );
 
 CREATE INDEX idx_connections_user_id ON connections(user_id);
-CREATE INDEX idx_connections_expires_at ON connections(expires_at);
+CREATE INDEX idx_connections_expires_at_desc_desc ON connections(expires_at DESC);
 
 CREATE TRIGGER update_connections_updated_at
 AFTER UPDATE ON connections
@@ -119,6 +119,6 @@ DROP INDEX idx_direct_messages_sender_id_recipient_id_created_at_desc;
 DROP TABLE direct_messages;
 
 DROP TRIGGER update_connections_updated_at;
-DROP INDEX idx_connections_expires_at;
+DROP INDEX idx_connections_expires_at_desc;
 DROP INDEX idx_connections_user_id;
 DROP TABLE connections;
