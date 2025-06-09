@@ -19,8 +19,10 @@ const plugin: FastifyPluginAsync = async server => {
              ) AS unread
       FROM relationships r
       JOIN users u
-      ON (user_id = ${user.id} AND other_id = u.id)
-         OR (user_id = u.id AND other_id = ${user.id})
+      ON type = 'friend' AND (
+            (user_id = ${user.id} AND other_id = u.id)
+            OR (user_id = u.id AND other_id = ${user.id})
+         )
       LEFT JOIN direct_messages dm
       ON dm.id = (
                     SELECT id
@@ -29,8 +31,7 @@ const plugin: FastifyPluginAsync = async server => {
                           OR (sender_id = u.id AND recipient_id = ${user.id})
                     ORDER BY created_at DESC
                     LIMIT 1
-                 )
-      WHERE type = 'friend' AND (user_id = ${user.id} OR other_id = ${user.id})
+         )
       ORDER BY updatedAt DESC
     `);
 
