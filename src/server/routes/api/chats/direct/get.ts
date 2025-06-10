@@ -38,8 +38,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
             AND read = FALSE
     `);
 
-    const path = `${url.split('?')[0]}?page=${page + 1}`;
-    const next = messages.length !== 25 ? null : path;
+    const next =
+      messages.length !== 25 ? null : `${url.split('?')[0]}?page=${page + 1}`;
     return reply.send({messages, next});
   });
 };
