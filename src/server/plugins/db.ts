@@ -30,7 +30,8 @@ const plugin: FastifyPluginAsync = async server => {
 
       await db.run(SQL`DELETE FROM users WHERE last_seen <= ${inactive}`);
       await db.run(SQL`
-        DELETE FROM connections WHERE expires_at <= unixepoch()`);
+        DELETE FROM connections WHERE expires_at <= unixepoch()
+      `);
     } catch (error) {
       server.log.error('Error during database cleaning:', error);
     }
