@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/api/chats/direct/:id
+  url: 2{{baseURL}}/api/chats/direct/:id?page=0
   body: json
   auth: inherit
+}
+
+params:query {
+  page: 0
 }
 
 params:path {

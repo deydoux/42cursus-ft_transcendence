@@ -19,14 +19,44 @@ const schema = {
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.get('/:id', {schema}, async (request, reply) => {
     const {url, user} = request;
-    const otherID = request.params.id;
     const page = (request.query as QueryParams).page;
+
+    const other = await server.db.get(SQL`
+      SELECT id
+      FROM users
+      WHERE id = ${request.params.id}
+    `);
+
+    if (!other) return reply.notFound('User not found');
+    if (user.id === other.id)
+      return reply.badRequest('Cannot view messages with yourself');
+
+    const relationship = await server.db.get(SQL`
+      SELECT type
+      FROM relationships
+      WHERE user_id = ${user.id} AND other_id = ${other.id}
+    `);
+
+    if (relationship?.type === 'block')
+      return reply.conflict('You have blocked this user');
+
+    const otherRelationship = await server.db.get(SQL`
+      SELECT type
+      FROM relationships
+      WHERE user_id = ${other.id} AND other_id = ${user.id}
+    `);
+
+    if (otherRelationship?.type === 'block')
+      return reply.notFound('User not found');
+
+    if (relationship?.type !== 'friend' && otherRelationship?.type !== 'friend')
+      return reply.badRequest('You can only view messages with friends');
 
     const messages = await server.db.all(SQL`
       SELECT sender_id AS senderID, content, created_at AS createdAt
       FROM direct_messages
-      WHERE (sender_id = ${user.id} AND recipient_id = ${otherID})
-            OR (sender_id = ${otherID} AND recipient_id = ${user.id})
+      WHERE (sender_id = ${user.id} AND recipient_id = ${other.id})
+            OR (sender_id = ${other.id} AND recipient_id = ${user.id})
       ORDER BY id DESC
       LIMIT 25 OFFSET ${page * 25}
     `);
@@ -34,7 +64,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     await server.db.run(SQL`
       UPDATE direct_messages
       SET read = TRUE
-      WHERE sender_id = ${otherID} AND recipient_id = ${user.id}
+      WHERE sender_id = ${other.id} AND recipient_id = ${user.id}
             AND read = FALSE
     `);
 
