@@ -47,7 +47,7 @@ export const renderLandingPage = (path: string): void => {
     <span>?</span>
   </div>`;
 
-  const enterApp = (response: any) => {
+  const enterApp = (response: { json: { accessToken: string } }) => {
     api.storeAccessToken(response?.json.accessToken);
     navigate('Home', '/homepage');
   };
