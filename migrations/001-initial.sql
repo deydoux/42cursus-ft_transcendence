@@ -42,7 +42,7 @@ CREATE TABLE direct_messages(
   FOREIGN KEY(recipient_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_direct_messages_sender_id_recipient_id_created_at_desc ON direct_messages(sender_id, recipient_id, created_at DESC);
+CREATE INDEX idx_direct_messages_sender_id_recipient_id_created_at_desc ON direct_messages(sender_id, recipient_id);
 CREATE INDEX idx_direct_messages_sender_id_recipient_id_unread ON direct_messages(sender_id, recipient_id, read) WHERE read = FALSE;
 
 CREATE TABLE relationships(

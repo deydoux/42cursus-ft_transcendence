@@ -28,7 +28,7 @@ const plugin: FastifyPluginAsync = async server => {
            FROM direct_messages
            WHERE (sender_id = ${user.id} AND recipient_id = u.id)
                  OR (sender_id = u.id AND recipient_id = ${user.id})
-           ORDER BY created_at DESC
+           ORDER BY id DESC
            LIMIT 1
          )
       ORDER BY updatedAt DESC

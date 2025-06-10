@@ -27,7 +27,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       FROM direct_messages
       WHERE (sender_id = ${user.id} AND recipient_id = ${otherID})
             OR (sender_id = ${otherID} AND recipient_id = ${user.id})
-      ORDER BY created_at DESC
+      ORDER BY id DESC
       LIMIT 25 OFFSET ${page * 25}
     `);
 
