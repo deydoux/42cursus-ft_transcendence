@@ -1,4 +1,5 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
+import SQL from 'sql-template-strings';
 import {idParamsSchema} from '#lib/schemas';
 
 interface QueryParams {
@@ -17,8 +18,29 @@ const schema = {
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.get('/:id', {schema}, async (request, reply) => {
+    const {url, user} = request;
+    const otherID = request.params.id;
     const page = (request.query as QueryParams).page;
-    return reply.send({page});
+
+    const messages = await server.db.all(SQL`
+      SELECT sender_id AS senderID, content, created_at AS createdAt
+      FROM direct_messages
+      WHERE (sender_id = ${user.id} AND recipient_id = ${otherID})
+            OR (sender_id = ${otherID} AND recipient_id = ${user.id})
+      ORDER BY created_at DESC
+      LIMIT 25 OFFSET ${page * 25}
+    `);
+
+    await server.db.run(SQL`
+      UPDATE direct_messages
+      SET read = TRUE
+      WHERE sender_id = ${otherID} AND recipient_id = ${user.id}
+            AND read = FALSE
+    `);
+
+    const path = `${url.split('?')[0]}?page=${page + 1}`;
+    const next = messages.length !== 25 ? null : path;
+    return reply.send({messages, next});
   });
 };
 
