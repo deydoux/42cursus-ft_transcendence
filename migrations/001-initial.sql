@@ -76,7 +76,7 @@ CREATE TABLE users(
 
   username           TEXT UNIQUE NOT NULL,
   password           TEXT,
-expires_at
+
   last_seen          INTEGER NOT NULL DEFAULT (unixepoch()),
   password_edited_at INTEGER DEFAULT (unixepoch()),
 
