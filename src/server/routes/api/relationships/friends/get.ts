@@ -12,8 +12,8 @@ const plugin: FastifyPluginAsync = async server => {
       FROM relationships r
       JOIN users u
       ON type = 'friend' AND (
-            (user_id = ${user.id} AND other_id = u.id)
-            OR (user_id = u.id AND other_id = ${user.id})
+           (user_id = ${user.id} AND other_id = u.id)
+           OR (user_id = u.id AND other_id = ${user.id})
          )
       ORDER BY u.username
     `);

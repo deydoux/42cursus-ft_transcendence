@@ -11,25 +11,25 @@ const plugin: FastifyPluginAsync = async server => {
              coalesce(dm.created_at, r.updated_at) AS updatedAt,
              u.id, username, last_seen AS lastSeen, has_avatar, avatar_version,
              content, (
-                SELECT count(*)
-                FROM direct_messages
-                WHERE sender_id = u.id AND recipient_id = ${user.id}
-                      AND read = FALSE
+               SELECT count(*)
+               FROM direct_messages
+               WHERE sender_id = u.id AND recipient_id = ${user.id}
+                     AND read = FALSE
              ) AS unread
       FROM relationships r
       JOIN users u
       ON type = 'friend' AND (
-            (user_id = ${user.id} AND other_id = u.id)
-            OR (user_id = u.id AND other_id = ${user.id})
+           (user_id = ${user.id} AND other_id = u.id)
+           OR (user_id = u.id AND other_id = ${user.id})
          )
       LEFT JOIN direct_messages dm
       ON dm.id = (
-            SELECT id
-            FROM direct_messages
-            WHERE (sender_id = ${user.id} AND recipient_id = u.id)
-                  OR (sender_id = u.id AND recipient_id = ${user.id})
-            ORDER BY created_at DESC
-            LIMIT 1
+           SELECT id
+           FROM direct_messages
+           WHERE (sender_id = ${user.id} AND recipient_id = u.id)
+                 OR (sender_id = u.id AND recipient_id = ${user.id})
+           ORDER BY created_at DESC
+           LIMIT 1
          )
       ORDER BY updatedAt DESC
     `);
