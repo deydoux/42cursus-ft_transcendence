@@ -7,7 +7,7 @@ const submitForm = (
   form: HTMLFormElement,
   apiEndpoint: string,
   fields: string[],
-  onSuccess: Function,
+  onSuccess: (...args: unknown[]) => void,
 ) => {
   const body = {};
   fields.forEach(field => {
@@ -43,7 +43,7 @@ export const addFormListener = (
   formName: string,
   apiEndpoint: string,
   fields: string[],
-  onSuccess: Function,
+  onSuccess: () => void,
   errorLabelExtra?: HTMLElement,
 ) => {
   const form = document.getElementById(formName + '-form') as HTMLFormElement;
