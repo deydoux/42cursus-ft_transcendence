@@ -54,7 +54,8 @@ export const addFormListener = (
     (form.querySelector('#' + field) as HTMLInputElement)?.addEventListener(
       'keydown',
       (evt: KeyboardEvent) => {
-        if (evt.key === 'Enter') submitForm(form, apiEndpoint, fields, onSuccess);
+        if (evt.key === 'Enter')
+          submitForm(form, apiEndpoint, fields, onSuccess);
       },
     );
   });
