@@ -1,20 +1,21 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
+import {idParamsSchema} from '#lib/schemas';
 import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 const schema = {
+  ...idParamsSchema,
   body: {
     type: 'object',
     properties: {
-      recipientID: {type: 'string'},
       content: {type: 'string'},
     },
-    required: ['recipientID', 'content'],
+    required: ['content'],
   } as const,
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  server.post('/', {schema}, async (request, reply) => {
+  server.post('/:id', {schema}, async (request, reply) => {
     const content = request.body.content.trim();
     if (content.length === 0)
       return reply.badRequest('Message content cannot be empty');
@@ -31,7 +32,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const recipient = await server.db.get(SQL`
       SELECT id
       FROM users
-      WHERE id = ${request.body.recipientID}
+      WHERE id = ${request.params.id}
     `);
 
     if (!recipient) return reply.notFound('User not found');
