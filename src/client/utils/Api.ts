@@ -16,7 +16,7 @@ class Api {
   private async customFetch(
     input: string | URL | globalThis.Request,
     init?: RequestInit,
-  ): Promise<void | Response> {
+  ) {
     return await fetch(input, init).then(response => {
       if (
         response.status === 401 &&
