@@ -1,11 +1,11 @@
 import '../styles/landing-page.css';
 import {addFormListener} from '../utils/form';
+import {api} from '../utils/Api';
 import {html} from '../utils/html';
+import {navigate} from '../utils/navigate';
 import {renderSigninForm} from '../containers/signinForm';
 import {renderSignupForm} from '../containers/signupForm';
 import {welcomeEmojis} from '../utils/content';
-import {api} from '../utils/Api';
-import {navigate} from '../utils/navigate';
 
 const change_emoji = () => {
   const emoji_span = document.getElementById('emoji');
@@ -47,7 +47,7 @@ export const renderLandingPage = (path: string): void => {
     <span>?</span>
   </div>`;
 
-  const enterApp = (response: { json: { accessToken: string } }) => {
+  const enterApp = (response: {json: {accessToken: string}}) => {
     api.storeAccessToken(response?.json.accessToken);
     navigate('Home', '/homepage');
   };
