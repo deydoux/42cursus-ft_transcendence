@@ -15,9 +15,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.delete('/', {schema}, async (request, reply) => {
     const {id} = request.user;
 
-    const user = await server.db.get(
-      SQL`SELECT password FROM users WHERE id = ${id}`,
-    );
+    const user = await server.db.get(SQL`
+      SELECT password FROM users WHERE id = ${id}`);
 
     const {password} = request.body;
     if (

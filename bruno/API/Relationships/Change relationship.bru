@@ -1,0 +1,15 @@
+meta {
+  name: Change relationship
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{baseURL}}/api/relationships/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 1
+}

@@ -36,11 +36,10 @@ const plugin: FastifyPluginAsync = async server => {
     server.log.trace(`Renaming avatar to ${avatarFile}`);
     await rename(cacheFile, avatarFile);
 
-    await server.db.run(
-      SQL`UPDATE users
-          SET has_avatar = TRUE, avatar_version = avatar_version + 1
-          WHERE id = ${id}`,
-    );
+    await server.db.run(SQL`
+      UPDATE users
+      SET has_avatar = TRUE, avatar_version = avatar_version + 1
+      WHERE id = ${id}`);
   });
 };
 
