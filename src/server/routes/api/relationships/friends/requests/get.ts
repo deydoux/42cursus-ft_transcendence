@@ -21,7 +21,7 @@ const plugin: FastifyPluginAsync = async server => {
       `);
 
     query.append(SQL`
-      ORDER BY created_at DESC
+      ORDER BY updated_at DESC
     `);
 
     const relationships = await server.db.all(query);

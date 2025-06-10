@@ -18,7 +18,8 @@ CREATE TABLE connections(
 );
 
 CREATE INDEX idx_connections_user_id ON connections(user_id);
-CREATE INDEX idx_connections_expires_at_desc_desc ON connections(expires_at DESC);
+CREATE INDEX idx_connections_updated_at_desc ON connections(updated_at DESC);
+CREATE INDEX idx_connections_expires_at_desc ON connections(expires_at DESC);
 
 CREATE TRIGGER update_connections_updated_at
 AFTER UPDATE ON connections
@@ -60,7 +61,7 @@ CREATE TABLE relationships(
 );
 
 CREATE INDEX idx_relationships_user_id_other_id ON relationships(user_id, other_id);
-CREATE INDEX idx_relationships_type_user_id_other_id ON relationships(type, user_id, other_id);
+CREATE INDEX idx_relationships_type_user_id_other_id_updated_at_desc ON relationships(type, user_id, other_id, updated_at DESC);
 
 CREATE TRIGGER update_relationships_updated_at
 AFTER UPDATE ON relationships
@@ -75,7 +76,7 @@ CREATE TABLE users(
 
   username           TEXT UNIQUE NOT NULL,
   password           TEXT,
-
+expires_at
   last_seen          INTEGER NOT NULL DEFAULT (unixepoch()),
   password_edited_at INTEGER DEFAULT (unixepoch()),
 
@@ -110,7 +111,7 @@ DROP INDEX idx_users_google_id;
 DROP TABLE users;
 
 DROP TRIGGER update_relationships_updated_at;
-DROP INDEX idx_relationships_type_user_id_other_id;
+DROP INDEX idx_relationships_type_user_id_other_id_updated_at_desc;
 DROP INDEX idx_relationships_user_id_other_id;
 DROP TABLE relationships;
 
@@ -120,5 +121,6 @@ DROP TABLE direct_messages;
 
 DROP TRIGGER update_connections_updated_at;
 DROP INDEX idx_connections_expires_at_desc;
+DROP INDEX idx_connections_updated_at_desc;
 DROP INDEX idx_connections_user_id;
 DROP TABLE connections;
