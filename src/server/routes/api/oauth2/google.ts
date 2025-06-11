@@ -1,12 +1,14 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import {JWTDataSignup} from 'types/fastifyJWT';
 import SQL from 'sql-template-strings';
-import {username} from '#lib/schemas';
+import schemas from '#lib/schemas';
 
 const schema = {
   body: {
     type: 'object',
-    properties: {username},
+    properties: {
+      username: schemas.username,
+    },
     required: ['username'],
   } as const,
 };

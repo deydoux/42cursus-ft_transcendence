@@ -1,16 +1,16 @@
-import {password, username} from '#lib/schemas';
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
 import {compareSync} from 'bcrypt';
 import {errorCodes} from 'fastify';
 import hash from '#lib/hash';
+import schemas from '#lib/schemas';
 
 const schema = {
   body: {
     type: 'object',
     properties: {
-      username,
-      password,
+      username: schemas.username,
+      password: schemas.password,
       confirmPassword: {type: 'string'},
       oldPassword: {type: 'string'},
     },
