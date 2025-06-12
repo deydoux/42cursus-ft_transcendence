@@ -9,6 +9,11 @@ declare module 'fastify' {
     clients: Clients;
     db: Database;
     dev: boolean;
+    generateResponseSchema: (
+      code: number,
+      fields: string[],
+      description?: string,
+    ) => object;
     paths: {
       avatars: string;
       cache: string;

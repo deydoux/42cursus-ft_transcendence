@@ -30,8 +30,36 @@ async function main() {
     },
   });
 
+  await server.register(import('@fastify/swagger'), {
+    openapi: {
+      tags: [
+        {name: 'account', description: 'Account management'},
+        {name: 'auth', description: 'Authentication'},
+        {name: 'chats', description: 'Chats and messages'},
+        {
+          name: 'relationships',
+          description:
+            'Relationships blocked users, friends and pending requests',
+        },
+        {name: 'users', description: 'Users details'},
+      ],
+      components: {
+        securitySchemes: {
+          accessToken: {
+            type: 'http',
+            description: 'Access token',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+          },
+        },
+      },
+      security: [{accessToken: []}],
+    },
+  });
+
   await server.register(import('@fastify/formbody'));
   await server.register(import('@fastify/sensible'));
+  await server.register(import('@fastify/swagger-ui'));
 
   await server.register(autoload, {
     dir: join(__dirname, 'decorators'),

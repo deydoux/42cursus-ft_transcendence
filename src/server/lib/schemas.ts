@@ -1,20 +1,3 @@
-const avatar = {
-  type: 'string',
-  default: '/static/default_avatar.webp',
-};
-
-const httpError = {
-  404: (message = 'Not Found') => ({
-    description: 'not found',
-    type: 'object',
-    properties: {
-      statusCode: {const: 404},
-      error: {const: 'Not Found'},
-      message: {const: message},
-    },
-  }),
-};
-
 export const idParamsSchema = {
   params: {
     type: 'object',
@@ -40,8 +23,6 @@ const username = {
 } as const;
 
 export default {
-  avatar,
-  httpError,
   idParamsSchema,
   password,
   username,
