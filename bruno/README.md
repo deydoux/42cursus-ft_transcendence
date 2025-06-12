@@ -71,4 +71,3 @@ Received when the client should reload the page to apply updates. `NODE_ENV` mus
   "type": "hotReload"
 }
 ```
-development
