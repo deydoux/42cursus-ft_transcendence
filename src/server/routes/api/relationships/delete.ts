@@ -12,12 +12,15 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       FROM relationships
       WHERE id = ${relationshipID}
             AND (user_id = ${user.id}
-                OR (other_id = ${user.id} AND type != 'block'))`);
+                OR (other_id = ${user.id} AND type != 'block'))
+    `);
 
     if (!relationship) return reply.notFound('Relationship not found');
 
     await server.db.run(SQL`
-      DELETE FROM relationships WHERE id = ${relationshipID}`);
+      DELETE FROM relationships
+      WHERE id = ${relationshipID}
+    `);
 
     return reply.code(204).send();
   });

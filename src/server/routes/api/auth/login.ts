@@ -25,9 +25,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const expiresAt = Math.floor(Date.now() / 1000) + 10 * 60; // 10 min
 
     await server.db.run(SQL`
-      INSERT INTO connections(user_id, ip, user_agent, access_token,
-                  expires_at)
-      VALUES(${id}, ${ip}, ${userAgent}, ${loginToken}, ${expiresAt})`);
+      INSERT INTO connections(user_id, ip, user_agent, access_token, expires_at)
+      VALUES(${id}, ${ip}, ${userAgent}, ${loginToken}, ${expiresAt})
+    `);
 
     return loginToken;
   };
@@ -35,7 +35,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.post('/login', {schema}, async (request, reply) => {
     const {username, password} = request.body;
     const user = await server.db.get(SQL`
-      SELECT id, password, totp_enabled AS totp FROM users WHERE lower(username) = lower(${username})
+      SELECT id, password, totp_enabled AS totp
+      FROM users
+      WHERE lower(username) = lower(${username})
     `);
 
     if (!user || !compareSync(password, user.password))

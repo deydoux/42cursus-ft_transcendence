@@ -24,13 +24,17 @@ const plugin: FastifyPluginAsync = async server => {
       server.log.info('Cleaning database');
 
       const inactive = Math.floor(Date.now() / 1000) - 2 * 365 * 24 * 60 * 60; // 2 years
-      (
-        await db.all(SQL`SELECT id FROM users WHERE last_seen <= ${inactive}`)
-      ).forEach(user => server.removeAvatar(user.id));
+      const users = await db.all(SQL`
+        SELECT id
+        FROM users
+        WHERE last_seen <= ${inactive}
+      `);
+      users.forEach(user => server.removeAvatar(user.id));
 
       await db.run(SQL`DELETE FROM users WHERE last_seen <= ${inactive}`);
       await db.run(SQL`
-        DELETE FROM connections WHERE expires_at <= unixepoch()
+        DELETE FROM connections
+        WHERE expires_at <= unixepoch()
       `);
     } catch (error) {
       server.log.error('Error during database cleaning:', error);

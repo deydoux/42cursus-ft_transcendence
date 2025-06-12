@@ -3,45 +3,43 @@ import SQL from 'sql-template-strings';
 import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 const plugin: FastifyPluginAsync = async server => {
-  server.get('/received', async (request, reply) => {
-    const {id} = request.user;
-
-    const relationships = await server.db.all(SQL`
+  const getPendingRelationships = async (userID: number, other: boolean) => {
+    const query = SQL`
       SELECT r.id AS relationshipID, r.created_at AS createdAt,
             u.id, username, has_avatar, avatar_version
       FROM relationships r
       JOIN users u
-      ON u.id = user_id
-      WHERE other_id = ${id} AND type = 'pending'
-      ORDER BY created_at DESC`);
+    `;
 
+    if (other)
+      query.append(SQL`
+        ON type = 'pending' AND user_id = u.id AND other_id = ${userID}
+      `);
+    else
+      query.append(SQL`
+        ON type = 'pending' AND user_id = ${userID} AND other_id = u.id
+      `);
+
+    query.append(SQL`
+      ORDER BY updated_at DESC
+    `);
+
+    const relationships = await server.db.all(query);
     relationships.forEach(relationship => {
       relationship.createdAt = new Date(relationship.createdAt * 1000);
       serializeUserAvatar(relationship);
     });
 
-    return reply.send(relationships);
-  });
+    return relationships;
+  };
 
-  server.get('/sent', async (request, reply) => {
-    const {id} = request.user;
+  server.get('/received', async (request, reply) =>
+    reply.send(await getPendingRelationships(request.user.id, true)),
+  );
 
-    const relationships = await server.db.all(SQL`
-      SELECT r.id AS relationshipID, r.created_at AS createdAt,
-             u.id, username, has_avatar, avatar_version
-      FROM relationships r
-      JOIN users u
-      ON u.id = other_id
-      WHERE user_id = ${id} AND type = 'pending'
-      ORDER BY created_at DESC`);
-
-    relationships.forEach(relationship => {
-      relationship.createdAt = new Date(relationship.createdAt * 1000);
-      serializeUserAvatar(relationship);
-    });
-
-    return reply.send(relationships);
-  });
+  server.get('/sent', async (request, reply) =>
+    reply.send(await getPendingRelationships(request.user.id, false)),
+  );
 };
 
 export default plugin;

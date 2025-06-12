@@ -17,13 +17,15 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const user = await server.db.get(SQL`
       SELECT id, username, has_avatar, avatar_version
       FROM users
-      WHERE id = ${request.user.id}`);
+      WHERE id = ${request.user.id}
+    `);
     serializeUserAvatar(user);
 
     const other = await server.db.get(SQL`
       SELECT id, username, has_avatar, avatar_version
       FROM users
-      WHERE lower(username) = lower(${request.body.username})`);
+      WHERE lower(username) = lower(${request.body.username})
+    `);
 
     if (!other) return reply.notFound('User not found');
     if (user.id === other.id)
@@ -34,7 +36,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const relationship = await server.db.get(SQL`
       SELECT type
       FROM relationships
-      WHERE user_id = ${user.id} AND other_id = ${other.id}`);
+      WHERE user_id = ${user.id} AND other_id = ${other.id}
+    `);
 
     if (relationship)
       switch (relationship.type) {
@@ -47,7 +50,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const otherRelationship = await server.db.get(SQL`
       SELECT id, type
       FROM relationships
-      WHERE user_id = ${other.id} AND other_id = ${user.id}`);
+      WHERE user_id = ${other.id} AND other_id = ${user.id}
+    `);
 
     if (relationship?.type === 'friend' || otherRelationship?.type === 'friend')
       return reply.badRequest('Already friends with this user');
@@ -64,17 +68,18 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       await server.db.run(SQL`
         UPDATE relationships
         SET type = 'friend'
-        WHERE id = ${otherRelationship.id}`);
+        WHERE id = ${otherRelationship.id}
+      `);
 
       tunnelMessage.type = 'friendRequestAccepted';
       relationshipID = otherRelationship.id;
       type = 'friend';
     } else {
-      relationshipID = (
-        await server.db.run(SQL`
+      const {lastID} = await server.db.run(SQL`
         INSERT INTO relationships(user_id, other_id, type)
-        VALUES (${user.id}, ${other.id}, 'pending')`)
-      ).lastID;
+        VALUES (${user.id}, ${other.id}, 'pending')
+      `);
+      relationshipID = lastID;
     }
 
     tunnelMessage.relationship = relationshipID;

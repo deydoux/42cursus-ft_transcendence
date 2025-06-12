@@ -19,7 +19,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const other = await server.db.get(SQL`
       SELECT id, username
       FROM users
-      WHERE lower(username) = lower(${username})`);
+      WHERE lower(username) = lower(${username})
+    `);
 
     if (!other) return reply.notFound('User not found');
     if (user.id === other.id)
@@ -28,7 +29,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const relationship = await server.db.get(SQL`
       SELECT NULL
       FROM relationships
-      WHERE user_id = ${user.id} AND other_id = ${other.id} AND type = 'block'`);
+      WHERE user_id = ${user.id} AND other_id = ${other.id} AND type = 'block'
+    `);
 
     if (relationship)
       return reply.badRequest('You have already blocked this user');
@@ -37,11 +39,13 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       DELETE FROM relationships
       WHERE (user_id = ${user.id} AND other_id = ${other.id})
             OR (user_id = ${other.id} AND other_id = ${user.id}
-               AND type != 'block')`);
+               AND type != 'block')
+    `);
 
     const {lastID: relationshipID} = await server.db.run(SQL`
       INSERT INTO relationships(user_id, other_id, type)
-      VALUES (${user.id}, ${other.id}, 'block')`);
+      VALUES (${user.id}, ${other.id}, 'block')
+    `);
 
     return reply
       .code(201)

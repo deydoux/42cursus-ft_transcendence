@@ -10,14 +10,16 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const user = await server.db.get(SQL`
       SELECT id, username, has_avatar, avatar_version
       FROM users
-      WHERE id = ${request.user.id}`);
+      WHERE id = ${request.user.id}
+    `);
     serializeUserAvatar(user);
 
     const relationship = await server.db.get(SQL`
       SELECT user_id AS userID, type
       FROM relationships
       WHERE id = ${relationshipID}
-            AND (user_id = ${user.id} OR other_id = ${user.id})`);
+            AND (user_id = ${user.id} OR other_id = ${user.id})
+    `);
 
     if (!relationship) return reply.notFound('Relationship not found');
 
@@ -36,16 +38,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     await server.db.run(SQL`
       UPDATE relationships
       SET type = 'friend'
-      WHERE id = ${relationshipID}`);
+      WHERE id = ${relationshipID}
+    `);
 
-    server.log.trace(
-      JSON.stringify(relationship.userID),
-      JSON.stringify({
-        type: 'friendRequestAccepted',
-        relationship: relationshipID,
-        user,
-      }),
-    );
     server.clients.sendUser(relationship.userID, {
       type: 'friendRequestAccepted',
       relationship: relationshipID,

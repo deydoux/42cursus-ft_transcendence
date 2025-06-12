@@ -17,7 +17,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const user = await server.db.get(SQL`
       SELECT totp_enabled AS totp, totp_secret AS secret
       FROM users
-      WHERE id = ${id}`);
+      WHERE id = ${id}
+    `);
 
     if (!user) return reply.notFound('Account not found');
     if (!user.totp) return reply.badRequest('TOTP already disabled');
@@ -28,8 +29,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     await server.db.run(SQL`
       UPDATE users
-      SET totp_enabled = 0, totp_secret = NULL
-      WHERE id = ${id}`);
+      SET totp_enabled = FALSE, totp_secret = NULL
+      WHERE id = ${id}
+    `);
 
     return reply.code(204).send();
   });

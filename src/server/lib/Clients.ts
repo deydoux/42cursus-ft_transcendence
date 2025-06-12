@@ -46,7 +46,10 @@ export default class Clients {
       if (index !== -1) this.clients.splice(index, 1);
       if (id)
         this.server.db.run(SQL`
-          UPDATE users SET last_seen = unixepoch() WHERE id = ${id}`);
+          UPDATE users
+          SET last_seen = unixepoch()
+          WHERE id = ${id}
+        `);
     });
 
     socket.on('message', this.handleMessage(socket));
