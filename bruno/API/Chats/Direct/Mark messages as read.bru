@@ -6,16 +6,10 @@ meta {
 
 patch {
   url: {{baseURL}}/api/chats/direct/:id
-  body: json
+  body: none
   auth: inherit
 }
 
 params:path {
   id: 2
-}
-
-body:json {
-  {
-    "content": "Hello, World!"
-  }
 }

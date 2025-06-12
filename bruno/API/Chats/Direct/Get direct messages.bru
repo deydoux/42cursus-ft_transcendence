@@ -6,7 +6,7 @@ meta {
 
 get {
   url: {{baseURL}}/api/chats/direct/:id?page=0
-  body: json
+  body: none
   auth: inherit
 }
 
@@ -16,10 +16,4 @@ params:query {
 
 params:path {
   id: 2
-}
-
-body:json {
-  {
-    "content": "Hello, World!"
-  }
 }
