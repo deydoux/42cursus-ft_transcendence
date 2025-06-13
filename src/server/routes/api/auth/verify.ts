@@ -12,7 +12,7 @@ const schema = {
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  server.addHook('onRequest', server.authenticate('login'));
+  server.addHook('onRequest', server.authenticate('totp'));
 
   server.post('/verify', {schema}, async (request, reply) => {
     const {id} = request.user;

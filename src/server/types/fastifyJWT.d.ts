@@ -1,7 +1,8 @@
 import '@fastify/jwt';
 
 interface JWTData {
-  type: 'access' | 'refresh' | 'login';
+  type: 'access' | 'refresh';
+  scope?: string;
   id: number;
   it: number;
 }
