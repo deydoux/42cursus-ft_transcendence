@@ -71,3 +71,24 @@ Received when the client should reload the page to apply updates. `NODE_ENV` mus
   "type": "hotReload"
 }
 ```
+
+## Outgoing Messages
+
+### `joinMatchmaking`
+Sent to join the matchmaking queue
+
+*Example:*
+```json
+{
+  "type": "joinMatchmaking"
+}
+```
+
+### `leaveMatchmaking`
+Sent to leave the matchmaking queue
+
+*Example:*
+```json
+{
+  "type": "leaveMatchmaking"
+}
