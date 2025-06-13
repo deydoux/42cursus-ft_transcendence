@@ -72,8 +72,6 @@ END;
 
 CREATE TABLE users(
   id                 INTEGER PRIMARY KEY AUTOINCREMENT,
-  google_id          TEXT UNIQUE,
-
   username           TEXT UNIQUE NOT NULL,
   password           TEXT,
 
@@ -87,7 +85,6 @@ CREATE TABLE users(
   avatar_version     INTEGER NOT NULL DEFAULT FALSE
 );
 
-CREATE INDEX idx_users_google_id ON users(google_id);
 CREATE INDEX idx_users_lower_username ON users(lower(username));
 CREATE INDEX idx_users_last_seen_desc ON users(last_seen DESC);
 
@@ -107,7 +104,6 @@ END;
 DROP TRIGGER update_users_password_edited_at;
 DROP INDEX idx_users_last_seen_desc;
 DROP INDEX idx_users_lower_username;
-DROP INDEX idx_users_google_id;
 DROP TABLE users;
 
 DROP TRIGGER update_relationships_updated_at;
