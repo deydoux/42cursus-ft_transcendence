@@ -17,7 +17,7 @@ const plugin: FastifyPluginAsync = async server => {
       const {ip, headers, connection} = this;
       const userAgent = headers['user-agent'] || null;
 
-      if (this.connection)
+      if (connection)
         await server.db.run(SQL`
           UPDATE connections
           SET ip = ${ip}, user_agent = ${userAgent}, access_token = ${accessToken}
