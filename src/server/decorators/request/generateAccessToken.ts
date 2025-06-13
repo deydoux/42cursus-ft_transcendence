@@ -14,16 +14,20 @@ const plugin: FastifyPluginAsync = async server => {
         it: ++it,
       });
 
-      if (this.connection) {
-        const {ip, headers, connection} = this;
-        const userAgent = headers['user-agent'] || null;
+      const {ip, headers, connection} = this;
+      const userAgent = headers['user-agent'] || null;
 
+      if (this.connection)
         await server.db.run(SQL`
-        UPDATE connections
-        SET ip = ${ip}, user_agent = ${userAgent}, access_token = ${accessToken}
-        WHERE id = ${connection}
-      `);
-      }
+          UPDATE connections
+          SET ip = ${ip}, user_agent = ${userAgent}, access_token = ${accessToken}
+          WHERE id = ${connection}
+        `);
+      else if (scope !== '*')
+        await server.db.run(SQL`
+          INSERT INTO connections(user_id, ip, user_agent, access_token)
+          VALUES(${id}, ${ip}, ${userAgent}, ${accessToken})
+        `);
 
       return accessToken;
     },
