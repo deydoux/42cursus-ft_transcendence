@@ -1,6 +1,8 @@
 import '../styles/landing-page.css';
 import {addFormListener} from '../utils/form';
+import {api} from '../utils/Api';
 import {html} from '../utils/html';
+import {navigate} from '../utils/navigate';
 import {renderSigninForm} from '../containers/signinForm';
 import {renderSignupForm} from '../containers/signupForm';
 import {welcomeEmojis} from '../utils/content';
@@ -45,6 +47,17 @@ export const renderLandingPage = (path: string): void => {
     <span>?</span>
   </div>`;
 
-  addFormListener('signin', 'auth/login', ['username', 'password'], signUpLink);
-  addFormListener('signup', 'auth/signup', ['username', 'password']);
+  const enterApp = (response: {json: {accessToken: string}}) => {
+    api.storeAccessToken(response?.json.accessToken);
+    navigate('Home', '/homepage');
+  };
+
+  addFormListener(
+    'signin',
+    'auth/login',
+    ['username', 'password'],
+    enterApp,
+    signUpLink,
+  );
+  addFormListener('signup', 'auth/signup', ['username', 'password'], enterApp);
 };

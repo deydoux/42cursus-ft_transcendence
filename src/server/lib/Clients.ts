@@ -31,6 +31,11 @@ export default class Clients {
   private message = (message: TunnelMessage) => JSON.stringify(message);
 
   routeHandler = (socket: WebSocket, request: FastifyRequest) => {
+    if (!request.user)
+      socket.send(
+        this.message({type: 'error', message: 'Authentication failed'}),
+      );
+
     const connection = request.connection || 0;
     const id = request.user?.id || 0;
 
@@ -40,9 +45,11 @@ export default class Clients {
       const index = this.clients.findIndex(client => client.socket === socket);
       if (index !== -1) this.clients.splice(index, 1);
       if (id)
-        this.server.db.run(
-          SQL`UPDATE users SET last_seen = unixepoch() WHERE id = ${id}`,
-        );
+        this.server.db.run(SQL`
+          UPDATE users
+          SET last_seen = unixepoch()
+          WHERE id = ${id}
+        `);
     });
 
     socket.on('message', this.handleMessage(socket));
@@ -51,23 +58,21 @@ export default class Clients {
   broadcast = (message: TunnelMessage) =>
     this.clients.forEach(client => client.socket.send(this.message(message)));
 
-  closeConnection = (connection: number | null) => {
+  closeConnection = (connection: number | null) =>
     this.clients.forEach(client => {
-      if (client.connection === connection) {
-        client.socket.send(this.message({type: 'close'}));
-        client.socket.close();
-      }
+      if (client.connection === connection) client.socket.close();
     });
-  };
 
-  closeID = (id: number, ignoreConnection: number | null = null) => {
+  closeUser = (id: number, ignoreConnection: number | null = null) =>
     this.clients.forEach(client => {
-      if (client.id === id && client.connection !== ignoreConnection) {
-        client.socket.send(this.message({type: 'close'}));
+      if (client.id === id && client.connection !== ignoreConnection)
         client.socket.close();
-      }
     });
-  };
 
-  isOnline = (id: number) => this.clients.some(client => client.id === id);
+  isUserOnline = (id: number) => this.clients.some(client => client.id === id);
+
+  sendUser = (id: number, message: TunnelMessage) =>
+    this.clients.forEach(client => {
+      if (client.id === id) client.socket.send(this.message(message));
+    });
 }

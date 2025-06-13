@@ -30,6 +30,7 @@ async function main() {
     },
   });
 
+  await server.register(import('@fastify/formbody'));
   await server.register(import('@fastify/sensible'));
 
   await server.register(autoload, {

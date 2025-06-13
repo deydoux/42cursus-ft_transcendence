@@ -1,4 +1,4 @@
-export default function generateAvatarURL(user: {
+export default function serializeUserAvatar(user: {
   id: number;
   has_avatar?: boolean;
   avatar_version?: number;

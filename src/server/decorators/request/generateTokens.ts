@@ -14,9 +14,11 @@ const plugin: FastifyPluginAsync = async server => {
     const {ip} = this;
     const userAgent = this.headers['user-agent'] || null;
 
-    await server.db.run(
-      SQL`INSERT INTO connections(user_id, ip, user_agent, access_token, refresh_token) VALUES(${id}, ${ip}, ${userAgent}, ${accessToken}, ${refreshToken})`,
-    );
+    await server.db.run(SQL`
+      INSERT INTO connections(user_id, ip, user_agent, access_token,
+                  refresh_token)
+      VALUES(${id}, ${ip}, ${userAgent}, ${accessToken}, ${refreshToken})
+    `);
 
     return {accessToken, refreshToken};
   });

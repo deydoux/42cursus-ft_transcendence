@@ -1,42 +1,30 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
-
-const schema = {
-  params: {
-    type: 'object',
-    properties: {
-      id: {type: 'number'},
-    },
-    required: ['id'],
-  } as const,
-};
+import {idParamsSchema as schema} from '#lib/schemas';
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.delete('/', async (request, reply) => {
-    const {connection} = request;
-    const {id} = request.user;
+    const {connection, user} = request;
 
-    await server.db.run(
-      SQL`DELETE FROM connections WHERE id != ${connection} AND user_id = ${id}`,
-    );
-    server.clients.closeID(id, connection);
+    await server.db.run(SQL`
+      DELETE FROM connections
+      WHERE id != ${connection} AND user_id = ${user.id}
+    `);
+    server.clients.closeUser(user.id, connection);
 
     return reply.code(204).send();
   });
 
   server.delete('/:id', {schema}, async (request, reply) => {
+    const {user} = request;
     const {id} = request.params;
-    const {id: userID} = request.user;
 
-    const connection = await server.db.get(
-      SQL`SELECT user_id FROM connections WHERE id = ${id} AND user_id = ${userID}`,
-    );
+    const {changes} = await server.db.run(SQL`
+      DELETE FROM connections
+      WHERE id = ${id} AND user_id = ${user.id}
+    `);
+    if (!changes) return reply.notFound('Connection not found');
 
-    if (!connection) return reply.notFound('Connection not found');
-
-    await server.db.run(
-      SQL`DELETE FROM connections WHERE id = ${id} AND user_id = ${userID}`,
-    );
     server.clients.closeConnection(id);
 
     return reply.code(204).send();

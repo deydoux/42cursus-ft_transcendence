@@ -1,0 +1,11 @@
+meta {
+  name: Get received friend requests
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseURL}}/api/relationships/friends/requests/received
+  body: none
+  auth: inherit
+}

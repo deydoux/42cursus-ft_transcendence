@@ -18,9 +18,10 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     const password = hash(request.body.password);
 
-    const {lastID: id} = await server.db.run(
-      SQL`INSERT INTO users(username, password) VALUES(${username}, ${password})`,
-    );
+    const {lastID: id} = await server.db.run(SQL`
+      INSERT INTO users(username, password)
+      VALUES(${username}, ${password})
+    `);
     if (!id) throw new Error('Failed to create user');
 
     const {accessToken, refreshToken} = await request.generateTokens(id);

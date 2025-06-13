@@ -4,9 +4,11 @@ import {errorCodes} from 'fastify';
 
 const plugin: FastifyPluginAsync = async server => {
   server.decorate('validateUsernameAvailability', async (username, id) => {
-    const user = await server.db.get(
-      SQL`SELECT NULL FROM users WHERE id != ${id ?? 0} AND lower(username) = lower(${username})`,
-    );
+    const user = await server.db.get(SQL`
+      SELECT NULL
+      FROM users
+      WHERE id != ${id ?? 0} AND lower(username) = lower(${username})
+    `);
 
     if (!user) return;
 

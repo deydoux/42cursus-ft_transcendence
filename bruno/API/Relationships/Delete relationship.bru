@@ -1,0 +1,15 @@
+meta {
+  name: Delete relationship
+  type: http
+  seq: 2
+}
+
+delete {
+  url: {{baseURL}}/api/relationships/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 1
+}
