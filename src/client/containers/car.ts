@@ -1,3 +1,5 @@
+import {Wall} from './wall';
+
 export class Car {
   private readonly ctx: CanvasRenderingContext2D;
 
@@ -8,10 +10,13 @@ export class Car {
   public acceleration: number;
   public color: string;
   public name: string;
+  public carWidth;
+  public carHeight;
 
   private readonly maxSpeed = 5;
   private readonly turnSpeed = 0.05;
   private readonly minSpeedForTurn = 0.1;
+  private readonly reverseSpeed = -2; // Max reverse speed
 
   constructor(
     name: string,
@@ -21,6 +26,8 @@ export class Car {
     color: string,
   ) {
     this.name = name;
+    this.carHeight = 20; // Fixed height
+    this.carWidth = 30; // Fixed width
     this.ctx = ctx;
     this.x = x;
     this.y = y;
@@ -37,50 +44,101 @@ export class Car {
 
     // Draw car body
     this.ctx.fillStyle = this.color;
-    this.ctx.fillRect(-15, -10, 30, 20);
+    this.ctx.fillRect(
+      -this.carWidth / 2, // Use half of actual width
+      -this.carHeight / 2, // Use half of actual height
+      this.carWidth, // Use full width
+      this.carHeight,
+    );
 
     this.ctx.restore();
   }
 
-  public move(isAccelerating: boolean, isTurning: number): void {
-    // Handle acceleration/deceleration
-    if (isAccelerating) {
+  public move(
+    isAccelerating: boolean | null,
+    isTurning: number,
+    walls: Wall,
+  ): void {
+    // Handle acceleration/deceleration with reverse
+    if (isAccelerating === true) {
       this.speed += this.acceleration;
+    } else if (isAccelerating === false) {
+      this.speed -= this.acceleration;
     } else {
-      this.speed *= 0.95; // Friction
+      // No input (null case) - apply friction
+      this.speed *= 0.95;
     }
 
-    // Clamp speed between 0 and max speed
-    this.speed = Math.min(Math.max(this.speed, 0), this.maxSpeed);
+    // Clamp speed between reverse and max forward speed
+    this.speed = Math.min(
+      Math.max(this.speed, this.reverseSpeed),
+      this.maxSpeed,
+    );
 
-    // Handle turning - only if moving
-    if (Math.abs(this.speed) > this.minSpeedForTurn) {
-      // Turn rate increases with speed but not too extremely
-      const turnRate = this.turnSpeed * (0.5 + this.speed / this.maxSpeed);
-      this.angle += isTurning * turnRate;
-    }
-
-    // Calculate new position
+    // Calculate potential new position
     const newX = this.x + Math.cos(this.angle) * this.speed;
     const newY = this.y + Math.sin(this.angle) * this.speed;
 
-    // Get canvas boundaries
-    const carWidth = 30; // Width of car from draw method
-    const carHeight = 20; // Height of car from draw method
-    const halfWidth = carWidth / 2;
-    const halfHeight = carHeight / 2;
+    // Create car hitbox
+    const carBox = {
+      x: newX - this.carWidth / 2,
+      y: newY - this.carHeight / 2,
+      width: this.carWidth,
+      height: this.carHeight,
+    };
 
-    // Check boundaries and update position only if within bounds
-    if (newX >= halfWidth && newX <= this.ctx.canvas.width - halfWidth) {
+    // Check canvas boundaries
+    const inBounds =
+      carBox.x >= 0 &&
+      carBox.x + carBox.width <= this.ctx.canvas.width &&
+      carBox.y >= 0 &&
+      carBox.y + carBox.height <= this.ctx.canvas.height;
+
+    // Update position if not colliding and in bounds
+    if (!walls.isCarColliding(carBox) && inBounds) {
       this.x = newX;
-    } else {
-      this.speed = 0; // Stop the car at boundary
-    }
-
-    if (newY >= halfHeight && newY <= this.ctx.canvas.height - halfHeight) {
       this.y = newY;
     } else {
-      this.speed = 0; // Stop the car at boundary
+      // Allow sliding along walls/boundaries by trying individual axis movement
+      const tryHorizontal = {
+        ...carBox,
+        x: newX - this.carWidth / 2,
+        y: this.y - this.carHeight / 2,
+      };
+
+      const tryVertical = {
+        ...carBox,
+        x: this.x - this.carWidth / 2,
+        y: newY - this.carHeight / 2,
+      };
+
+      // Try horizontal movement
+      if (
+        !walls.isCarColliding(tryHorizontal) &&
+        tryHorizontal.x >= 0 &&
+        tryHorizontal.x + this.carWidth <= this.ctx.canvas.width
+      ) {
+        this.x = newX;
+      }
+
+      // Try vertical movement
+      if (
+        !walls.isCarColliding(tryVertical) &&
+        tryVertical.y >= 0 &&
+        tryVertical.y + this.carHeight <= this.ctx.canvas.height
+      ) {
+        this.y = newY;
+      }
+
+      // Reduce speed on collision
+      this.speed *= 0.5;
+    }
+
+    // Handle turning - works in both forward and reverse
+    if (Math.abs(this.speed) > this.minSpeedForTurn) {
+      // Invert turning direction when reversing
+      const turnDirection = this.speed >= 0 ? 1 : -1;
+      this.angle += isTurning * this.turnSpeed * turnDirection;
     }
   }
 }

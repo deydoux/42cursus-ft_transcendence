@@ -1,7 +1,7 @@
 import {Car} from './car';
 import {Wall} from './wall';
 
-export class Checkpoint {
+export class Growpoint {
   private readonly ctx: CanvasRenderingContext2D;
   private readonly canvas: HTMLCanvasElement;
   public x: number;
@@ -16,11 +16,11 @@ export class Checkpoint {
     this.y = y;
   }
 
-  // Static method to create a new checkpoint at valid position
-  public static createRandomCheckpoint(
+  // Static method to create a new Growpoint at valid position
+  public static createRandomGrowpoint(
     ctx: CanvasRenderingContext2D,
     walls: Wall,
-  ): Checkpoint {
+  ): Growpoint {
     const padding = 30;
     const canvas = ctx.canvas;
     let newX: number;
@@ -34,17 +34,17 @@ export class Checkpoint {
       attempts++;
     } while (walls.isColliding(newX, newY, padding) && attempts < maxAttempts);
 
-    return new Checkpoint(ctx, newX, newY);
+    return new Growpoint(ctx, newX, newY);
   }
 
   public draw(): void {
     this.ctx.save();
     this.ctx.beginPath();
     this.ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    this.ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
+    this.ctx.fillStyle = 'rgba(255, 13, 0, 0.5)';
     this.ctx.fill();
     this.ctx.strokeStyle = '#00FF00';
-    this.ctx.lineWidth = 2;
+    this.ctx.lineWidth = 1.5;
     this.ctx.stroke();
     this.ctx.restore();
   }
