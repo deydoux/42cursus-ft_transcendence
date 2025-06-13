@@ -49,9 +49,11 @@ export function renderPongPage(): void {
 
   const pongCanvas = new PongCanvas(gameContainer, pong);
 
-  pongCanvas.displayStartMessage(pong.announcement as HTMLElement);
+  pongCanvas.displayStartMessage();
 
   handleInput(pong, () => {
-    pongCanvas.startGame(pong.announcement as HTMLElement);
+    pongCanvas.startGame();
   });
 }
+
+//TODO: change gameContainer to ctx.canvas (it's the same)

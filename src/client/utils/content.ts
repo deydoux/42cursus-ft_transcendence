@@ -41,7 +41,7 @@ export const asciiArt = [
 ];
 
 export interface PongGame {
-  announcement: HTMLElement | null;
+  announcement: HTMLElement;
   leftPlayer: string | null;
   rightPlayer: string | null;
   canvasWidth: number;
@@ -66,6 +66,10 @@ export function initializeGame(
   leftPlayerScoreElement: HTMLElement | null,
   rightPlayerScoreElement: HTMLElement | null,
 ): PongGame {
+  const announcement = document.getElementById('announcement');
+  if (!announcement) {
+    throw new Error('Announcement element not found');
+  }
   const leftPaddle = new Paddle(
     ctx,
     10,
@@ -83,14 +87,14 @@ export function initializeGame(
   const ball = new Ball(ctx, gameContainer);
 
   return {
-    announcement: document.getElementById('announcement'),
+    announcement,
     leftPlayer,
     rightPlayer,
     canvasWidth: gameContainer.width,
     canvasHeight: gameContainer.height,
     leftPaddle,
     rightPaddle,
-    ball: ball,
+    ball,
     leftPlayerScore: 0,
     rightPlayerScore: 0,
     leftPlayerScoreElement,
