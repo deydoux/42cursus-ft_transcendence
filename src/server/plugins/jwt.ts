@@ -33,7 +33,7 @@ const plugin: FastifyPluginAsync = async server => {
       `;
       let token;
 
-      if (type === 'access' || type === 'login' || type === 'signup') {
+      if (type === 'access') {
         token = request.headers.authorization?.split(' ')[1];
         query.append(SQL`
           WHERE user_id = ${userID} AND access_token = ${token}

@@ -1,11 +1,11 @@
 import {FastifyPluginAsync} from 'fastify';
 
 const plugin: FastifyPluginAsync = async server => {
-  server.decorate('authenticate', (type = 'access') => async request => {
+  server.decorate('authenticate', (scope = '*') => async request => {
     await request.jwtVerify();
 
-    if (request.user.type !== type)
-      throw server.httpErrors.unauthorized('Invalid token type');
+    if (request.user.scope !== scope)
+      throw server.httpErrors.unauthorized('Invalid token scope');
   });
 };
 
