@@ -1,4 +1,3 @@
-import {Keys} from '../utils/content';
 import {PongGame} from '../utils/content';
 import {asciiArt} from '../utils/content';
 import {resetPongGame} from '../utils/content';
@@ -24,15 +23,13 @@ export class PongCanvas {
     this.dpr = window.devicePixelRatio || 1;
   }
 
-  public startGame(announcement: HTMLElement) {
+  public startGame() {
     if (this.pong.gameStarted) return;
     this.pong.gameStarted = true;
-    this.raf = window.requestAnimationFrame(() =>
-      this.draw(announcement, this.pong.keys, this.pong),
-    );
+    this.raf = window.requestAnimationFrame(this.gameLoop.bind(this));
   }
 
-  public draw(announcement: HTMLElement, keys: Keys, pong: PongGame) {
+  public gameLoop() {
     this.ctx.clearRect(
       0,
       0,
@@ -40,25 +37,28 @@ export class PongCanvas {
       this.gameContainer.height,
     );
 
-    if (!pong.gameStarted) {
-      this.displayStartMessage(announcement);
+    if (!this.pong.gameStarted) {
+      this.displayStartMessage();
       return;
     }
 
-    this.handlePaddleMovement(keys);
-    pong.ball.draw();
-    pong.leftPaddle.draw();
-    pong.rightPaddle.draw();
-    pong.ball.update(pong);
+    this.handlePaddleMovement();
+    this.pong.ball.draw();
+    this.pong.leftPaddle.draw();
+    this.pong.rightPaddle.draw();
+    this.pong.ball.update(this.pong);
 
-    if (pong.leftPlayerScore === 5 || pong.rightPlayerScore === 5) {
+    if (this.pong.leftPlayerScore === 5 || this.pong.rightPlayerScore === 5) {
       const winner =
-        pong.leftPlayerScore === 5 ? pong.leftPlayer : pong.rightPlayer;
+        this.pong.leftPlayerScore === 5
+          ? this.pong.leftPlayer
+          : this.pong.rightPlayer;
       const winnerName = winner ?? 'Player'; // Ensure winner is a string
-      announcement.innerText = "And that's a win for " + winnerName + '!';
+      this.pong.announcement.innerText =
+        "And that's a win for " + winnerName + '!';
       if (this.raf) {
         window.cancelAnimationFrame(this.raf);
-        pong.gameStarted = false;
+        this.pong.gameStarted = false;
       }
 
       this.startBandroll(winnerName, () => {
@@ -68,20 +68,18 @@ export class PongCanvas {
           this.gameContainer.width,
           this.gameContainer.height,
         );
-        resetPongGame(pong, this.gameContainer);
-        this.displayStartMessage(announcement);
+        resetPongGame(this.pong, this.gameContainer);
+        this.displayStartMessage();
       });
 
       return;
     }
 
-    this.raf = window.requestAnimationFrame(() =>
-      this.draw(announcement, keys, pong),
-    );
+    this.raf = window.requestAnimationFrame(this.gameLoop.bind(this));
   }
 
-  public displayStartMessage(announcement: HTMLElement) {
-    announcement.innerText = `Good luck ${this.pong.leftPlayer} and ${this.pong.rightPlayer}!`;
+  public displayStartMessage() {
+    this.pong.announcement.innerText = `Good luck ${this.pong.leftPlayer} and ${this.pong.rightPlayer}!`;
 
     this.ctx.save();
 
@@ -121,17 +119,17 @@ export class PongCanvas {
     this.ctx.restore();
   }
 
-  public handlePaddleMovement(keys: Keys) {
+  public handlePaddleMovement() {
     if (this.pong.isScoring) return;
 
     const paddleSpeed = this.gameContainer.height * 0.01;
-    if (keys.w)
+    if (this.pong.keys.w)
       this.pong.leftPaddle.move(-paddleSpeed, this.gameContainer.height);
-    if (keys.s)
+    if (this.pong.keys.s)
       this.pong.leftPaddle.move(paddleSpeed, this.gameContainer.height);
-    if (keys.ArrowUp)
+    if (this.pong.keys.ArrowUp)
       this.pong.rightPaddle.move(-paddleSpeed, this.gameContainer.height);
-    if (keys.ArrowDown)
+    if (this.pong.keys.ArrowDown)
       this.pong.rightPaddle.move(paddleSpeed, this.gameContainer.height);
   }
 
