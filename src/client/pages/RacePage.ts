@@ -42,10 +42,10 @@ export function renderRacePage(): void {
   ctx.imageSmoothingEnabled = true;
 
   // Initialize game state
-  const race = initializeGame(ctx, gameContainer);
+  const race = initializeGame(ctx);
 
   // Create canvas controller
-  const raceCanvas = new RaceCanvas(gameContainer, race);
+  const raceCanvas = new RaceCanvas(race);
 
   // Show start message
   raceCanvas.displayStartMessage();

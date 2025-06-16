@@ -26,6 +26,7 @@ export function renderPongPage(): void {
     console.error('Could not find canvas element');
     return;
   }
+
   const rect = gameContainer.getBoundingClientRect();
   const ctx = gameContainer.getContext('2d');
   if (!ctx) {
@@ -40,14 +41,13 @@ export function renderPongPage(): void {
 
   const pong = initializeGame(
     ctx,
-    gameContainer,
     'Player 1',
     'Player 2',
     document.getElementById('leftPlayerScore'),
     document.getElementById('rightPlayerScore'),
   );
 
-  const pongCanvas = new PongCanvas(gameContainer, pong);
+  const pongCanvas = new PongCanvas(pong);
 
   pongCanvas.displayStartMessage();
 
@@ -55,5 +55,3 @@ export function renderPongPage(): void {
     pongCanvas.startGame();
   });
 }
-
-//TODO: change gameContainer to ctx.canvas (it's the same)

@@ -10,21 +10,18 @@ export class Ball {
   speed: number;
   maxSpeed: number;
   ctx: CanvasRenderingContext2D;
-  gameContainer: HTMLCanvasElement;
   isScoring: boolean;
 
   constructor(
     ctx: CanvasRenderingContext2D,
-    gameContainer: HTMLCanvasElement,
-    x = gameContainer.width / 2,
-    y = gameContainer.height / 2,
-    // Reduced initial velocities
-    vx = gameContainer.width * 0.003, // reduced from 0.006
-    vy = gameContainer.height * 0.002, // reduced from 0.004
-    radius = gameContainer.width * 0.012,
+    x = ctx.canvas.width / 2,
+    y = ctx.canvas.height / 2,
+    vx = ctx.canvas.width * 0.003,
+    vy = ctx.canvas.height * 0.002,
+    radius = ctx.canvas.width * 0.012,
     color = 'white',
     speed = Math.sqrt(vx * vx + vy * vy),
-    maxSpeed = Math.max(gameContainer.width, gameContainer.height) * 0.012, // reduced from 0.02
+    maxSpeed = Math.max(ctx.canvas.width, ctx.canvas.height) * 0.012,
     isScoring = false,
   ) {
     this.ctx = ctx;
@@ -36,7 +33,6 @@ export class Ball {
     this.color = color;
     this.speed = speed;
     this.maxSpeed = maxSpeed;
-    this.gameContainer = gameContainer;
     this.isScoring = isScoring;
   }
 
@@ -73,13 +69,16 @@ export class Ball {
     this.y += this.vy;
 
     // Wall collision (top/bottom)
-    if (this.y - this.radius < 0 || this.y + this.radius > pong.canvasHeight) {
+    if (
+      this.y - this.radius < 0 ||
+      this.y + this.radius > this.ctx.canvas.height
+    ) {
       this.vy = -this.vy;
       // Clamp ball position to prevent sticking
       this.y =
         this.y - this.radius < 0
           ? this.radius
-          : pong.canvasHeight - this.radius;
+          : this.ctx.canvas.height - this.radius;
     }
 
     // Left paddle collision with corner detection
@@ -103,13 +102,16 @@ export class Ball {
     }
 
     // Ball out of bounds (left or right wall)
-    if (this.x - this.radius < 0 || this.x + this.radius > pong.canvasWidth) {
+    if (
+      this.x - this.radius < 0 ||
+      this.x + this.radius > this.ctx.canvas.width
+    ) {
       const isLeftWall = this.x - this.radius < 0;
       this.isScoring = true;
       pong.isScoring = true; // Set game scoring state
 
       // Stop the ball at the wall
-      this.x = isLeftWall ? this.radius : pong.canvasWidth - this.radius;
+      this.x = isLeftWall ? this.radius : this.ctx.canvas.width - this.radius;
 
       // Wait 1 second before resetting
       setTimeout(() => {
@@ -158,12 +160,12 @@ export class Ball {
 
   handleScoring(pong, isLeftWall: boolean) {
     // Reset position
-    this.x = pong.canvasWidth / 2;
-    this.y = pong.canvasHeight / 2;
+    this.x = this.ctx.canvas.width / 2;
+    this.y = this.ctx.canvas.height / 2;
 
     // Reset to initial speed
-    const initialVx = pong.canvasWidth * 0.003;
-    const initialVy = pong.canvasHeight * 0.002;
+    const initialVx = this.ctx.canvas.width * 0.003;
+    const initialVy = this.ctx.canvas.height * 0.002;
 
     // Randomize direction but keep initial speed
     this.vx = initialVx * (Math.random() < 0.5 ? 1 : -1);
@@ -186,7 +188,7 @@ export class Ball {
   increaseSpeed() {
     // Reduced speed increase
     const speedIncrease =
-      Math.max(this.gameContainer.width, this.gameContainer.height) * 0.0015; // reduced from 0.0052
+      Math.max(this.ctx.canvas.width, this.ctx.canvas.height) * 0.0015; // reduced from 0.0052
 
     if (this.speed < this.maxSpeed) {
       const newSpeed = Math.min(this.speed + speedIncrease, this.maxSpeed);
@@ -212,8 +214,8 @@ export class Paddle {
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
-    width: number,
-    height: number,
+    width = ctx.canvas.width * 0.01,
+    height = ctx.canvas.height * 0.25,
     color = 'white',
   ) {
     this.ctx = ctx;
@@ -229,7 +231,10 @@ export class Paddle {
     this.ctx.fillRect(this.x, this.y, this.width, this.height);
   }
 
-  move(dy: number, canvasHeight: number) {
-    this.y = Math.max(0, Math.min(canvasHeight - this.height, this.y + dy));
+  move(dy: number) {
+    this.y = Math.max(
+      0,
+      Math.min(this.ctx.canvas.height - this.height, this.y + dy),
+    );
   }
 }

@@ -3,25 +3,18 @@ import {Growpoint} from '../containers/growpoint';
 import {Particle} from '../containers/particle';
 import {RaceGame} from '../utils/race-content';
 import {Slowpoint} from '../containers/slowpoint';
-import {Timer} from '../container/timer';
 
 export class RaceCanvas {
-  private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private race: RaceGame;
-  private raf: number;
+  private raf: number | null;
   private dpr: number;
   private color = '#fde';
 
-  constructor(canvas: HTMLCanvasElement, race: RaceGame) {
-    this.raf = 0;
+  constructor(race: RaceGame) {
+    this.raf = null;
     this.race = race;
-    this.canvas = canvas;
-    const context = canvas.getContext('2d');
-    if (!context) {
-      throw new Error('Failed to get canvas context');
-    }
-    this.ctx = context;
+    this.ctx = race.ctx;
     this.dpr = window.devicePixelRatio || 1;
   }
 
@@ -40,8 +33,8 @@ export class RaceCanvas {
 
     this.ctx.save();
 
-    const width = this.canvas.width;
-    const height = this.canvas.height;
+    const width = this.ctx.canvas.width;
+    const height = this.ctx.canvas.height;
     const baseFontSize = Math.max(width, height) * 0.025 * this.dpr;
     const smallFontSize = baseFontSize * 0.5;
     const lineHeight = smallFontSize * 1.25;
@@ -73,7 +66,7 @@ export class RaceCanvas {
   }
 
   private gameLoop(): void {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
     if (!this.race.gameStarted) {
       this.displayStartMessage();
@@ -275,7 +268,7 @@ export class RaceCanvas {
     this.ctx.font = '24px Arial';
     this.ctx.fillStyle = '#fff';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText(time, this.canvas.width / 2, 30);
+    this.ctx.fillText(time, this.ctx.canvas.width / 2, 30);
     this.ctx.restore();
   }
 

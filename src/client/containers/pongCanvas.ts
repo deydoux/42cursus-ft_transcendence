@@ -4,7 +4,6 @@ import {resetPongGame} from '../utils/content';
 
 export class PongCanvas {
   private ctx: CanvasRenderingContext2D;
-  private gameContainer: HTMLCanvasElement;
   private pong: PongGame;
   private raf: number | null;
   private dpr: number;
@@ -15,9 +14,8 @@ export class PongCanvas {
   private bandrollText = '';
   private bandrollSpeed = 6;
 
-  constructor(gameContainer: HTMLCanvasElement, pong: PongGame) {
-    this.gameContainer = gameContainer;
-    this.ctx = pong.leftPaddle.ctx;
+  constructor(pong: PongGame) {
+    this.ctx = pong.ctx;
     this.pong = pong;
     this.raf = null;
     this.dpr = window.devicePixelRatio || 1;
@@ -30,12 +28,7 @@ export class PongCanvas {
   }
 
   public gameLoop() {
-    this.ctx.clearRect(
-      0,
-      0,
-      this.gameContainer.width,
-      this.gameContainer.height,
-    );
+    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
     if (!this.pong.gameStarted) {
       this.displayStartMessage();
@@ -62,13 +55,8 @@ export class PongCanvas {
       }
 
       this.startBandroll(winnerName, () => {
-        this.ctx.clearRect(
-          0,
-          0,
-          this.gameContainer.width,
-          this.gameContainer.height,
-        );
-        resetPongGame(this.pong, this.gameContainer);
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        resetPongGame(this.pong);
         this.displayStartMessage();
       });
 
@@ -83,8 +71,8 @@ export class PongCanvas {
 
     this.ctx.save();
 
-    const width = this.gameContainer.width;
-    const height = this.gameContainer.height;
+    const width = this.ctx.canvas.width;
+    const height = this.ctx.canvas.height;
     const baseFontSize = Math.max(width, height) * 0.025 * this.dpr;
     const smallFontSize = baseFontSize * 0.5;
     const lineHeight = smallFontSize * 1.25;
@@ -94,7 +82,7 @@ export class PongCanvas {
     const asciiArtHeight = asciiArt.length * lineHeight;
     const totalBlockHeight = titleHeight + asciiArtHeight + lineHeight; // extra lineHeight for spacing
 
-    // Center of canvas
+    // Center of ctx.canvas
     const centerX = width / 2;
     const centerY = height / 2;
 
@@ -122,30 +110,21 @@ export class PongCanvas {
   public handlePaddleMovement() {
     if (this.pong.isScoring) return;
 
-    const paddleSpeed = this.gameContainer.height * 0.01;
-    if (this.pong.keys.w)
-      this.pong.leftPaddle.move(-paddleSpeed, this.gameContainer.height);
-    if (this.pong.keys.s)
-      this.pong.leftPaddle.move(paddleSpeed, this.gameContainer.height);
-    if (this.pong.keys.ArrowUp)
-      this.pong.rightPaddle.move(-paddleSpeed, this.gameContainer.height);
-    if (this.pong.keys.ArrowDown)
-      this.pong.rightPaddle.move(paddleSpeed, this.gameContainer.height);
+    const paddleSpeed = this.ctx.canvas.height * 0.01;
+    if (this.pong.keys.w) this.pong.leftPaddle.move(-paddleSpeed);
+    if (this.pong.keys.s) this.pong.leftPaddle.move(paddleSpeed);
+    if (this.pong.keys.ArrowUp) this.pong.rightPaddle.move(-paddleSpeed);
+    if (this.pong.keys.ArrowDown) this.pong.rightPaddle.move(paddleSpeed);
   }
 
   private startBandroll(winner: string, callback: () => void) {
     this.bandrollText = `✨ ${winner} wins! Issok tho 'cause ur ass is fatter ✨`;
-    this.bandrollX = this.gameContainer.width;
+    this.bandrollX = this.ctx.canvas.width;
     this.bandrollActive = true;
 
     const animate = () => {
-      this.ctx.clearRect(
-        0,
-        0,
-        this.gameContainer.width,
-        this.gameContainer.height,
-      );
-      this.ctx.font = `bold ${Math.floor(this.gameContainer.height * 0.08)}px monospace`;
+      this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+      this.ctx.font = `bold ${Math.floor(this.ctx.canvas.height * 0.08)}px monospace`;
       this.ctx.fillStyle = this.color;
       this.ctx.textAlign = 'left';
       this.ctx.textBaseline = 'middle';
@@ -154,7 +133,7 @@ export class PongCanvas {
       this.ctx.fillText(
         this.bandrollText,
         this.bandrollX,
-        this.gameContainer.height / 2,
+        this.ctx.canvas.height / 2,
       );
 
       this.bandrollX -= this.bandrollSpeed;

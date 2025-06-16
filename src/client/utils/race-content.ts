@@ -16,8 +16,6 @@ export interface RaceGame {
   gameStarted: boolean;
   keys: Keys;
   ctx: CanvasRenderingContext2D;
-  canvasWidth: number;
-  canvasHeight: number;
   announcement: HTMLElement;
   currentCheckpoint: Checkpoint | null;
   lastCheckpointTime: number;
@@ -29,10 +27,7 @@ export interface RaceGame {
   car2Score: number;
 }
 
-export function initializeGame(
-  ctx: CanvasRenderingContext2D,
-  gameContainer: HTMLCanvasElement,
-): RaceGame {
+export function initializeGame(ctx: CanvasRenderingContext2D): RaceGame {
   // Set up game state
   const announcement = document.getElementById('announcement');
   if (!announcement) {
@@ -53,8 +48,6 @@ export function initializeGame(
     gameStarted: false,
     keys: keys,
     ctx: ctx,
-    canvasWidth: gameContainer.width,
-    canvasHeight: gameContainer.height,
     currentCheckpoint,
     lastCheckpointTime: Date.now(),
     currentGrowpoint: null,

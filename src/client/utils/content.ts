@@ -44,11 +44,10 @@ export interface PongGame {
   announcement: HTMLElement;
   leftPlayer: string | null;
   rightPlayer: string | null;
-  canvasWidth: number;
-  canvasHeight: number;
   leftPaddle: Paddle;
   rightPaddle: Paddle;
   ball: Ball;
+  ctx: CanvasRenderingContext2D;
   leftPlayerScore: number;
   rightPlayerScore: number;
   leftPlayerScoreElement: HTMLElement | null;
@@ -60,7 +59,6 @@ export interface PongGame {
 
 export function initializeGame(
   ctx: CanvasRenderingContext2D,
-  gameContainer: HTMLCanvasElement,
   leftPlayer: string | null,
   rightPlayer: string | null,
   leftPlayerScoreElement: HTMLElement | null,
@@ -70,30 +68,21 @@ export function initializeGame(
   if (!announcement) {
     throw new Error('Announcement element not found');
   }
-  const leftPaddle = new Paddle(
-    ctx,
-    10,
-    0,
-    gameContainer.width * 0.01,
-    gameContainer.height * 0.25,
-  );
+  const leftPaddle = new Paddle(ctx, 10, 0);
   const rightPaddle = new Paddle(
     ctx,
-    gameContainer.width - 10 - leftPaddle.width,
+    ctx.canvas.width - 10 - leftPaddle.width,
     0,
-    gameContainer.width * 0.01,
-    gameContainer.height * 0.25,
   );
-  const ball = new Ball(ctx, gameContainer);
+  const ball = new Ball(ctx);
 
   return {
     announcement,
     leftPlayer,
     rightPlayer,
-    canvasWidth: gameContainer.width,
-    canvasHeight: gameContainer.height,
     leftPaddle,
     rightPaddle,
+    ctx,
     ball,
     leftPlayerScore: 0,
     rightPlayerScore: 0,
@@ -142,19 +131,16 @@ export function handleInput(game: PongGame, onStart: () => void) {
   });
 }
 
-export function resetPongGame(
-  pong: PongGame,
-  gameContainer: HTMLCanvasElement,
-) {
+export function resetPongGame(pong: PongGame) {
   pong.leftPlayerScore = 0;
   pong.rightPlayerScore = 0;
   updateScores(pong);
 
   // Reset ball position and velocity
-  pong.ball.x = gameContainer.width / 2;
-  pong.ball.y = gameContainer.height / 2;
-  pong.ball.vx = gameContainer.height * 0.006;
-  pong.ball.vy = gameContainer.width * 0.004;
+  pong.ball.x = pong.ctx.canvas.width / 2;
+  pong.ball.y = pong.ctx.canvas.height / 2;
+  pong.ball.vx = pong.ctx.canvas.height * 0.006;
+  pong.ball.vy = pong.ctx.canvas.width * 0.004;
 
   // Reset paddles
   pong.leftPaddle.y = 0;
