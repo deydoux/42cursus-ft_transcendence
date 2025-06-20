@@ -12,28 +12,17 @@ export class Ball {
   ctx: CanvasRenderingContext2D;
   isScoring: boolean;
 
-  constructor(
-    ctx: CanvasRenderingContext2D,
-    x = ctx.canvas.width / 2,
-    y = ctx.canvas.height / 2,
-    vx = ctx.canvas.width * 0.003,
-    vy = ctx.canvas.height * 0.002,
-    radius = ctx.canvas.width * 0.012,
-    color = 'white',
-    speed = Math.sqrt(vx * vx + vy * vy),
-    maxSpeed = Math.max(ctx.canvas.width, ctx.canvas.height) * 0.012,
-    isScoring = false,
-  ) {
+  constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
-    this.x = x;
-    this.y = y;
-    this.vx = vx;
-    this.vy = vy;
-    this.radius = radius;
-    this.color = color;
-    this.speed = speed;
-    this.maxSpeed = maxSpeed;
-    this.isScoring = isScoring;
+    this.x = ctx.canvas.width / 2;
+    this.y = ctx.canvas.height / 2;
+    this.vx = ctx.canvas.width * 0.003;
+    this.vy = ctx.canvas.height * 0.002;
+    this.radius = ctx.canvas.width * 0.012;
+    this.color = 'white';
+    this.speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+    this.maxSpeed = Math.max(ctx.canvas.width, ctx.canvas.height) * 0.012;
+    this.isScoring = false;
   }
 
   draw() {
@@ -52,6 +41,10 @@ export class Ball {
         size,
         size,
       );
+    } else {
+      this.ctx.strokeStyle = '#000000';
+      this.ctx.lineWidth = 2;
+      this.ctx.stroke();
     }
   }
 

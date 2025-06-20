@@ -4,6 +4,11 @@ import {PongCanvas} from '../containers/pongCanvas';
 import {html} from '../utils/html';
 import {renderPong} from '../containers/pongGame';
 
+/**
+ * Renders the Pong game page by setting up the layout and initializing the game.
+ * It creates the left and right containers, appends the Pong game canvas,
+ * and sets up the game context with the necessary dimensions and styles.
+ */
 export function renderPongPage(): void {
   const right = document.getElementById('right-container');
   const left = document.getElementById('left-container');

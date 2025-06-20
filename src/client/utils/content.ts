@@ -1,4 +1,4 @@
-import {Ball, Paddle} from '../containers/pongCanvasObjects.ts';
+import {Ball, Paddle} from '../containers/pongObjects.ts';
 import {Keys, keys} from './keys.ts';
 
 export const welcomeEmojis = [
