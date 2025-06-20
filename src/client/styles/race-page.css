@@ -2,17 +2,25 @@
 
 h1.announcement {
   font-family: "Special Gothic Expanded One", sans-serif;
-  font-size: clamp(16px, 2vw, 42px);
+  font-size: clamp(16px, 2vw, 36px);
   text-align: center;
   width: 100%;
   margin-top: 0.5vw;
   min-height: 2.5vw;
 }
 
+.race-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between center;
+  align-items: center;
+  height: 95%;
+}
+
 .race {
-  --glow-color: rgb(217, 176, 255);
- --glow-spread-color: rgba(191, 123, 255, 0.781);
-  border: 5px solid #fde ;
+  --glow-color: rgb(93, 89, 167);
+ --glow-spread-color: rgba(4, 29, 191, 0.781);
+  border: 5px solid rgb(221, 232, 255) ;
   background-color: #000000;
   border-radius: 5px;
   margin-top: 5px;
@@ -24,21 +32,24 @@ h1.announcement {
   max-width: 95%;
   max-height: 100%;
   flex: 1 1 auto;
-   position: relative;
+  position: relative;
   box-shadow: 0 0 1em .25em var(--glow-color),
               0 0 4em 1em var(--glow-spread-color),
               inset 0 0 .75em .25em var(--glow-color);
 }
 
 #race-btn {
-  --glow-color: rgb(217, 176, 255);
- --glow-spread-color: rgba(191, 123, 255, 0.781);
- --enhanced-glow-color: rgb(231, 206, 255);
- --btn-color: rgb(100, 61, 136);
+  --glow-color: rgb(221, 232, 255);
+ --glow-spread-color: rgba(4, 29, 191, 0.781);
+ --enhanced-glow-color: rgb(93, 89, 167);
+ --btn-color: rgb(1, 4, 191);
  border: .25em solid var(--glow-color);
  padding: 1em 3em;
  color: var(--glow-color);
- font-size: 32px;
+ width: 70%;
+ margin: 1em auto;
+ display: block;
+ font-size: 24px;
  font-weight: bold;
  background-color: var(--btn-color);
  border-radius: 1em;
