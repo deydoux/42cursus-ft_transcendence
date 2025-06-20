@@ -6,11 +6,12 @@ export class Slowpoint {
   private readonly canvas: HTMLCanvasElement;
   public x: number;
   public y: number;
-  private readonly size: number = 20;
+  private readonly size: number;
   private readonly padding: number = 20;
 
   constructor(ctx: CanvasRenderingContext2D, x: number, y: number) {
     this.ctx = ctx;
+    this.size = ctx.canvas.width * 0.012;
     this.canvas = ctx.canvas;
     this.x = x;
     this.y = y;

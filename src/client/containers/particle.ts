@@ -19,9 +19,9 @@ export class Particle {
     this.y = y;
     this.vx = (Math.random() - 0.5) * 4;
     this.vy = (Math.random() - 0.5) * 4;
-    this.alpha = 1;
+    this.alpha = 5;
     this.color = color;
-    this.size = Math.random() * 4 + 2;
+    this.size = Math.random() * 4 + 4;
   }
 
   public update(): boolean {
