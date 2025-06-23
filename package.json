@@ -32,7 +32,7 @@
     "@types/node": "^22.15.31",
     "@types/sqlite3": "^3.1.11",
     "@types/ws": "^8.18.1",
-    "concurrently": "^9.1.2",
+    "concurrently": "^9.2.0",
     "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.4.1",
