@@ -57,13 +57,15 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const messages = await server.db.all(SQL`
       SELECT id, sender_id AS senderID, content, created_at AS createdAt
       FROM direct_messages
-      WHERE (sender_id = ${user.id} AND recipient_id = ${other.id})
-            OR (sender_id = ${other.id} AND recipient_id = ${user.id})
+      WHERE (${lastID} = 0 OR id < ${lastID}) AND (
+        (sender_id = ${user.id} AND recipient_id = ${other.id})
+        OR (sender_id = ${other.id} AND recipient_id = ${user.id})
+      )
       ORDER BY id DESC
-      WHERE ${lastID} == 0 OR id < ${lastID}
       LIMIT ${PAGE_SIZE}
     `);
 
+    // Mark received messages as read
     await server.db.run(SQL`
       UPDATE direct_messages
       SET read = TRUE
