@@ -3,15 +3,17 @@ import SQL from 'sql-template-strings';
 import {idParamsSchema} from '#lib/schemas';
 
 interface QueryParams {
-  page: number;
+  lastID: number;
 }
+
+const PAGE_SIZE = 25;
 
 const schema = {
   ...idParamsSchema,
   query: {
     type: 'object',
     properties: {
-      page: {type: 'integer', minimum: 0, default: 0},
+      lastID: {type: 'integer', default: 0},
     },
   } as const,
 };
@@ -19,7 +21,7 @@ const schema = {
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.get('/:id', {schema}, async (request, reply) => {
     const {url, user} = request;
-    const page = (request.query as QueryParams).page;
+    const {lastID} = request.query as QueryParams;
 
     const other = await server.db.get(SQL`
       SELECT id
@@ -53,12 +55,13 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       return reply.badRequest('You can only view messages with friends');
 
     const messages = await server.db.all(SQL`
-      SELECT sender_id AS senderID, content, created_at AS createdAt
+      SELECT id, sender_id AS senderID, content, created_at AS createdAt
       FROM direct_messages
       WHERE (sender_id = ${user.id} AND recipient_id = ${other.id})
             OR (sender_id = ${other.id} AND recipient_id = ${user.id})
       ORDER BY id DESC
-      LIMIT 25 OFFSET ${page * 25}
+      WHERE ${lastID} == 0 OR id < ${lastID}
+      LIMIT ${PAGE_SIZE}
     `);
 
     await server.db.run(SQL`
@@ -69,7 +72,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     `);
 
     const next =
-      messages.length !== 25 ? null : `${url.split('?')[0]}?page=${page + 1}`;
+      messages.length !== PAGE_SIZE
+        ? null
+        : `${url.split('?')[0]}?lastID=${messages[PAGE_SIZE - 1].id}`;
     return reply.send({messages, next});
   });
 };
