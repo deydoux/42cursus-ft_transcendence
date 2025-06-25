@@ -1,14 +1,12 @@
+import {Client, TunnelMessage} from '#types/Clients';
 import {FastifyInstance, FastifyRequest} from 'fastify';
 import {RawData} from 'ws';
 import SQL from 'sql-template-strings';
 import {WebSocket} from '@fastify/websocket';
+import joinMatchmaking from '#tunnel/joinMatchmaking';
 
 export default class Clients {
-  private clients: {
-    id: number;
-    connection: number;
-    socket: WebSocket;
-  }[] = [];
+  private clients: Client[] = [];
   private server;
 
   constructor(server: FastifyInstance) {
@@ -25,10 +23,33 @@ export default class Clients {
       );
     }
 
-    void message;
+    const client = this.clients.find(client => client.socket === socket);
+    if (!client)
+      return socket.send(
+        this.message({type: 'error', message: 'Client not found'}),
+      );
+
+    if (message.type) {
+      const handlers: Record<
+        string,
+        (
+          server: FastifyInstance,
+          client: Client,
+          message: TunnelMessage,
+        ) => void
+      > = {joinMatchmaking};
+      const handler = handlers[message.type];
+
+      if (!handler)
+        return socket.send(
+          this.message({type: 'error', message: 'Unknown message type'}),
+        );
+
+      handler(this.server, client, message);
+    }
   };
 
-  private message = (message: TunnelMessage) => JSON.stringify(message);
+  message = (message: TunnelMessage) => JSON.stringify(message);
 
   routeHandler = (socket: WebSocket, request: FastifyRequest) => {
     if (!request.user)
@@ -37,19 +58,23 @@ export default class Clients {
       );
 
     const connection = request.connection || 0;
-    const id = request.user?.id || 0;
+    const userID = request.user?.id || 0;
 
-    this.clients.push({id, connection, socket});
+    this.clients.push({userID, connection, socket});
 
     socket.on('close', () => {
       const index = this.clients.findIndex(client => client.socket === socket);
       if (index !== -1) this.clients.splice(index, 1);
-      if (id)
-        this.server.db.run(SQL`
-          UPDATE users
-          SET last_seen = unixepoch()
-          WHERE id = ${id}
-        `);
+      if (!userID) return;
+
+      if (this.server.queues.casual?.socket === socket)
+        this.server.queues.casual = null;
+
+      this.server.db.run(SQL`
+        UPDATE users
+        SET last_seen = unixepoch()
+        WHERE id = ${userID}
+      `);
     });
 
     socket.on('message', this.handleMessage(socket));
@@ -65,14 +90,15 @@ export default class Clients {
 
   closeUser = (id: number, ignoreConnection: number | null = null) =>
     this.clients.forEach(client => {
-      if (client.id === id && client.connection !== ignoreConnection)
+      if (client.userID === id && client.connection !== ignoreConnection)
         client.socket.close();
     });
 
-  isUserOnline = (id: number) => this.clients.some(client => client.id === id);
+  isUserOnline = (id: number) =>
+    this.clients.some(client => client.userID === id);
 
   sendUser = (id: number, message: TunnelMessage) =>
     this.clients.forEach(client => {
-      if (client.id === id) client.socket.send(this.message(message));
+      if (client.userID === id) client.socket.send(this.message(message));
     });
 }

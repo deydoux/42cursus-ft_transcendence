@@ -1,3 +1,4 @@
+import {Client} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {Database} from 'sqlite';
 import {SharpInput} from 'sharp';
@@ -20,6 +21,9 @@ declare module 'fastify' {
       static: string;
     };
     prod: boolean;
+    queues: {
+      casual: Client | null;
+    };
     removeAvatar: (id: number) => Promise<void>;
     storeAvatar: (id: number, avatar: SharpInput) => Promise<void>;
     validateTOTP: (secret: string, token: string) => void;

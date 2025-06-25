@@ -80,7 +80,8 @@ Sent to join the matchmaking queue
 *Example:*
 ```json
 {
-  "type": "joinMatchmaking"
+  "type": "joinMatchmaking",
+  "mode": "casual"
 }
 ```
 

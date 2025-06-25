@@ -5,7 +5,9 @@
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "imports": {
-    "#lib/*": "./build/lib/*.js"
+    "#lib/*": "./build/lib/*.js",
+    "#tunnel/*": "./build/tunnel/*.js",
+    "#types/*": "./build/types/*.js"
   },
   "scripts": {
     "start": "node build",
