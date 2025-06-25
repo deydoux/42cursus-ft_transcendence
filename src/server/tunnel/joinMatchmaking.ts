@@ -25,6 +25,7 @@ export default function joinMatchmaking(
     case 'casual':
       if (server.queues.casual !== null) {
         // Create a new match
+        server.log.warn('TODO: Create a new match');
         server.queues.casual = null;
       } else {
         server.queues.casual = client;
