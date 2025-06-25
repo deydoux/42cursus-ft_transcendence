@@ -67,6 +67,7 @@ export default class Clients {
       if (index !== -1) this.clients.splice(index, 1);
       if (!userID) return;
 
+      // Remove from matchmaking queues
       if (this.server.queues.casual?.socket === socket)
         this.server.queues.casual = null;
 
