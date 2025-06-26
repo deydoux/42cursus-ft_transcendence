@@ -17,7 +17,7 @@ export default function joinMatchmaking(
       }),
     );
 
-  if (server.queues.casual?.userID === client.userID)
+  if (server.pong.queues.casual?.userID === client.userID)
     return client.socket.send(
       server.clients.message({
         type: 'error',
@@ -28,12 +28,12 @@ export default function joinMatchmaking(
 
   switch (mode) {
     case 'casual':
-      if (server.queues.casual !== null) {
+      if (server.pong.queues.casual !== null) {
         // Create a new match
         server.log.warn('TODO: Create a new match');
-        server.queues.casual = null;
+        server.pong.queues.casual = null;
       } else {
-        server.queues.casual = client;
+        server.pong.queues.casual = client;
       }
       break;
     default:

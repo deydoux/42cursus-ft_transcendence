@@ -19,10 +19,6 @@ const server = Fastify({
 server.decorate('dev', DEV);
 server.decorate('prod', !DEV);
 
-server.decorate('queues', {
-  casual: null,
-});
-
 async function main() {
   await server.register(import('@fastify/cookie'), {
     parseOptions: {

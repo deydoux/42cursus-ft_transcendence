@@ -15,8 +15,8 @@ export default function leaveMatchmaking(
 
   switch (mode) {
     case 'casual':
-      if (server.queues.casual?.socket === client.socket)
-        server.queues.casual = null;
+      if (server.pong.queues.casual?.socket === client.socket)
+        server.pong.queues.casual = null;
       break;
     default:
       return client.socket.send(

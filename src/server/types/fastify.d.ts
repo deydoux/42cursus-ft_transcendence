@@ -20,10 +20,13 @@ declare module 'fastify' {
       dist: string;
       static: string;
     };
-    prod: boolean;
-    queues: {
-      casual: Client | null;
+    pong: {
+      matches: object; // TODO: Define a proper type for matches
+      queues: {
+        casual: Client | null;
+      };
     };
+    prod: boolean;
     removeAvatar: (id: number) => Promise<void>;
     storeAvatar: (id: number, avatar: SharpInput) => Promise<void>;
     validateTOTP: (secret: string, token: string) => void;

@@ -68,8 +68,8 @@ export default class Clients {
       if (!userID) return;
 
       // Remove from matchmaking queues
-      if (this.server.queues.casual?.socket === socket)
-        this.server.queues.casual = null;
+      if (this.server.pong.queues.casual?.socket === socket)
+        this.server.pong.queues.casual = null;
 
       this.server.db.run(SQL`
         UPDATE users
