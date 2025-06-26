@@ -22,11 +22,19 @@ Received when another user sends you a direct message
 ### `error`
 Received when there is an error processing a message
 
-*Example:*
+*Examples:*
 ```json
 {
   "type": "error",
   "message": "Invalid JSON"
+}
+```
+
+```json
+{
+  "type": "error",
+  "message": "You are already in a matchmaking queue",
+  "origin": "joinMatchmaking"
 }
 ```
 

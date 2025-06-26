@@ -10,7 +10,11 @@ export default function joinMatchmaking(
 
   if (!mode)
     return client.socket.send(
-      server.clients.message({type: 'error', message: 'Mode is required'}),
+      server.clients.message({
+        type: 'error',
+        message: 'Mode is required',
+        origin: 'joinMatchmaking',
+      }),
     );
 
   if (server.queues.casual?.userID === client.userID)
@@ -18,6 +22,7 @@ export default function joinMatchmaking(
       server.clients.message({
         type: 'error',
         message: 'You are already in a matchmaking queue',
+        origin: 'joinMatchmaking',
       }),
     );
 
@@ -33,7 +38,11 @@ export default function joinMatchmaking(
       break;
     default:
       return client.socket.send(
-        server.clients.message({type: 'error', message: 'Invalid mode'}),
+        server.clients.message({
+          type: 'error',
+          message: 'Invalid mode',
+          origin: 'joinMatchmaking',
+        }),
       );
   }
 }
