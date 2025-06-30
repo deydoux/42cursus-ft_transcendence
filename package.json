@@ -56,7 +56,6 @@
     "@fastify/type-provider-json-schema-to-ts": "^5.0.0",
     "@fastify/websocket": "^11.1.0",
     "bcrypt": "^6.0.0",
-    "dotenv": "^16.6.1",
     "fastify": "^5.4.0",
     "otpauth": "^9.4.0",
     "sharp": "^0.34.2",
