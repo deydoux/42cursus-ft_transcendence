@@ -1,6 +1,6 @@
-import Match from '#lib/Match';
 import {Client} from '#types/Clients';
 import {FastifyInstance} from 'fastify';
+import Match from '#lib/Match';
 
 export default function joinMatchmaking(
   server: FastifyInstance,
