@@ -1,6 +1,7 @@
 import {Client} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {Database} from 'sqlite';
+import Match from '#lib/Match';
 import {SharpInput} from 'sharp';
 
 declare module 'fastify' {
@@ -21,7 +22,7 @@ declare module 'fastify' {
       static: string;
     };
     pong: {
-      matches: object; // TODO: Define a proper type for matches
+      matches: Match[];
       queues: {
         casual: Client | null;
       };

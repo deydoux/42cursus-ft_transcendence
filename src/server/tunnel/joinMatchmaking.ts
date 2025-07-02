@@ -1,3 +1,4 @@
+import Match from '#lib/Match';
 import {Client} from '#types/Clients';
 import {FastifyInstance} from 'fastify';
 
@@ -6,6 +7,7 @@ export default function joinMatchmaking(
   client: Client,
   message: object,
 ) {
+  const {clients, pong} = server;
   const {mode} = message as {mode: string};
 
   if (!mode)
@@ -19,7 +21,7 @@ export default function joinMatchmaking(
 
   if (server.pong.queues.casual?.userID === client.userID)
     return client.socket.send(
-      server.clients.message({
+      clients.message({
         type: 'error',
         message: 'You are already in a matchmaking queue',
         origin: 'joinMatchmaking',
@@ -29,11 +31,17 @@ export default function joinMatchmaking(
   switch (mode) {
     case 'casual':
       if (server.pong.queues.casual !== null) {
-        // Create a new match
-        server.log.warn('TODO: Create a new match');
-        server.pong.queues.casual = null;
+        const player1 = server.pong.queues.casual;
+        const player2 = client;
+
+        pong.queues.casual = null;
+        pong.matches[server.pong.queues.casual.userID] = new Match(
+          server,
+          player1,
+          player2,
+        );
       } else {
-        server.pong.queues.casual = client;
+        pong.queues.casual = client;
       }
       break;
     default:
