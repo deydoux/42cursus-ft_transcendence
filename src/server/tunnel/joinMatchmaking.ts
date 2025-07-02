@@ -35,14 +35,8 @@ export default function joinMatchmaking(
         const player2 = client;
 
         pong.queues.casual = null;
-        pong.matches[server.pong.queues.casual.userID] = new Match(
-          server,
-          player1,
-          player2,
-        );
-      } else {
-        pong.queues.casual = client;
-      }
+        pong.matches.push(new Match(server, player1, player2));
+      } else pong.queues.casual = client;
       break;
     default:
       return client.socket.send(
