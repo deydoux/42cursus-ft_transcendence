@@ -12,16 +12,28 @@ export default class Match {
     this.player2 = player2;
 
     this.player1.socket.on('close', () =>
-      this.handleSocketClose(this.player1, this.player2),
+      this.handleDisconnect(this.player1, this.player2),
     );
     this.player2.socket.on('close', () =>
-      this.handleSocketClose(this.player2, this.player1),
+      this.handleDisconnect(this.player2, this.player1),
+    );
+
+    [this.player1, this.player2].forEach(player =>
+      player.socket.on('message', (message: string) =>
+        this.handleMessage(player, message),
+      ),
     );
   }
 
-  private handleSocketClose(player: Client, opponent: Client) {
+  private handleDisconnect(player: Client, opponent: Client) {
     this.server.log.warn(
       `TODO: Handle player disconnection, player ${player.userID} draw, opponent ${opponent.userID} wins`,
+    );
+  }
+
+  private handleMessage(player: Client, message: string) {
+    this.server.log.info(
+      `TODO: Handle message from player ${player.userID}: ${message}`,
     );
   }
 }
