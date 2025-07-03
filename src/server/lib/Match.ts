@@ -12,15 +12,16 @@ export default class Match {
     this.player2 = player2;
 
     this.player1.socket.on('close', () =>
-      this.server.log.warn(
-        'TODO: Handle player1 disconnection, player1 draw, player2 wins',
-      ),
+      this.handleSocketClose(this.player1, this.player2),
     );
-
     this.player2.socket.on('close', () =>
-      this.server.log.warn(
-        'TODO: Handle player2 disconnection, player2 draw, player1 wins',
-      ),
+      this.handleSocketClose(this.player2, this.player1),
+    );
+  }
+
+  private handleSocketClose(player: Client, opponent: Client) {
+    this.server.log.warn(
+      `TODO: Handle player disconnection, player ${player.userID} draw, opponent ${opponent.userID} wins`,
     );
   }
 }
