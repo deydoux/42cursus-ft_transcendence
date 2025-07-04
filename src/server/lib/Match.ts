@@ -19,7 +19,7 @@ export default class Match {
     );
 
     [this.player1, this.player2].forEach(player =>
-      player.socket.on('message', (message: string) =>
+      player.socket.on('message', message =>
         this.handleMessage(player, message),
       ),
     );
@@ -31,8 +31,8 @@ export default class Match {
     );
   }
 
-  private handleMessage(player: Client, message: string) {
-    this.server.log.info(
+  private handleMessage(player: Client, message: object) {
+    this.server.log.warn(
       `TODO: Handle message from player ${player.userID}: ${message}`,
     );
   }
