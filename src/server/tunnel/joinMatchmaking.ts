@@ -18,6 +18,14 @@ export default function joinMatchmaking(
       }),
     );
 
+  if (server.players.includes(client.userID))
+    return client.socket.send(
+      clients.message({
+        type: 'error',
+        message: 'You are already playing a match',
+      }),
+    );
+
   if (server.pong.queues.casual?.userID === client.userID)
     return client.socket.send(
       clients.message({
@@ -36,7 +44,6 @@ export default function joinMatchmaking(
 
         pong.queues.casual = null;
         match = new Match(server, player1, player2);
-        pong.matches.push(match);
       } else pong.queues.casual = client;
       break;
     case 'ranked':
@@ -58,5 +65,5 @@ export default function joinMatchmaking(
     }),
   );
 
-  if (match) server.log.warn('TODO: Start match');
+  match?.start();
 }

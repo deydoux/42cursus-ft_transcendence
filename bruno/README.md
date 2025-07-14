@@ -108,11 +108,3 @@ Sent to leave the matchmaking queue
 {
   "type": "leaveMatchmaking"
 }
-
-*Response:*
-```json
-{
-  "type": "success",
-  "origin": "leaveMatchmaking"
-}
-```

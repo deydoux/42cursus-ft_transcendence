@@ -4,6 +4,7 @@ import {RawData} from 'ws';
 import SQL from 'sql-template-strings';
 import {WebSocket} from '@fastify/websocket';
 import joinMatchmaking from '#tunnel/joinMatchmaking';
+import leaveMatchmaking from '#tunnel/leaveMatchmaking';
 
 export default class Clients {
   private clients: Client[] = [];
@@ -37,7 +38,7 @@ export default class Clients {
           client: Client,
           message: TunnelMessage,
         ) => void
-      > = {joinMatchmaking};
+      > = {joinMatchmaking, leaveMatchmaking};
       const handler = handlers[message.type];
 
       if (!handler)

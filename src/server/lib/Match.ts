@@ -25,10 +25,24 @@ export default class Match {
       this.handleDisconnect(this.player2, this.player1),
     );
 
-    [this.player1, this.player2].forEach(player =>
+    [this.player1, this.player2].forEach(player => {
       player.socket.on('message', message =>
         this.handleMessage(player, message),
-      ),
+      );
+
+      this.server.players.push(player.userID);
+    });
+
+    this.server.pong.matches.push(this);
+  }
+
+  private destroy() {
+    this.server.pong.matches = this.server.pong.matches.filter(
+      match => match !== this,
+    );
+
+    this.server.players = this.server.players.filter(
+      id => id !== this.player1.userID && id !== this.player2.userID,
     );
   }
 
@@ -42,5 +56,9 @@ export default class Match {
     this.server.log.warn(
       `TODO: Handle message from player ${player.userID}: ${message}`,
     );
+  }
+
+  public start() {
+    this.destroy();
   }
 }

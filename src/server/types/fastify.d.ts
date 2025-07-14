@@ -21,6 +21,7 @@ declare module 'fastify' {
       dist: string;
       static: string;
     };
+    players: number[];
     pong: {
       matches: Match[];
       queues: {
