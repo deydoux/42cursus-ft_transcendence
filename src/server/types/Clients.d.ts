@@ -15,7 +15,6 @@ type TunnelMessage =
   | {
       type: 'error';
       message: string;
-      origin?: string;
     }
   | {
       type: 'friendRequest' | 'friendRequestAccepted';
@@ -24,4 +23,8 @@ type TunnelMessage =
     }
   | {
       type: 'hotReload';
+    }
+  | {
+      type: 'success';
+      origin: string;
     };

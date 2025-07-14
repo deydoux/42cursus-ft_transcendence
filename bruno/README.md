@@ -34,7 +34,6 @@ Received when there is an error processing a message
 {
   "type": "error",
   "message": "You are already in a matchmaking queue",
-  "origin": "joinMatchmaking"
 }
 ```
 
@@ -93,6 +92,14 @@ Sent to join the matchmaking queue
 }
 ```
 
+*Response:*
+```json
+{
+  "type": "success",
+  "origin": "joinMatchmaking"
+}
+```
+
 ### `leaveMatchmaking`
 Sent to leave the matchmaking queue
 
@@ -101,3 +108,11 @@ Sent to leave the matchmaking queue
 {
   "type": "leaveMatchmaking"
 }
+
+*Response:*
+```json
+{
+  "type": "success",
+  "origin": "leaveMatchmaking"
+}
+```

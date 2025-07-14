@@ -2,14 +2,21 @@ import {Client} from '#types/Clients';
 import {FastifyInstance} from 'fastify';
 
 export default class Match {
-  protected server: FastifyInstance;
-  protected player1: Client;
-  protected player2: Client;
+  private server: FastifyInstance;
+  private player1: Client;
+  private player2: Client;
+  private type = 'casual';
 
-  constructor(server: FastifyInstance, player1: Client, player2: Client) {
+  constructor(
+    server: FastifyInstance,
+    player1: Client,
+    player2: Client,
+    type?: string,
+  ) {
     this.server = server;
     this.player1 = player1;
     this.player2 = player2;
+    if (type) this.type = type;
 
     this.player1.socket.on('close', () =>
       this.handleDisconnect(this.player1, this.player2),

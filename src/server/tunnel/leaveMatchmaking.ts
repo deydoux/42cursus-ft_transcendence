@@ -23,4 +23,11 @@ export default function leaveMatchmaking(
         server.clients.message({type: 'error', message: 'Invalid mode'}),
       );
   }
+
+  client.socket.send(
+    server.clients.message({
+      type: 'success',
+      origin: 'leaveMatchmaking',
+    }),
+  );
 }

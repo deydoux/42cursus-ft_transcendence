@@ -15,7 +15,6 @@ export default function joinMatchmaking(
       server.clients.message({
         type: 'error',
         message: 'Mode is required',
-        origin: 'joinMatchmaking',
       }),
     );
 
@@ -24,9 +23,10 @@ export default function joinMatchmaking(
       clients.message({
         type: 'error',
         message: 'You are already in a matchmaking queue',
-        origin: 'joinMatchmaking',
       }),
     );
+
+  let match = null;
 
   switch (mode) {
     case 'casual':
@@ -35,16 +35,28 @@ export default function joinMatchmaking(
         const player2 = client;
 
         pong.queues.casual = null;
-        pong.matches.push(new Match(server, player1, player2));
+        match = new Match(server, player1, player2);
+        pong.matches.push(match);
       } else pong.queues.casual = client;
+      break;
+    case 'ranked':
+      server.log.warn('TODO: Handle ranked matchmaking');
       break;
     default:
       return client.socket.send(
         server.clients.message({
           type: 'error',
           message: 'Invalid mode',
-          origin: 'joinMatchmaking',
         }),
       );
   }
+
+  client.socket.send(
+    server.clients.message({
+      type: 'success',
+      origin: 'joinMatchmaking',
+    }),
+  );
+
+  if (match) server.log.warn('TODO: Start match');
 }
