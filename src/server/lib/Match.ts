@@ -5,18 +5,11 @@ export default class Match {
   private server: FastifyInstance;
   private player1: Client;
   private player2: Client;
-  private type = 'casual';
 
-  constructor(
-    server: FastifyInstance,
-    player1: Client,
-    player2: Client,
-    type?: string,
-  ) {
+  constructor(server: FastifyInstance, player1: Client, player2: Client) {
     this.server = server;
     this.player1 = player1;
     this.player2 = player2;
-    if (type) this.type = type;
 
     this.player1.socket.on('close', () =>
       this.handleDisconnect(this.player1, this.player2),
@@ -30,20 +23,24 @@ export default class Match {
         this.handleMessage(player, message),
       );
 
-      this.server.players.push(player.userID);
+      server.game.players.push(player.userID);
     });
 
-    this.server.pong.matches.push(this);
+    server.game.matches.push(this);
   }
 
   private destroy() {
-    this.server.pong.matches = this.server.pong.matches.filter(
+    this.server.game.matches = this.server.game.matches.filter(
       match => match !== this,
     );
 
-    this.server.players = this.server.players.filter(
+    this.server.game.players = this.server.game.players.filter(
       id => id !== this.player1.userID && id !== this.player2.userID,
     );
+  }
+
+  public getOpponent(id: number) {
+    return id === this.player1.userID ? this.player2 : this.player1;
   }
 
   private handleDisconnect(player: Client, opponent: Client) {

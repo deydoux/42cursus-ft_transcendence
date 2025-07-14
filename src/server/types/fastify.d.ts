@@ -13,6 +13,13 @@ declare module 'fastify' {
     clients: Clients;
     db: Database;
     dev: boolean;
+    game: {
+      matches: Match[];
+      players: number[];
+      queues: {
+        casual: Client | null;
+      };
+    };
     paths: {
       avatars: string;
       cache: string;
@@ -20,13 +27,6 @@ declare module 'fastify' {
       db: string;
       dist: string;
       static: string;
-    };
-    players: number[];
-    pong: {
-      matches: Match[];
-      queues: {
-        casual: Client | null;
-      };
     };
     prod: boolean;
     removeAvatar: (id: number) => Promise<void>;

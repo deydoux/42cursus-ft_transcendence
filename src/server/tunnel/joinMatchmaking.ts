@@ -7,7 +7,7 @@ export default function joinMatchmaking(
   client: Client,
   message: object,
 ) {
-  const {clients, pong} = server;
+  const {clients, game} = server;
   const {mode} = message as {mode: string};
 
   if (!mode)
@@ -18,7 +18,7 @@ export default function joinMatchmaking(
       }),
     );
 
-  if (server.players.includes(client.userID))
+  if (game.players.includes(client.userID))
     return client.socket.send(
       clients.message({
         type: 'error',
@@ -26,7 +26,7 @@ export default function joinMatchmaking(
       }),
     );
 
-  if (server.pong.queues.casual?.userID === client.userID)
+  if (game.queues.casual?.userID === client.userID)
     return client.socket.send(
       clients.message({
         type: 'error',
@@ -38,13 +38,13 @@ export default function joinMatchmaking(
 
   switch (mode) {
     case 'casual':
-      if (server.pong.queues.casual !== null) {
-        const player1 = server.pong.queues.casual;
+      if (game.queues.casual !== null) {
+        const player1 = game.queues.casual;
         const player2 = client;
 
-        pong.queues.casual = null;
+        game.queues.casual = null;
         match = new Match(server, player1, player2);
-      } else pong.queues.casual = client;
+      } else game.queues.casual = client;
       break;
     case 'ranked':
       server.log.warn('TODO: Handle ranked matchmaking');

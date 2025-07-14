@@ -64,13 +64,12 @@ export default class Clients {
     this.clients.push({userID, connection, socket});
 
     socket.on('close', () => {
-      const index = this.clients.findIndex(client => client.socket === socket);
-      if (index !== -1) this.clients.splice(index, 1);
+      this.clients = this.clients.filter(client => client.socket !== socket);
       if (!userID) return;
 
       // Remove from matchmaking queues
-      if (this.server.pong.queues.casual?.socket === socket)
-        this.server.pong.queues.casual = null;
+      if (this.server.game.queues.casual?.socket === socket)
+        this.server.game.queues.casual = null;
 
       this.server.db.run(SQL`
         UPDATE users
