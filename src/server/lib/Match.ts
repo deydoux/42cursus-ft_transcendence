@@ -7,8 +7,7 @@ export interface Player extends Client {
 
 export default abstract class Match {
   protected server: FastifyInstance;
-  protected player1: Player;
-  protected player2: Player;
+  protected players: Player[];
 
   protected type = 'pong';
   protected mode = 'casual';
@@ -19,26 +18,19 @@ export default abstract class Match {
 
   constructor(server: FastifyInstance, player1: Client, player2: Client) {
     this.server = server;
-    this.player1 = player1;
-    this.player2 = player2;
+    this.players = [player1, player2];
 
-    this.player1.score = 0;
-    this.player2.score = 0;
+    for (const [index, player] of this.players.entries()) {
+      const opponent = this.players[1 - index];
 
-    this.player1.socket.on('close', () =>
-      this.handleDisconnect(this.player1, this.player2),
-    );
-    this.player2.socket.on('close', () =>
-      this.handleDisconnect(this.player2, this.player1),
-    );
-
-    [this.player1, this.player2].forEach(player => {
+      player.socket.on('close', () => this.handleClose(player, opponent));
+      player.socket.on('error', () => this.handleClose(player, opponent));
       player.socket.on('message', message =>
         this.handleMessage(player, message),
       );
 
       server.game.players.push(player.userID);
-    });
+    }
 
     server.game.matches.push(this);
   }
@@ -49,15 +41,15 @@ export default abstract class Match {
     );
 
     this.server.game.players = this.server.game.players.filter(
-      id => id !== this.player1.userID && id !== this.player2.userID,
+      id => id !== this.players[0].userID && id !== this.players[1].userID,
     );
   }
 
   public getOpponent(id: number) {
-    return id === this.player1.userID ? this.player2 : this.player1;
+    return id === this.players[0].userID ? this.players[1] : this.players[0];
   }
 
-  private handleDisconnect(player: Player, opponent: Player) {
+  private handleClose(player: Player, opponent: Player) {
     this.draw = true;
     this.finish = true;
     this.winner = opponent;

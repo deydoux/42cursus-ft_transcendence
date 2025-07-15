@@ -1,6 +1,6 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
-import {TunnelMessage} from '#types/Clients';
+import {ServerTunnelMessage} from '#types/Clients';
 import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 const schema = {
@@ -60,7 +60,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     if (otherRelationship?.type === 'block')
       return reply.notFound('User not found');
 
-    const tunnelMessage: TunnelMessage = {type: 'friendRequest', user};
+    const message: ServerTunnelMessage = {type: 'friendRequest', user};
 
     let relationshipID;
     let type = 'pending';
@@ -72,7 +72,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
         WHERE id = ${otherRelationship.id}
       `);
 
-      tunnelMessage.type = 'friendRequestAccepted';
+      message.type = 'friendRequestAccepted';
       relationshipID = otherRelationship.id;
       type = 'friend';
     } else {
@@ -83,9 +83,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       relationshipID = lastID;
     }
 
-    tunnelMessage.relationship = relationshipID;
+    message.relationship = relationshipID;
 
-    server.clients.sendUser(other.id, tunnelMessage);
+    server.clients.sendUser(other.id, message);
     return reply.status(201).send({id: relationshipID, type, user: other});
   });
 };

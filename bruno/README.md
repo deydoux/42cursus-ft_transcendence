@@ -1,7 +1,38 @@
 # Websocket API Documentation
 This WebSocket API handles real-time communication and time-sensitive events. To establish a connection, connect to the `/api/tunnel` endpoint. All messages must be sent and received as JSON objects.
 
-## Incoming Messages
+## Client Messages
+
+### `joinMatchmaking`
+Sent to join the matchmaking queue
+
+*Example:*
+```json
+{
+  "type": "joinMatchmaking",
+  "mode": "casual"
+}
+```
+
+*Response:*
+```json
+{
+  "type": "success",
+  "origin": "joinMatchmaking"
+}
+```
+
+### `leaveMatchmaking`
+Sent to leave the matchmaking queue
+
+*Example:*
+```json
+{
+  "type": "leaveMatchmaking"
+}
+```
+
+## Server Messages
 
 ### `directMessage`
 Received when another user sends you a direct message
@@ -78,33 +109,3 @@ Received when the client should reload the page to apply updates. `NODE_ENV` mus
   "type": "hotReload"
 }
 ```
-
-## Outgoing Messages
-
-### `joinMatchmaking`
-Sent to join the matchmaking queue
-
-*Example:*
-```json
-{
-  "type": "joinMatchmaking",
-  "mode": "casual"
-}
-```
-
-*Response:*
-```json
-{
-  "type": "success",
-  "origin": "joinMatchmaking"
-}
-```
-
-### `leaveMatchmaking`
-Sent to leave the matchmaking queue
-
-*Example:*
-```json
-{
-  "type": "leaveMatchmaking"
-}

@@ -1,14 +1,14 @@
-import {Client} from '#types/Clients';
+import {Client, ClientTunnelMessage} from '#types/Clients';
 import {FastifyInstance} from 'fastify';
 import PongMatch from '#lib/PongMatch';
 
 export default function joinMatchmaking(
   server: FastifyInstance,
   client: Client,
-  message: object,
+  message: ClientTunnelMessage & {type: 'joinMatchmaking'},
 ) {
   const {clients, game} = server;
-  const {mode} = message as {mode: string};
+  const {mode} = message;
 
   if (!mode)
     return client.socket.send(

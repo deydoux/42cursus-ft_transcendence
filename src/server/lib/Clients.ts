@@ -1,4 +1,4 @@
-import {Client, TunnelMessage} from '#types/Clients';
+import {Client, ServerTunnelMessage} from '#types/Clients';
 import {FastifyInstance, FastifyRequest} from 'fastify';
 import {RawData} from 'ws';
 import SQL from 'sql-template-strings';
@@ -24,6 +24,15 @@ export default class Clients {
       );
     }
 
+    if (
+      !message ||
+      typeof message !== 'object' ||
+      typeof message.type !== 'string'
+    )
+      return socket.send(
+        this.message({type: 'error', message: 'Invalid message type'}),
+      );
+
     const client = this.clients.find(client => client.socket === socket);
     if (!client)
       return socket.send(
@@ -31,26 +40,18 @@ export default class Clients {
       );
 
     if (message.type) {
-      const handlers: Record<
-        string,
-        (
-          server: FastifyInstance,
-          client: Client,
-          message: TunnelMessage,
-        ) => void
-      > = {joinMatchmaking, leaveMatchmaking};
-      const handler = handlers[message.type];
-
-      if (!handler)
-        return socket.send(
-          this.message({type: 'error', message: 'Unknown message type'}),
-        );
-
-      handler(this.server, client, message);
+      switch (message.type) {
+        case 'joinMatchmaking':
+          joinMatchmaking(this.server, client, message);
+          break;
+        case 'leaveMatchmaking':
+          leaveMatchmaking(this.server, client, message);
+          break;
+      }
     }
   };
 
-  message = (message: TunnelMessage) => JSON.stringify(message);
+  message = (message: ServerTunnelMessage) => JSON.stringify(message);
 
   routeHandler = (socket: WebSocket, request: FastifyRequest) => {
     if (!request.user)
@@ -81,7 +82,7 @@ export default class Clients {
     socket.on('message', this.handleMessage(socket));
   };
 
-  broadcast = (message: TunnelMessage) =>
+  broadcast = (message: ServerTunnelMessage) =>
     this.clients.forEach(client => client.socket.send(this.message(message)));
 
   closeConnection = (connection: number | null) =>
@@ -98,7 +99,7 @@ export default class Clients {
   isUserOnline = (id: number) =>
     this.clients.some(client => client.userID === id);
 
-  sendUser = (id: number, message: TunnelMessage) =>
+  sendUser = (id: number, message: ServerTunnelMessage) =>
     this.clients.forEach(client => {
       if (client.userID === id) client.socket.send(this.message(message));
     });

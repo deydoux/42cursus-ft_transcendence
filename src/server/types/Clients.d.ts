@@ -6,7 +6,16 @@ interface Client {
   socket: WebSocket;
 }
 
-type TunnelMessage =
+type ClientTunnelMessage =
+  | {
+      type: 'joinMatchmaking';
+      mode: string;
+    }
+  | {
+      type: 'leaveMatchmaking';
+    };
+
+type ServerTunnelMessage =
   | {
       type: 'directMessage';
       sender: unknown;
