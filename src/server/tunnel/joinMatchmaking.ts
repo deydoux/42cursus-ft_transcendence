@@ -1,6 +1,6 @@
 import {Client} from '#types/Clients';
 import {FastifyInstance} from 'fastify';
-import Match from '#lib/Match';
+import PongMatch from '#lib/PongMatch';
 
 export default function joinMatchmaking(
   server: FastifyInstance,
@@ -43,7 +43,7 @@ export default function joinMatchmaking(
         const player2 = client;
 
         game.queues.casual = null;
-        match = new Match(server, player1, player2);
+        match = new PongMatch(server, player1, player2);
       } else game.queues.casual = client;
       break;
     case 'ranked':
