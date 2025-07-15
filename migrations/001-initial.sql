@@ -45,6 +45,28 @@ CREATE TABLE direct_messages(
 CREATE INDEX idx_direct_messages_sender_id_recipient_id_created_at_desc ON direct_messages(sender_id, recipient_id);
 CREATE INDEX idx_direct_messages_sender_id_recipient_id_unread ON direct_messages(sender_id, recipient_id, read) WHERE read = FALSE;
 
+CREATE TABLE matches(
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  type        TEXT NOT NULL,
+  mode        TEXT NOT NULL,
+
+  winner_id   INTEGER NOT NULL,
+  draw        INTEGER NOT NULL,
+
+  user_id     INTEGER NOT NULL,
+  user_score  INTEGER NOT NULL,
+
+  other_id    INTEGER NOT NULL,
+  other_score INTEGER NOT NULL,
+
+  created_at  INTEGER NOT NULL DEFAULT (unixepoch()),
+
+  CHECK(type IN ('pong', 'race')),
+  CHECK(mode IN ('casual', 'ranked')),
+);
+
+CREATE INDEX idx_matches_user_id_other_id_created_at_desc ON matches(user_id, other_id, created_at DESC);
+
 CREATE TABLE relationships(
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
   type       TEXT,
@@ -110,6 +132,9 @@ DROP TRIGGER update_relationships_updated_at;
 DROP INDEX idx_relationships_type_user_id_other_id_updated_at_desc;
 DROP INDEX idx_relationships_user_id_other_id;
 DROP TABLE relationships;
+
+DROP INDEX idx_matches_user_id_other_id_created_at_desc;
+DROP TABLE matches;
 
 DROP INDEX idx_direct_messages_sender_id_recipient_id_unread;
 DROP INDEX idx_direct_messages_sender_id_recipient_id_created_at_desc;
