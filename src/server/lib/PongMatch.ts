@@ -13,5 +13,10 @@ export default class PongMatch extends Match {
 
   protected async tick() {
     this.server.log.warn('TODO: Implement game logic for Pong');
+
+    this.winner =
+      this.players[0].userID < this.players[1].userID
+        ? this.players[0]
+        : this.players[1];
   }
 }
