@@ -61,7 +61,7 @@ export class Car {
 
     const speedScale = Math.min(ctx.canvas.width, ctx.canvas.height) / 500;
 
-    this.maxSpeed = 10 * speedScale;
+    this.maxSpeed = 5 * speedScale;
     this.minSpeedForTurn = 0.2 * speedScale;
     this.reverseSpeed = -4 * speedScale;
 
@@ -446,12 +446,35 @@ export class Car {
 
     // Push cars apart
     const pushDistance = 10;
-    this.x += normalX * pushDistance;
-    this.y += normalY * pushDistance;
-    otherCar.x -= normalX * pushDistance;
-    otherCar.y -= normalY * pushDistance;
 
-    // Reduce both cars' speeds
+    // Calculate new potential positions
+    const newThisX = this.x + normalX * pushDistance;
+    const newThisY = this.y + normalY * pushDistance;
+    const newOtherX = otherCar.x - normalX * pushDistance;
+    const newOtherY = otherCar.y - normalY * pushDistance;
+
+    // Check if new positions would be in bounds (using car center positions)
+    const thisInBounds =
+      newThisX - this.carWidth / 2 >= 0 &&
+      newThisX + this.carWidth / 2 <= this.ctx.canvas.width &&
+      newThisY - this.carHeight / 2 >= 0 &&
+      newThisY + this.carHeight / 2 <= this.ctx.canvas.height;
+
+    const otherInBounds =
+      newOtherX - otherCar.carWidth / 2 >= 0 &&
+      newOtherX + otherCar.carWidth / 2 <= this.ctx.canvas.width &&
+      newOtherY - otherCar.carHeight / 2 >= 0 &&
+      newOtherY + otherCar.carHeight / 2 <= this.ctx.canvas.height;
+
+    // Only move cars if both would remain in bounds
+    if (thisInBounds && otherInBounds) {
+      this.x = newThisX;
+      this.y = newThisY;
+      otherCar.x = newOtherX;
+      otherCar.y = newOtherY;
+    }
+
+    // Reduce both cars' speeds regardless
     this.speed *= 0.3;
     otherCar.speed *= 0.3;
   }

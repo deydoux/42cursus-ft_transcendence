@@ -54,7 +54,7 @@ export class Wall {
     const height = canvasHeight || this.canvas.height;
 
     // Calculate grid spacing to match the Track class
-    this.gridSpacing = Math.min(width, height) / 8;
+    this.gridSpacing = height / 9; // Adjust divisor to control grid density
 
     this.walls = []; // Reset walls array
 
@@ -138,6 +138,26 @@ export class Wall {
       const dy = distY - wall.height / 2;
       return dx * dx + dy * dy <= radius * radius;
     });
+  }
+
+  /**
+   * Checks if a car is outside the canvas boundaries
+   * @param car The car object with position and dimensions
+   * @returns true if out of bounds, false otherwise
+   */
+  private isOutOfBounds(car: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }): boolean {
+    const padding = 5; // Small padding to prevent getting stuck at edges
+    return (
+      car.x - car.width / 2 < padding ||
+      car.x + car.width / 2 > this.canvas.width - padding ||
+      car.y - car.height / 2 < padding ||
+      car.y + car.height / 2 > this.canvas.height - padding
+    );
   }
 
   public isCarColliding(car: {

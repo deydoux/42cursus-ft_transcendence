@@ -6,8 +6,8 @@ export class Track {
   }
 
   public draw(): void {
-    const width = this.ctx.canvas.width;
-    const height = this.ctx.canvas.height;
+    const {height, width} = this.ctx.canvas;
+    console.log('width:', width, 'height:', height);
 
     // Draw field background
     this.ctx.fillStyle = '#0a0a0a'; // Darker background for better neon contrast
@@ -19,7 +19,7 @@ export class Track {
 
   private drawNeonGrid(width: number, height: number): void {
     // Calculate grid spacing to fit the canvas nicely
-    const gridSpacing = Math.min(width, height) / 8; // Adjust divisor to control grid density
+    const gridSpacing = height / 9; // Adjust divisor to control grid density
 
     // Set up neon blue styling
     this.ctx.strokeStyle = '#041dbfc7'; // Bright neon blue

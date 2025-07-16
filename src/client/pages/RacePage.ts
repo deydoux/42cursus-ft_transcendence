@@ -29,15 +29,15 @@ export function renderRacePage(): void {
   }
 
   // Setup canvas with proper DPR scaling
-  const rect = gameContainer.getBoundingClientRect();
   const ctx = gameContainer.getContext('2d');
   if (!ctx) {
     console.error('Could not get canvas context');
     return;
   }
   const dpr = window.devicePixelRatio || 1;
-  gameContainer.width = rect.width * dpr;
-  gameContainer.height = rect.height * dpr;
+  gameContainer.width = 1920;
+  gameContainer.height = 1080;
+  console.log('dpr ', dpr);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.imageSmoothingEnabled = true;
 
@@ -50,11 +50,7 @@ export function renderRacePage(): void {
   // Show start message
   raceCanvas.displayStartMessage();
 
-  console.log('Setting up input handling...');
-
   handleInput(race, () => {
-    console.log('handleinput triggered');
-    console.log('Game started status:', race.gameStarted);
     raceCanvas.startGame();
   });
 }
