@@ -10,7 +10,7 @@ export default abstract class Match {
   protected server;
   protected players;
   protected game;
-  protected mode = 'casual';
+  protected ranked;
 
   protected draw = false;
   protected winner?: Player;
@@ -21,10 +21,12 @@ export default abstract class Match {
     server: FastifyInstance,
     players: [Player, Player],
     game: string,
+    ranked: boolean,
   ) {
     this.server = server;
     this.players = players;
     this.game = game;
+    this.ranked = ranked;
 
     for (const [index, player] of this.players.entries()) {
       player.score = 0;
@@ -40,21 +42,34 @@ export default abstract class Match {
     }
   }
 
-  protected async destroy(winner: Player) {
+  private async destroy(winner: Player) {
+    const mode = this.ranked ? 'ranked' : 'casual';
     const looser =
       winner.userID === this.players[0].userID
         ? this.players[1]
         : this.players[0];
 
-    await this.server.db.run(SQL`
+    const {lastID: id} = await this.server.db.run(SQL`
       INSERT INTO matches(game, mode, winner_id, looser_id, winner_score,
                          looser_score, draw, created_at)
-      VALUES(${this.game}, ${this.mode}, ${winner.userID}, ${looser.userID},
+      VALUES(${this.game}, ${mode}, ${winner.userID}, ${looser.userID},
             ${winner.score}, ${looser.score}, ${this.draw}, ${this.createdAt})
     `);
+    if (!id) throw new Error('Failed to create match');
+
+    if (this.ranked) await this.destroyRanked(id, winner, looser);
 
     delete this.server.game.players[winner.userID];
     delete this.server.game.players[looser.userID];
+  }
+
+  private async destroyRanked(id: number, winner: Player, looser: Player) {
+    this.server.log.warn('TODO: Implement elo calculation for ranked matches');
+
+    // await this.server.db.run(SQL`
+    //   INSERT INTO ranked_matches(id, winner_elo, looser_elo, winned_elo, loosed_elo)
+    //   VALUES(${id}, ${winner.elo}, ${looser.elo}, ${winner.winned_elo}, ${looser.loosed_elo})
+    // `);
   }
 
   private handleClose(opponent: Player) {
