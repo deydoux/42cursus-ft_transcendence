@@ -27,6 +27,7 @@ export default abstract class Match {
     this.type = type;
 
     for (const [index, player] of this.players.entries()) {
+      player.score = 0;
       const opponent = this.players[1 - index];
 
       player.socket.on('close', () => this.handleClose(player, opponent));
