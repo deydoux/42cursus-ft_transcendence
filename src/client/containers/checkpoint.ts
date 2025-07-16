@@ -1,5 +1,6 @@
 import {Car} from './car';
 import {Wall} from './wall';
+import coin from '../assets/coin.png';
 
 /**
  * Represents a checkpoint in the game.
@@ -11,14 +12,42 @@ export class Checkpoint {
   public x: number;
   public y: number;
   private readonly size: number;
-  private readonly padding: number = 20;
+  private imageLoaded: boolean;
+  private imageWidth: number;
+  private imageHeight: number;
+
+  // Keep static image loader
+  static coinImg: HTMLImageElement = (() => {
+    const img = new window.Image();
+    img.src = coin;
+    img.onerror = () => console.error('Failed to load coin image!');
+    return img;
+  })();
 
   constructor(ctx: CanvasRenderingContext2D, x: number, y: number) {
     this.ctx = ctx;
-    this.size = ctx.canvas.width * 0.012;
+    this.size = ctx.canvas.width * 0.012; // Base collision size
     this.canvas = ctx.canvas;
+    this.imageLoaded = false;
     this.x = x;
     this.y = y;
+
+    // Calculate image dimensions - maintaining aspect ratio
+    const desiredWidth = this.canvas.width * 0.02; // Adjust this value as needed
+    const aspectRatio =
+      Checkpoint.coinImg.naturalWidth / Checkpoint.coinImg.naturalHeight || 1;
+
+    this.imageWidth = desiredWidth;
+    this.imageHeight = desiredWidth / aspectRatio;
+
+    // Ensure image is loaded
+    if (Checkpoint.coinImg.complete) {
+      this.imageLoaded = true;
+    } else {
+      Checkpoint.coinImg.onload = () => {
+        this.imageLoaded = true;
+      };
+    }
   }
 
   // Static method to create a new checkpoint at valid position
@@ -76,30 +105,66 @@ export class Checkpoint {
   }
 
   /**
-   * Draws the checkpoint on the canvas.
-   * The checkpoint is represented as a circle with a glowing effect.
+   * Draws the checkpoint on the canvas using the ring image.
    */
   public draw(): void {
     this.ctx.save();
-    this.ctx.beginPath();
-    this.ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    this.ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
-    this.ctx.fill();
-    this.ctx.strokeStyle = '#00FF00';
-    this.ctx.lineWidth = 2;
-    this.ctx.stroke();
+
+    if (this.imageLoaded && Checkpoint.coinImg.complete) {
+      // Make image larger - increase size by 50%
+      const scaleFactor = 2;
+      const scaledWidth = this.imageWidth * scaleFactor;
+      const scaledHeight = this.imageHeight * scaleFactor;
+
+      // Enhanced glow effect - brighter and more visible
+      this.ctx.shadowColor = 'rgba(255, 255, 120, 1.0)'; // Brighter yellow
+      this.ctx.shadowBlur = 18; // Increased blur radius
+      this.ctx.shadowOffsetX = 0;
+      this.ctx.shadowOffsetY = 0;
+      this.ctx.globalAlpha = 1.0; // Full opacity
+
+      // Draw the ring image centered at the checkpoint position
+      this.ctx.drawImage(
+        Checkpoint.coinImg,
+        this.x - scaledWidth / 2,
+        this.y - scaledHeight / 2,
+        scaledWidth,
+        scaledHeight,
+      );
+
+      // Add an extra layer of glow with composite operations
+      this.ctx.globalCompositeOperation = 'lighter';
+      this.ctx.shadowBlur = 25; // Even more blur for the glow layer
+      this.ctx.shadowColor = 'rgba(255, 255, 0, 0.9)';
+      this.ctx.globalAlpha = 0.7;
+    } else {
+      // Fallback to circle if image isn't loaded yet
+      // Make the fallback brighter too
+      this.ctx.beginPath();
+      this.ctx.arc(this.x, this.y, this.size * 1.5, 0, Math.PI * 2);
+      this.ctx.fillStyle = 'rgba(120, 255, 120, 0.7)';
+      this.ctx.fill();
+      this.ctx.shadowColor = '#FFFF00';
+      this.ctx.shadowBlur = 15;
+      this.ctx.strokeStyle = '#FFFF00';
+      this.ctx.lineWidth = 3;
+      this.ctx.stroke();
+    }
+
     this.ctx.restore();
   }
 
   /**
    * Checks if the checkpoint is colliding with a car.
-   * @param car The car to check collision against
-   * @returns True if the car is colliding with the checkpoint, false otherwise
+   * Use the image dimensions for collision detection
    */
   public isColliding(car: Car): boolean {
     const distance = Math.sqrt(
       Math.pow(this.x - car.x, 2) + Math.pow(this.y - car.y, 2),
     );
-    return distance < this.size + 15; // 15 is half the car width
+    // Use half of scaled image width as collision radius
+    const scaledWidth = this.imageWidth * 2; // Match the scaling factor in draw()
+    return distance < scaledWidth / 2 + 15;
   }
 }
+//TODO: game instructions on canvas sprite
