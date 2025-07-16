@@ -32,25 +32,19 @@ export function renderPongPage(): void {
     return;
   }
 
-  const rect = gameContainer.getBoundingClientRect();
   const ctx = gameContainer.getContext('2d');
   if (!ctx) {
     console.error('Could not get canvas context');
     return;
   }
   const dpr = window.devicePixelRatio || 1;
-  gameContainer.width = rect.width * dpr;
-  gameContainer.height = rect.height * dpr;
+  gameContainer.width = 1920;
+  gameContainer.height = 1080;
+  console.log('dpr ', dpr);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.imageSmoothingEnabled = true;
 
-  const pong = initializeGame(
-    ctx,
-    'Player 1',
-    'Player 2',
-    document.getElementById('leftPlayerScore'),
-    document.getElementById('rightPlayerScore'),
-  );
+  const pong = initializeGame(ctx, 'Player 1', 'Player 2');
 
   const pongCanvas = new PongCanvas(pong);
 

@@ -152,6 +152,10 @@ export class Ball {
   }
 
   handleScoring(pong, isLeftWall: boolean) {
+    // Reset the timer
+    pong.timer.reset();
+    pong.timer.startCountdown();
+
     // Reset position
     this.x = this.ctx.canvas.width / 2;
     this.y = this.ctx.canvas.height / 2;
@@ -169,12 +173,8 @@ export class Ball {
 
     if (isLeftWall) {
       pong.rightPlayerScore++;
-      pong.rightPlayerScoreElement.innerText = pong.rightPlayerScore;
-      pong.announcement.innerText = pong.rightPlayer + ' scores!';
     } else {
       pong.leftPlayerScore++;
-      pong.leftPlayerScoreElement.innerText = pong.leftPlayerScore;
-      pong.announcement.innerText = pong.leftPlayer + ' scores!';
     }
   }
 
