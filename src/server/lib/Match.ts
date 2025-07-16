@@ -9,7 +9,7 @@ export interface Player extends Client {
 export default abstract class Match {
   protected server;
   protected players;
-  protected type;
+  protected game;
   protected mode = 'casual';
 
   protected draw = false;
@@ -20,52 +20,44 @@ export default abstract class Match {
   constructor(
     server: FastifyInstance,
     players: [Player, Player],
-    type: string,
+    game: string,
   ) {
     this.server = server;
     this.players = players;
-    this.type = type;
+    this.game = game;
 
     for (const [index, player] of this.players.entries()) {
       player.score = 0;
       const opponent = this.players[1 - index];
 
-      player.socket.on('close', () => this.handleClose(player, opponent));
-      player.socket.on('error', () => this.handleClose(player, opponent));
+      player.socket.on('close', () => this.handleClose(opponent));
+      player.socket.on('error', () => this.handleClose(opponent));
       player.socket.on('message', message =>
         this.handleMessage(player, message),
       );
 
-      server.game.players.push(player.userID);
+      server.game.players[player.userID] = opponent.userID;
     }
-
-    server.game.matches.push(this);
   }
 
   protected async destroy(winner: Player) {
-    const looser = this.getOpponent(winner.userID);
+    const looser =
+      winner.userID === this.players[0].userID
+        ? this.players[1]
+        : this.players[0];
 
     await this.server.db.run(SQL`
-      INSERT INTO matches(type, mode, winner_id, looser_id, winner_score,
+      INSERT INTO matches(game, mode, winner_id, looser_id, winner_score,
                          looser_score, draw, created_at)
-      VALUES(${this.type}, ${this.mode}, ${winner.userID}, ${looser.userID},
+      VALUES(${this.game}, ${this.mode}, ${winner.userID}, ${looser.userID},
             ${winner.score}, ${looser.score}, ${this.draw}, ${this.createdAt})
     `);
 
-    this.server.game.matches = this.server.game.matches.filter(
-      match => match !== this,
-    );
-
-    this.server.game.players = this.server.game.players.filter(
-      id => id !== this.players[0].userID && id !== this.players[1].userID,
-    );
+    delete this.server.game.players[winner.userID];
+    delete this.server.game.players[looser.userID];
   }
 
-  public getOpponent(id: number) {
-    return id === this.players[0].userID ? this.players[1] : this.players[0];
-  }
-
-  private handleClose(player: Player, opponent: Player) {
+  private handleClose(opponent: Player) {
     this.draw = true;
     this.winner = opponent;
 

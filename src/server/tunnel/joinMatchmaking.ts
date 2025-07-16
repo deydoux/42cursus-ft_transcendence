@@ -8,17 +8,15 @@ export default function joinMatchmaking(
   message: ClientTunnelMessage & {type: 'joinMatchmaking'},
 ) {
   const {clients, game} = server;
-  const {mode} = message;
 
-  if (!mode)
+  let MatchConstructor;
+  if (message.game === 'pong') MatchConstructor = PongMatch;
+  else
     return client.socket.send(
-      server.clients.message({
-        type: 'error',
-        message: 'Mode is required',
-      }),
+      clients.message({type: 'error', message: 'Invalid game'}),
     );
 
-  if (game.players.includes(client.userID))
+  if (game.players[client.userID])
     return client.socket.send(
       clients.message({
         type: 'error',
@@ -36,14 +34,14 @@ export default function joinMatchmaking(
 
   let match = null;
 
-  switch (mode) {
+  switch (message.mode) {
     case 'casual':
       if (game.queues.casual !== null) {
         const player1 = game.queues.casual;
         const player2 = client;
 
         game.queues.casual = null;
-        match = new PongMatch(server, [player1, player2]);
+        match = new MatchConstructor(server, [player1, player2]);
       } else game.queues.casual = client;
       break;
     case 'ranked':

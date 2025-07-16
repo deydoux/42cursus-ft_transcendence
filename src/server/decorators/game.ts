@@ -2,8 +2,7 @@ import {FastifyPluginAsync} from 'fastify';
 
 const plugin: FastifyPluginAsync = async server => {
   server.decorate('game', {
-    matches: [],
-    players: [],
+    players: {},
     queues: {
       casual: null,
     },

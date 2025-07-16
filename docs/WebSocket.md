@@ -10,6 +10,7 @@ Sent to join the matchmaking queue
 ```json
 {
   "type": "joinMatchmaking",
+  "game": "pong",
   "mode": "casual"
 }
 ```

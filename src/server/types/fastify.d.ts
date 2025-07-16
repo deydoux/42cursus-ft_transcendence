@@ -1,7 +1,6 @@
 import {Client} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {Database} from 'sqlite';
-import Match from '#lib/Match';
 import {SharpInput} from 'sharp';
 
 declare module 'fastify' {
@@ -14,8 +13,7 @@ declare module 'fastify' {
     db: Database;
     dev: boolean;
     game: {
-      matches: Match[];
-      players: number[];
+      players: Record<number, number>;
       queues: {
         casual: Client | null;
       };

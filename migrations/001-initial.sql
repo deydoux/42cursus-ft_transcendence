@@ -47,7 +47,7 @@ CREATE INDEX idx_direct_messages_sender_id_recipient_id_unread ON direct_message
 
 CREATE TABLE matches(
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
-  type         TEXT NOT NULL,
+  game         TEXT NOT NULL,
   mode         TEXT NOT NULL,
 
   winner_id    INTEGER NOT NULL,
@@ -60,7 +60,7 @@ CREATE TABLE matches(
   created_at  INTEGER NOT NULL,
   updated_at  INTEGER NOT NULL DEFAULT (unixepoch()),
 
-  CHECK(type IN ('pong', 'race')),
+  CHECK(game IN ('pong', 'race')),
   CHECK(mode IN ('local', 'casual', 'ranked'))
 );
 
