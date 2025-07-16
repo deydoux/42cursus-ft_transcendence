@@ -1,24 +1,30 @@
 import {Client} from '#types/Clients';
 import {FastifyInstance} from 'fastify';
+import SQL from 'sql-template-strings';
 
 export interface Player extends Client {
   score?: number;
 }
 
 export default abstract class Match {
-  protected server: FastifyInstance;
-  protected players: Player[];
-
-  protected type = 'pong';
+  protected server;
+  protected players;
+  protected type;
   protected mode = 'casual';
 
   protected draw = false;
-  protected finish = false;
   protected winner?: Player;
 
-  constructor(server: FastifyInstance, player1: Client, player2: Client) {
+  private readonly createdAt = Math.floor(Date.now() / 1000);
+
+  constructor(
+    server: FastifyInstance,
+    players: [Player, Player],
+    type: string,
+  ) {
     this.server = server;
-    this.players = [player1, player2];
+    this.players = players;
+    this.type = type;
 
     for (const [index, player] of this.players.entries()) {
       const opponent = this.players[1 - index];
@@ -35,7 +41,16 @@ export default abstract class Match {
     server.game.matches.push(this);
   }
 
-  protected destroy() {
+  protected async destroy(winner: Player) {
+    const looser = this.getOpponent(winner.userID);
+
+    await this.server.db.run(SQL`
+      INSERT INTO matches(type, mode, winner_id, looser_id, winner_score,
+                         looser_score, draw, created_at)
+      VALUES(${this.type}, ${this.mode}, ${winner.userID}, ${looser.userID},
+            ${winner.score}, ${looser.score}, ${this.draw}, ${this.createdAt})
+    `);
+
     this.server.game.matches = this.server.game.matches.filter(
       match => match !== this,
     );
@@ -51,7 +66,6 @@ export default abstract class Match {
 
   private handleClose(player: Player, opponent: Player) {
     this.draw = true;
-    this.finish = true;
     this.winner = opponent;
 
     this.server.log.warn(
@@ -66,10 +80,10 @@ export default abstract class Match {
 
   protected abstract handleMove(player: Player, message: object): void;
 
-  public start() {
-    while (!this.finish) this.tick();
-    this.destroy();
+  public async start() {
+    while (!this.winner) await this.tick();
+    await this.destroy(this.winner);
   }
 
-  protected abstract tick(): void;
+  protected abstract tick(): Promise<void>;
 }

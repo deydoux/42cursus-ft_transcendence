@@ -43,7 +43,7 @@ export default function joinMatchmaking(
         const player2 = client;
 
         game.queues.casual = null;
-        match = new PongMatch(server, player1, player2);
+        match = new PongMatch(server, [player1, player2]);
       } else game.queues.casual = client;
       break;
     case 'ranked':
