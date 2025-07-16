@@ -1,17 +1,15 @@
 import {Car} from './car';
 import {Checkpoint} from './checkpoint';
 import {Growpoint} from './growpoint';
-import {Particle} from './particle';
 import {RaceGame} from '../utils/race-content';
 import {Slowpoint} from './slowpoint';
-
+import {displayCountdownMessage} from '../utils/content';
 export class RaceCanvas {
   private ctx: CanvasRenderingContext2D;
   private race: RaceGame;
   private raf: number | null;
   private dpr: number;
-  private color = 'rgb(221, 232, 255)';
-  private particles: Particle[] = [];
+  private color = 'rgb(255, 255, 255)';
 
   constructor(race: RaceGame) {
     this.raf = null;
@@ -24,49 +22,15 @@ export class RaceCanvas {
    * Starts the game loop and initializes
    */
   public startGame(): void {
-    if (this.raf) {
-      cancelAnimationFrame(this.raf); // Cancel any existing loop
-    }
-
     this.race.timer.startCountdown();
-    this.race.gameStarted = true;
-
-    this.gameLoop();
-  }
-
-  /**
-   * Displays a countdown message on the canvas
-   * @param message The countdown message to display
-   */
-  private displayCountdownMessage(message: string): void {
-    this.ctx.save();
-
-    const width = this.ctx.canvas.width;
-    const height = this.ctx.canvas.height;
-    const baseFontSize = Math.max(width, height) * 0.08 * this.dpr; // Larger font for countdown
-
-    // Center of canvas
-    const centerX = width / 2;
-    const centerY = height / 2;
-
-    this.ctx.font = `bold ${baseFontSize}px monospace`;
-    this.ctx.fillStyle = message === 'GO!' ? '#00ff00' : this.color; // Green for GO!, regular color for numbers
-    this.ctx.textAlign = 'center';
-    this.ctx.textBaseline = 'middle';
-    this.ctx.shadowBlur = 20;
-    this.ctx.shadowColor =
-      message === 'GO!' ? 'rgba(0, 255, 0, 0.8)' : 'rgba(40, 60, 189, 0.78)';
-
-    this.ctx.fillText(message, centerX, centerY);
-
-    this.ctx.restore();
+    this.raf = window.requestAnimationFrame(this.gameLoop.bind(this));
   }
 
   /**
    * Displays a start message on the canvas
    */
   public displayStartMessage(): void {
-    this.race.announcement.innerText = `Good luck ${this.race.car1.name} and ${this.race.car2.name}!`;
+    this.updateScore();
 
     this.ctx.save();
 
@@ -93,7 +57,11 @@ export class RaceCanvas {
     this.ctx.textBaseline = 'middle';
     this.ctx.shadowBlur = 15;
     this.ctx.shadowColor = 'rgba(40, 60, 189, 0.78)';
-    this.ctx.fillText('Press the button to start the game!', centerX, currentY);
+    this.ctx.fillText(
+      'Click on the button to start the game!',
+      centerX,
+      currentY,
+    );
 
     this.ctx.restore();
   }
@@ -133,7 +101,9 @@ export class RaceCanvas {
 
     // Check if time is up (only if timer has started)
     if (this.race.timer.isRunning && this.race.timer.isTimeUp()) {
+      this.race.timer.stop();
       this.endGame();
+      console.log('Time is up! Ending game.');
       return;
     }
 
@@ -162,13 +132,12 @@ export class RaceCanvas {
         this.race.currentSlowpoint.draw();
       }
     }
-    this.updateParticles();
 
     this.race.car1.draw();
     this.race.car2.draw();
 
     if (countdownMessage) {
-      this.displayCountdownMessage(countdownMessage);
+      displayCountdownMessage(this.ctx, this.dpr, this.color, countdownMessage);
     }
 
     this.raf = requestAnimationFrame(this.gameLoop.bind(this));
@@ -202,8 +171,11 @@ export class RaceCanvas {
    * Updates the score display
    */
   private updateScore(): void {
-    if (this.race.announcement) {
-      this.race.announcement.innerText = `${this.race.car1.name}: ${this.race.car1.score} | ${this.race.car2.name}: ${this.race.car2.score} \n ${this.race.timer.getRemainingTimeFormatted()}`;
+    if (this.race.scores) {
+      this.race.scores.innerText = `${this.race.car1.name}: ${this.race.car1.score} | ${this.race.car2.name}: ${this.race.car2.score}`;
+    }
+    if (this.race.timerDisplay) {
+      this.race.timerDisplay.innerText = `${this.race.timer.getRemainingTimeFormatted()}`;
     }
   }
 
@@ -283,14 +255,12 @@ export class RaceCanvas {
 
       if (car1Collision) {
         this.race.car1.score += 2; // Add points for car1
-        this.createPopEffect(this.race.car1.x, this.race.car1.y, '#00ff00');
         this.updateScore();
         return false; // Remove checkpoint
       }
 
       if (car2Collision) {
         this.race.car2.score += 2; // Add points for car2
-        this.createPopEffect(this.race.car2.x, this.race.car2.y, '#00ff00');
         this.updateScore();
         return false; // Remove checkpoint
       }
@@ -304,7 +274,6 @@ export class RaceCanvas {
       this.race.currentGrowpoint.isColliding(this.race.car1) &&
       !this.race.car1.isBigger
     ) {
-      this.createPopEffect(this.race.car1.x, this.race.car1.y, '#ff00ff');
       this.race.currentGrowpoint = null; // Clear growpoint after collision
       this.race.car1.applyCarGrowth();
       this.race.lastGrowpointTime = Date.now() - 45000;
@@ -314,7 +283,6 @@ export class RaceCanvas {
       this.race.currentGrowpoint.isColliding(this.race.car2) &&
       !this.race.car2.isBigger
     ) {
-      this.createPopEffect(this.race.car2.x, this.race.car2.y, '#ff00ff');
       this.race.currentGrowpoint = null; // Clear growpoint after collision
       this.race.car2.applyCarGrowth();
       this.race.lastGrowpointTime = Date.now() - 45000;
@@ -325,7 +293,6 @@ export class RaceCanvas {
       this.race.currentSlowpoint.isColliding(this.race.car2) &&
       !this.race.car1.isSlowed
     ) {
-      this.createPopEffect(this.race.car2.x, this.race.car2.y, '#ff0000');
       this.race.currentSlowpoint = null; // Clear slowpoint after collision
       this.race.car1.applySlowdown();
       this.race.lastSlowpointTime = Date.now();
@@ -335,7 +302,6 @@ export class RaceCanvas {
       this.race.currentSlowpoint.isColliding(this.race.car1) &&
       !this.race.car2.isSlowed
     ) {
-      this.createPopEffect(this.race.car1.x, this.race.car1.y, '#ff0000');
       this.race.currentSlowpoint = null; // Clear slowpoint after collision
       this.race.car2.applySlowdown();
       this.race.lastSlowpointTime = Date.now();
@@ -349,13 +315,8 @@ export class RaceCanvas {
    */
   public handleCarCollisions(): void {
     const isColliding = this.race.car1.isCollidingWithCar(this.race.car2);
-    console.log('Collision check:', isColliding); // Debug line
 
     if (isColliding) {
-      console.log('Cars ARE colliding!');
-      console.log('Car1 width:', this.race.car1.carWidth);
-      console.log('Car2 width:', this.race.car2.carWidth);
-
       if (this.race.car1.carWidth > this.race.car2.carWidth) {
         this.race.car1.handleCarCollision(this.race.car2);
         this.race.car2.stopFor();
@@ -368,7 +329,7 @@ export class RaceCanvas {
 
   /**
    * Handles the case where cars are stuck in walls.
-   * If a car is colliding with a wall, it creates a pop effect to indicate the collision.
+   * Checks if each car is colliding with walls and resets their position if they are stuck.
    */
   private handleStuckCars(): void {
     const car1Position = {
@@ -384,41 +345,8 @@ export class RaceCanvas {
       width: this.race.car2.carWidth,
       height: this.race.car2.carHeight,
     };
-
-    if (this.race.walls.isCarColliding(car1Position)) {
-      this.createPopEffect(this.race.car1.x, this.race.car1.y, '#ffffff');
-    }
-
-    if (this.race.walls.isCarColliding(car2Position)) {
-      this.createPopEffect(this.race.car2.x, this.race.car2.y, '#ffffff');
-    }
-  }
-
-  /**
-   * Creates a pop effect at the specified position with the given color.
-   * This is used for visual feedback when cars collide with points or walls.
-   * @param x The x-coordinate of the pop effect
-   * @param y The y-coordinate of the pop effect
-   * @param color The color of the pop effect
-   */
-  private createPopEffect(x: number, y: number, color: string): void {
-    for (let i = 0; i < 12; i++) {
-      this.particles.push(new Particle(this.ctx, x, y, color));
-    }
-  }
-
-  /**
-   * Updates the particles on the canvas.
-   * Filters out dead particles and draws the remaining ones.
-   */
-  private updateParticles(): void {
-    this.particles = this.particles.filter(particle => {
-      const isAlive = particle.update();
-      if (isAlive) {
-        particle.draw();
-      }
-      return isAlive;
-    });
+    this.race.walls.isCarColliding(car1Position);
+    this.race.walls.isCarColliding(car2Position);
   }
 
   /**
@@ -430,8 +358,8 @@ export class RaceCanvas {
     this.ctx.save();
     this.ctx.font = '24px Arial';
     this.ctx.fillStyle = '#fff';
-    this.ctx.textAlign = 'center';
-    this.ctx.fillText(time, this.ctx.canvas.width / 2, 30);
+    this.ctx.textAlign = 'left';
+    this.ctx.fillText(`⏱️ ${time}`, 20, 30);
     this.ctx.restore();
   }
 
@@ -440,7 +368,340 @@ export class RaceCanvas {
    * This method is called when the time is up.
    */
   private endGame(): void {
+    this.drawGameOverScreen();
+    this.race.car1.score = 0;
+    this.race.car2.score = 0;
+    this.updateScore();
+    this.race.timer.reset();
     this.race.gameStarted = false;
-    this.race.timer.stop();
+  }
+
+  public drawGameOverScreen(): void {
+    // Semi-transparent overlay
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+    this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+
+    const centerX = this.ctx.canvas.width / 2;
+    const centerY = this.ctx.canvas.height / 2;
+
+    // Determine winner, loser, or tie
+    const isTie = this.race.car1.score === this.race.car2.score;
+    const winner =
+      this.race.car1.score > this.race.car2.score
+        ? this.race.car1
+        : this.race.car2;
+    const loser =
+      this.race.car1.score > this.race.car2.score
+        ? this.race.car2
+        : this.race.car1;
+
+    // Catch phrase at the top
+    this.ctx.fillStyle = '#FFD700'; // Gold color
+    this.ctx.font = 'bold 96px Arial';
+    this.ctx.textAlign = 'center';
+
+    if (isTie && this.race.car1.score === 0) {
+      this.ctx.fillText(
+        'PERFECT TIE...But no one played',
+        centerX,
+        centerY - 400,
+      );
+      // Secondary text for tie
+      this.ctx.fillStyle = '#FFFFFF';
+      this.ctx.font = 'bold 48px Arial';
+      this.ctx.fillText(
+        'Was it too hard for the both of you?',
+        centerX,
+        centerY - 320,
+      );
+    } else if (isTie) {
+      this.ctx.fillText('🤝 PERFECT TIE! 🤝', centerX, centerY - 400);
+      // Secondary text for tie
+      this.ctx.fillStyle = '#FFFFFF';
+      this.ctx.font = 'bold 48px Arial';
+      this.ctx.fillText('Champions Share the Glory!', centerX, centerY - 320);
+    } else {
+      this.ctx.fillText('🏁 RACE COMPLETE! 🏁', centerX, centerY - 400);
+      // Secondary text for winner
+      this.ctx.fillStyle = '#FFFFFF';
+      this.ctx.font = 'bold 48px Arial';
+      this.ctx.fillText(
+        'The Checkered Flag Has Fallen!',
+        centerX,
+        centerY - 320,
+      );
+    }
+
+    // Draw podium base with dynamic heights
+    this.drawPodium(
+      centerX,
+      centerY,
+      this.race.car1.score,
+      this.race.car2.score,
+      isTie,
+    );
+
+    if (isTie && this.race.car1.score === 0) {
+      // Both cars on same height podiums
+      this.drawCarOnPodium(this.race.car1, centerX - 160, centerY - 40, false);
+      this.drawCarOnPodium(this.race.car2, centerX + 160, centerY - 40, false);
+    } else if (isTie) {
+      // Both cars on same height podiums
+      this.drawCarOnPodium(this.race.car1, centerX - 160, centerY - 40, true);
+      this.drawCarOnPodium(this.race.car2, centerX + 160, centerY - 40, true);
+    } else {
+      // Draw cars on podium with better positioning
+      this.drawCarOnPodium(winner, centerX - 160, centerY - 60, true); // Winner higher up
+      this.drawCarOnPodium(loser, centerX + 160, centerY + 20, false); // Loser positioned better
+    }
+
+    // Draw position numbers with adjusted positions
+    this.drawPositionNumbers(centerX, centerY, isTie);
+
+    // Draw scores with more spacing
+    this.drawScores(winner, loser, centerX, centerY, isTie);
+
+    // Draw restart instruction
+    this.ctx.fillStyle = '#CCCCCC';
+    this.ctx.font = '40px Arial';
+    this.ctx.fillText(
+      'Click the button to Race Again!',
+      centerX,
+      centerY + 400,
+    ); // Moved down
+  }
+
+  private drawPodium(
+    centerX: number,
+    centerY: number,
+    car1Score: number,
+    car2Score: number,
+    isTie: boolean,
+  ): void {
+    // Podium colors
+    const goldColor = '#FFD700';
+    const silverColor = '#C0C0C0';
+
+    this.ctx.save();
+
+    if (isTie && car1Score === 0) {
+      // Both podiums same height (silver)
+      console.log('Both cars have 0 score, drawing silver podiums');
+      const tieHeight = 100;
+      const yPosition = centerY - 10;
+
+      // Left podium (Car 1)
+      this.ctx.fillStyle = silverColor;
+      this.ctx.fillRect(centerX - 240, yPosition, 160, tieHeight);
+      this.ctx.strokeStyle = '#A0A0A0';
+      this.ctx.lineWidth = 6;
+      this.ctx.strokeRect(centerX - 240, yPosition, 160, tieHeight);
+
+      // Right podium (Car 2)
+      this.ctx.fillStyle = silverColor;
+      this.ctx.fillRect(centerX + 80, yPosition, 160, tieHeight);
+      this.ctx.strokeStyle = '#A0A0A0';
+      this.ctx.lineWidth = 6;
+      this.ctx.strokeRect(centerX + 80, yPosition, 160, tieHeight);
+    } else if (isTie) {
+      // Both podiums same height (gold)
+      const tieHeight = 140;
+      const yPosition = centerY - 10;
+
+      // Left podium (Car 1)
+      this.ctx.fillStyle = goldColor;
+      this.ctx.fillRect(centerX - 240, yPosition, 160, tieHeight);
+      this.ctx.strokeStyle = '#B8860B';
+      this.ctx.lineWidth = 6;
+      this.ctx.strokeRect(centerX - 240, yPosition, 160, tieHeight);
+
+      // Right podium (Car 2)
+      this.ctx.fillStyle = goldColor;
+      this.ctx.fillRect(centerX + 80, yPosition, 160, tieHeight);
+      this.ctx.strokeStyle = '#B8860B';
+      this.ctx.lineWidth = 6;
+      this.ctx.strokeRect(centerX + 80, yPosition, 160, tieHeight);
+    } else {
+      // Calculate dynamic heights based on scores
+      const maxScore = Math.max(car1Score, car2Score);
+      const minScore = Math.min(car1Score, car2Score);
+
+      // Base height and scaling - reduced max height for better spacing
+      const baseHeight = 80;
+      const maxHeight = 160; // Reduced from 200
+      const heightScale =
+        maxScore > 0 ? (maxHeight - baseHeight) / maxScore : 0;
+
+      // Calculate heights (minimum base height + proportional to score)
+      const winnerHeight = baseHeight + maxScore * heightScale;
+      const loserHeight = baseHeight + minScore * heightScale;
+
+      // Winner podium (higher score) - left side
+      this.ctx.fillStyle = goldColor;
+      const winnerY = centerY + 120 - winnerHeight; // Adjusted base position
+      this.ctx.fillRect(centerX - 240, winnerY, 160, winnerHeight);
+      this.ctx.strokeStyle = '#B8860B';
+      this.ctx.lineWidth = 6;
+      this.ctx.strokeRect(centerX - 240, winnerY, 160, winnerHeight);
+
+      // Loser podium (lower score) - right side
+      this.ctx.fillStyle = silverColor;
+      const loserY = centerY + 120 - loserHeight; // Adjusted base position
+      this.ctx.fillRect(centerX + 80, loserY, 160, loserHeight);
+      this.ctx.strokeStyle = '#A0A0A0';
+      this.ctx.lineWidth = 6;
+      this.ctx.strokeRect(centerX + 80, loserY, 160, loserHeight);
+    }
+
+    this.ctx.restore();
+  }
+
+  private drawCarOnPodium(
+    car: Car,
+    x: number,
+    y: number,
+    isWinner: boolean,
+  ): void {
+    this.ctx.save();
+    this.ctx.translate(x, y);
+
+    // Scale down the car for podium display
+    const scale = 1.2; // Slightly smaller for better fit
+    this.ctx.scale(scale, scale);
+
+    // Draw car
+    if (car.carImage && car.imageLoaded) {
+      this.ctx.drawImage(
+        car.carImage,
+        -car.carWidth / 2,
+        -car.carHeight / 2,
+        car.carWidth,
+        car.carHeight,
+      );
+    } else {
+      // Fallback rectangle
+      this.ctx.fillStyle = car.color;
+      this.ctx.fillRect(
+        -car.carWidth / 2,
+        -car.carHeight / 2,
+        car.carWidth,
+        car.carHeight,
+      );
+    }
+
+    // Winner crown/effect
+    if (isWinner) {
+      this.ctx.fillStyle = '#FFD700';
+      this.ctx.font = 'bold 60px Arial';
+      this.ctx.textAlign = 'center';
+      this.ctx.fillText('👑', 0, -car.carHeight / 2 - 40);
+    }
+
+    this.ctx.restore();
+  }
+
+  private drawPositionNumbers(
+    centerX: number,
+    centerY: number,
+    isTie: boolean,
+  ): void {
+    this.ctx.save();
+    this.ctx.font = 'bold 72px Arial';
+    this.ctx.textAlign = 'center';
+
+    if (isTie && this.race.car1.score === 0) {
+      return; // No positions to draw if both scores are 0
+    } else if (isTie) {
+      // Both positions show "1" for tie
+      this.ctx.fillStyle = '#FFD700';
+      this.ctx.strokeStyle = '#B8860B';
+      this.ctx.lineWidth = 4;
+      this.ctx.fillText('1', centerX - 160, centerY + 110);
+      this.ctx.strokeText('1', centerX - 160, centerY + 110);
+      this.ctx.fillText('1', centerX + 160, centerY + 110);
+      this.ctx.strokeText('1', centerX + 160, centerY + 110);
+    } else {
+      // 1st place
+      this.ctx.fillStyle = '#FFD700';
+      this.ctx.strokeStyle = '#B8860B';
+      this.ctx.lineWidth = 4;
+      this.ctx.fillText('1', centerX - 160, centerY + 100);
+      this.ctx.strokeText('1', centerX - 160, centerY + 100);
+
+      // 2nd place - better positioned
+      this.ctx.fillStyle = '#C0C0C0';
+      this.ctx.strokeStyle = '#C0C0C0';
+      this.ctx.lineWidth = 4;
+      this.ctx.fillText('2', centerX + 160, centerY + 110);
+      this.ctx.strokeText('2', centerX + 160, centerY + 110);
+    }
+
+    this.ctx.restore();
+  }
+
+  private drawScores(
+    winner: Car,
+    loser: Car,
+    centerX: number,
+    centerY: number,
+    isTie: boolean,
+  ): void {
+    this.ctx.save();
+    this.ctx.font = 'bold 36px Arial';
+    this.ctx.textAlign = 'center';
+
+    if (isTie) {
+      // Both cars get gold treatment for tie unless the score is 0
+      this.ctx.fillStyle = this.race.car1.score === 0 ? '#C0C0C0' : '#FFD700';
+      this.ctx.fillText(`${this.race.car1.name}`, centerX - 160, centerY + 180);
+      this.ctx.fillStyle = '#FFFFFF';
+      this.ctx.fillText(
+        `Score: ${this.race.car1.score}`,
+        centerX - 160,
+        centerY + 220,
+      );
+
+      this.ctx.fillStyle = this.race.car1.score === 0 ? '#C0C0C0' : '#FFD700';
+      this.ctx.fillText(`${this.race.car2.name}`, centerX + 160, centerY + 180);
+      this.ctx.fillStyle = '#FFFFFF';
+      this.ctx.fillText(
+        `Score: ${this.race.car2.score}`,
+        centerX + 160,
+        centerY + 220,
+      );
+
+      // Tie message
+      this.ctx.fillStyle = '#FFFF00';
+      this.ctx.font = '32px Arial';
+      this.ctx.fillText(
+        'next time try to catch something 😒?',
+        centerX,
+        centerY + 280,
+      );
+    } else {
+      // Winner score - better spacing
+      this.ctx.fillStyle = '#FFD700';
+      this.ctx.fillText(`${winner.name}`, centerX - 160, centerY + 170);
+      this.ctx.fillStyle = '#FFFFFF';
+      this.ctx.fillText(`Score: ${winner.score}`, centerX - 160, centerY + 210);
+
+      // Loser score - more space below car
+      this.ctx.fillStyle = '#C0C0C0';
+      this.ctx.fillText(`${loser.name}`, centerX + 160, centerY + 180);
+      this.ctx.fillStyle = '#FFFFFF';
+      this.ctx.fillText(`Score: ${loser.score}`, centerX + 160, centerY + 220);
+
+      // Score difference
+      const scoreDiff = Math.abs(winner.score - loser.score);
+      this.ctx.fillStyle = '#FFFF00';
+      this.ctx.font = '32px Arial';
+      this.ctx.fillText(
+        `Victory Margin: ${scoreDiff} points`,
+        centerX,
+        centerY + 280,
+      );
+    }
+
+    this.ctx.restore();
   }
 }

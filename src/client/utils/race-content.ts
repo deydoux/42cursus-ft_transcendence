@@ -35,7 +35,8 @@ export interface RaceGame {
   gameStarted: boolean;
   keys: Keys;
   ctx: CanvasRenderingContext2D;
-  announcement: HTMLElement;
+  scores: HTMLElement;
+  timerDisplay: HTMLElement;
   checkpoints: Checkpoint[];
   lastCheckpointTime: number | null;
   currentGrowpoint: Growpoint | null;
@@ -51,19 +52,21 @@ export interface RaceGame {
  * @returns The initialized RaceGame object
  */
 export function initializeGame(ctx: CanvasRenderingContext2D): RaceGame {
-  // Set up game state
-  const announcement = document.getElementById('announcement');
-  if (!announcement) {
-    throw new Error('Announcement element not found');
+  const scores = document.getElementById('scores');
+  if (!scores) {
+    throw new Error('scores element not found');
   }
-
+  const timerDisplay = document.getElementById('timer');
+  if (!timerDisplay) {
+    throw new Error('timer element not found');
+  }
   const walls = new Wall(ctx);
   walls.generateRandomWalls(20);
   const checkpoints = [Checkpoint.createRandomCheckpoint(ctx, walls, [])];
 
   return {
-    announcement,
-    // Safe spawn positions that avoid most wall patterns
+    scores,
+    timerDisplay,
     car1: new Car(
       'Garry',
       ctx,
@@ -98,17 +101,17 @@ export function initializeGame(ctx: CanvasRenderingContext2D): RaceGame {
 /**
  * Handles user input for starting the game and controlling the cars.
  * Binds click events to the start button and keyboard events for car controls.
- * @param game The RaceGame instance to control
+ * @param race The RaceGame instance to control
  * @param onStart Callback function to start the game loop
  */
-export function handleInput(game: RaceGame, onStart: () => void): void {
+export function handleInput(race: RaceGame, onStart: () => void): void {
   const startButton = document.getElementById('race-btn');
   console.log('Found start button:', startButton);
   if (startButton) {
     startButton.addEventListener('click', () => {
       console.log('Button clicked!'); // Debug click event
-      if (!game.gameStarted) {
-        game.gameStarted = true;
+      if (!race.gameStarted) {
+        race.gameStarted = true;
         onStart(); // Call the callback to start game loop
       }
     });
@@ -117,29 +120,29 @@ export function handleInput(game: RaceGame, onStart: () => void): void {
   // Handle keyboard input
   document.addEventListener('keydown', (e: KeyboardEvent) => {
     // Car 1 controls (WASD)
-    if (e.key === 'w' || e.key === 'W') game.keys.w = true;
-    if (e.key === 'a' || e.key === 'A') game.keys.a = true;
-    if (e.key === 's' || e.key === 'S') game.keys.s = true;
-    if (e.key === 'd' || e.key === 'D') game.keys.d = true;
+    if (e.key === 'w' || e.key === 'W') race.keys.w = true;
+    if (e.key === 'a' || e.key === 'A') race.keys.a = true;
+    if (e.key === 's' || e.key === 'S') race.keys.s = true;
+    if (e.key === 'd' || e.key === 'D') race.keys.d = true;
 
     // Car 2 controls (Arrow Keys)
-    if (e.key === 'ArrowUp') game.keys.ArrowUp = true;
-    if (e.key === 'ArrowLeft') game.keys.ArrowLeft = true;
-    if (e.key === 'ArrowDown') game.keys.ArrowDown = true;
-    if (e.key === 'ArrowRight') game.keys.ArrowRight = true;
+    if (e.key === 'ArrowUp') race.keys.ArrowUp = true;
+    if (e.key === 'ArrowLeft') race.keys.ArrowLeft = true;
+    if (e.key === 'ArrowDown') race.keys.ArrowDown = true;
+    if (e.key === 'ArrowRight') race.keys.ArrowRight = true;
   });
 
   document.addEventListener('keyup', (e: KeyboardEvent) => {
     // Car 1 controls (WASD)
-    if (e.key === 'w' || e.key === 'W') game.keys.w = false;
-    if (e.key === 'a' || e.key === 'A') game.keys.a = false;
-    if (e.key === 's' || e.key === 'S') game.keys.s = false;
-    if (e.key === 'd' || e.key === 'D') game.keys.d = false;
+    if (e.key === 'w' || e.key === 'W') race.keys.w = false;
+    if (e.key === 'a' || e.key === 'A') race.keys.a = false;
+    if (e.key === 's' || e.key === 'S') race.keys.s = false;
+    if (e.key === 'd' || e.key === 'D') race.keys.d = false;
 
     // Car 2 controls (Arrow Keys)
-    if (e.key === 'ArrowUp') game.keys.ArrowUp = false;
-    if (e.key === 'ArrowLeft') game.keys.ArrowLeft = false;
-    if (e.key === 'ArrowDown') game.keys.ArrowDown = false;
-    if (e.key === 'ArrowRight') game.keys.ArrowRight = false;
+    if (e.key === 'ArrowUp') race.keys.ArrowUp = false;
+    if (e.key === 'ArrowLeft') race.keys.ArrowLeft = false;
+    if (e.key === 'ArrowDown') race.keys.ArrowDown = false;
+    if (e.key === 'ArrowRight') race.keys.ArrowRight = false;
   });
 }
