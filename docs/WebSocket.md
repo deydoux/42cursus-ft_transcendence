@@ -1,4 +1,4 @@
-# Websocket API Documentation
+# WebSocket API Documentation
 This WebSocket API handles real-time communication and time-sensitive events. To establish a connection, connect to the `/api/tunnel` endpoint. All messages must be sent and received as JSON objects.
 
 ## Client Messages
