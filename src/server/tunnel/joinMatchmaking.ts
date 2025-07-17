@@ -49,7 +49,7 @@ export default async function joinMatchmaking(
 
       game.queues[message.game].casual = null;
 
-      match = new MatchConstructor(server, [queued, client], true); // TODO: Remove ranked flag
+      match = new MatchConstructor(server, [queued, client], false);
       break;
     }
     case 'ranked': {
