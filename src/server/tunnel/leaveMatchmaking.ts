@@ -6,10 +6,6 @@ export default function leaveMatchmaking(
   client: Client,
   message: {type: 'leaveMatchmaking'},
 ) {
-  if (server.game.queues.pong.casual?.userID === client.userID)
-    server.game.queues.pong.casual = null;
-  else if (server.game.queues.race.casual?.userID === client.userID)
-    server.game.queues.race.casual = null;
-
+  server.leaveMatchmaking(client.socket);
   void message;
 }
