@@ -1,8 +1,10 @@
 import {Client} from '#types/Clients';
+import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
 import SQL from 'sql-template-strings';
 
 export interface Player extends Client {
+  elo?: number;
   score?: number;
 }
 
@@ -72,6 +74,28 @@ export default abstract class Match {
     // `);
   }
 
+  public error() {
+    this.players.forEach(player =>
+      player.socket.send(
+        Clients.message({type: 'error', message: 'Match error'}),
+      ),
+    );
+  }
+
+  public async fetchElo() {
+    for (const player of this.players) {
+      player.elo = await this.server.db.get(SQL`
+        SELECT value
+        FROM elo
+        WHERE game = ${this.game} AND user_id = ${player.userID}
+        ORDER BY created_at DESC
+        LIMIT 1
+      `);
+    }
+
+    await Promise.all(this.players.map(player => player.elo));
+  }
+
   private handleClose(opponent: Player) {
     this.draw = true;
     this.winner = opponent;
@@ -89,6 +113,7 @@ export default abstract class Match {
   protected abstract handleMove(player: Player, message: object): void;
 
   public async start() {
+    if (this.ranked) await this.fetchElo();
     while (!this.winner) await this.tick();
     await this.destroy(this.winner);
   }

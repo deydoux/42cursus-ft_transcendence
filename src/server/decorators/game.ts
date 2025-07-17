@@ -4,7 +4,12 @@ const plugin: FastifyPluginAsync = async server => {
   server.decorate('game', {
     players: {},
     queues: {
-      casual: null,
+      pong: {
+        casual: null,
+      },
+      race: {
+        casual: null,
+      },
     },
   });
 };

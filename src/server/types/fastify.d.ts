@@ -2,6 +2,7 @@ import {Client} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {Database} from 'sqlite';
 import {SharpInput} from 'sharp';
+import {WebSocket} from '@fastify/websocket';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -15,9 +16,15 @@ declare module 'fastify' {
     game: {
       players: Record<number, number>;
       queues: {
-        casual: Client | null;
+        pong: {
+          casual: Client | null;
+        };
+        race: {
+          casual: Client | null;
+        };
       };
     };
+    leaveMatchmaking: (socket: WebSocket) => void;
     paths: {
       avatars: string;
       cache: string;

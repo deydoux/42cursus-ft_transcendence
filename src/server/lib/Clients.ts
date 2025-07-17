@@ -20,7 +20,7 @@ export default class Clients {
       message = JSON.parse(data.toString());
     } catch {
       return socket.send(
-        this.message({type: 'error', message: 'Invalid JSON'}),
+        Clients.message({type: 'error', message: 'Invalid JSON'}),
       );
     }
 
@@ -30,13 +30,13 @@ export default class Clients {
       typeof message.type !== 'string'
     )
       return socket.send(
-        this.message({type: 'error', message: 'Invalid message type'}),
+        Clients.message({type: 'error', message: 'Invalid message type'}),
       );
 
     const client = this.clients.find(client => client.socket === socket);
     if (!client)
       return socket.send(
-        this.message({type: 'error', message: 'Client not found'}),
+        Clients.message({type: 'error', message: 'Client not found'}),
       );
 
     if (message.type) {
@@ -51,12 +51,12 @@ export default class Clients {
     }
   };
 
-  message = (message: ServerTunnelMessage) => JSON.stringify(message);
+  static message = (message: ServerTunnelMessage) => JSON.stringify(message);
 
   routeHandler = (socket: WebSocket, request: FastifyRequest) => {
     if (!request.user)
       socket.send(
-        this.message({type: 'error', message: 'Authentication failed'}),
+        Clients.message({type: 'error', message: 'Authentication failed'}),
       );
 
     const connection = request.connection || 0;
@@ -68,9 +68,7 @@ export default class Clients {
       this.clients = this.clients.filter(client => client.socket !== socket);
       if (!userID) return;
 
-      // Remove from matchmaking queues
-      if (this.server.game.queues.casual?.socket === socket)
-        this.server.game.queues.casual = null;
+      this.server.leaveMatchmaking(socket);
 
       this.server.db.run(SQL`
         UPDATE users
@@ -83,7 +81,9 @@ export default class Clients {
   };
 
   broadcast = (message: ServerTunnelMessage) =>
-    this.clients.forEach(client => client.socket.send(this.message(message)));
+    this.clients.forEach(client =>
+      client.socket.send(Clients.message(message)),
+    );
 
   closeConnection = (connection: number | null) =>
     this.clients.forEach(client => {
@@ -101,6 +101,6 @@ export default class Clients {
 
   sendUser = (id: number, message: ServerTunnelMessage) =>
     this.clients.forEach(client => {
-      if (client.userID === id) client.socket.send(this.message(message));
+      if (client.userID === id) client.socket.send(Clients.message(message));
     });
 }

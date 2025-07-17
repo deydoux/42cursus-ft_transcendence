@@ -1,32 +1,37 @@
 import {Client, ClientTunnelMessage} from '#types/Clients';
+import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
 import PongMatch from '#lib/PongMatch';
 
-export default function joinMatchmaking(
+export default async function joinMatchmaking(
   server: FastifyInstance,
   client: Client,
   message: ClientTunnelMessage & {type: 'joinMatchmaking'},
 ) {
-  const {clients, game} = server;
+  const {game} = server;
 
   let MatchConstructor;
   if (message.game === 'pong') MatchConstructor = PongMatch;
   else
     return client.socket.send(
-      clients.message({type: 'error', message: 'Invalid game'}),
+      Clients.message({type: 'error', message: 'Invalid game'}),
     );
 
   if (game.players[client.userID])
     return client.socket.send(
-      clients.message({
+      Clients.message({
         type: 'error',
         message: 'You are already playing a match',
       }),
     );
 
-  if (game.queues.casual?.userID === client.userID)
+  if (
+    [game.queues.pong.casual?.userID, game.queues.race.casual?.userID].includes(
+      client.userID,
+    )
+  )
     return client.socket.send(
-      clients.message({
+      Clients.message({
         type: 'error',
         message: 'You are already in a matchmaking queue',
       }),
@@ -35,21 +40,27 @@ export default function joinMatchmaking(
   let match = null;
 
   switch (message.mode) {
-    case 'casual':
-      if (game.queues.casual !== null) {
-        const player1 = game.queues.casual;
-        const player2 = client;
+    case 'casual': {
+      const queued = game.queues[message.game].casual;
+      if (!queued) {
+        game.queues[message.game].casual = client;
+        return;
+      }
 
-        game.queues.casual = null;
-        match = new MatchConstructor(server, [player1, player2]);
-      } else game.queues.casual = client;
+      game.queues[message.game].casual = null;
+
+      match = new MatchConstructor(server, [queued, client], false);
+
       break;
-    case 'ranked':
+    }
+    case 'ranked': {
+      // match = new MatchConstructor(server, [queued, client], true);
       server.log.warn('TODO: Handle ranked matchmaking');
       break;
+    }
     default:
       return client.socket.send(
-        server.clients.message({
+        Clients.message({
           type: 'error',
           message: 'Invalid mode',
         }),
@@ -57,11 +68,17 @@ export default function joinMatchmaking(
   }
 
   client.socket.send(
-    server.clients.message({
+    Clients.message({
       type: 'success',
       origin: 'joinMatchmaking',
     }),
   );
 
-  match?.start();
+  if (match)
+    try {
+      await match.start();
+    } catch (error) {
+      match.error();
+      server.log.error(error);
+    }
 }
