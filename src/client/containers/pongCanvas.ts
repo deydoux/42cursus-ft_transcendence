@@ -6,7 +6,6 @@ export class PongCanvas {
   private ctx: CanvasRenderingContext2D;
   private pong: PongGame;
   private raf: number | null;
-  private dpr: number;
   private color = 'rgb(255, 255, 255)';
 
   private bandrollActive = false;
@@ -18,12 +17,10 @@ export class PongCanvas {
     this.ctx = pong.ctx;
     this.pong = pong;
     this.raf = null;
-    this.dpr = window.devicePixelRatio || 1;
   }
 
   public startGame() {
     this.pong.timer.startCountdown();
-    setTimeout(() => console.log(this.i), 4000);
     this.raf = window.requestAnimationFrame(this.gameLoop.bind(this));
   }
 
@@ -59,7 +56,7 @@ export class PongCanvas {
 
     if (countdownMessage) {
       console.log(countdownMessage);
-      displayCountdownMessage(this.ctx, this.dpr, this.color, countdownMessage);
+      displayCountdownMessage(this.ctx, this.color, countdownMessage);
     }
     this.raf = window.requestAnimationFrame(this.gameLoop.bind(this));
   }
@@ -79,7 +76,7 @@ export class PongCanvas {
 
     const width = this.ctx.canvas.width;
     const height = this.ctx.canvas.height;
-    const baseFontSize = Math.max(width, height) * 0.025 * this.dpr;
+    const baseFontSize = Math.max(width, height) * 0.025;
     const smallFontSize = baseFontSize * 0.5;
     const lineHeight = smallFontSize * 1.25;
 

@@ -124,7 +124,6 @@ export function handleInput(pong: PongGame, onStart: () => void) {
  */
 export function displayCountdownMessage(
   ctx: CanvasRenderingContext2D,
-  dpr: number,
   color: string,
   message: string,
 ): void {
@@ -132,14 +131,14 @@ export function displayCountdownMessage(
 
   const width = ctx.canvas.width;
   const height = ctx.canvas.height;
-  const baseFontSize = Math.max(width, height) * 0.08 * dpr; // Larger font for countdown
+  const baseFontSize = Math.max(width, height) * 0.08;
 
   // Center of canvas
   const centerX = width / 2;
   const centerY = height / 2;
 
   ctx.font = `bold ${baseFontSize}px monospace`;
-  ctx.fillStyle = message === 'GO!' ? '#00ff00' : color; // Green for GO!, regular color for numbers
+  ctx.fillStyle = message === 'GO!' ? '#00ff00' : color;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.shadowBlur = 20;

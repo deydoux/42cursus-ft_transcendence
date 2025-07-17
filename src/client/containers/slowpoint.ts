@@ -1,6 +1,7 @@
 import {Car} from './car';
 import {Wall} from './wall';
 import slow from '../assets/slow.png';
+
 export class Slowpoint {
   private readonly ctx: CanvasRenderingContext2D;
   private readonly canvas: HTMLCanvasElement;
@@ -74,7 +75,7 @@ export class Slowpoint {
       const scaledWidth = this.imageWidth * scaleFactor;
       const scaledHeight = this.imageHeight * scaleFactor;
 
-      // Draw the fuel image centered at the Slowpoint position
+      // Draw the image centered at the Slowpoint position
       this.ctx.drawImage(
         Slowpoint.slowImg,
         this.x - scaledWidth / 2,

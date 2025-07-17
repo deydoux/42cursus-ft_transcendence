@@ -37,11 +37,8 @@ export function renderPongPage(): void {
     console.error('Could not get canvas context');
     return;
   }
-  const dpr = window.devicePixelRatio || 1;
   gameContainer.width = 1920;
   gameContainer.height = 1080;
-  console.log('dpr ', dpr);
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.imageSmoothingEnabled = true;
 
   const pong = initializeGame(ctx, 'Player 1', 'Player 2');

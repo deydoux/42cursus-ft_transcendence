@@ -28,17 +28,13 @@ export function renderRacePage(): void {
     return;
   }
 
-  // Setup canvas with proper DPR scaling
   const ctx = gameContainer.getContext('2d');
   if (!ctx) {
     console.error('Could not get canvas context');
     return;
   }
-  const dpr = window.devicePixelRatio || 1;
   gameContainer.width = 1920;
   gameContainer.height = 1080;
-  console.log('dpr ', dpr);
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.imageSmoothingEnabled = true;
 
   // Initialize game state

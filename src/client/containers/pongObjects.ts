@@ -220,8 +220,35 @@ export class Paddle {
   }
 
   draw() {
+    // Save the current context state
+    this.ctx.save();
+
+    // Apply the glow effect matching CSS variables
+    this.ctx.shadowColor = 'rgb(243, 58, 106)'; // --glow-color
+    this.ctx.shadowBlur = 15; // Adjusted for canvas
+    this.ctx.shadowOffsetX = 0;
+    this.ctx.shadowOffsetY = 0;
+
+    // Draw the paddle with glow
     this.ctx.fillStyle = this.color;
     this.ctx.fillRect(this.x, this.y, this.width, this.height);
+
+    // Add inner glow
+    this.ctx.shadowBlur = 5;
+    this.ctx.shadowColor = 'rgb(227, 11, 92)'; // --glow-spread-color
+
+    // Add a smaller inner rectangle with lighter color for inner glow effect
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    const padding = this.width * 0.2;
+    this.ctx.fillRect(
+      this.x + padding / 2,
+      this.y + padding / 2,
+      this.width - padding,
+      this.height - padding,
+    );
+
+    // Restore the context to prevent affecting other elements
+    this.ctx.restore();
   }
 
   move(dy: number) {

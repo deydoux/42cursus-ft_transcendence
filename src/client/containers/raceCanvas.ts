@@ -8,14 +8,12 @@ export class RaceCanvas {
   private ctx: CanvasRenderingContext2D;
   private race: RaceGame;
   private raf: number | null;
-  private dpr: number;
   private color = 'rgb(255, 255, 255)';
 
   constructor(race: RaceGame) {
     this.raf = null;
     this.race = race;
     this.ctx = race.ctx;
-    this.dpr = window.devicePixelRatio || 1;
   }
 
   /**
@@ -36,7 +34,7 @@ export class RaceCanvas {
 
     const width = this.ctx.canvas.width;
     const height = this.ctx.canvas.height;
-    const baseFontSize = Math.max(width, height) * 0.025 * this.dpr;
+    const baseFontSize = Math.max(width, height) * 0.025;
     const smallFontSize = baseFontSize * 0.5;
     const lineHeight = smallFontSize * 1.25;
 
@@ -137,7 +135,7 @@ export class RaceCanvas {
     this.race.car2.draw();
 
     if (countdownMessage) {
-      displayCountdownMessage(this.ctx, this.dpr, this.color, countdownMessage);
+      displayCountdownMessage(this.ctx, this.color, countdownMessage);
     }
 
     this.raf = requestAnimationFrame(this.gameLoop.bind(this));
