@@ -68,23 +68,19 @@ export default abstract class Match {
   private async destroyRanked(id: number, winner: Player, looser: Player) {
     if (!winner.elo || !looser.elo) throw new Error('Elo not found');
 
-    const winnerRate = 1 / (1 + Math.pow(10, (looser.elo - winner.elo) / 400));
-    const looserRate = 1 - winnerRate;
-
+    const rate = 1 / (1 + Math.pow(10, (winner.elo - looser.elo) / 400));
     const kFactor = 32;
-    const winnedElo = Math.round(kFactor * (1 - winnerRate));
-    const loosedElo = Math.round(kFactor * (0 - looserRate));
+    const change = Math.round(kFactor * rate);
 
     await this.server.db.run(SQL`
       INSERT INTO elo(game, user_id, value)
-      VALUES(${this.game}, ${winner.userID}, ${winner.elo + winnedElo}),
-            (${this.game}, ${looser.userID}, ${looser.elo + loosedElo})
+      VALUES(${this.game}, ${winner.userID}, ${winner.elo + change}),
+            (${this.game}, ${looser.userID}, ${looser.elo - change})
     `);
 
     await this.server.db.run(SQL`
-      INSERT INTO ranked_matches(id, winner_elo, looser_elo, winned_elo,
-                  loosed_elo)
-      VALUES(${id}, ${winner.elo}, ${looser.elo}, ${winnedElo}, ${loosedElo})
+      INSERT INTO ranked_matches(id, winner_elo, looser_elo, changed_elo)
+      VALUES(${id}, ${winner.elo}, ${looser.elo}, ${change})
     `);
   }
 
