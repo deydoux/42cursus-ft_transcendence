@@ -44,7 +44,7 @@ export default async function joinMatchmaking(
       const queued = game.queues[message.game].casual;
       if (!queued) {
         game.queues[message.game].casual = client;
-        return;
+        break;
       }
 
       game.queues[message.game].casual = null;
