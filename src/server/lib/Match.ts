@@ -66,12 +66,26 @@ export default abstract class Match {
   }
 
   private async destroyRanked(id: number, winner: Player, looser: Player) {
-    this.server.log.warn('TODO: Implement elo calculation for ranked matches');
+    if (!winner.elo || !looser.elo) throw new Error('Elo not found');
 
-    // await this.server.db.run(SQL`
-    //   INSERT INTO ranked_matches(id, winner_elo, looser_elo, winned_elo, loosed_elo)
-    //   VALUES(${id}, ${winner.elo}, ${looser.elo}, ${winner.winned_elo}, ${looser.loosed_elo})
-    // `);
+    const winnerRate = 1 / (1 + Math.pow(10, (looser.elo - winner.elo) / 400));
+    const looserRate = 1 - winnerRate;
+
+    const kFactor = 32;
+    const winnedElo = Math.round(kFactor * (1 - winnerRate));
+    const loosedElo = Math.round(kFactor * (0 - looserRate));
+
+    await this.server.db.run(SQL`
+      INSERT INTO elo(game, user_id, value)
+      VALUES(${this.game}, ${winner.userID}, ${winner.elo + winnedElo}),
+            (${this.game}, ${looser.userID}, ${looser.elo + loosedElo})
+    `);
+
+    await this.server.db.run(SQL`
+      INSERT INTO ranked_matches(id, winner_elo, looser_elo, winned_elo,
+                  loosed_elo)
+      VALUES(${id}, ${winner.elo}, ${looser.elo}, ${winnedElo}, ${loosedElo})
+    `);
   }
 
   public error() {
@@ -84,16 +98,17 @@ export default abstract class Match {
 
   public async fetchElo() {
     for (const player of this.players) {
-      player.elo = await this.server.db.get(SQL`
+      const elo = await this.server.db.get(SQL`
         SELECT value
         FROM elo
         WHERE game = ${this.game} AND user_id = ${player.userID}
         ORDER BY created_at DESC
         LIMIT 1
       `);
-    }
 
-    await Promise.all(this.players.map(player => player.elo));
+      if (!elo) throw new Error('Elo not found');
+      player.elo = elo.value;
+    }
   }
 
   private handleClose(opponent: Player) {
