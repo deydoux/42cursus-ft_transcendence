@@ -2,15 +2,11 @@ import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-sche
 import SQL from 'sql-template-strings';
 import {idParamsSchema} from '#lib/schemas';
 
-interface QueryParams {
-  lastID: number;
-}
-
 const PAGE_SIZE = 25;
 
 const schema = {
   ...idParamsSchema,
-  query: {
+  querystring: {
     type: 'object',
     properties: {
       lastID: {type: 'integer', default: 0},
@@ -21,7 +17,7 @@ const schema = {
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.get('/:id', {schema}, async (request, reply) => {
     const {url, user} = request;
-    const {lastID} = request.query as QueryParams;
+    const {lastID} = request.query;
 
     const other = await server.db.get(SQL`
       SELECT id
