@@ -14,7 +14,6 @@ const schema = {
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.get('/matches', {schema}, async (request, reply) => {
     const {query} = request;
-    // const gameFilter = query.game ? SQL`game = ${query.game} AND ` : SQL``; // TODO
 
     const user = await server.db.get(SQL`
       SELECT id, username, has_avatar, avatar_version
@@ -23,7 +22,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     `);
     serializeUserAvatar(user);
 
-    const matches = await server.db.all(SQL`
+    const dbQuery = SQL`
       SELECT game, mode, winner_id, looser_id, winner_score, looser_score, draw,
              created_at AS createdAt, updated_at AS updatedAt,
              u.id, username, has_avatar, avatar_version,
@@ -34,10 +33,14 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       OR (winner_id = u.id AND looser_id = ${user.id})
       LEFT JOIN ranked_matches rm
       ON mode = 'ranked' AND m.id = rm.id
-      WHERE winner_id = ${user.id} OR looser_id = ${user.id}
+      WHERE (winner_id = ${user.id} OR looser_id = ${user.id})`;
+
+    if (query.game) dbQuery.append(SQL` AND game = ${query.game}`);
+    dbQuery.append(SQL`
       ORDER BY created_at DESC
     `);
 
+    const matches = await server.db.all(dbQuery);
     matches.forEach(match => {
       serializeUserAvatar(match);
 
