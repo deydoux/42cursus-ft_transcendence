@@ -30,7 +30,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       FROM matches m
       LEFT JOIN users u
       ON (winner_id = ${user.id} AND looser_id = u.id)
-      OR (winner_id = u.id AND looser_id = ${user.id})
+         OR (winner_id = u.id AND looser_id = ${user.id})
       LEFT JOIN ranked_matches rm
       ON mode = 'ranked' AND m.id = rm.id
       WHERE (winner_id = ${user.id} OR looser_id = ${user.id})`;
