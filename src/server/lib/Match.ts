@@ -36,9 +36,18 @@ export default abstract class Match {
 
       player.socket.on('close', () => this.handleClose(opponent));
       player.socket.on('error', () => this.handleClose(opponent));
-      player.socket.on('message', message =>
-        this.handleMessage(player, message),
-      );
+      player.socket.on('message', data => {
+        let message;
+        try {
+          message = JSON.parse(data.toString());
+        } catch {
+          return player.socket.send(
+            Clients.message({type: 'error', message: 'Invalid JSON'}),
+          );
+        }
+
+        this.handleMessage(player, message);
+      });
 
       server.game.players[player.userID] = opponent.userID;
     }
@@ -116,9 +125,8 @@ export default abstract class Match {
     );
   }
 
-  private handleMessage(player: Player, message: object) {
-    if ((message as {type: string}).type === 'move')
-      this.handleMove(player, message);
+  private handleMessage(player: Player, message: Record<string, unknown>) {
+    if (message?.type === 'move') this.handleMove(player, message);
   }
 
   protected abstract handleMove(player: Player, message: object): void;

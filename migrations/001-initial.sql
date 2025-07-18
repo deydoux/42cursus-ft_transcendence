@@ -86,7 +86,7 @@ CREATE TABLE ranked_matches(
 
   winner_elo  INTEGER NOT NULL,
   looser_elo  INTEGER NOT NULL,
-  changed_elo INTEGER NOT NULL,
+  changed_elo INTEGER NOT NULL, -- TODO: Rename to elo_change
 
   FOREIGN KEY(id) REFERENCES matches(id) ON DELETE CASCADE
 );
