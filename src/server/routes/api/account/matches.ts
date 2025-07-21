@@ -26,7 +26,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       SELECT game, mode, winner_id, looser_id, winner_score, looser_score, draw,
              created_at AS createdAt, updated_at AS updatedAt,
              u.id, username, has_avatar, avatar_version,
-             winner_elo, looser_elo, changed_elo AS eloChange
+             winner_elo, looser_elo, elo_change AS eloChange
       FROM matches m
       LEFT JOIN users u
       ON (winner_id = ${user.id} AND looser_id = u.id)

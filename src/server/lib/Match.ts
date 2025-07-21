@@ -88,7 +88,7 @@ export default abstract class Match {
     `);
 
     await this.server.db.run(SQL`
-      INSERT INTO ranked_matches(id, winner_elo, looser_elo, changed_elo)
+      INSERT INTO ranked_matches(id, winner_elo, looser_elo, elo_change)
       VALUES(${id}, ${winner.elo}, ${looser.elo}, ${change})
     `);
   }

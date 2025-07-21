@@ -82,11 +82,11 @@ CREATE TABLE matches(
 CREATE INDEX idx_matches_winner_id_looser_id_created_at_desc ON matches(winner_id, looser_id, created_at DESC);
 
 CREATE TABLE ranked_matches(
-  id          INTEGER PRIMARY KEY,
+  id         INTEGER PRIMARY KEY,
 
-  winner_elo  INTEGER NOT NULL,
-  looser_elo  INTEGER NOT NULL,
-  changed_elo INTEGER NOT NULL, -- TODO: Rename to elo_change
+  winner_elo INTEGER NOT NULL,
+  looser_elo INTEGER NOT NULL,
+  elo_change INTEGER NOT NULL,
 
   FOREIGN KEY(id) REFERENCES matches(id) ON DELETE CASCADE
 );
