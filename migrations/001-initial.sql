@@ -76,7 +76,7 @@ CREATE TABLE matches(
   updated_at  INTEGER NOT NULL DEFAULT (unixepoch()),
 
   CHECK(game IN ('pong', 'race')),
-  CHECK(mode IN ('local', 'casual', 'ranked'))
+  CHECK(mode IN ('casual', 'ranked'))
 );
 
 CREATE INDEX idx_matches_winner_id_looser_id_created_at_desc ON matches(winner_id, looser_id, created_at DESC);
