@@ -1,7 +1,8 @@
-import {Client} from '#types/Clients';
+import {Client, ServerTunnelMessage} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
 import SQL from 'sql-template-strings';
+import {WebSocket} from '@fastify/websocket';
 
 export interface Player extends Client {
   elo?: number;
@@ -43,9 +44,10 @@ export default abstract class Match {
         try {
           message = JSON.parse(data.toString());
         } catch {
-          return player.socket.send(
-            Clients.message({type: 'error', message: 'Invalid JSON'}),
-          );
+          return this.sendSocket(player.socket, {
+            type: 'error',
+            message: 'Invalid JSON',
+          });
         }
 
         this.handleMessage(player, message);
@@ -95,11 +97,7 @@ export default abstract class Match {
   }
 
   public error() {
-    this.players.forEach(player =>
-      player.socket.send(
-        Clients.message({type: 'error', message: 'Match error'}),
-      ),
-    );
+    this.send({type: 'error', message: 'Match error'});
   }
 
   public async fetchElo() {
@@ -131,6 +129,16 @@ export default abstract class Match {
   }
 
   protected abstract handleMove(player: Player, message: object): void;
+
+  private send(message: ServerTunnelMessage) {
+    return this.players.forEach(player =>
+      player.socket.send(Clients.message(message)),
+    );
+  }
+
+  private sendSocket(socket: WebSocket, message: ServerTunnelMessage) {
+    return socket.send(Clients.message(message));
+  }
 
   public async start() {
     if (this.ranked) await this.fetchElo();
