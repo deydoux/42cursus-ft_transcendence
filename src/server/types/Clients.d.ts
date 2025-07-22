@@ -35,6 +35,12 @@ type ServerTunnelMessage =
       type: 'hotReload';
     }
   | {
+      type: 'matchStart';
+      game: string;
+      ranked: boolean;
+      opponent: unknown;
+    }
+  | {
       type: 'success';
       origin: string;
     };

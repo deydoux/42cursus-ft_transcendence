@@ -3,8 +3,11 @@ import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
 import SQL from 'sql-template-strings';
 import {WebSocket} from '@fastify/websocket';
+import serializeUserAvatar from './serializeUserAvatar';
 
 export interface Player extends Client {
+  username?: string;
+  avatar?: string;
   elo?: number;
   score?: number;
 }
@@ -33,9 +36,8 @@ export default abstract class Match {
     this.game = game;
     this.ranked = ranked;
 
-    for (const [index, player] of this.players.entries()) {
+    this.execute((player, opponent) => {
       player.score = 0;
-      const opponent = this.players[1 - index];
 
       player.socket.on('close', () => this.handleClose(opponent));
       player.socket.on('error', () => this.handleClose(opponent));
@@ -54,7 +56,7 @@ export default abstract class Match {
       });
 
       server.game.players[player.userID] = opponent.userID;
-    }
+    });
   }
 
   private async destroy(winner: Player) {
@@ -100,18 +102,36 @@ export default abstract class Match {
     this.send({type: 'error', message: 'Match error'});
   }
 
-  public async fetchElo() {
+  private async execute(action: (player: Player, opponent: Player) => unknown) {
+    for (const [index, player] of this.players.entries()) {
+      const opponent = this.players[1 - index];
+      await action(player, opponent);
+    }
+  }
+
+  public async fetchData() {
     for (const player of this.players) {
-      const elo = await this.server.db.get(SQL`
-        SELECT value
-        FROM elo
-        WHERE game = ${this.game} AND user_id = ${player.userID}
-        ORDER BY created_at DESC
-        LIMIT 1
+      const user = await this.server.db.get(SQL`
+        SELECT id, username, has_avatar, avatar_version
+        FROM users
+        WHERE id = ${player.userID}
       `);
 
-      if (!elo) throw new Error('Elo not found');
-      player.elo = elo.value;
+      serializeUserAvatar(user);
+      player.username = user.username;
+      player.avatar = user.avatar;
+
+      if (this.ranked) {
+        const elo = await this.server.db.get(SQL`
+          SELECT value
+          FROM elo
+          WHERE game = ${this.game} AND user_id = ${player.userID}
+          ORDER BY created_at DESC
+          LIMIT 1
+        `);
+
+        player.elo = elo.value;
+      }
     }
   }
 
@@ -141,7 +161,22 @@ export default abstract class Match {
   }
 
   public async start() {
-    if (this.ranked) await this.fetchElo();
+    await this.fetchData();
+
+    await this.execute(async (player, opponent) =>
+      this.sendSocket(player.socket, {
+        type: 'matchStart',
+        game: this.game,
+        ranked: this.ranked,
+        opponent: {
+          id: opponent.userID,
+          username: opponent.username,
+          avatar: opponent.avatar,
+          elo: opponent.elo,
+        },
+      }),
+    );
+
     while (!this.winner) await this.tick();
     await this.destroy(this.winner);
   }
