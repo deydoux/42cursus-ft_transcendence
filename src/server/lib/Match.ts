@@ -8,6 +8,8 @@ export interface Player extends Client {
   score?: number;
 }
 
+export const kFactor = 32;
+
 export default abstract class Match {
   protected server;
   protected players;
@@ -78,7 +80,6 @@ export default abstract class Match {
     if (!winner.elo || !looser.elo) throw new Error('Elo not found');
 
     const rate = 1 / (1 + Math.pow(10, (winner.elo - looser.elo) / 400));
-    const kFactor = 32;
     const change = Math.round(kFactor * rate);
 
     await this.server.db.run(SQL`
