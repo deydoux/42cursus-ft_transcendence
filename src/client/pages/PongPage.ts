@@ -2,7 +2,7 @@ import '../styles/pong-page.css';
 import {handleInput, initializeGame} from '../utils/content';
 import {PongCanvas} from '../containers/pongCanvas';
 import {html} from '../utils/html';
-import {renderPong} from '../containers/pongGame';
+import {renderPong} from '../containers/renderPong';
 
 /**
  * Renders the Pong game page by setting up the layout and initializing the game.

@@ -2,7 +2,7 @@ import '../styles/race-page.css';
 import {handleInput, initializeGame} from '../utils/race-content';
 import {RaceCanvas} from '../containers/raceCanvas';
 import {html} from '../utils/html';
-import {renderCar} from '../containers/raceGame';
+import {renderCar} from '../containers/renderRace';
 
 export function renderRacePage(): void {
   const right = document.getElementById('right-container');

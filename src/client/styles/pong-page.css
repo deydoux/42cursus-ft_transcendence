@@ -28,7 +28,7 @@ h1.announcement {
  --glow-spread-color: rgba(227, 11, 92, 0.781);
   border: 5px solid #fde ;
   background-color: #000000;
-  border-radius: 5px;
+  border-radius: 30px;
   margin-top: 5px;
   margin-left: 50px;
   margin-right: 50px;
