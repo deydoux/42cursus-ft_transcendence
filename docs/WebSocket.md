@@ -101,6 +101,24 @@ Received when a user accepts a friend request
 }
 ```
 
+### `matchStart`
+Received when a match is starting
+
+*Example:*
+```json
+{
+  "type": "matchStart",
+  "game": "pong",
+  "ranked": true,
+  "opponent": {
+    "id": 2,
+    "username": "user123",
+    "avatar": "/static/default_avatar.webp",
+    "elo": 1000
+  }
+}
+```
+
 ### `hotReload` (development only)
 Received when the client should reload the page to apply updates. `NODE_ENV` must be set to `development` for this message to be sent
 

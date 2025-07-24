@@ -4,6 +4,18 @@ import {Database} from 'sqlite';
 import {SharpInput} from 'sharp';
 import {WebSocket} from '@fastify/websocket';
 
+interface RankedClient extends Client {
+  elo: number;
+  lowerElo: number;
+  upperElo: number;
+  timeout?: NodeJS.Timeout;
+}
+
+interface Queue {
+  casual: Client | null;
+  ranked: RankedClient[];
+}
+
 declare module 'fastify' {
   interface FastifyInstance {
     authenticate: (
@@ -16,12 +28,8 @@ declare module 'fastify' {
     game: {
       players: Record<number, number>;
       queues: {
-        pong: {
-          casual: Client | null;
-        };
-        race: {
-          casual: Client | null;
-        };
+        pong: Queue;
+        race: Queue;
       };
     };
     leaveMatchmaking: (socket: WebSocket) => void;

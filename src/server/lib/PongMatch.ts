@@ -1,5 +1,4 @@
 import Match, {Player} from '#lib/Match';
-import {Client} from '#types/Clients';
 import {FastifyInstance} from 'fastify';
 
 // TODO: Remove debug sleep
@@ -7,12 +6,8 @@ const sleep = (seconds: number): Promise<void> =>
   new Promise(resolve => setTimeout(resolve, seconds * 1000));
 
 export default class PongMatch extends Match {
-  constructor(
-    server: FastifyInstance,
-    players: [Client, Client],
-    ranked: boolean,
-  ) {
-    super(server, players, 'pong', ranked);
+  constructor(server: FastifyInstance, players: [Player, Player]) {
+    super(server, players, 'pong');
   }
 
   protected handleMove(player: Player, message: object) {

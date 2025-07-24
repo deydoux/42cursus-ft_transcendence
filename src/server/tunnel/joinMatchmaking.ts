@@ -2,6 +2,9 @@ import {Client, ClientTunnelMessage} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
 import PongMatch from '#lib/PongMatch';
+import {RankedClient} from '#types/fastify';
+import SQL from 'sql-template-strings';
+import {kFactor} from '#lib/Match';
 
 export default async function joinMatchmaking(
   server: FastifyInstance,
@@ -10,9 +13,11 @@ export default async function joinMatchmaking(
 ) {
   const {game} = server;
 
-  let MatchConstructor;
-  if (message.game === 'pong') MatchConstructor = PongMatch;
-  else
+  let MatchConstructor, queue;
+  if (message.game === 'pong') {
+    MatchConstructor = PongMatch;
+    queue = game.queues.pong;
+  } else
     return client.socket.send(
       Clients.message({type: 'error', message: 'Invalid game'}),
     );
@@ -25,17 +30,18 @@ export default async function joinMatchmaking(
       }),
     );
 
-  if (
-    [game.queues.pong.casual?.userID, game.queues.race.casual?.userID].includes(
-      client.userID,
+  for (const queue of Object.values(game.queues)) {
+    if (
+      queue.casual?.userID === client.userID ||
+      queue.ranked.some(rankedClient => rankedClient.userID === client.userID)
     )
-  )
-    return client.socket.send(
-      Clients.message({
-        type: 'error',
-        message: 'You are already in a matchmaking queue',
-      }),
-    );
+      return client.socket.send(
+        Clients.message({
+          type: 'error',
+          message: 'You are already in a matchmaking queue',
+        }),
+      );
+  }
 
   let match = null;
 
@@ -49,12 +55,59 @@ export default async function joinMatchmaking(
 
       game.queues[message.game].casual = null;
 
-      match = new MatchConstructor(server, [queued, client], false);
+      match = new MatchConstructor(server, [client, queued]);
       break;
     }
     case 'ranked': {
-      // match = new MatchConstructor(server, [queued, client], true);
-      server.log.warn('TODO: Handle ranked matchmaking');
+      const elo = await server.db.get(SQL`
+        SELECT value
+        FROM elo
+        WHERE game = ${message.game} AND user_id = ${client.userID}
+        ORDER BY created_at DESC
+        LIMIT 1
+      `);
+
+      const rankedClient: RankedClient = {
+        ...client,
+        elo: elo.value,
+        lowerElo: elo.value,
+        upperElo: elo.value,
+      };
+
+      rankedClient.timeout = setInterval(
+        async rankedClient => {
+          rankedClient.lowerElo -= kFactor;
+          rankedClient.upperElo += kFactor;
+
+          const matchable = queue.ranked.filter(
+            queued =>
+              queued.userID !== rankedClient.userID &&
+              rankedClient.lowerElo <= queued.elo &&
+              queued.elo <= rankedClient.upperElo,
+          );
+
+          console.log(queue.ranked);
+          if (matchable.length === 0) return;
+
+          const queued =
+            matchable[Math.floor(Math.random() * matchable.length)];
+
+          server.leaveMatchmaking(rankedClient.socket);
+          server.leaveMatchmaking(queued.socket);
+          match = new MatchConstructor(server, [rankedClient, queued]);
+
+          try {
+            await match.start();
+          } catch (error) {
+            match.error();
+            server.log.error(error);
+          }
+        },
+        1000,
+        rankedClient,
+      );
+
+      queue.ranked.push(rankedClient);
       break;
     }
     default:

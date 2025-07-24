@@ -29,12 +29,11 @@ export default abstract class Match {
     server: FastifyInstance,
     players: [Player, Player],
     game: string,
-    ranked: boolean,
   ) {
     this.server = server;
     this.players = players;
     this.game = game;
-    this.ranked = ranked;
+    this.ranked = players.every(player => player.elo);
 
     this.execute((player, opponent) => {
       player.score = 0;
@@ -121,17 +120,7 @@ export default abstract class Match {
       player.username = user.username;
       player.avatar = user.avatar;
 
-      if (this.ranked) {
-        const elo = await this.server.db.get(SQL`
-          SELECT value
-          FROM elo
-          WHERE game = ${this.game} AND user_id = ${player.userID}
-          ORDER BY created_at DESC
-          LIMIT 1
-        `);
-
-        player.elo = elo.value;
-      }
+      if (!this.ranked) delete player.elo;
     }
   }
 
