@@ -4,7 +4,9 @@ import { DOMUtils } from "../utils/dom";
 import { api } from "../utils/Api";
 import { createDialog } from "../components/Dialog";
 import { loadIcons } from "../utils/icons";
+import sticker from "../assets/sticker.png";
 import img from "../assets/kittypong.png";
+import '../styles/main.css';
 
 export class LandingPage extends BaseComponent {
   private authDialogContent: HTMLDivElement;
@@ -165,21 +167,25 @@ export class LandingPage extends BaseComponent {
 
   private renderWelcomeContainer(showAuthDialog: () => void) {
     const container = DOMUtils.createElement('div', {
-      className: 'relative flex-1 h-full flex flex-col justify-center p-16',
+      className: 'relative flex-none w-full xl:w-1/2 max-w-[700px] h-full flex flex-col justify-center',
     });
 
     // Header
-    container.appendChild(DOMUtils.createElement('p', {
+    const header = DOMUtils.createElement('div', {
+      className: 'relative'
+    });
+    header.appendChild(DOMUtils.createElement('p', {
       textContent: 'Play with your friends and become the best player of 42',
       className: 'text-pink-300 uppercase tracking-wide mb-[200px] z-10'
     }));
-
-    container.appendChild(DOMUtils.createElement('img', {
-      className: 'absolute h-[300px] left-0 top-34 z-0',
+    header.appendChild(DOMUtils.createElement('img', {
+      className: 'absolute h-[300px] -left-16 -top-10 z-0',
       attributes: {
         src: img
       }
     }));
+
+    container.appendChild(header);
 
     // Welcome text
     const text = DOMUtils.createElement('p', {
@@ -243,7 +249,7 @@ export class LandingPage extends BaseComponent {
 
   private renderKPIBlock = (icon: string, title: string, value: string, darkMode: boolean) => {
     const kpi = DOMUtils.createElement('div', {
-      className: `${darkMode ? "bg-linear-to-br from-gray-500/20 to-gray-800/20 text-white": "text-black bg-linear-to-br from-pink-200 to-pink-300 shadow-lg shadow-pink-300/30"} rounded-3xl p-6 flex flex-col items-start justify-between hover:scale-105 transition-all`
+      className: `w-[260px] h-[210px] ${darkMode ? "bg-linear-to-br from-gray-500/20 to-gray-800/20 text-white": "text-black bg-linear-to-br from-pink-200 to-pink-300 shadow-lg shadow-pink-300/30"} rounded-3xl p-6 flex flex-col items-start justify-between hover:scale-105 transition-all`
     });
 
     kpi.appendChild(DOMUtils.createElement('i', {
@@ -270,20 +276,31 @@ export class LandingPage extends BaseComponent {
 
   private renderKPIContainer() {
     const container = DOMUtils.createElement('div', {
-      className: 'flex-1 p-10 h-2/3 grid grid-cols-1 grid-rows-2 gap-10 overflow-y-auto lg:grid-cols-2 lg:overflow-y-visible'
+      className: 'flex-none w-1/2 max-w-[600px] hidden xl:flex xl:flex-wrap justify-end gap-10 overflow-y-visible'
     });
 
     container.appendChild(this.renderKPIBlock('users', 'Total users', '142', true));
     container.appendChild(this.renderKPIBlock('pingpong', 'Total games', '380', false));
     container.appendChild(this.renderKPIBlock('star', 'Best player', 'mapale', false));
-    container.appendChild(this.renderKPIBlock('fire', 'Best player streak', '44 min', true));
+
+    const stickerBlock = DOMUtils.createElement('div', {
+      className: `group w-[260px] h-[210px] p-2 flex flex-col hover:scale-105 transition-all`
+    })
+    stickerBlock.appendChild(DOMUtils.createElement('img', {
+      className: 'mx-auto h-full animate-wiggle',
+      attributes: {
+        src: sticker
+      }
+    }))
+
+    container.appendChild(stickerBlock);
 
     return container;
   }
 
   render(): HTMLElement {
     const container = DOMUtils.createElement('div', {
-      className: "w-screen h-screen overflow-hidden flex justify-center items-center",
+      className: "w-screen h-screen overflow-hidden flex justify-around max-w-[1600px] items-center gap-20",
     });
 
     const { dialogContent, showModal } = createDialog('auth');
