@@ -37,9 +37,6 @@ export class Router {
       if (this.currentComponent?.destroy) {
         this.currentComponent.destroy();
       }
-
-      console.log('currentComponent', this.currentComponent);
-      console.log('container', this.container);
       
       // Render new component
       this.currentComponent = componentFactory();

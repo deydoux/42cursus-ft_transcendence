@@ -1,7 +1,8 @@
 import { LandingPage } from "./containers/LandingPage";
 import { PageNotFound } from "./containers/PageNotFound";
 import { Router } from "./services/router";
-import { DOMUtils } from "./utils/dom";
+import { loadIcons } from "./utils/icons";
+import './hotReload';
 
 class App {
   private router: Router;
@@ -20,6 +21,8 @@ class App {
     this.router = new Router(rootContainer);
     this.setupRoutes();
     this.router.initialize();
+    
+    loadIcons();
   }
 
   private setupRoutes(): void {

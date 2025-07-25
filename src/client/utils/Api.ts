@@ -1,70 +1,72 @@
-import {navigate} from './navigate';
-
 const publicEndpoints = ['/api/auth/login', '/api/auth/signup'];
 
 class Api {
-  private accessToken: string;
-  private headers: HeadersInit;
+  public setAccessToken(token: string) {
+    localStorage.setItem('accessToken', token);
+  }
 
-  public storeAccessToken(token: string) {
-    this.accessToken = token;
-    this.headers = {
-      Authorization: `Bearer ${this.accessToken}`,
-    };
+  private getAccessToken() {
+    return localStorage.getItem('accessToken');
   }
 
   private async customFetch(
     input: string | URL | globalThis.Request,
     init?: RequestInit,
-  ) {
-    return await fetch(input, init).then(response => {
+  ) : Promise<Response> {
+    try {
+      let requestInit = { ...init, headers: { ...init?.headers, 'content-type': 'application/json' } } as RequestInit;
+      const accessToken = this.getAccessToken();
+      if (accessToken) {
+        requestInit.headers = {
+          ...requestInit.headers,
+          Authorization: accessToken
+        }
+      }
+      
+      const response = await fetch(input, init);
+
       if (
-        response.status === 401 &&
+        response.status === 401 && 
         !publicEndpoints.includes(input.toString())
       ) {
-        fetch('/api/auth/refresh', {method: 'POST'})
-          .then(async response => {
-            if (response.ok) {
-              const body = await response.json();
-              this.storeAccessToken(body.accessToken);
-              fetch(input, {...init, headers: {...this.headers}});
-            } else throw response;
-          })
-          .catch(() => {
-            navigate('Se connecter', '/signin');
-          });
-      } else return response;
-    });
+        const refreshResponse = await fetch('/api/auth/refresh', { method: 'POST' });
+      
+        if (!refreshResponse.ok) {
+          // Redirect to landing page
+          throw refreshResponse;
+        }
+
+        const body = await refreshResponse.json();
+        this.setAccessToken(body.accessToken);
+
+        return fetch(input, {
+          ...init,
+          headers: {
+            ...init?.headers,
+            'content-type': 'application/json',
+            Authorization: body.accessToken
+          },
+        });
+      }
+
+      return response;
+    } catch (error) {
+      console.error(error.message);
+      throw error;
+    }
   }
 
   public async get(endpoint: string) {
-    const response = await this.customFetch('/api/' + endpoint, {
-      headers: {...(this.headers ?? {})},
+    return this.customFetch('/api/' + endpoint, {
       method: 'GET',
     });
-
-    if (response && response.status !== 204)
-      response.json = await response.json();
-    if (response && response.ok) return response;
-
-    throw response;
   }
 
-  public async post(endpoint: string, body: object) {
-    const response = await this.customFetch('/api/' + endpoint, {
-      method: 'POST',
+  public async post(endpoint: string, body: object) : Promise<Response> {
+    return this.customFetch('/api/' + endpoint, {
       body: JSON.stringify(body),
-      headers: {
-        'content-type': 'application/json',
-        ...(this.headers ?? {}),
-      },
+      method: 'POST',
     });
-
-    if (response && response.status !== 204)
-      response.json = await response.json();
-    if (response && response.ok) return response;
-
-    throw response;
   }
 }
 

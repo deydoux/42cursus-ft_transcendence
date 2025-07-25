@@ -28,21 +28,11 @@ export const renderFieldIcon = () =>
     </g>
   </svg>`;
 
-export const renderUserIcon = (size = 5) =>
-  html`<svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke-width="1.5"
-    stroke="currentColor"
-    class="size-${size} -mt-2"
-  >
-    <path
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-    />
-  </svg> `;
+export const renderUserIcon = (size = 5) => (
+  html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+  </svg>`
+);
 
 export const renderKeyIcon = (size = 5) =>
   html`<svg
@@ -92,11 +82,46 @@ export const renderPingpongIcon = () =>
     </g>
   </svg>`;
 
+const renderUsersIcon = () => (
+  html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+    <path d="M4.5 6.375a4.125 4.125 0 1 1 8.25 0 4.125 4.125 0 0 1-8.25 0ZM14.25 8.625a3.375 3.375 0 1 1 6.75 0 3.375 3.375 0 0 1-6.75 0ZM1.5 19.125a7.125 7.125 0 0 1 14.25 0v.003l-.001.119a.75.75 0 0 1-.363.63 13.067 13.067 0 0 1-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 0 1-.364-.63l-.001-.122ZM17.25 19.128l-.001.144a2.25 2.25 0 0 1-.233.96 10.088 10.088 0 0 0 5.06-1.01.75.75 0 0 0 .42-.643 4.875 4.875 0 0 0-6.957-4.611 8.586 8.586 0 0 1 1.71 5.157v.003Z" />
+  </svg>`
+)
+
+const renderStarIcon = () => (
+  html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+    <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd" />
+  </svg>`
+);
+
+const renderFireIcon = () => (
+  html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+    <path fill-rule="evenodd" d="M12.963 2.286a.75.75 0 0 0-1.071-.136 9.742 9.742 0 0 0-3.539 6.176 7.547 7.547 0 0 1-1.705-1.715.75.75 0 0 0-1.152-.082A9 9 0 1 0 15.68 4.534a7.46 7.46 0 0 1-2.717-2.248ZM15.75 14.25a3.75 3.75 0 1 1-7.313-1.172c.628.465 1.35.81 2.133 1a5.99 5.99 0 0 1 1.925-3.546 3.75 3.75 0 0 1 3.255 3.718Z" clip-rule="evenodd" />
+  </svg>`
+);
+
+const renderLoadingSpinnerIcon = () => (
+  html`<svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="400" cy="400" fill="none" r="207" stroke-width="50" stroke="#E387FF" stroke-dasharray="1102 1400" stroke-linecap="round" />
+  </svg>`
+);
+
+const renderHelloKittyIcon = () => (
+  html`<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0,0,256,256">
+    <g fill="currentColor" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(10.66667,10.66667)"><path d="M22,12c-0.375,0 -0.739,0 -1.079,0.001c-0.072,-0.463 -0.202,-0.916 -0.376,-1.366c-0.437,0.239 -0.959,0.375 -1.542,0.375c-0.112,0 -0.223,-0.005 -0.333,-0.013c-0.607,-0.049 -1.323,-0.388 -1.898,-1.024c-0.09,0.009 -0.179,0.027 -0.272,0.027c-0.405,0 -0.781,-0.106 -1.12,-0.277c-0.347,0.175 -0.675,0.261 -1.092,0.261l-0.078,-0.001c-0.861,-0.021 -1.376,-0.414 -1.656,-0.739c-0.655,-0.761 -0.634,-1.813 -0.563,-2.378c0.14,-1.185 0.564,-1.871 1.045,-2.283c-0.699,-0.054 -1.406,-0.083 -1.786,-0.083c-1.216,0 -2.243,0.191 -3.444,0.65c-1.006,-0.529 -2.717,-1.382 -4.107,-1.134c-0.297,0.052 -0.739,0.235 -1.169,1.204c-0.261,0.588 -0.97,2.572 0.125,4.761c-0.041,0.094 -0.086,0.186 -0.12,0.286c-0.007,0.021 -0.003,0.042 -0.008,0.063c-0.211,0.543 -0.358,1.098 -0.437,1.664c-0.343,-0.001 -0.711,-0.002 -1.09,-0.002c-0.553,0 -1,0.447 -1,1c0,0.553 0.447,1 1,1c0.376,0 0.741,0 1.081,0.001c0.067,0.513 0.188,0.997 0.36,1.449l-1.03,0.749c-0.447,0.324 -0.546,0.95 -0.221,1.396c0.197,0.27 0.501,0.413 0.811,0.413c0.204,0 0.409,-0.063 0.587,-0.191l0.88,-0.64c1.593,1.834 4.447,2.831 8.34,2.831c4.03,0 6.615,-0.819 7.986,-2.634l0.619,0.45c0.178,0.129 0.383,0.191 0.587,0.191c0.31,0 0.614,-0.143 0.81,-0.412c0.325,-0.446 0.227,-1.072 -0.221,-1.396l-0.908,-0.66c0.135,-0.471 0.225,-0.984 0.274,-1.538c0.33,-0.001 0.682,-0.001 1.045,-0.001c0.553,0 1,-0.447 1,-1c0,-0.553 -0.447,-1 -1,-1zM6,13.984c-0.552,0 -1,-0.444 -1,-0.992c0,-0.548 0.448,-0.992 1,-0.992c0.552,0 1,0.444 1,0.992c0,0.548 -0.448,0.992 -1,0.992zM11.51,16.978c-0.834,0 -1.51,-0.443 -1.51,-0.989c0,-0.546 0.676,-0.989 1.51,-0.989c0.834,0 1.51,0.443 1.51,0.989c0,0.546 -0.677,0.989 -1.51,0.989zM17,14c-0.552,0 -1,-0.448 -1,-1c0,-0.552 0.448,-1 1,-1c0.552,0 1,0.448 1,1c0,0.552 -0.448,1 -1,1z"></path><path d="M16.566,5.006c0.491,0.013 0.945,0.167 1.328,0.425c0.438,-0.207 0.963,-0.365 1.622,-0.411c-0.322,-1.23 -0.915,-1.859 -1.553,-1.998c-1.314,-0.282 -2.345,0.356 -3.117,0.996c0.804,0.063 1.346,0.471 1.72,0.988z"></path><path d="M16.5,6c0.774,0 1.412,0.587 1.492,1.34c0.005,0.053 0.008,0.106 0.008,0.16c0,0.828 -0.672,1.5 -1.5,1.5c-0.828,0 -1.5,-0.672 -1.5,-1.5c0,-0.828 0.672,-1.5 1.5,-1.5"></path><path d="M16.5,7.75c-1.375,1 -1.63,1.249 -2.266,1.233c-1.535,-0.038 -1.265,-1.875 -1.25,-2c0.222,-1.874 1.222,-1.999 1.72,-1.982c1.409,0.049 1.602,1.998 1.796,2.624z"></path><path d="M16.875,8.125c0.357,1.25 1.262,1.826 1.875,1.875c0.706,0.057 1.49,-0.112 1.87,-0.756c0.88,-1.494 -0.108,-3.244 -0.745,-3.244c-1.125,0 -1.755,0.382 -2.255,0.744z"></path><path d="M18,7.5c0,0.828 -0.672,1.5 -1.5,1.5c-0.828,0 -1.5,-0.672 -1.5,-1.5c0,-0.828 0.672,-1.5 1.5,-1.5c0.774,0 1.412,0.587 1.492,1.34c0.005,0.053 0.008,0.106 0.008,0.16z"></path></g></g>
+  </svg>`
+);
+
 const iconsRenderer: Record<string, () => HTMLElement> = {
   key: renderKeyIcon,
   user: renderUserIcon,
   pingpong: renderPingpongIcon,
   field: renderFieldIcon,
+  users: renderUsersIcon,
+  star: renderStarIcon,
+  fire: renderFireIcon,
+  loadingSpin: renderLoadingSpinnerIcon,
+  helloKitty: renderHelloKittyIcon,
 };
 
 export const loadIcons = () => {
@@ -130,7 +155,7 @@ export const loadIcons = () => {
       const iconLabel = input.getAttribute('input-icon');
       if (!iconLabel) return;
       const icon = iconsRenderer[iconLabel]();
-      'absolute left-2 flex h-6 w-6'
+      'absolute left-4 flex h-5 w-5'
         .split(' ')
         .forEach(classElem => icon.classList.add(classElem));
       inputContainer.appendChild(icon);
