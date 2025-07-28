@@ -11,14 +11,22 @@ const plugin: FastifyPluginAsync = async server => {
     const refreshToken = generateRefreshToken(id);
     const accessToken = await this.generateAccessToken(id);
 
-    const {ip} = this;
+    const {ip, connection} = this;
     const userAgent = this.headers['user-agent'] || null;
 
-    await server.db.run(SQL`
-      INSERT INTO connections(user_id, ip, user_agent, access_token,
-                  refresh_token)
-      VALUES(${id}, ${ip}, ${userAgent}, ${accessToken}, ${refreshToken})
-    `);
+    if (connection)
+      await server.db.run(SQL`
+        UPDATE connections
+        SET ip = ${ip}, user_agent = ${userAgent}, access_token = ${accessToken},
+            refresh_token = ${refreshToken}
+        WHERE id = ${connection}
+      `);
+    else
+      await server.db.run(SQL`
+        INSERT INTO connections(user_id, ip, user_agent, access_token,
+                    refresh_token)
+        VALUES(${id}, ${ip}, ${userAgent}, ${accessToken}, ${refreshToken})
+      `);
 
     return {accessToken, refreshToken};
   });
