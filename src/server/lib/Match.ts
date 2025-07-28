@@ -60,56 +60,56 @@ export default abstract class Match {
 
   private async destroy(winner: Player) {
     const mode = this.ranked ? 'ranked' : 'casual';
-    const looser =
+    const loser =
       winner.userID === this.players[0].userID
         ? this.players[1]
         : this.players[0];
 
     const {lastID: id} = await this.server.db.run(SQL`
-      INSERT INTO matches(game, mode, winner_id, looser_id, winner_score,
-                         looser_score, draw, created_at)
-      VALUES(${this.game}, ${mode}, ${winner.userID}, ${looser.userID},
-            ${winner.score}, ${looser.score}, ${this.draw}, ${this.createdAt})
+      INSERT INTO matches(game, mode, winner_id, loser_id, winner_score,
+                         loser_score, draw, created_at)
+      VALUES(${this.game}, ${mode}, ${winner.userID}, ${loser.userID},
+            ${winner.score}, ${loser.score}, ${this.draw}, ${this.createdAt})
     `);
     if (!id) throw new Error('Failed to create match');
 
-    if (this.ranked) await this.destroyRanked(id, winner, looser);
+    if (this.ranked) await this.destroyRanked(id, winner, loser);
     else
       this.execute(player =>
         this.sendSocket(player.socket, {
           type: 'matchEnd',
           winner: winner.userID,
-          looser: looser.userID,
+          loser: loser.userID,
           draw: this.draw,
         }),
       );
 
     delete this.server.game.players[winner.userID];
-    delete this.server.game.players[looser.userID];
+    delete this.server.game.players[loser.userID];
   }
 
-  private async destroyRanked(id: number, winner: Player, looser: Player) {
-    if (!winner.elo || !looser.elo) throw new Error('Elo not found');
+  private async destroyRanked(id: number, winner: Player, loser: Player) {
+    if (!winner.elo || !loser.elo) throw new Error('Elo not found');
 
-    const rate = 1 / (1 + Math.pow(10, (winner.elo - looser.elo) / 400));
+    const rate = 1 / (1 + Math.pow(10, (winner.elo - loser.elo) / 400));
     const change = Math.round(kFactor * rate);
 
     await this.server.db.run(SQL`
       INSERT INTO elo(game, user_id, value)
       VALUES(${this.game}, ${winner.userID}, ${winner.elo + change}),
-            (${this.game}, ${looser.userID}, ${looser.elo - change})
+            (${this.game}, ${loser.userID}, ${loser.elo - change})
     `);
 
     await this.server.db.run(SQL`
-      INSERT INTO ranked_matches(id, winner_elo, looser_elo, elo_change)
-      VALUES(${id}, ${winner.elo}, ${looser.elo}, ${change})
+      INSERT INTO ranked_matches(id, winner_elo, loser_elo, elo_change)
+      VALUES(${id}, ${winner.elo}, ${loser.elo}, ${change})
     `);
 
     this.execute(player =>
       this.sendSocket(player.socket, {
         type: 'matchEnd',
         winner: winner.userID,
-        looser: looser.userID,
+        loser: loser.userID,
         draw: this.draw,
         eloChange: change,
       }),

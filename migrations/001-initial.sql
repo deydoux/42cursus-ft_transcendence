@@ -66,10 +66,10 @@ CREATE TABLE matches(
   mode         TEXT NOT NULL,
 
   winner_id    INTEGER NOT NULL,
-  looser_id    INTEGER NOT NULL,
+  loser_id     INTEGER NOT NULL,
 
   winner_score INTEGER NOT NULL,
-  looser_score INTEGER NOT NULL,
+  loser_score  INTEGER NOT NULL,
   draw         INTEGER NOT NULL,
 
   created_at  INTEGER NOT NULL,
@@ -79,13 +79,13 @@ CREATE TABLE matches(
   CHECK(mode IN ('casual', 'ranked'))
 );
 
-CREATE INDEX idx_matches_winner_id_looser_id_created_at_desc ON matches(winner_id, looser_id, created_at DESC);
+CREATE INDEX idx_matches_winner_id_loser_id_created_at_desc ON matches(winner_id, loser_id, created_at DESC);
 
 CREATE TABLE ranked_matches(
   id         INTEGER PRIMARY KEY,
 
   winner_elo INTEGER NOT NULL,
-  looser_elo INTEGER NOT NULL,
+  loser_elo INTEGER NOT NULL,
   elo_change INTEGER NOT NULL,
 
   FOREIGN KEY(id) REFERENCES matches(id) ON DELETE CASCADE
@@ -167,7 +167,7 @@ DROP TABLE relationships;
 
 DROP TABLE ranked_matches;
 
-DROP INDEX idx_matches_winner_id_looser_id_created_at_desc;
+DROP INDEX idx_matches_winner_id_loser_id_created_at_desc;
 DROP TABLE matches;
 
 DROP INDEX idx_elo_user_id_game_created_at_desc;

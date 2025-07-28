@@ -37,7 +37,7 @@ type ServerTunnelMessage =
   | {
       type: 'matchEnd';
       winner: number;
-      looser: number;
+      loser: number;
       draw: boolean;
       eloChange?: number;
     }

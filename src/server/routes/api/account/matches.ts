@@ -23,17 +23,17 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     serializeUserAvatar(user);
 
     const dbQuery = SQL`
-      SELECT game, mode, winner_id, looser_id, winner_score, looser_score, draw,
+      SELECT game, mode, winner_id, loser_id, winner_score, loser_score, draw,
              created_at AS createdAt, updated_at AS updatedAt,
              u.id, username, has_avatar, avatar_version,
-             winner_elo, looser_elo, elo_change AS eloChange
+             winner_elo, loser_elo, elo_change AS eloChange
       FROM matches m
       LEFT JOIN users u
-      ON (winner_id = ${user.id} AND looser_id = u.id)
-         OR (winner_id = u.id AND looser_id = ${user.id})
+      ON (winner_id = ${user.id} AND loser_id = u.id)
+         OR (winner_id = u.id AND loser_id = ${user.id})
       LEFT JOIN ranked_matches rm
       ON mode = 'ranked' AND m.id = rm.id
-      WHERE (winner_id = ${user.id} OR looser_id = ${user.id})`;
+      WHERE (winner_id = ${user.id} OR loser_id = ${user.id})`;
 
     if (query.game) dbQuery.append(SQL` AND game = ${query.game}`);
     dbQuery.append(SQL`
@@ -45,35 +45,35 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       serializeUserAvatar(match);
 
       const isUserWinner = match.winner_id === user.id;
-      user.score = isUserWinner ? match.winner_score : match.looser_score;
+      user.score = isUserWinner ? match.winner_score : match.loser_score;
       const other: Record<string, unknown> = {
-        id: isUserWinner ? match.looser_id : match.winner_id,
+        id: isUserWinner ? match.loser_id : match.winner_id,
         username: match.username || 'Deleted user',
         avatar: match.avatar,
-        score: isUserWinner ? match.looser_score : match.winner_score,
+        score: isUserWinner ? match.loser_score : match.winner_score,
       };
 
       if (match.mode === 'ranked') {
-        user.elo = isUserWinner ? match.winner_elo : match.looser_elo;
-        other.elo = isUserWinner ? match.looser_elo : match.winner_elo;
+        user.elo = isUserWinner ? match.winner_elo : match.loser_elo;
+        other.elo = isUserWinner ? match.loser_elo : match.winner_elo;
       } else delete match.eloChange;
 
       match.winner = isUserWinner ? user : other;
-      match.looser = isUserWinner ? other : user;
+      match.loser = isUserWinner ? other : user;
 
       match.createdAt = new Date(match.createdAt * 1000);
       match.updatedAt = new Date(match.updatedAt * 1000);
 
       [
         'winner_id',
-        'looser_id',
+        'loser_id',
         'winner_score',
-        'looser_score',
+        'loser_score',
         'id',
         'username',
         'avatar',
         'winner_elo',
-        'looser_elo',
+        'loser_elo',
       ].forEach(key => delete match[key]);
     });
 

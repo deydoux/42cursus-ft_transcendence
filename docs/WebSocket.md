@@ -109,7 +109,7 @@ Received when a match ends
 {
   "type": "matchEnd",
   "winner": 1,
-  "looser": 2,
+  "loser": 2,
   "draw": false,
   "eloChange": 20
 }
