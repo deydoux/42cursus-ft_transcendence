@@ -35,9 +35,17 @@ type ServerTunnelMessage =
       type: 'hotReload';
     }
   | {
+      type: 'matchEnd';
+      winner: number;
+      looser: number;
+      draw: boolean;
+      eloChange?: number;
+    }
+  | {
       type: 'matchStart';
       game: string;
       ranked: boolean;
+      user: unknown;
       opponent: unknown;
     }
   | {

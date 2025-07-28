@@ -101,6 +101,20 @@ Received when a user accepts a friend request
 }
 ```
 
+### `matchEnd`
+Received when a match ends
+
+*Example:*
+```json
+{
+  "type": "matchEnd",
+  "winner": 1,
+  "looser": 2,
+  "draw": false,
+  "eloChange": 20
+}
+```
+
 ### `matchStart`
 Received when a match is starting
 
@@ -110,9 +124,15 @@ Received when a match is starting
   "type": "matchStart",
   "game": "pong",
   "ranked": true,
+  "user": {
+    "id": 1,
+    "username": "user123",
+    "avatar": "/static/default_avatar.webp",
+    "elo": 1000
+  },
   "opponent": {
     "id": 2,
-    "username": "user123",
+    "username": "user456",
     "avatar": "/static/default_avatar.webp",
     "elo": 1000
   }

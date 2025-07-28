@@ -74,6 +74,15 @@ export default abstract class Match {
     if (!id) throw new Error('Failed to create match');
 
     if (this.ranked) await this.destroyRanked(id, winner, looser);
+    else
+      this.execute(player =>
+        this.sendSocket(player.socket, {
+          type: 'matchEnd',
+          winner: winner.userID,
+          looser: looser.userID,
+          draw: this.draw,
+        }),
+      );
 
     delete this.server.game.players[winner.userID];
     delete this.server.game.players[looser.userID];
@@ -95,6 +104,16 @@ export default abstract class Match {
       INSERT INTO ranked_matches(id, winner_elo, looser_elo, elo_change)
       VALUES(${id}, ${winner.elo}, ${looser.elo}, ${change})
     `);
+
+    this.execute(player =>
+      this.sendSocket(player.socket, {
+        type: 'matchEnd',
+        winner: winner.userID,
+        looser: looser.userID,
+        draw: this.draw,
+        eloChange: change,
+      }),
+    );
   }
 
   public error() {
@@ -157,6 +176,12 @@ export default abstract class Match {
         type: 'matchStart',
         game: this.game,
         ranked: this.ranked,
+        user: {
+          id: player.userID,
+          username: player.username,
+          avatar: player.avatar,
+          elo: player.elo,
+        },
         opponent: {
           id: opponent.userID,
           username: opponent.username,
