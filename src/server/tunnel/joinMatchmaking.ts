@@ -87,7 +87,6 @@ export default async function joinMatchmaking(
               queued.elo <= rankedClient.upperElo,
           );
 
-          console.log(queue.ranked);
           if (matchable.length === 0) return;
 
           const queued = matchable[randomInt(matchable.length)];
