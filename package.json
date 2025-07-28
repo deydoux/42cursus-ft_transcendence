@@ -28,7 +28,7 @@
     "tunnel": "wscat -H \"Authorization: Bearer $TOKEN\" -c ws://localhost:3000/api/tunnel"
   },
   "devDependencies": {
-    "@dotenvx/dotenvx": "^1.45.1",
+    "@dotenvx/dotenvx": "^1.48.3",
     "@eslint/js": "^9.30.0",
     "@tailwindcss/vite": "^4.1.11",
     "@types/bcrypt": "^5.0.2",
