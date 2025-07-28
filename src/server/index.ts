@@ -17,7 +17,6 @@ const server = Fastify({
 });
 
 server.decorate('dev', DEV);
-server.decorate('players', []);
 server.decorate('prod', !DEV);
 
 async function main() {
