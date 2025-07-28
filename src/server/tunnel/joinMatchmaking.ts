@@ -5,6 +5,7 @@ import PongMatch from '#lib/PongMatch';
 import {RankedClient} from '#types/fastify';
 import SQL from 'sql-template-strings';
 import {kFactor} from '#lib/Match';
+import {randomInt} from 'node:crypto';
 
 export default async function joinMatchmaking(
   server: FastifyInstance,
@@ -89,8 +90,7 @@ export default async function joinMatchmaking(
           console.log(queue.ranked);
           if (matchable.length === 0) return;
 
-          const queued =
-            matchable[Math.floor(Math.random() * matchable.length)];
+          const queued = matchable[randomInt(matchable.length)];
 
           server.leaveMatchmaking(rankedClient.socket);
           server.leaveMatchmaking(queued.socket);
