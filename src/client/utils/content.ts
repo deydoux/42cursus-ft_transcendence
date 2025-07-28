@@ -43,46 +43,58 @@ export const asciiArt = [
 ];
 
 export interface PongGame {
-  announcement: HTMLElement;
-  leftPlayer: string | null;
-  rightPlayer: string | null;
+  leftPlayer: HTMLElement;
+  rightPlayer: HTMLElement;
   leftPaddle: Paddle;
   rightPaddle: Paddle;
   ball: Ball;
   ctx: CanvasRenderingContext2D;
   leftPlayerScore: number;
   rightPlayerScore: number;
+  leftPlayerScoreElement: HTMLElement;
+  rightPlayerScoreElement: HTMLElement;
   keys: Keys;
   gameStarted: boolean;
   isScoring: boolean;
   timer: Timer;
 }
 
-export function initializeGame(
-  ctx: CanvasRenderingContext2D,
-  leftPlayer: string | null,
-  rightPlayer: string | null,
-): PongGame {
-  const announcement = document.getElementById('announcement');
-  if (!announcement) {
-    throw new Error('Announcement element not found');
+export function initializeGame(ctx: CanvasRenderingContext2D): PongGame {
+  const leftPlayer = document.getElementById('p1_name');
+  const rightPlayer = document.getElementById('p2_name');
+  const leftPlayerScoreElement = document.getElementById('p1_score');
+  const rightPlayerScoreElement = document.getElementById('p2_score');
+  if (
+    !leftPlayer ||
+    !rightPlayer ||
+    !leftPlayerScoreElement ||
+    !rightPlayerScoreElement
+  ) {
+    throw new Error('some HTML elements not found');
   }
-  const leftPaddle = new Paddle(ctx, 10, 0);
+  leftPlayer.innerText = 'Player 1';
+  rightPlayer.innerText = 'Player 2';
+  const leftPaddle = new Paddle(
+    ctx,
+    10,
+    (ctx.canvas.height - ctx.canvas.height * 0.25) / 2,
+  );
   const rightPaddle = new Paddle(
     ctx,
     ctx.canvas.width - 10 - leftPaddle.width,
-    0,
+    (ctx.canvas.height - ctx.canvas.height * 0.25) / 2,
   );
   const ball = new Ball(ctx);
 
   return {
-    announcement,
     leftPlayer,
     rightPlayer,
     leftPaddle,
     rightPaddle,
     ctx,
     ball,
+    leftPlayerScoreElement,
+    rightPlayerScoreElement,
     leftPlayerScore: 0,
     rightPlayerScore: 0,
     keys: {...keys},
@@ -144,7 +156,7 @@ export function displayCountdownMessage(
   ctx.textBaseline = 'middle';
   ctx.shadowBlur = 20;
   ctx.shadowColor =
-    message === 'GO!' ? 'rgba(0, 255, 0, 0.8)' : 'rgba(40, 60, 189, 0.78)';
+    message === 'GO!' ? 'rgba(0, 0, 0, 0.8)' : 'rgba(41, 42, 43, 0.78)';
 
   ctx.fillText(message, centerX, centerY);
 
