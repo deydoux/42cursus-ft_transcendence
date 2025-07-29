@@ -1,4 +1,5 @@
 import { Component } from "../types";
+import { loadIcons } from "../utils/icons";
 import { Store } from "./store";
 
 export class Router {
@@ -45,6 +46,7 @@ export class Router {
       
       // Update store
       Store.getInstance().setState({ currentRoute: path });
+      loadIcons();
     } else {
       console.warn(`No route found for path: ${path} and no wildcard route registered`);
     }

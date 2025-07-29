@@ -26,7 +26,7 @@ export class LandingPage extends BaseComponent {
 
       const data = await response.json();
       api.setAccessToken(data.accessToken);
-      this.router.navigate('/homepage')
+      this.router.navigate('/homepage');
     } catch (error) {
       errorMessage.textContent = error.message;
     }

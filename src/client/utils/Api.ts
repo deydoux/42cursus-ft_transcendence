@@ -14,16 +14,16 @@ class Api {
     init?: RequestInit,
   ) : Promise<Response> {
     try {
-      let requestInit = { ...init, headers: { ...init?.headers, 'content-type': 'application/json' } } as RequestInit;
+      let requestInit = { ...init, headers: { ...init?.headers, 'Content-Type': 'application/json' } } as RequestInit;
       const accessToken = this.getAccessToken();
-      if (accessToken) {
+      if (accessToken && !publicEndpoints.includes(input.toString())) {
         requestInit.headers = {
           ...requestInit.headers,
           Authorization: accessToken
         }
       }
       
-      const response = await fetch(input, init);
+      const response = await fetch(input, requestInit);
 
       if (
         response.status === 401 && 
