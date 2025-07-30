@@ -1,15 +1,10 @@
-import '../styles/pong-page.css';
-import {handleInput, initializeGame} from '../utils/content';
-import {PongCanvas} from '../containers/pongCanvas';
+import '../styles/race-page.css';
+import {handleInput, initializeGame} from '../utils/race-content';
+import {RaceCanvas} from '../containers/raceCanvas';
 import {html} from '../utils/html';
-import {renderPong} from '../containers/pongGame';
+import {renderCar} from '../containers/raceGame';
 
-/**
- * Renders the Pong game page by setting up the layout and initializing the game.
- * It creates the left and right containers, appends the Pong game canvas,
- * and sets up the game context with the necessary dimensions and styles.
- */
-export function renderPongPage(): void {
+export function renderRacePage(): void {
   const right = document.getElementById('right-container');
   const left = document.getElementById('left-container');
   if (!(right && left))
@@ -18,7 +13,7 @@ export function renderPongPage(): void {
   left.className = 'flex-1 h-full';
   right.className =
     'w-[500px] flex-none h-full flex flex-col gap-5 items-center';
-  left.appendChild(renderPong());
+  left.appendChild(renderCar());
   right.appendChild(
     html`<div class="w-full flex-1 rounded-[30px] border"></div>`,
   );
@@ -26,7 +21,8 @@ export function renderPongPage(): void {
     html`<div class="h-14 w-full flex-none rounded-[30px] border"></div>`,
   );
 
-  const gameContainer = document.getElementById('pong') as HTMLCanvasElement;
+  // Get canvas and setup context
+  const gameContainer = document.getElementById('race') as HTMLCanvasElement;
   if (!gameContainer) {
     console.error('Could not find canvas element');
     return;
@@ -41,13 +37,16 @@ export function renderPongPage(): void {
   gameContainer.height = 1080;
   ctx.imageSmoothingEnabled = true;
 
-  const pong = initializeGame(ctx, 'Player 1', 'Player 2');
+  // Initialize game state
+  const race = initializeGame(ctx);
 
-  const pongCanvas = new PongCanvas(pong);
+  // Create canvas controller
+  const raceCanvas = new RaceCanvas(race);
 
-  pongCanvas.displayStartMessage();
+  // Show start message
+  raceCanvas.displayStartMessage();
 
-  handleInput(pong, () => {
-    pongCanvas.startGame();
+  handleInput(race, () => {
+    raceCanvas.startGame();
   });
 }
