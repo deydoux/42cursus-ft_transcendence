@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseURL}}/api/chats/direct/:id?page=0
+  url: {{baseURL}}/api/chats/direct/:id?lastID=0
   body: none
   auth: inherit
 }
 
 params:query {
-  page: 0
+  lastID: 0
 }
 
 params:path {

@@ -12,6 +12,7 @@ export default tseslint.config(
   prettier,
   {
     rules: {
+      '@typescript-eslint/no-dynamic-delete': 'warn',
       'sort-imports': 'error',
     },
   },

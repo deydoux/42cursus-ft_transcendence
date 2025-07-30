@@ -29,8 +29,6 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const {token} = request.body;
     server.validateTOTP(secret, token);
 
-    await request.removeConnection();
-
     const {accessToken, refreshToken} = await request.generateTokens(id);
     return reply
       .setCookie('refreshToken', refreshToken)

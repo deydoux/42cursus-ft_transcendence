@@ -1,14 +1,13 @@
+import {Client, ServerTunnelMessage} from '#types/Clients';
 import {FastifyInstance, FastifyRequest} from 'fastify';
 import {RawData} from 'ws';
 import SQL from 'sql-template-strings';
 import {WebSocket} from '@fastify/websocket';
+import joinMatchmaking from '#tunnel/joinMatchmaking';
+import leaveMatchmaking from '#tunnel/leaveMatchmaking';
 
 export default class Clients {
-  private clients: {
-    id: number;
-    connection: number;
-    socket: WebSocket;
-  }[] = [];
+  private clients: Client[] = [];
   private server;
 
   constructor(server: FastifyInstance) {
@@ -21,42 +20,70 @@ export default class Clients {
       message = JSON.parse(data.toString());
     } catch {
       return socket.send(
-        this.message({type: 'error', message: 'Invalid JSON'}),
+        Clients.message({type: 'error', message: 'Invalid JSON'}),
       );
     }
 
-    void message;
+    if (
+      !message ||
+      typeof message !== 'object' ||
+      typeof message.type !== 'string'
+    )
+      return socket.send(
+        Clients.message({type: 'error', message: 'Invalid message type'}),
+      );
+
+    const client = this.clients.find(client => client.socket === socket);
+    if (!client)
+      return socket.send(
+        Clients.message({type: 'error', message: 'Client not found'}),
+      );
+
+    if (message.type) {
+      switch (message.type) {
+        case 'joinMatchmaking':
+          joinMatchmaking(this.server, client, message);
+          break;
+        case 'leaveMatchmaking':
+          leaveMatchmaking(this.server, client, message);
+          break;
+      }
+    }
   };
 
-  private message = (message: TunnelMessage) => JSON.stringify(message);
+  static message = (message: ServerTunnelMessage) => JSON.stringify(message);
 
   routeHandler = (socket: WebSocket, request: FastifyRequest) => {
     if (!request.user)
       socket.send(
-        this.message({type: 'error', message: 'Authentication failed'}),
+        Clients.message({type: 'error', message: 'Authentication failed'}),
       );
 
     const connection = request.connection || 0;
-    const id = request.user?.id || 0;
+    const userID = request.user?.id || 0;
 
-    this.clients.push({id, connection, socket});
+    this.clients.push({userID, connection, socket});
 
     socket.on('close', () => {
-      const index = this.clients.findIndex(client => client.socket === socket);
-      if (index !== -1) this.clients.splice(index, 1);
-      if (id)
-        this.server.db.run(SQL`
-          UPDATE users
-          SET last_seen = unixepoch()
-          WHERE id = ${id}
-        `);
+      this.clients = this.clients.filter(client => client.socket !== socket);
+      if (!userID) return;
+
+      this.server.leaveMatchmaking(socket);
+
+      this.server.db.run(SQL`
+        UPDATE users
+        SET last_seen = unixepoch()
+        WHERE id = ${userID}
+      `);
     });
 
     socket.on('message', this.handleMessage(socket));
   };
 
-  broadcast = (message: TunnelMessage) =>
-    this.clients.forEach(client => client.socket.send(this.message(message)));
+  broadcast = (message: ServerTunnelMessage) =>
+    this.clients.forEach(client =>
+      client.socket.send(Clients.message(message)),
+    );
 
   closeConnection = (connection: number | null) =>
     this.clients.forEach(client => {
@@ -65,14 +92,15 @@ export default class Clients {
 
   closeUser = (id: number, ignoreConnection: number | null = null) =>
     this.clients.forEach(client => {
-      if (client.id === id && client.connection !== ignoreConnection)
+      if (client.userID === id && client.connection !== ignoreConnection)
         client.socket.close();
     });
 
-  isUserOnline = (id: number) => this.clients.some(client => client.id === id);
+  isUserOnline = (id: number) =>
+    this.clients.some(client => client.userID === id);
 
-  sendUser = (id: number, message: TunnelMessage) =>
+  sendUser = (id: number, message: ServerTunnelMessage) =>
     this.clients.forEach(client => {
-      if (client.id === id) client.socket.send(this.message(message));
+      if (client.userID === id) client.socket.send(Clients.message(message));
     });
 }
