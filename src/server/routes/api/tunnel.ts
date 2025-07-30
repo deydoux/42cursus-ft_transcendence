@@ -4,8 +4,10 @@ const plugin: FastifyPluginAsync = async server => {
   await server.register(import('@fastify/websocket'));
 
   server.addHook('onRequest', async request => {
-    if (!request.headers.authorization)
-      request.headers.authorization = request.headers['sec-websocket-protocol'];
+    const protocol = request.headers['sec-websocket-protocol'];
+    if (!request.headers.authorization && protocol)
+      request.headers.authorization = protocol;
+
     await server.authenticate()(request);
   });
 
