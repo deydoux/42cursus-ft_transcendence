@@ -25,7 +25,7 @@
     "fix": "eslint --fix",
     "fix:client": "npm run fix -- src/client",
     "fix:server": "npm run fix -- src/server",
-    "tunnel": "wscat -s \"Bearer $TOKEN\" -c ws://localhost:3000/api/tunnel"
+    "tunnel": "wscat -s \"$TOKEN\" -c ws://localhost:3000/api/tunnel"
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.48.4",

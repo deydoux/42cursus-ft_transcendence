@@ -6,7 +6,7 @@ const plugin: FastifyPluginAsync = async server => {
   server.addHook('onRequest', async request => {
     const protocol = request.headers['sec-websocket-protocol'];
     if (!request.headers.authorization && protocol)
-      request.headers.authorization = protocol;
+      request.headers.authorization = `Bearer ${protocol}`;
 
     await server.authenticate()(request);
   });
