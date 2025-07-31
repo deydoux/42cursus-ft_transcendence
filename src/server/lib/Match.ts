@@ -20,10 +20,12 @@ export default abstract class Match {
   protected game;
   protected ranked;
 
+  private unlock = () => undefined;
   protected draw = false;
   protected winner?: Player;
 
   private readonly createdAt = Math.floor(Date.now() / 1000);
+  private readonly lock;
 
   constructor(
     server: FastifyInstance,
@@ -34,6 +36,10 @@ export default abstract class Match {
     this.players = players;
     this.game = game;
     this.ranked = players.every(player => player.elo);
+
+    this.lock = new Promise(resolve => {
+      this.unlock = () => void resolve(undefined);
+    });
 
     this.execute((player, opponent) => {
       player.score = 0;
@@ -58,7 +64,12 @@ export default abstract class Match {
     });
   }
 
-  private async destroy(winner: Player) {
+  private async destroy(winner?: Player) {
+    if (!winner) {
+      // TODO Implement cancel match logic
+      return;
+    }
+
     const mode = this.ranked ? 'ranked' : 'casual';
     const loser =
       winner.userID === this.players[0].userID
@@ -146,6 +157,7 @@ export default abstract class Match {
   private handleClose(opponent: Player) {
     this.draw = true;
     this.winner = opponent;
+    this.unlock();
 
     this.server.log.warn(
       'TODO: Send system message to players about disconnect',
@@ -191,9 +203,9 @@ export default abstract class Match {
       }),
     );
 
-    while (!this.winner) await this.tick();
+    await this.lock;
     await this.destroy(this.winner);
-  }
 
-  protected abstract tick(): Promise<void>;
+    return this.winner;
+  }
 }
