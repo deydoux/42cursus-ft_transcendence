@@ -66,8 +66,14 @@ export default abstract class Match {
 
   private async destroy(winner?: Player) {
     if (!winner) {
-      // TODO Implement cancel match logic
-      return;
+      this.execute(player =>
+        this.sendSocket(player.socket, {
+          type: 'matchEnd',
+          draw: true,
+        }),
+      );
+
+      return this.unlock();
     }
 
     const mode = this.ranked ? 'ranked' : 'casual';
