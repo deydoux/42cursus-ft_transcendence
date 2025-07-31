@@ -65,7 +65,7 @@ Received when there is an error processing a message
 ```json
 {
   "type": "error",
-  "message": "You are already in a matchmaking queue",
+  "message": "You are already in a matchmaking queue"
 }
 ```
 
