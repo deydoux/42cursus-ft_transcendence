@@ -12,25 +12,30 @@ class Api {
   private async customFetch(
     input: string | URL | globalThis.Request,
     init?: RequestInit,
-  ) : Promise<Response> {
+  ): Promise<Response> {
     try {
-      let requestInit = { ...init, headers: { ...init?.headers, 'Content-Type': 'application/json' } } as RequestInit;
+      const requestInit = {
+        ...init,
+        headers: {...init?.headers, 'Content-Type': 'application/json'},
+      } as RequestInit;
       const accessToken = this.getAccessToken();
       if (accessToken && !publicEndpoints.includes(input.toString())) {
         requestInit.headers = {
           ...requestInit.headers,
-          authorization: `Bearer ${accessToken}`
-        }
+          authorization: `Bearer ${accessToken}`,
+        };
       }
-      
+
       const response = await fetch(input, requestInit);
 
       if (
-        response.status === 401 && 
+        response.status === 401 &&
         !publicEndpoints.includes(input.toString())
       ) {
-        const refreshResponse = await fetch('/api/auth/refresh', { method: 'POST' });
-      
+        const refreshResponse = await fetch('/api/auth/refresh', {
+          method: 'POST',
+        });
+
         if (!refreshResponse.ok) {
           // Redirect to landing page
           throw refreshResponse;
@@ -44,7 +49,7 @@ class Api {
           headers: {
             ...init?.headers,
             'Content-Type': 'application/json',
-            authorization: `Bearer ${body.accessToken}`
+            authorization: `Bearer ${body.accessToken}`,
           },
         });
       }
@@ -62,7 +67,7 @@ class Api {
     });
   }
 
-  public async post(endpoint: string, body: object) : Promise<Response> {
+  public async post(endpoint: string, body: object): Promise<Response> {
     return this.customFetch('/api/' + endpoint, {
       body: JSON.stringify(body),
       method: 'POST',

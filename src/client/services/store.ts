@@ -1,11 +1,11 @@
-import { AppState } from "../types";
+import {AppState} from '../types';
 
 export class Store {
   private static instance: Store;
   private state: AppState = {
-    currentRoute: '/'
+    currentRoute: '/',
   };
-  private listeners: Array<(state: AppState) => void> = [];
+  private listeners: ((state: AppState) => void)[] = [];
 
   static getInstance(): Store {
     if (!Store.instance) {
@@ -15,11 +15,11 @@ export class Store {
   }
 
   getState(): AppState {
-    return { ...this.state };
+    return {...this.state};
   }
 
   setState(updates: Partial<AppState>): void {
-    this.state = { ...this.state, ...updates };
+    this.state = {...this.state, ...updates};
     this.notifyListeners();
   }
 

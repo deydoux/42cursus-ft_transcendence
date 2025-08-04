@@ -1,5 +1,5 @@
-import { Store } from "../services/store";
-import { AppState, Component } from "../types";
+import {AppState, Component} from '../types';
+import {Store} from '../services/store';
 
 export abstract class BaseComponent implements Component {
   protected store = Store.getInstance();
@@ -11,7 +11,7 @@ export abstract class BaseComponent implements Component {
 
   abstract render(): HTMLElement;
 
-  protected onStateChange(state: AppState): void { }
+  protected onStateChange(state: AppState): void {}
 
   destroy(): void {
     if (this.unsubscribe) {

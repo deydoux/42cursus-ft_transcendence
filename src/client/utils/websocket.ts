@@ -1,11 +1,15 @@
-import { setupGameHandlers } from '../handlers/game';
-import { WebSocketConfig, WebSocketMessage, 
-  WebSocketEventHandler, WebSocketState } from '../types/websocket';
+import {
+  WebSocketConfig,
+  WebSocketEventHandler,
+  WebSocketMessage,
+  WebSocketState,
+} from '../types/websocket';
+import {setupGameHandlers} from '../handlers/game';
 
 class WebSocketUtility {
   private ws: WebSocket | null = null;
   private config: Required<WebSocketConfig>;
-  private eventHandlers: Map<string, WebSocketEventHandler[]> = new Map();
+  private eventHandlers = new Map<string, WebSocketEventHandler[]>();
   private reconnectAttempts = 0;
   private reconnectTimer: NodeJS.Timeout | null = null;
   private isManualClose = false;
@@ -18,7 +22,7 @@ class WebSocketUtility {
       protocols: config.protocols || [],
       reconnectInterval: config.reconnectInterval || 3000,
       maxReconnectAttempts: config.maxReconnectAttempts || 5,
-      debug: config.debug || false
+      debug: config.debug || false,
     };
   }
 
@@ -37,7 +41,7 @@ class WebSocketUtility {
         this.log(`Connecting to ${this.config.url}...`);
         this.ws = new WebSocket(this.config.url, this.config.protocols);
 
-        this.ws.onopen = (event) => {
+        this.ws.onopen = event => {
           this.log('WebSocket connected successfully');
           this.reconnectAttempts = 0;
           this.isReconnecting = false;
@@ -46,25 +50,24 @@ class WebSocketUtility {
           resolve();
         };
 
-        this.ws.onmessage = (event) => {
+        this.ws.onmessage = event => {
           this.handleMessage(event);
         };
 
-        this.ws.onclose = (event) => {
+        this.ws.onclose = event => {
           this.log(`WebSocket closed: ${event.code} - ${event.reason}`);
           this.emit('close', event);
-          
+
           if (!this.isManualClose && !this.isReconnecting) {
             this.attemptReconnect();
           }
         };
 
-        this.ws.onerror = (event) => {
+        this.ws.onerror = event => {
           this.log('WebSocket error occurred');
           this.emit('error', event);
           reject(new Error('WebSocket connection failed'));
         };
-
       } catch (error) {
         this.log(`Connection error: ${error}`);
         reject(error);
@@ -93,9 +96,10 @@ class WebSocketUtility {
    * Send a message through the WebSocket
    */
   public send(message: WebSocketMessage | string): boolean {
-    const msg = typeof message === 'string' 
-      ? message 
-      : JSON.stringify({ ...message, timestamp: Date.now() });
+    const msg =
+      typeof message === 'string'
+        ? message
+        : JSON.stringify({...message, timestamp: Date.now()});
 
     if (this.ws && this.isConnected()) {
       try {
@@ -123,7 +127,7 @@ class WebSocketUtility {
     if (!this.eventHandlers.has(event)) {
       this.eventHandlers.set(event, []);
     }
-    this.eventHandlers.get(event)!.push(handler);
+    this.eventHandlers.get(event)?.push(handler);
   }
 
   /**
@@ -133,10 +137,10 @@ class WebSocketUtility {
     if (!this.eventHandlers.has(event)) return;
 
     if (handler) {
-      const handlers = this.eventHandlers.get(event)!;
-      const index = handlers.indexOf(handler);
+      const handlers = this.eventHandlers.get(event);
+      const index = handlers?.indexOf(handler) ?? -1;
       if (index > -1) {
-        handlers.splice(index, 1);
+        handlers?.splice(index, 1);
       }
     } else {
       this.eventHandlers.delete(event);
@@ -146,7 +150,7 @@ class WebSocketUtility {
   /**
    * Emit event to all listeners
    */
-  private emit(event: string, data?: any): void {
+  private emit(event: string, data?: string | Error | Event): void {
     const handlers = this.eventHandlers.get(event);
     if (handlers) {
       handlers.forEach(handler => {
@@ -165,12 +169,12 @@ class WebSocketUtility {
   private handleMessage(event: MessageEvent): void {
     try {
       let parsedData;
-      
+
       try {
         parsedData = JSON.parse(event.data);
       } catch {
         // If parsing fails, treat as plain text
-        parsedData = { type: 'message', data: event.data };
+        parsedData = {type: 'message', data: event.data};
       }
 
       this.log(`Message received: ${event.data}`);
@@ -182,7 +186,6 @@ class WebSocketUtility {
 
       // Always emit generic message event
       this.emit('message', parsedData);
-
     } catch (error) {
       this.log(`Error handling message: ${error}`);
       this.emit('error', new Error(`Message parsing failed: ${error}`));
@@ -201,13 +204,10 @@ class WebSocketUtility {
 
     this.isReconnecting = true;
     this.reconnectAttempts++;
-    
-    this.log(`Reconnection attempt ${this.reconnectAttempts}/${this.config.maxReconnectAttempts} in ${this.config.reconnectInterval}ms`);
-    
-    this.emit('reconnecting', {
-      attempt: this.reconnectAttempts,
-      maxAttempts: this.config.maxReconnectAttempts
-    });
+
+    this.log(
+      `Reconnection attempt ${this.reconnectAttempts}/${this.config.maxReconnectAttempts} in ${this.config.reconnectInterval}ms`,
+    );
 
     this.reconnectTimer = setTimeout(() => {
       this.connect().catch(error => {
@@ -232,7 +232,7 @@ class WebSocketUtility {
    */
   private processMessageQueue(): void {
     while (this.messageQueue.length > 0 && this.ws && this.isConnected()) {
-      const message = this.messageQueue.shift()!;
+      const message = this.messageQueue.shift() ?? '';
       this.send(message);
     }
   }
@@ -260,7 +260,7 @@ class WebSocketUtility {
       reconnectAttempts: this.reconnectAttempts,
       isReconnecting: this.isReconnecting,
       queuedMessages: this.messageQueue.length,
-      url: this.config.url
+      url: this.config.url,
     };
   }
 
@@ -276,7 +276,7 @@ class WebSocketUtility {
    * Update configuration
    */
   public updateConfig(newConfig: Partial<WebSocketConfig>): void {
-    this.config = { ...this.config, ...newConfig };
+    this.config = {...this.config, ...newConfig};
     this.log('Configuration updated');
   }
 
@@ -306,7 +306,7 @@ export const socket = new WebSocketUtility({
   protocols: [localStorage.getItem('accessToken') ?? ''],
   reconnectInterval: 3000,
   maxReconnectAttempts: 3,
-  debug: true
+  debug: true,
 });
 
 setupGameHandlers();

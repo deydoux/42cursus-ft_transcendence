@@ -1,10 +1,11 @@
-import { DOMUtils } from "../utils/dom";
+import {DOMUtils} from '../utils/dom';
 
 export const createDialog = (id: string) => {
   const dialog = DOMUtils.createElement('dialog', {
-    className: "max-w-[100vw] max-h-[100vh] w-screen h-screen bg-black/10 backdrop-blur-sm",
-    attributes: { 
-      id: id 
+    className:
+      'max-w-[100vw] max-h-[100vh] w-screen h-screen bg-black/10 backdrop-blur-sm',
+    attributes: {
+      id: id,
     },
   }) as HTMLDialogElement;
 
@@ -15,18 +16,18 @@ export const createDialog = (id: string) => {
   const dialogWrapper = DOMUtils.createElement('div', {
     className: 'w-full h-full flex items-center justify-center',
     events: {
-      click: (evt) => close()
-    }
+      click: () => close(),
+    },
   });
 
   const dialogContent = DOMUtils.createElement('div', {
     events: {
-      click: (evt) => evt.stopPropagation()
-    }
+      click: evt => evt.stopPropagation(),
+    },
   });
 
   dialogWrapper.appendChild(dialogContent);
   dialog.appendChild(dialogWrapper);
 
-  return { dialog, dialogContent, showModal, close };
-}
+  return {dialog, dialogContent, showModal, close};
+};

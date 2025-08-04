@@ -1,9 +1,9 @@
-import { Component } from "../types";
-import { loadIcons } from "../utils/icons";
-import { Store } from "./store";
+import {Component} from '../types';
+import {Store} from './store';
+import {loadIcons} from '../utils/icons';
 
 export class Router {
-  private routes: Map<string, () => Component> = new Map();
+  private routes = new Map<string, () => Component>();
   private currentComponent: Component | null = null;
   private container: HTMLElement;
 
@@ -32,23 +32,25 @@ export class Router {
     if (!componentFactory) {
       componentFactory = this.routes.get('*');
     }
-    
+
     if (componentFactory) {
       // Clean up previous component
       if (this.currentComponent?.destroy) {
         this.currentComponent.destroy();
       }
-      
+
       // Render new component
       this.currentComponent = componentFactory();
       this.container.innerHTML = '';
       this.container.appendChild(this.currentComponent.render());
-      
+
       // Update store
-      Store.getInstance().setState({ currentRoute: path });
+      Store.getInstance().setState({currentRoute: path});
       loadIcons();
     } else {
-      console.warn(`No route found for path: ${path} and no wildcard route registered`);
+      console.warn(
+        `No route found for path: ${path} and no wildcard route registered`,
+      );
     }
   }
 }
