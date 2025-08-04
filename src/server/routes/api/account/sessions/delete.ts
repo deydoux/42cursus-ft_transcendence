@@ -23,7 +23,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       DELETE FROM sessions
       WHERE id = ${id} AND user_id = ${user.id}
     `);
-    if (!changes) return reply.notFound('session not found');
+    if (!changes) return reply.notFound('Session not found');
 
     server.clients.closeSession(id);
 
