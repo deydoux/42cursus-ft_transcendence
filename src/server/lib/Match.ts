@@ -64,14 +64,16 @@ export default abstract class Match {
     });
   }
 
-  private async destroy(winner?: Player) {
-    if (!winner) {
-      this.execute(player =>
-        this.sendSocket(player.socket, {type: 'matchCancel'}),
-      );
+  protected cancel(cause?: string) {
+    this.execute(player =>
+      this.sendSocket(player.socket, {type: 'matchCancel', cause}),
+    );
 
-      return this.unlock();
-    }
+    this.unlock();
+  }
+
+  private async destroy(winner?: Player) {
+    if (!winner) return;
 
     const mode = this.ranked ? 'ranked' : 'casual';
     const loser =
@@ -131,7 +133,7 @@ export default abstract class Match {
   }
 
   public error() {
-    this.send({type: 'error', message: 'Match error'});
+    this.cancel('An error occurred during the match');
   }
 
   private async execute(action: (player: Player, opponent: Player) => unknown) {

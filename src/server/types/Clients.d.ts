@@ -32,7 +32,10 @@ type ServerTunnelMessage =
       relationship?: number;
     }
   | {type: 'hotReload'}
-  | {type: 'matchCancel'}
+  | {
+      type: 'matchCancel';
+      cause?: string;
+    }
   | {
       type: 'matchEnd';
       winner: number;

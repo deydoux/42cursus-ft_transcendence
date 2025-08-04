@@ -101,6 +101,17 @@ Received when a user accepts a friend request
 }
 ```
 
+### `matchCancel`
+Received when a match is cancelled due to an error
+
+*Example:*
+```json
+{
+  "type": "matchCancel",
+  "cause": "Cheating detected"
+}
+```
+
 ### `matchEnd`
 Received when a match ends
 
