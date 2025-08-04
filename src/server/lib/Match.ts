@@ -67,10 +67,7 @@ export default abstract class Match {
   private async destroy(winner?: Player) {
     if (!winner) {
       this.execute(player =>
-        this.sendSocket(player.socket, {
-          type: 'matchEnd',
-          draw: true,
-        }),
+        this.sendSocket(player.socket, {type: 'matchCancel'}),
       );
 
       return this.unlock();

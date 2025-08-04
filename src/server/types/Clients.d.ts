@@ -31,9 +31,8 @@ type ServerTunnelMessage =
       user: unknown;
       relationship?: number;
     }
-  | {
-      type: 'hotReload';
-    }
+  | {type: 'hotReload'}
+  | {type: 'matchCancel'}
   | {
       type: 'matchEnd';
       winner: number;
