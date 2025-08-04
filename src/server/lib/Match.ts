@@ -163,10 +163,6 @@ export default abstract class Match {
     this.draw = true;
     this.winner = opponent;
     this.unlock();
-
-    this.server.log.warn(
-      'TODO: Send system message to players about disconnect',
-    );
   }
 
   private handleMessage(player: Player, message: Record<string, unknown>) {
