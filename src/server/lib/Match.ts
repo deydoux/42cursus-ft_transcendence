@@ -65,10 +65,7 @@ export default abstract class Match {
   }
 
   protected cancel(cause?: string) {
-    this.execute(player =>
-      this.sendSocket(player.socket, {type: 'matchCancel', cause}),
-    );
-
+    this.send({type: 'matchCancel', cause});
     this.unlock();
   }
 
@@ -91,14 +88,12 @@ export default abstract class Match {
 
     if (this.ranked) await this.destroyRanked(id, winner, loser);
     else
-      this.execute(player =>
-        this.sendSocket(player.socket, {
-          type: 'matchEnd',
-          winner: winner.userID,
-          loser: loser.userID,
-          draw: this.draw,
-        }),
-      );
+      this.send({
+        type: 'matchEnd',
+        winner: winner.userID,
+        loser: loser.userID,
+        draw: this.draw,
+      });
 
     delete this.server.game.players[winner.userID];
     delete this.server.game.players[loser.userID];
@@ -121,15 +116,13 @@ export default abstract class Match {
       VALUES(${id}, ${winner.elo}, ${loser.elo}, ${change})
     `);
 
-    this.execute(player =>
-      this.sendSocket(player.socket, {
-        type: 'matchEnd',
-        winner: winner.userID,
-        loser: loser.userID,
-        draw: this.draw,
-        eloChange: change,
-      }),
-    );
+    this.send({
+      type: 'matchEnd',
+      winner: winner.userID,
+      loser: loser.userID,
+      draw: this.draw,
+      eloChange: change,
+    });
   }
 
   public error() {
