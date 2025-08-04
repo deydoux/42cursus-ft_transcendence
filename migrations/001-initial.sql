@@ -2,32 +2,6 @@
 -- Up
 --------------------------------------------------------------------------------
 
-CREATE TABLE connections(
-  id            INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id       INTEGER,
-  ip            TEXT NOT NULL,
-  user_agent    TEXT,
-  access_token  TEXT NOT NULL,
-  refresh_token TEXT,
-
-  created_at    INTEGER NOT NULL DEFAULT (unixepoch()),
-  updated_at    INTEGER NOT NULL DEFAULT (unixepoch()),
-  expires_at    INTEGER NOT NULL DEFAULT (unixepoch() + 30 * 24 * 60 * 60), -- 30 days
-
-  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
-CREATE INDEX idx_connections_user_id ON connections(user_id);
-CREATE INDEX idx_connections_updated_at_desc ON connections(updated_at DESC);
-CREATE INDEX idx_connections_expires_at_desc ON connections(expires_at DESC);
-
-CREATE TRIGGER update_connections_updated_at
-AFTER UPDATE ON connections
-FOR EACH ROW
-BEGIN
-  UPDATE connections SET updated_at = unixepoch() WHERE id = NEW.id;
-END;
-
 CREATE TABLE direct_messages(
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
 
@@ -116,6 +90,32 @@ BEGIN
   UPDATE relationships SET updated_at = unixepoch() WHERE id = NEW.id;
 END;
 
+CREATE TABLE sessions(
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id       INTEGER,
+  ip            TEXT NOT NULL,
+  user_agent    TEXT,
+  access_token  TEXT NOT NULL,
+  refresh_token TEXT,
+
+  created_at    INTEGER NOT NULL DEFAULT (unixepoch()),
+  updated_at    INTEGER NOT NULL DEFAULT (unixepoch()),
+  expires_at    INTEGER NOT NULL DEFAULT (unixepoch() + 30 * 24 * 60 * 60), -- 30 days
+
+  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_sessions_user_id ON sessions(user_id);
+CREATE INDEX idx_sessions_updated_at_desc ON sessions(updated_at DESC);
+CREATE INDEX idx_sessions_expires_at_desc ON sessions(expires_at DESC);
+
+CREATE TRIGGER update_sessions_updated_at
+AFTER UPDATE ON sessions
+FOR EACH ROW
+BEGIN
+  UPDATE sessions SET updated_at = unixepoch() WHERE id = NEW.id;
+END;
+
 CREATE TABLE users(
   id                 INTEGER PRIMARY KEY AUTOINCREMENT,
   username           TEXT UNIQUE NOT NULL,
@@ -160,6 +160,12 @@ DROP INDEX idx_users_last_seen_desc;
 DROP INDEX idx_users_lower_username;
 DROP TABLE users;
 
+DROP TRIGGER update_sessions_updated_at;
+DROP INDEX idx_sessions_expires_at_desc;
+DROP INDEX idx_sessions_updated_at_desc;
+DROP INDEX idx_sessions_user_id;
+DROP TABLE sessions;
+
 DROP TRIGGER update_relationships_updated_at;
 DROP INDEX idx_relationships_type_user_id_other_id_updated_at_desc;
 DROP INDEX idx_relationships_user_id_other_id;
@@ -176,9 +182,3 @@ DROP TABLE elo;
 DROP INDEX idx_direct_messages_sender_id_recipient_id_unread;
 DROP INDEX idx_direct_messages_sender_id_recipient_id_created_at_desc;
 DROP TABLE direct_messages;
-
-DROP TRIGGER update_connections_updated_at;
-DROP INDEX idx_connections_expires_at_desc;
-DROP INDEX idx_connections_updated_at_desc;
-DROP INDEX idx_connections_user_id;
-DROP TABLE connections;

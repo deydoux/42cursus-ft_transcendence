@@ -2,7 +2,7 @@ import {WebSocket} from '@fastify/websocket';
 
 interface Client {
   userID: number;
-  connection: number;
+  session: number;
   socket: WebSocket;
 }
 

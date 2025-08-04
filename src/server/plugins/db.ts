@@ -33,7 +33,7 @@ const plugin: FastifyPluginAsync = async server => {
 
       await db.run(SQL`DELETE FROM users WHERE last_seen <= ${inactive}`);
       await db.run(SQL`
-        DELETE FROM connections
+        DELETE FROM sessions
         WHERE expires_at <= unixepoch()
       `);
     } catch (error) {

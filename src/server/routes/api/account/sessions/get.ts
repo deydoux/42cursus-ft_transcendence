@@ -3,23 +3,22 @@ import SQL from 'sql-template-strings';
 
 const plugin: FastifyPluginAsync = async server => {
   server.get('/', async (request, reply) => {
-    const {user} = request;
-    const {connection} = request;
+    const {session, user} = request;
 
-    const connections = await server.db.all(SQL`
+    const sessions = await server.db.all(SQL`
       SELECT id, ip, user_agent AS userAgent, created_at AS createdAt,
              updated_at AS updatedAt
-      FROM connections
+      FROM sessions
       WHERE user_id = ${user.id}
       ORDER BY updated_at DESC
     `);
 
-    connections.forEach(connection => {
-      connection.createdAt = new Date(connection.createdAt * 1000);
-      connection.updatedAt = new Date(connection.updatedAt * 1000);
+    sessions.forEach(session => {
+      session.createdAt = new Date(session.createdAt * 1000);
+      session.updatedAt = new Date(session.updatedAt * 1000);
     });
 
-    return reply.send({connection, connections});
+    return reply.send({session, sessions});
   });
 };
 
