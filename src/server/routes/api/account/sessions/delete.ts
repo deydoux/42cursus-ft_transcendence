@@ -25,7 +25,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     `);
     if (!changes) return reply.notFound('session not found');
 
-    server.clients.closesession(id);
+    server.clients.closeSession(id);
 
     return reply.code(204).send();
   });

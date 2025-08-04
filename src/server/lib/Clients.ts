@@ -85,7 +85,7 @@ export default class Clients {
       client.socket.send(Clients.message(message)),
     );
 
-  closesession = (session: number | null) =>
+  closeSession = (session: number | null) =>
     this.clients.forEach(client => {
       if (client.session === session) client.socket.close();
     });

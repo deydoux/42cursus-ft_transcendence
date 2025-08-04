@@ -17,8 +17,8 @@ const plugin: FastifyPluginAsync = async server => {
     if (session)
       await server.db.run(SQL`
         UPDATE sessions
-        SET ip = ${ip}, user_agent = ${userAgent}, access_token = ${accessToken},
-            refresh_token = ${refreshToken}
+        SET ip = ${ip}, user_agent = ${userAgent},
+            access_token = ${accessToken}, refresh_token = ${refreshToken}
         WHERE id = ${session}
       `);
     else

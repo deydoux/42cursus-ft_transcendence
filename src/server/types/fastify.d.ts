@@ -57,6 +57,6 @@ declare module 'fastify' {
     generateTokens: (
       id: number,
     ) => Promise<{accessToken: string; refreshToken: string}>;
-    removesession: () => Promise<void>;
+    removeSession: () => Promise<void>;
   }
 }

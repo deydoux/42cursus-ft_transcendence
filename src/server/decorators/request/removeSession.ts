@@ -2,7 +2,7 @@ import {FastifyPluginAsync} from 'fastify';
 import SQL from 'sql-template-strings';
 
 const plugin: FastifyPluginAsync = async server => {
-  server.decorateRequest('removesession', async function () {
+  server.decorateRequest('removeSession', async function () {
     const id = this.session;
     if (id === null) return;
 
@@ -10,7 +10,7 @@ const plugin: FastifyPluginAsync = async server => {
       DELETE FROM sessions
       WHERE id = ${id}
     `);
-    server.clients.closesession(id);
+    server.clients.closeSession(id);
     this.session = null;
   });
 };
