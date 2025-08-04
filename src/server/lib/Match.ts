@@ -57,7 +57,7 @@ export default abstract class Match {
           });
         }
 
-        this.handleMessage(player, message);
+        this.handleMessage(player, opponent, message);
       });
 
       server.game.players[player.userID] = opponent.userID;
@@ -158,11 +158,24 @@ export default abstract class Match {
     this.unlock();
   }
 
-  private handleMessage(player: Player, message: Record<string, unknown>) {
-    if (message?.type === 'move') this.handleMove(player, message);
+  private handleMessage(
+    player: Player,
+    opponent: Player,
+    message: Record<string, unknown>,
+  ) {
+    if (message?.type === 'move')
+      this.handleMove(
+        opponent,
+        message as Record<string, unknown> & {type: 'move'},
+      );
   }
 
-  protected abstract handleMove(player: Player, message: object): void;
+  protected handleMove(
+    opponent: Player,
+    message: Record<string, unknown> & {type: 'move'},
+  ) {
+    this.sendSocket(opponent.socket, message);
+  }
 
   private send(message: ServerTunnelMessage) {
     return this.players.forEach(player =>

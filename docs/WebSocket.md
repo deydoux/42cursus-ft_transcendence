@@ -150,6 +150,17 @@ Received when a match is starting
 }
 ```
 
+### `move`
+Received when opponent makes a move in a match
+
+*Example:*
+```json
+{
+  "type": "move",
+  //...
+}
+```
+
 ### `hotReload` (development only)
 Received when the client should reload the page to apply updates. `NODE_ENV` must be set to `development` for this message to be sent
 

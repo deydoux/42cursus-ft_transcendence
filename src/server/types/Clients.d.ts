@@ -51,6 +51,10 @@ type ServerTunnelMessage =
       opponent: unknown;
     }
   | {
+      type: 'move';
+      [key: string]: unknown;
+    }
+  | {
       type: 'success';
       origin: string;
     };
