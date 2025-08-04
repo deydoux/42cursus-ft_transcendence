@@ -59,10 +59,10 @@ export default class Clients {
         Clients.message({type: 'error', message: 'Authentication failed'}),
       );
 
-    const connection = request.connection || 0;
+    const session = request.session || 0;
     const userID = request.user?.id || 0;
 
-    this.clients.push({userID, connection, socket});
+    this.clients.push({userID, session, socket});
 
     socket.on('close', () => {
       this.clients = this.clients.filter(client => client.socket !== socket);
@@ -85,14 +85,14 @@ export default class Clients {
       client.socket.send(Clients.message(message)),
     );
 
-  closeConnection = (connection: number | null) =>
+  closesession = (session: number | null) =>
     this.clients.forEach(client => {
-      if (client.connection === connection) client.socket.close();
+      if (client.session === session) client.socket.close();
     });
 
-  closeUser = (id: number, ignoreConnection: number | null = null) =>
+  closeUser = (id: number, ignoresession: number | null = null) =>
     this.clients.forEach(client => {
-      if (client.userID === id && client.connection !== ignoreConnection)
+      if (client.userID === id && client.session !== ignoresession)
         client.socket.close();
     });
 

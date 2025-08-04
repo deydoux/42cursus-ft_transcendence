@@ -52,11 +52,11 @@ declare module 'fastify' {
   }
 
   interface FastifyRequest {
-    connection: number | null;
+    session: number | null;
     generateAccessToken: (id: number, scope?: string) => Promise<string>;
     generateTokens: (
       id: number,
     ) => Promise<{accessToken: string; refreshToken: string}>;
-    removeConnection: () => Promise<void>;
+    removesession: () => Promise<void>;
   }
 }
