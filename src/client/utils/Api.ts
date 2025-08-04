@@ -19,7 +19,7 @@ class Api {
       if (accessToken && !publicEndpoints.includes(input.toString())) {
         requestInit.headers = {
           ...requestInit.headers,
-          Authorization: accessToken
+          authorization: `Bearer ${accessToken}`
         }
       }
       
@@ -43,8 +43,8 @@ class Api {
           ...init,
           headers: {
             ...init?.headers,
-            'content-type': 'application/json',
-            Authorization: body.accessToken
+            'Content-Type': 'application/json',
+            authorization: `Bearer ${body.accessToken}`
           },
         });
       }

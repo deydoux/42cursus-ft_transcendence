@@ -25,7 +25,7 @@ export class PageNotFound extends BaseComponent {
       events: {
         click: (e) => {
           e.preventDefault();
-          this.router.navigate('/');
+          this.router.navigate('/homepage');
         }
       }
     })

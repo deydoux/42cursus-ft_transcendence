@@ -7,6 +7,7 @@ import { loadIcons } from "../utils/icons";
 import sticker from "../assets/sticker.png";
 import img from "../assets/kittypong.png";
 import '../styles/main.css';
+import { socket } from "../utils/websocket";
 
 export class LandingPage extends BaseComponent {
   private authDialogContent: HTMLDivElement;
@@ -26,6 +27,13 @@ export class LandingPage extends BaseComponent {
 
       const data = await response.json();
       api.setAccessToken(data.accessToken);
+
+      // Initialize websocket connection
+      socket.updateConfig({
+        protocols: [localStorage.getItem('accessToken') ?? ''],
+      })
+      await socket.connect();
+
       this.router.navigate('/homepage');
     } catch (error) {
       errorMessage.textContent = error.message;
