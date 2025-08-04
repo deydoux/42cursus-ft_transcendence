@@ -3,8 +3,7 @@ import SQL from 'sql-template-strings';
 
 const plugin: FastifyPluginAsync = async server => {
   server.get('/', async (request, reply) => {
-    const {user} = request;
-    const {session} = request;
+    const {session, user} = request;
 
     const sessions = await server.db.all(SQL`
       SELECT id, ip, user_agent AS userAgent, created_at AS createdAt,
