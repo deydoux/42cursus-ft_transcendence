@@ -90,9 +90,9 @@ export default class Clients {
       if (client.session === session) client.socket.close();
     });
 
-  closeUser = (id: number, ignoresession: number | null = null) =>
+  closeUser = (id: number, ignoreSession: number | null = null) =>
     this.clients.forEach(client => {
-      if (client.userID === id && client.session !== ignoresession)
+      if (client.userID === id && client.session !== ignoreSession)
         client.socket.close();
     });
 
