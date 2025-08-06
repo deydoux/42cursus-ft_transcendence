@@ -1,35 +1,35 @@
 @import url('https://fonts.googleapis.com/css2?family=Special+Gothic&family=Special+Gothic+Expanded+One&display=swap');
 @import 'tailwindcss';
 
-h1.score {
-  font-family: "Special Gothic Expanded One", sans-serif;
-  font-size: clamp(18px, 2.5vw, 52px);
-  text-align: center;
-  width: clamp(32px, 3.5vw, 70px);
-}
-
-h1.player {
-  font-family: "Special Gothic Expanded One", sans-serif;
-  font-size: clamp(22px, 2.5vw, 52px);
-  text-align: center;
-  width: clamp(100px, 12vw, 300px);
-}
-
-h1.announcement {
-  font-family: "Special Gothic Expanded One", sans-serif;
+.box{
+  font-family: sans-serif;
   font-size: clamp(16px, 2vw, 36px);
   text-align: center;
+  display: flex;
+  justify-content: space-evenly;
   width: 100%;
-  min-height: 2vw;
+  max-width: 90%;
+  min-height: 1vw;
+  border-radius: 30px;
+  position: relative;
+  background: linear-gradient(to bottom left,#1F2326, #121619);
+  box-shadow: 0 0 0.1em .01em #fda5d5;
+}
+.box::before {
+  content: '';
+  position: absolute;
+  top: -2px;  /* Adjust based on border width */
+  left: -2px;
+  right: -2px;
+  height: calc(100% + 2px);
+  border-radius: 30px 30px 0 0;
+  background: linear-gradient(to bottom right, #ffccd3, #ffa1ad);
+  z-index: -1;
+  pointer-events: none;
 }
 
 .pong {
-  --glow-color: rgb(243, 58, 106);
- --glow-spread-color: rgba(227, 11, 92, 0.781);
-  border: 5px solid #fde ;
-  background-color: #000000;
-  border-radius: 5px;
-  margin-top: 5px;
+  border-radius: 30px;
   margin-left: 50px;
   margin-right: 50px;
   width: 100%;
@@ -38,30 +38,24 @@ h1.announcement {
   max-height: 100%;
   flex: 1 1 auto;
    position: relative;
-  box-shadow: 0 0 1em .25em var(--glow-color),
-              0 0 4em 1em var(--glow-spread-color),
-              inset 0 0 .75em .25em var(--glow-color);
 }
 
 #pong-btn {
-  --glow-color: rgb(221, 232, 255);
- --glow-spread-color: rgba(227, 11, 92, 0.781);
- --enhanced-glow-color: rgb(243, 58, 106);
- --btn-color: rgb(243, 58, 106);
- border: .25em solid var(--glow-color);
+  --glow-color: rgb(253, 165, 213);
+ border: .05em solid var(--glow-color);
+ font-family: sans-serif;
  padding: 1em 3em;
- color: var(--glow-color);
+ color: #fda5d5;
  width: 70%;
- margin: 1em auto;
+ margin: 0.5em auto;
  display: block;
  font-size: 24px;
  font-weight: bold;
  background-color: var(--btn-color);
  border-radius: 1em;
  outline: none;
- box-shadow: 0 0 1em .25em var(--glow-color),
-        0 0 4em 1em var(--glow-spread-color),
-        inset 0 0 .75em .25em var(--glow-color);
+ box-shadow: 0 0 0.1em .01em var(--glow-color),
+        inset 0 0 .05em .01em var(--glow-color);
  text-shadow: 0 0 .5em var(--glow-color);
  position: relative;
  transition: all 0.3s;
@@ -72,12 +66,12 @@ h1.announcement {
  color: var(--btn-color);
  background-color: var(--glow-color);
  box-shadow: 0 0 1em .25em var(--glow-color),
-        0 0 4em 2em var(--glow-spread-color),
+        0 0 2em 0.5em var(--glow-spread-color),
         inset 0 0 .75em .25em var(--glow-color);
 }
 
 #pong-btn:active {
  box-shadow: 0 0 0.6em .25em var(--glow-color),
-        0 0 2.5em 2em var(--glow-spread-color),
+        0 0 2em 0.5em var(--glow-spread-color),
         inset 0 0 .5em .25em var(--glow-color);
 }

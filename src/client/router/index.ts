@@ -2,6 +2,7 @@ import {renderHome} from '../pages/Home';
 import {renderLandingPage} from '../pages/LandingPage';
 import {renderPongPage} from '../pages/PongPage';
 import {renderRacePage} from '../pages/RacePage';
+import {renderStatsPage} from '../pages/StatsPage.ts';
 window.onpopstate = router;
 
 export function router(): void {
@@ -18,6 +19,9 @@ export function router(): void {
       break;
     case '/race':
       renderRacePage();
+      break;
+    case '/stats':
+      renderStatsPage();
       break;
     case '/homepage':
     default:

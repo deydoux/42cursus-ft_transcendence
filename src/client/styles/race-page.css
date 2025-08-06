@@ -33,11 +33,11 @@ h1.timer {
 }
 
 .race {
-  --glow-color: rgb(93, 89, 167);
+ --glow-color: rgb(93, 89, 167);
  --glow-spread-color: rgba(4, 29, 191, 0.781);
   border: 5px solid rgb(221, 232, 255) ;
   background-color: #000000;
-  border-radius: 5px;
+  border-radius: 30px;
   margin-top: 5px;
   margin-left: 50px;
   margin-right: 50px;
