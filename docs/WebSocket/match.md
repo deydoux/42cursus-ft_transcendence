@@ -24,10 +24,10 @@ sequenceDiagram
   Note over s: {game: 'pong', ranked: false, players: [...]}<br><br> players:<br>{id: 1, username: 'mapale', avatar: '/api/users/1/avatar_1.webp'}<br>{id: 2, username: 'quteriss', avatar: '/api/users/2/avatar_1.webp'}
 
   q ->> s: joinMatchmaking
-  s --x q: error
+  s -->> q: error
   Note right of s: {message: 'Already in game'}
 
-  loop
+  loop Match
     loop Client to client
       m ->> s: move
       s ->> q: move
@@ -40,13 +40,26 @@ sequenceDiagram
       s ->> m: gameMessage
     end
 
-    alt Mathy scores
+    alt Quentin disconnects
+      s --x q: *socket closed*
+      s ->> m: matchEnd
+      Note left of s: {winner: 1, draw: true}
+
+    else Mathy scores
       m ->> s: scores
       Note right of m: {player: 1}
       q ->> s: scores
       Note left of q: {player: 1}
-      s ->> m: round
-      s ->> q: round
+
+      alt New round
+        s ->> m: round
+        s ->> q: round
+      else Mathy wins
+        s ->> m: matchEnd
+        s ->> q: matchEnd
+        Note over s: {winner: 1, draw: false}
+      end
+
     else Quentin cheats
       q ->> s: scores
       Note left of q: {player: 2}
