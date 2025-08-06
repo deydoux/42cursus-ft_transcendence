@@ -91,7 +91,6 @@ export default abstract class Match {
       this.send({
         type: 'matchEnd',
         winner: winner.userID,
-        loser: loser.userID,
         draw: this.draw,
       });
 
@@ -119,7 +118,6 @@ export default abstract class Match {
     this.send({
       type: 'matchEnd',
       winner: winner.userID,
-      loser: loser.userID,
       draw: this.draw,
       eloChange: change,
     });
