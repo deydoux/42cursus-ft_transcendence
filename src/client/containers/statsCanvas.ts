@@ -44,7 +44,7 @@ export class StatsCanvas {
       );
       this.ctx_race.drawImage(img, x, y, img.width * scale, img.height * scale);
     };
-    img.onerror = () => console.error('Failed to load Hello Kitty image!');
+    img.onerror = () => console.error('Failed to load race track image!');
     img.src = race_bd;
   }
 
