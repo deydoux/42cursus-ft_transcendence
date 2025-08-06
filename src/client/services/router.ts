@@ -3,11 +3,22 @@ import {Store} from './store';
 import {loadIcons} from '../utils/icons';
 
 export class Router {
+  private static instance: Router | null = null;
   private routes = new Map<string, () => Component>();
   private currentComponent: Component | null = null;
   private container: HTMLElement;
 
-  constructor(container: HTMLElement) {
+  static getInstance(container?: HTMLElement): Router {
+    if (!Router.instance) {
+      if (!container) {
+        throw new Error('Container required for first Router initialization');
+      }
+      Router.instance = new Router(container);
+    }
+    return Router.instance;
+  }
+
+  private constructor(container: HTMLElement) {
     this.container = container;
     window.addEventListener('popstate', () => this.handleRouteChange());
   }
@@ -42,7 +53,8 @@ export class Router {
       // Render new component
       this.currentComponent = componentFactory();
       this.container.innerHTML = '';
-      this.container.appendChild(this.currentComponent.render());
+      const child = this.currentComponent.render();
+      if (child) this.container.appendChild(child);
 
       // Update store
       Store.getInstance().setState({currentRoute: path});

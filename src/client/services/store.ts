@@ -2,10 +2,11 @@ import {AppState} from '../types';
 
 export class Store {
   private static instance: Store;
+  private listeners: ((state: AppState) => void)[] = [];
   private state: AppState = {
     currentRoute: '/',
+    isWaitingForMatchmaking: false,
   };
-  private listeners: ((state: AppState) => void)[] = [];
 
   static getInstance(): Store {
     if (!Store.instance) {

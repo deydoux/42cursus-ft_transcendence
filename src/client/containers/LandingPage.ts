@@ -1,7 +1,6 @@
 import '../styles/main.css';
 import {BaseComponent} from '../components/BaseComponent';
 import {DOMUtils} from '../utils/dom';
-import {Router} from '../services/router';
 import {api} from '../utils/Api';
 import {createDialog} from '../components/Dialog';
 import img from '../assets/kittypong.png';
@@ -11,10 +10,6 @@ import sticker from '../assets/sticker.png';
 
 export class LandingPage extends BaseComponent {
   private authDialogContent: HTMLDivElement;
-
-  constructor(private router: Router) {
-    super();
-  }
 
   private async register(
     endpoint: string,

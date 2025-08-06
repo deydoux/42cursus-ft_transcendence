@@ -1,17 +1,8 @@
 import {BaseComponent} from '../components/BaseComponent';
 import {DOMUtils} from '../utils/dom';
-import {Router} from '../services/router';
 import {socket} from '../utils/websocket';
 
 export class Homepage extends BaseComponent {
-  constructor(private router: Router) {
-    super();
-
-    socket.on('matchStart', () => {
-      console.log('match start event triggered!');
-    });
-  }
-
   renderMenuButton = (darkMode = false) => {
     const button = DOMUtils.createElement('div', {
       className: 'flex-1 min-w-1/3',
@@ -24,8 +15,6 @@ export class Homepage extends BaseComponent {
               mode: 'casual',
             }),
           );
-          console.log('trying to join the lobby');
-          this.router.navigate('/lobby');
         },
       },
     });

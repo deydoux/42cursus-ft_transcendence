@@ -1,5 +1,6 @@
 import {Homepage} from './containers/Homepage';
 import {LandingPage} from './containers/LandingPage';
+import {Lobby} from './containers/Lobby';
 import {PageNotFound} from './containers/PageNotFound';
 import {Router} from './services/router';
 import {loadIcons} from './utils/icons';
@@ -19,7 +20,7 @@ class App {
     }
 
     // Initialize router
-    this.router = new Router(rootContainer);
+    this.router = Router.getInstance(rootContainer);
     this.setupRoutes();
     this.router.initialize();
 
@@ -30,8 +31,9 @@ class App {
   }
 
   private setupRoutes(): void {
-    this.router.addRoute('/', () => new LandingPage(this.router));
-    this.router.addRoute('/homepage', () => new Homepage(this.router));
+    this.router.addRoute('/', () => new LandingPage());
+    this.router.addRoute('/homepage', () => new Homepage());
+    this.router.addRoute('/lobby', () => new Lobby());
     this.router.addRoute('*', () => new PageNotFound(this.router));
   }
 }

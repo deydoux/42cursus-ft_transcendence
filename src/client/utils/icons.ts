@@ -139,7 +139,7 @@ const renderLoadingSpinnerIcon = () =>
       fill="none"
       r="207"
       stroke-width="50"
-      stroke="#E387FF"
+      stroke="currentColor"
       stroke-dasharray="1102 1400"
       stroke-linecap="round"
     />
