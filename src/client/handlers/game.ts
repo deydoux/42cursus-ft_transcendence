@@ -1,6 +1,7 @@
 import {Lobby} from '../containers/Lobby';
 import {Router} from '../services/router';
 import {Store} from '../services/store';
+import {Toastify} from '../utils/toastify';
 import {socket} from '../utils/websocket';
 
 const handleMatchStart = (data: {
@@ -28,7 +29,12 @@ const handleSuccess = (data: {origin: string}) => {
   }
 };
 
+const handleError = (data: {message: string}) => {
+  Toastify.error(data.message);
+};
+
 export const setupGameHandlers = () => {
   socket.on('matchStart', handleMatchStart);
   socket.on('success', handleSuccess);
+  socket.on('error', handleError);
 };

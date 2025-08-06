@@ -7,6 +7,7 @@ export class Router {
   private routes = new Map<string, () => Component>();
   private currentComponent: Component | null = null;
   private container: HTMLElement;
+  private navigationCallbacks: (() => void)[] = [];
 
   static getInstance(container?: HTMLElement): Router {
     if (!Router.instance) {
@@ -21,6 +22,17 @@ export class Router {
   private constructor(container: HTMLElement) {
     this.container = container;
     window.addEventListener('popstate', () => this.handleRouteChange());
+  }
+
+  addNavigationCallback(callback: () => void): void {
+    this.navigationCallbacks.push(callback);
+  }
+
+  removeNavigationCallback(callback: () => void): void {
+    const index = this.navigationCallbacks.indexOf(callback);
+    if (index > -1) {
+      this.navigationCallbacks.splice(index, 1);
+    }
   }
 
   addRoute(path: string, componentFactory: () => Component): void {
@@ -43,6 +55,8 @@ export class Router {
     if (!componentFactory) {
       componentFactory = this.routes.get('*');
     }
+
+    this.navigationCallbacks.forEach(callback => callback());
 
     if (componentFactory) {
       // Clean up previous component

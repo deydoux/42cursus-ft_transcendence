@@ -1,8 +1,39 @@
 import {BaseComponent} from '../components/BaseComponent';
 import {DOMUtils} from '../utils/dom';
 import {Toastify} from '../utils/toastify';
+import {socket} from '../utils/websocket';
 
 export class Lobby extends BaseComponent {
+  handleNavigation: () => void;
+  currentPath: string;
+
+  constructor() {
+    super();
+    this.currentPath = window.location.pathname;
+
+    this.handleNavigation = () => {
+      const newPath = window.location.pathname;
+
+      console.log('fuck fuck', {newPath, currentPath: this.currentPath});
+
+      // Only trigger if we were in /lobby and are leaving it
+      if (this.currentPath === '/lobby' && newPath !== '/lobby') {
+        socket.send(
+          JSON.stringify({
+            type: 'leaveMatchmaking',
+          }),
+        );
+      }
+
+      this.currentPath = newPath;
+    };
+    this.router.addNavigationCallback(this.handleNavigation);
+  }
+
+  destroy() {
+    this.router.removeNavigationCallback(this.handleNavigation);
+  }
+
   static renderFoundOpponent(opponent: {username: string}) {
     const container = document.querySelector('div#lobby');
     if (!container) return;
