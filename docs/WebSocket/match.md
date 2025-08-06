@@ -27,25 +27,30 @@ sequenceDiagram
   s --x q: error
   Note right of s: {message: 'Already in game'}
 
-  loop Moves
+  loop Client to client
     m ->> s: move
     s ->> q: move
     q ->> s: move
     s ->> m: move
-  end
 
-  loop Messages
     m ->> s: gameMessage
     s ->> q: gameMessage
     q ->> s: gameMessage
     s ->> m: gameMessage
   end
 
-  m ->> s: scores
-  Note right of m: {player: 1}
-  q ->> s: scores
-  Note left of q: {player: 1}
-
-  s ->> m: round
-  s ->> q: round
+  alt Mathy scores
+    m ->> s: scores
+    Note right of m: {player: 1}
+    q ->> s: scores
+    Note left of q: {player: 1}
+    s ->> m: round
+    s ->> q: round
+  else Quentin cheats
+    q ->> s: scores
+    Note left of q: {player: 2}
+    m --x s: *nothing sent*
+    s -x m: matchCancel
+    s -x q: matchCancel
+  end
 ```
