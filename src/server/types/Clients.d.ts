@@ -31,13 +31,14 @@ type ServerTunnelMessage =
       user: unknown;
       relationship?: number;
     }
+  | {type: 'hotReload'}
   | {
-      type: 'hotReload';
+      type: 'matchCancel';
+      cause?: string;
     }
   | {
       type: 'matchEnd';
       winner: number;
-      loser: number;
       draw: boolean;
       eloChange?: number;
     }
@@ -45,8 +46,7 @@ type ServerTunnelMessage =
       type: 'matchStart';
       game: string;
       ranked: boolean;
-      user: unknown;
-      opponent: unknown;
+      players: unknown[];
     }
   | {
       type: 'success';

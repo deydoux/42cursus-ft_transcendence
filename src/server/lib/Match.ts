@@ -20,10 +20,12 @@ export default abstract class Match {
   protected game;
   protected ranked;
 
+  private unlock = () => undefined;
   protected draw = false;
   protected winner?: Player;
 
   private readonly createdAt = Math.floor(Date.now() / 1000);
+  private readonly lock;
 
   constructor(
     server: FastifyInstance,
@@ -34,6 +36,10 @@ export default abstract class Match {
     this.players = players;
     this.game = game;
     this.ranked = players.every(player => player.elo);
+
+    this.lock = new Promise(resolve => {
+      this.unlock = () => void resolve(undefined);
+    });
 
     this.execute((player, opponent) => {
       player.score = 0;
@@ -51,14 +57,21 @@ export default abstract class Match {
           });
         }
 
-        this.handleMessage(player, message);
+        this.handleMessage(player, opponent, message);
       });
 
       server.game.players[player.userID] = opponent.userID;
     });
   }
 
-  private async destroy(winner: Player) {
+  protected cancel(cause?: string) {
+    this.send({type: 'matchCancel', cause});
+    this.unlock();
+  }
+
+  private async destroy(winner?: Player) {
+    if (!winner) return;
+
     const mode = this.ranked ? 'ranked' : 'casual';
     const loser =
       winner.userID === this.players[0].userID
@@ -75,14 +88,11 @@ export default abstract class Match {
 
     if (this.ranked) await this.destroyRanked(id, winner, loser);
     else
-      this.execute(player =>
-        this.sendSocket(player.socket, {
-          type: 'matchEnd',
-          winner: winner.userID,
-          loser: loser.userID,
-          draw: this.draw,
-        }),
-      );
+      this.send({
+        type: 'matchEnd',
+        winner: winner.userID,
+        draw: this.draw,
+      });
 
     delete this.server.game.players[winner.userID];
     delete this.server.game.players[loser.userID];
@@ -105,19 +115,16 @@ export default abstract class Match {
       VALUES(${id}, ${winner.elo}, ${loser.elo}, ${change})
     `);
 
-    this.execute(player =>
-      this.sendSocket(player.socket, {
-        type: 'matchEnd',
-        winner: winner.userID,
-        loser: loser.userID,
-        draw: this.draw,
-        eloChange: change,
-      }),
-    );
+    this.send({
+      type: 'matchEnd',
+      winner: winner.userID,
+      draw: this.draw,
+      eloChange: change,
+    });
   }
 
   public error() {
-    this.send({type: 'error', message: 'Match error'});
+    this.cancel('An error occurred during the match');
   }
 
   private async execute(action: (player: Player, opponent: Player) => unknown) {
@@ -146,17 +153,21 @@ export default abstract class Match {
   private handleClose(opponent: Player) {
     this.draw = true;
     this.winner = opponent;
-
-    this.server.log.warn(
-      'TODO: Send system message to players about disconnect',
-    );
+    this.unlock();
   }
 
-  private handleMessage(player: Player, message: Record<string, unknown>) {
-    if (message?.type === 'move') this.handleMove(player, message);
+  private handleMessage(
+    player: Player,
+    opponent: Player,
+    message: Record<string, unknown>,
+  ) {
+    switch (message?.type) {
+      case 'move':
+      case 'gameMessage':
+        this.sendSocket(opponent.socket, message as ServerTunnelMessage);
+        break;
+    }
   }
-
-  protected abstract handleMove(player: Player, message: object): void;
 
   private send(message: ServerTunnelMessage) {
     return this.players.forEach(player =>
@@ -171,29 +182,21 @@ export default abstract class Match {
   public async start() {
     await this.fetchData();
 
-    await this.execute(async (player, opponent) =>
-      this.sendSocket(player.socket, {
-        type: 'matchStart',
-        game: this.game,
-        ranked: this.ranked,
-        user: {
-          id: player.userID,
-          username: player.username,
-          avatar: player.avatar,
-          elo: player.elo,
-        },
-        opponent: {
-          id: opponent.userID,
-          username: opponent.username,
-          avatar: opponent.avatar,
-          elo: opponent.elo,
-        },
-      }),
-    );
+    this.send({
+      type: 'matchStart',
+      game: this.game,
+      ranked: this.ranked,
+      players: this.players.map(player => ({
+        id: player.userID,
+        username: player.username,
+        avatar: player.avatar,
+        elo: player.elo,
+      })),
+    });
 
-    while (!this.winner) await this.tick();
+    await this.lock;
     await this.destroy(this.winner);
-  }
 
-  protected abstract tick(): Promise<void>;
+    return this.winner;
+  }
 }
