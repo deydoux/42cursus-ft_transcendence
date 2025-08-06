@@ -7,5 +7,10 @@ export default function leaveMatchmaking(
   message: {type: 'leaveMatchmaking'},
 ) {
   server.leaveMatchmaking(client.socket);
+  server.clients.sendUser(client.userID, {
+    type: 'success',
+    origin: 'leaveMatchmaking',
+  });
+
   void message;
 }
