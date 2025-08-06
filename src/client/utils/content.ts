@@ -64,13 +64,13 @@ export function initializeGame(ctx: CanvasRenderingContext2D): PongGame {
   const rightPlayer = document.getElementById('p2_name');
   const leftPlayerScoreElement = document.getElementById('p1_score');
   const rightPlayerScoreElement = document.getElementById('p2_score');
-  if (
-    !leftPlayer ||
-    !rightPlayer ||
-    !leftPlayerScoreElement ||
-    !rightPlayerScoreElement
-  ) {
-    throw new Error('some HTML elements not found');
+  const missingElements = [];
+  if (!leftPlayer) missingElements.push('p1_name');
+  if (!rightPlayer) missingElements.push('p2_name');
+  if (!leftPlayerScoreElement) missingElements.push('p1_score');
+  if (!rightPlayerScoreElement) missingElements.push('p2_score');
+  if (missingElements.length > 0) {
+    throw new Error(`Required HTML elements not found: ${missingElements.join(', ')}`);
   }
   leftPlayer.innerText = 'Player 1';
   rightPlayer.innerText = 'Player 2';
