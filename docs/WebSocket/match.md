@@ -27,45 +27,43 @@ sequenceDiagram
   s -->> q: error
   Note right of s: {message: 'Already in game'}
 
-  loop Match
-    loop Client to client
-      m ->> s: move
-      s ->> q: move
-      q ->> s: move
-      s ->> m: move
+  loop Client to client
+    m ->> s: move
+    s ->> q: move
+    q ->> s: move
+    s ->> m: move
 
-      m ->> s: gameMessage
-      s ->> q: gameMessage
-      q ->> s: gameMessage
-      s ->> m: gameMessage
-    end
+    m ->> s: gameMessage
+    s ->> q: gameMessage
+    q ->> s: gameMessage
+    s ->> m: gameMessage
+  end
 
-    alt Quentin disconnects
-      s --x q: *socket closed*
+  alt Quentin disconnects
+    s --x q: *socket closed*
+    s ->> m: matchEnd
+    Note left of s: {winner: 1, draw: true}
+
+  else Mathy scores
+    m ->> s: scores
+    Note right of m: {player: 1}
+    q ->> s: scores
+    Note left of q: {player: 1}
+
+    alt New round
+      s ->> m: round
+      s ->> q: round
+    else Mathy wins
       s ->> m: matchEnd
-      Note left of s: {winner: 1, draw: true}
-
-    else Mathy scores
-      m ->> s: scores
-      Note right of m: {player: 1}
-      q ->> s: scores
-      Note left of q: {player: 1}
-
-      alt New round
-        s ->> m: round
-        s ->> q: round
-      else Mathy wins
-        s ->> m: matchEnd
-        s ->> q: matchEnd
-        Note over s: {winner: 1, draw: false}
-      end
-
-    else Quentin cheats
-      q ->> s: scores
-      Note left of q: {player: 2}
-      m --x s: *nothing sent*
-      s -x m: matchCancel
-      s -x q: matchCancel
+      s ->> q: matchEnd
+      Note over s: {winner: 1, draw: false}
     end
+
+  else Quentin cheats
+    q ->> s: scores
+    Note left of q: {player: 2}
+    m --x s: *nothing sent*
+    s -x m: matchCancel
+    s -x q: matchCancel
   end
 ```
