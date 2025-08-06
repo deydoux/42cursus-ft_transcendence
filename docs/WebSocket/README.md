@@ -33,6 +33,14 @@ Sent to leave the matchmaking queue
 }
 ```
 
+*Response: (to all client sockets)*
+```json
+{
+  "type": "success",
+  "origin": "leaveMatchmaking"
+}
+```
+
 ## Server Messages
 
 ### `directMessage`
@@ -131,7 +139,6 @@ Received when a match ends
 {
   "type": "matchEnd",
   "winner": 1,
-  "loser": 2,
   "draw": false,
   "eloChange": 20
 }
@@ -146,18 +153,17 @@ Received when a match is starting
   "type": "matchStart",
   "game": "pong",
   "ranked": true,
-  "user": {
+  "players": [{
     "id": 1,
     "username": "user123",
     "avatar": "/static/default_avatar.webp",
     "elo": 1000
-  },
-  "opponent": {
+  }, {
     "id": 2,
     "username": "user456",
     "avatar": "/static/default_avatar.webp",
     "elo": 1000
-  }
+  }]
 }
 ```
 
