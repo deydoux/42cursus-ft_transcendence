@@ -6,12 +6,7 @@ export class PongCanvas {
   private ctx: CanvasRenderingContext2D;
   private pong: PongGame;
   private raf: number | null;
-  private color = 'rgb(255, 255, 255)';
-
-  private bandrollActive = false;
-  private bandrollX = 0;
-  private bandrollText = '';
-  private bandrollSpeed = 6;
+  private color = 'rgb(0, 0, 0)';
 
   constructor(pong: PongGame) {
     this.ctx = pong.ctx;
@@ -65,12 +60,15 @@ export class PongCanvas {
    * Updates the score display
    */
   private updateScore(): void {
-    if (this.pong.announcement) {
-      this.pong.announcement.innerText = `${this.pong.rightPlayer}: ${this.pong.rightPlayerScore} | ${this.pong.leftPlayerScore}: ${this.pong.leftPlayer}`;
+    if (this.pong.leftPlayerScoreElement && this.pong.rightPlayerScoreElement) {
+      this.pong.leftPlayerScoreElement.innerText =
+        this.pong.leftPlayerScore.toString();
+      this.pong.rightPlayerScoreElement.innerText =
+        this.pong.rightPlayerScore.toString();
     }
   }
   public displayStartMessage() {
-    this.pong.announcement.innerText = `Good luck ${this.pong.leftPlayer} and ${this.pong.rightPlayer}!`;
+    this.updateScore();
 
     this.ctx.save();
 
@@ -129,12 +127,12 @@ export class PongCanvas {
     // Determine winner
     const winner =
       this.pong.leftPlayerScore === 10
-        ? this.pong.leftPlayer
-        : this.pong.rightPlayer;
+        ? this.pong.leftPlayer.innerText
+        : this.pong.rightPlayer.innerText;
     const loser =
       this.pong.leftPlayerScore === 10
-        ? this.pong.rightPlayer
-        : this.pong.leftPlayer;
+        ? this.pong.rightPlayer.innerText
+        : this.pong.leftPlayer.innerText;
     const winnerScore =
       this.pong.leftPlayerScore === 10
         ? this.pong.leftPlayerScore
@@ -146,13 +144,13 @@ export class PongCanvas {
 
     // Catch phrase at the top
     this.ctx.fillStyle = '#FFD700'; // Gold color
-    this.ctx.font = 'bold 96px Arial';
+    this.ctx.font = 'bold 96px sans-serif';
     this.ctx.textAlign = 'center';
     this.ctx.fillText('🏓 GAME OVER! 🏓', centerX, centerY - 400);
 
     // Secondary text
     this.ctx.fillStyle = '#FFFFFF';
-    this.ctx.font = 'bold 48px Arial';
+    this.ctx.font = 'bold 48px sans-serif';
     this.ctx.fillText(`${winner} is Victorious!`, centerX, centerY - 320);
 
     // Draw podium with dynamic heights
@@ -169,7 +167,7 @@ export class PongCanvas {
 
     // Draw restart instruction
     this.ctx.fillStyle = '#CCCCCC';
-    this.ctx.font = '40px Arial';
+    this.ctx.font = '40px sans-serif';
     this.ctx.fillText('Press SPACE to Play Again!', centerX, centerY + 400);
   }
 
@@ -224,7 +222,7 @@ export class PongCanvas {
     // Winner crown/effect
     if (isWinner) {
       this.ctx.fillStyle = '#FFD700';
-      this.ctx.font = 'bold 60px Arial';
+      this.ctx.font = 'bold 60px sans-serif';
       this.ctx.textAlign = 'center';
       this.ctx.fillText('👑', 0, -60);
     }
@@ -234,7 +232,7 @@ export class PongCanvas {
 
   private drawPositionNumbers(centerX: number, centerY: number): void {
     this.ctx.save();
-    this.ctx.font = 'bold 72px Arial';
+    this.ctx.font = 'bold 72px sans-serif';
     this.ctx.textAlign = 'center';
 
     // 1st place
@@ -263,7 +261,7 @@ export class PongCanvas {
     centerY: number,
   ): void {
     this.ctx.save();
-    this.ctx.font = 'bold 36px Arial';
+    this.ctx.font = 'bold 36px sans-serif';
     this.ctx.textAlign = 'center';
 
     // Winner score
@@ -281,7 +279,7 @@ export class PongCanvas {
     // Score difference
     const scoreDiff = Math.abs(winnerScore - loserScore);
     this.ctx.fillStyle = '#FFFF00';
-    this.ctx.font = '32px Arial';
+    this.ctx.font = '32px sans-serif';
     this.ctx.fillText(
       `Victory Margin: ${scoreDiff} points`,
       centerX,
