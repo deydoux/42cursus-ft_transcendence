@@ -70,6 +70,8 @@ export default abstract class Match {
   }
 
   private async destroy(winner?: Player) {
+    this.execute(player => delete this.server.game.players[player.userID]);
+
     if (!winner) return;
 
     const mode = this.ranked ? 'ranked' : 'casual';
@@ -93,9 +95,6 @@ export default abstract class Match {
         winner: winner.userID,
         draw: this.draw,
       });
-
-    delete this.server.game.players[winner.userID];
-    delete this.server.game.players[loser.userID];
   }
 
   private async destroyRanked(id: number, winner: Player, loser: Player) {
