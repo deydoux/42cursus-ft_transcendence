@@ -4,13 +4,13 @@ import {idParamsSchema as schema} from '#lib/schemas';
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.delete('/', async (request, reply) => {
-    const {connection, user} = request;
+    const {session, user} = request;
 
     await server.db.run(SQL`
-      DELETE FROM connections
-      WHERE id != ${connection} AND user_id = ${user.id}
+      DELETE FROM sessions
+      WHERE id != ${session} AND user_id = ${user.id}
     `);
-    server.clients.closeUser(user.id, connection);
+    server.clients.closeUser(user.id, session);
 
     return reply.code(204).send();
   });
@@ -20,12 +20,12 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const {id} = request.params;
 
     const {changes} = await server.db.run(SQL`
-      DELETE FROM connections
+      DELETE FROM sessions
       WHERE id = ${id} AND user_id = ${user.id}
     `);
-    if (!changes) return reply.notFound('Connection not found');
+    if (!changes) return reply.notFound('Session not found');
 
-    server.clients.closeConnection(id);
+    server.clients.closeSession(id);
 
     return reply.code(204).send();
   });

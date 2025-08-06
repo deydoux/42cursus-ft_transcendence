@@ -1,5 +1,5 @@
-import hk_ball from '../assets/hk_ball.jpg';
-
+import {Paddle} from './paddle';
+import hk_ball from '../assets/hk_ball.png';
 export class Ball {
   x: number;
   y: number;
@@ -18,8 +18,8 @@ export class Ball {
     this.y = ctx.canvas.height / 2;
     this.vx = ctx.canvas.width * 0.003;
     this.vy = ctx.canvas.height * 0.002;
-    this.radius = ctx.canvas.width * 0.012;
-    this.color = 'white';
+    this.radius = ctx.canvas.width * 0.013;
+    this.color = 'black';
     this.speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
     this.maxSpeed = Math.max(ctx.canvas.width, ctx.canvas.height) * 0.012;
     this.isScoring = false;

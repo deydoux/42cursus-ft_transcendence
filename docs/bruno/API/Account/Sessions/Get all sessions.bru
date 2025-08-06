@@ -1,0 +1,11 @@
+meta {
+  name: Get all sessions
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseURL}}/api/account/sessions
+  body: none
+  auth: inherit
+}

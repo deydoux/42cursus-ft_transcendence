@@ -10,9 +10,9 @@ export class Paddle {
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
-    width = ctx.canvas.width * 0.01,
+    width = ctx.canvas.width * 0.015,
     height = ctx.canvas.height * 0.25,
-    color = 'white',
+    color = 'black',
   ) {
     this.ctx = ctx;
     this.x = x;
@@ -26,29 +26,37 @@ export class Paddle {
     // Save the current context state
     this.ctx.save();
 
-    // Apply the glow effect matching CSS variables
-    this.ctx.shadowColor = 'rgb(243, 58, 106)'; // --glow-color
-    this.ctx.shadowBlur = 15; // Adjusted for canvas
-    this.ctx.shadowOffsetX = 0;
-    this.ctx.shadowOffsetY = 0;
-
-    // Draw the paddle with glow
+    // Set fill style
     this.ctx.fillStyle = this.color;
-    this.ctx.fillRect(this.x, this.y, this.width, this.height);
 
-    // Add inner glow
-    this.ctx.shadowBlur = 5;
-    this.ctx.shadowColor = 'rgb(227, 11, 92)'; // --glow-spread-color
+    // For a more proportional approach
+    const radius = Math.min(30, this.width / 2, this.height / 2);
 
-    // Add a smaller inner rectangle with lighter color for inner glow effect
-    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-    const padding = this.width * 0.2;
-    this.ctx.fillRect(
-      this.x + padding / 2,
-      this.y + padding / 2,
-      this.width - padding,
-      this.height - padding,
+    // Start a new path
+    this.ctx.beginPath();
+
+    // Draw rounded rectangle (x, y, width, height, radius)
+    this.ctx.moveTo(this.x + radius, this.y);
+    this.ctx.arcTo(
+      this.x + this.width,
+      this.y,
+      this.x + this.width,
+      this.y + this.height,
+      radius,
     );
+    this.ctx.arcTo(
+      this.x + this.width,
+      this.y + this.height,
+      this.x,
+      this.y + this.height,
+      radius,
+    );
+    this.ctx.arcTo(this.x, this.y + this.height, this.x, this.y, radius);
+    this.ctx.arcTo(this.x, this.y, this.x + this.width, this.y, radius);
+    this.ctx.closePath();
+
+    // Fill the rounded rectangle
+    this.ctx.fill();
 
     // Restore the context to prevent affecting other elements
     this.ctx.restore();
