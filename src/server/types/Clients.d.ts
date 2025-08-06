@@ -46,8 +46,7 @@ type ServerTunnelMessage =
       type: 'matchStart';
       game: string;
       ranked: boolean;
-      user: unknown;
-      opponent: unknown;
+      players: unknown[];
     }
   | {
       type: 'move';

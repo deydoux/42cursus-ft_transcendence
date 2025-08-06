@@ -188,25 +188,17 @@ export default abstract class Match {
   public async start() {
     await this.fetchData();
 
-    await this.execute(async (player, opponent) =>
-      this.sendSocket(player.socket, {
-        type: 'matchStart',
-        game: this.game,
-        ranked: this.ranked,
-        user: {
-          id: player.userID,
-          username: player.username,
-          avatar: player.avatar,
-          elo: player.elo,
-        },
-        opponent: {
-          id: opponent.userID,
-          username: opponent.username,
-          avatar: opponent.avatar,
-          elo: opponent.elo,
-        },
-      }),
-    );
+    this.send({
+      type: 'matchStart',
+      game: this.game,
+      ranked: this.ranked,
+      players: this.players.map(player => ({
+        id: player.userID,
+        username: player.username,
+        avatar: player.avatar,
+        elo: player.elo,
+      })),
+    });
 
     await this.lock;
     await this.destroy(this.winner);
