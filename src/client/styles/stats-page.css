@@ -12,8 +12,6 @@ h1.title {
 .pong-bandroll {
  --glow-color: rgb(93, 89, 167);
  --glow-spread-color: rgba(4, 29, 191, 0.781);
-  border: 5px solid rgb(221, 232, 255) ;
-  background-color: #000000;
   border-radius: 5px;
   margin-top: 5px;
   margin-left: 50px;
@@ -32,8 +30,6 @@ h1.title {
 .race-bandroll {
  --glow-color: rgb(243, 58, 106);
  --glow-spread-color: rgba(227, 11, 92, 0.781);
-  border: 5px solid #fde ;
-  background-color: #000000;
   border-radius: 5px;
   margin-top: 5px;
   margin-left: 50px;

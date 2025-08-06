@@ -10,8 +10,22 @@
   width: 100%;
   max-width: 90%;
   min-height: 1vw;
+  border-radius: 30xp;
   position: relative;
+  background: linear-gradient(to bottom left,#1F2326, #121619);
   box-shadow: 0 0 0.1em .01em #fda5d5;
+}
+.box::before {
+  content: '';
+  position: absolute;
+  top: -2px;  /* Adjust based on border width */
+  left: -2px;
+  right: -2px;
+  height: calc(100% + 2px);
+  border-radius: 30px 30px 0 0;
+  background: linear-gradient(to bottom right, #ffccd3, #ffa1ad);
+  z-index: -1;
+  pointer-events: none;
 }
 
 .pong {

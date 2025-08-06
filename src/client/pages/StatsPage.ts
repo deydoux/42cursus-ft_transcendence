@@ -49,5 +49,6 @@ export function renderStatsPage(): void {
   ctx_pong.imageSmoothingEnabled = true;
 
   const statsCanvas = new StatsCanvas(ctx_race, ctx_pong);
-  statsCanvas.bandrollRace();
+  statsCanvas.raf = window.requestAnimationFrame(statsCanvas.loop.bind(this));
+  statsCanvas.loop();
 }
