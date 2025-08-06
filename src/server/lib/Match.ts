@@ -161,18 +161,12 @@ export default abstract class Match {
     opponent: Player,
     message: Record<string, unknown>,
   ) {
-    if (message?.type === 'move')
-      this.handleMove(
-        opponent,
-        message as Record<string, unknown> & {type: 'move'},
-      );
-  }
-
-  protected handleMove(
-    opponent: Player,
-    message: Record<string, unknown> & {type: 'move'},
-  ) {
-    this.sendSocket(opponent.socket, message);
+    switch (message?.type) {
+      case 'move':
+      case 'gameMessage':
+        this.sendSocket(opponent.socket, message as ServerTunnelMessage);
+        break;
+    }
   }
 
   private send(message: ServerTunnelMessage) {

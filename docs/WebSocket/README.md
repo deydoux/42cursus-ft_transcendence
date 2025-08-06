@@ -101,6 +101,17 @@ Received when a user accepts a friend request
 }
 ```
 
+### `gameMessage`
+Received when a game message is sent in a match
+
+*Example:*
+```jsonc
+{
+  "type": "gameMessage",
+  // ...
+}
+```
+
 ### `matchCancel`
 Received when a match is cancelled due to an error
 
@@ -154,7 +165,7 @@ Received when a match is starting
 Received when opponent makes a move in a match
 
 *Example:*
-```json
+```jsonc
 {
   "type": "move",
   //...

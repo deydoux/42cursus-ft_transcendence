@@ -49,10 +49,6 @@ type ServerTunnelMessage =
       players: unknown[];
     }
   | {
-      type: 'move';
-      [key: string]: unknown;
-    }
-  | {
       type: 'success';
       origin: string;
     };
