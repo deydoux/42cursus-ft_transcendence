@@ -33,6 +33,14 @@ Sent to leave the matchmaking queue
 }
 ```
 
+*Response: (to all client sockets)*
+```json
+{
+  "type": "success",
+  "origin": "leaveMatchmaking"
+}
+```
+
 ## Server Messages
 
 ### `directMessage`
@@ -65,7 +73,7 @@ Received when there is an error processing a message
 ```json
 {
   "type": "error",
-  "message": "You are already in a matchmaking queue",
+  "message": "You are already in a matchmaking queue"
 }
 ```
 
@@ -101,6 +109,28 @@ Received when a user accepts a friend request
 }
 ```
 
+### `gameMessage`
+Received when a game message is sent in a match
+
+*Example:*
+```jsonc
+{
+  "type": "gameMessage",
+  // ...
+}
+```
+
+### `matchCancel`
+Received when a match is cancelled due to an error
+
+*Example:*
+```json
+{
+  "type": "matchCancel",
+  "cause": "Cheating detected"
+}
+```
+
 ### `matchEnd`
 Received when a match ends
 
@@ -109,7 +139,6 @@ Received when a match ends
 {
   "type": "matchEnd",
   "winner": 1,
-  "loser": 2,
   "draw": false,
   "eloChange": 20
 }
@@ -124,18 +153,28 @@ Received when a match is starting
   "type": "matchStart",
   "game": "pong",
   "ranked": true,
-  "user": {
+  "players": [{
     "id": 1,
     "username": "user123",
     "avatar": "/static/default_avatar.webp",
     "elo": 1000
-  },
-  "opponent": {
+  }, {
     "id": 2,
     "username": "user456",
     "avatar": "/static/default_avatar.webp",
     "elo": 1000
-  }
+  }]
+}
+```
+
+### `move`
+Received when opponent makes a move in a match
+
+*Example:*
+```jsonc
+{
+  "type": "move",
+  //...
 }
 ```
 
