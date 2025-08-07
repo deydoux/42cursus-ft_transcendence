@@ -38,7 +38,7 @@ export class PongGame extends BaseComponent {
       className: 'w-screen h-screen flex items-center gap-10 py-16',
     });
     const game = DOMUtils.createElement('div', {
-      className: 'h-full flex-1 bg-[blue] flex flex-wrap gap-10',
+      className: 'h-full flex-1 flex flex-wrap gap-10',
     });
     game.appendChild(renderPong());
     this.renderGameCanvas();
