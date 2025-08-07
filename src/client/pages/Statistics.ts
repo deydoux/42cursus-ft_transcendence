@@ -1,4 +1,3 @@
-import '../styles/stats-page.css';
 import {BaseComponent} from '../components/BaseComponent.ts';
 import {Chat} from '../containers/Chat.ts';
 import {DOMUtils} from '../utils/dom.ts';

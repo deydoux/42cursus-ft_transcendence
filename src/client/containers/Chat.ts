@@ -4,7 +4,8 @@ import {DOMUtils} from '../utils/dom';
 export class Chat extends BaseComponent {
   render(): HTMLElement | undefined {
     const container = DOMUtils.createElement('div', {
-      className: 'w-screen h-screen flex items-center gap-10 py-16',
+      className:
+        'w-[400px] h-full flex-none border border-pink-300 rounded-3xl flex flex-col p-6',
     });
 
     const chatContent = DOMUtils.createElement('div', {
