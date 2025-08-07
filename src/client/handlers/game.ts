@@ -30,7 +30,7 @@ const handleSuccess = (data: {origin: string}) => {
 };
 
 const handleError = (data: {message: string}) => {
-  Toastify.error(data.message);
+  if (data.message) Toastify.error(data.message);
 };
 
 export const setupGameHandlers = () => {

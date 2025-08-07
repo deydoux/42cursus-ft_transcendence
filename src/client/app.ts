@@ -2,7 +2,10 @@ import {Homepage} from './containers/Homepage';
 import {LandingPage} from './containers/LandingPage';
 import {Lobby} from './containers/Lobby';
 import {PageNotFound} from './containers/PageNotFound';
+import {PongGame} from './pages/PongGame';
+import {RacecarGame} from './pages/RacecarGame';
 import {Router} from './services/router';
+import {Statistics} from './pages/Statistics';
 import {loadIcons} from './utils/icons';
 import {socket} from './utils/websocket';
 
@@ -32,9 +35,13 @@ class App {
 
   private setupRoutes(): void {
     this.router.addRoute('/', () => new LandingPage());
+    this.router.addRoute('*', () => new PageNotFound(this.router));
+
     this.router.addRoute('/homepage', () => new Homepage());
     this.router.addRoute('/lobby', () => new Lobby());
-    this.router.addRoute('*', () => new PageNotFound(this.router));
+    this.router.addRoute('/pong', () => new PongGame());
+    this.router.addRoute('/racecar', () => new RacecarGame());
+    this.router.addRoute('/statistics', () => new Statistics());
   }
 }
 

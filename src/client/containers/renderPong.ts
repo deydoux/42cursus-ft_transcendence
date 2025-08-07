@@ -2,7 +2,7 @@ import {html} from '../utils/html';
 import profilePic from '../assets/pp.jpeg';
 
 export const renderPong = () =>
-  html`<div>
+  html`<div class="w-full">
     <div class="relative flex w-full flex-col items-center">
       <div
         class="box w-[calc(100%-100px)] rounded-t-[20px] border-6 border-b-0 border-pink-300 bg-linear-to-br from-pink-200 to-pink-300 bg-clip-text px-8 pt-1 pb-0"
