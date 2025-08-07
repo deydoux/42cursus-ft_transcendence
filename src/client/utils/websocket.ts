@@ -232,8 +232,8 @@ class WebSocketUtility {
    */
   private processMessageQueue(): void {
     while (this.messageQueue.length > 0 && this.ws && this.isConnected()) {
-      const message = this.messageQueue.shift() ?? '';
-      this.send(message);
+      const message = this.messageQueue.shift();
+      if (message) this.send(message);
     }
   }
 
