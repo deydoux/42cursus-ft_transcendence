@@ -1,7 +1,7 @@
 import {html} from '../utils/html';
 
 export const renderStats = () =>
-  html`<div>
+  html`<div class="w-full">
     <div class="relative flex w-full flex-col items-center">
       <h1 class="title relative justify-center">Game's statistics</h1>
       <canvas
