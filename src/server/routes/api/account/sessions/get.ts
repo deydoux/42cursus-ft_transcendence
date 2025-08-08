@@ -1,5 +1,6 @@
 import {FastifyPluginAsync} from 'fastify';
 import SQL from 'sql-template-strings';
+import {UAParser} from 'ua-parser-js';
 
 const plugin: FastifyPluginAsync = async server => {
   server.get('/', async (request, reply) => {
@@ -14,6 +15,7 @@ const plugin: FastifyPluginAsync = async server => {
     `);
 
     sessions.forEach(session => {
+      session.userAgent = new UAParser(session.userAgent).getResult();
       session.createdAt = new Date(session.createdAt * 1000);
       session.updatedAt = new Date(session.updatedAt * 1000);
     });
