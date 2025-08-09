@@ -1,0 +1,15 @@
+meta {
+  name: Mark messages as read
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseURL}}/api/chats/direct/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 2
+}

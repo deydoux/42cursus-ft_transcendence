@@ -1,0 +1,11 @@
+meta {
+  name: Disconnect all
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{baseURL}}/api/account/sessions
+  body: none
+  auth: inherit
+}

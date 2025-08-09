@@ -1,19 +1,43 @@
+import {Client} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {Database} from 'sqlite';
 import {SharpInput} from 'sharp';
+import {WebSocket} from '@fastify/websocket';
+
+interface RankedClient extends Client {
+  elo: number;
+  lowerElo: number;
+  upperElo: number;
+  timeout?: NodeJS.Timeout;
+}
+
+interface Queue {
+  casual: Client | null;
+  ranked: RankedClient[];
+}
 
 declare module 'fastify' {
   interface FastifyInstance {
-    authenticate: (type?: string) => (request: FastifyRequest) => Promise<void>;
+    authenticate: (
+      scope?: string,
+    ) => (request: FastifyRequest) => Promise<void>;
     authenticateRefresh: (request: FastifyRequest) => Promise<void>;
     clients: Clients;
     db: Database;
     dev: boolean;
+    game: {
+      players: Record<number, number>;
+      queues: {
+        pong: Queue;
+        race: Queue;
+      };
+    };
     generateResponseSchema: (
       code: number,
       fields: string[],
       description?: string,
     ) => object;
+    leaveMatchmaking: (socket: WebSocket) => void;
     paths: {
       avatars: string;
       cache: string;
@@ -33,11 +57,11 @@ declare module 'fastify' {
   }
 
   interface FastifyRequest {
-    connection: number | null;
-    generateAccessToken: (id: number) => Promise<string>;
+    session: number | null;
+    generateAccessToken: (id: number, scope?: string) => Promise<string>;
     generateTokens: (
       id: number,
     ) => Promise<{accessToken: string; refreshToken: string}>;
-    removeConnection: () => Promise<void>;
+    removeSession: () => Promise<void>;
   }
 }

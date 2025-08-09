@@ -1,0 +1,15 @@
+meta {
+  name: Change avatar
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseURL}}/api/account/avatar
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  : @file(/home/deydoux/Pictures/Avatars/flow.jpg)
+}

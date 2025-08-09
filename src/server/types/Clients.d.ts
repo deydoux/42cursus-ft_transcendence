@@ -1,4 +1,22 @@
-type TunnelMessage =
+import {WebSocket} from '@fastify/websocket';
+
+interface Client {
+  userID: number;
+  session: number;
+  socket: WebSocket;
+}
+
+type ClientTunnelMessage =
+  | {
+      type: 'joinMatchmaking';
+      game: string;
+      mode: string;
+    }
+  | {
+      type: 'leaveMatchmaking';
+    };
+
+type ServerTunnelMessage =
   | {
       type: 'directMessage';
       sender: unknown;
@@ -13,6 +31,24 @@ type TunnelMessage =
       user: unknown;
       relationship?: number;
     }
+  | {type: 'hotReload'}
   | {
-      type: 'hotReload';
+      type: 'matchCancel';
+      cause?: string;
+    }
+  | {
+      type: 'matchEnd';
+      winner: number;
+      draw: boolean;
+      eloChange?: number;
+    }
+  | {
+      type: 'matchStart';
+      game: string;
+      ranked: boolean;
+      players: unknown[];
+    }
+  | {
+      type: 'success';
+      origin: string;
     };

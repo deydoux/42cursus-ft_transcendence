@@ -7,7 +7,9 @@
     "outDir": "build",
     "baseUrl": "src/server",
     "paths": {
-      "#lib/*": ["lib/*"]
+      "#lib/*": ["lib/*"],
+      "#tunnel/*": ["tunnel/*"],
+      "#types/*": ["types/*"]
     },
     "allowUnusedLabels": false,
     "composite": true,

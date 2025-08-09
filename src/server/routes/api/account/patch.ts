@@ -11,7 +11,6 @@ const schema = {
     properties: {
       username: schemas.username,
       password: schemas.password,
-      confirmPassword: {type: 'string'},
       oldPassword: {type: 'string'},
     },
   } as const,
@@ -19,12 +18,7 @@ const schema = {
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.patch('/', {schema}, async (request, reply) => {
-    const {username, password, confirmPassword, oldPassword} = request.body;
-    if (password !== confirmPassword)
-      throw {
-        ...errorCodes.FST_ERR_VALIDATION('Password mismatch'),
-        field: 'confirmPassword',
-      };
+    const {username, password, oldPassword} = request.body;
 
     const {id} = request.user;
     const columns = [];
@@ -52,7 +46,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     if (username) {
       columns.push(SQL`username = ${username}`);
-      server.validateUsernameAvailability(username, id);
+      await server.validateUsernameAvailability(username, id);
     }
 
     if (columns.length > 0) {

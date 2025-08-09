@@ -1,0 +1,19 @@
+meta {
+  name: Get direct messages
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseURL}}/api/chats/direct/:id?lastID=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  lastID: 0
+}
+
+params:path {
+  id: 2
+}

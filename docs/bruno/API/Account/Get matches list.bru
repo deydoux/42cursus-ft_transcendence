@@ -1,0 +1,15 @@
+meta {
+  name: Get matches list
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseURL}}/api/account/matches?game=pong
+  body: none
+  auth: inherit
+}
+
+params:query {
+  game: pong
+}
