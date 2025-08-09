@@ -46,7 +46,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     if (username) {
       columns.push(SQL`username = ${username}`);
-      server.validateUsernameAvailability(username, id);
+      await server.validateUsernameAvailability(username, id);
     }
 
     if (columns.length > 0) {
