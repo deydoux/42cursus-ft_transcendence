@@ -1,4 +1,4 @@
-import {Client, ServerTunnelMessage} from '#types/Clients';
+import {Client, ClientTunnelMessage, ServerTunnelMessage} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
 import SQL from 'sql-template-strings';
@@ -165,7 +165,28 @@ export default abstract class Match {
       case 'gameMessage':
         this.sendSocket(opponent.socket, message as ServerTunnelMessage);
         break;
+      case 'score':
+        this.handleScore(
+          player,
+          opponent,
+          message as ClientTunnelMessage & {type: 'score'},
+        );
+        break;
     }
+  }
+
+  private handleScore(
+    player: Player,
+    opponent: Player,
+    message: ClientTunnelMessage & {type: 'score'},
+  ) {
+    if (!this.players.map(player => player.userID).includes(message.player))
+      return this.sendSocket(player.socket, {
+        type: 'error',
+        message: 'Invalid score message',
+      });
+
+    this.server.log.warn('TODO: Handle score message');
   }
 
   private send(message: ServerTunnelMessage) {

@@ -47,9 +47,9 @@ sequenceDiagram
     Note left of s: {winner: 1, draw: true}
 
   else Mathy scores
-    m ->> s: scores
+    m ->> s: score
     Note right of m: {player: 1}
-    q ->> s: scores
+    q ->> s: score
     Note left of q: {player: 1}
 
     alt New round
@@ -62,7 +62,7 @@ sequenceDiagram
     end
 
   else Quentin cheats
-    q ->> s: scores
+    q ->> s: score
     Note left of q: {player: 2}
     m --x s: *nothing sent*
     s -x m: matchCancel

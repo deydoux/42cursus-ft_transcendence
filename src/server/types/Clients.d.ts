@@ -14,6 +14,10 @@ type ClientTunnelMessage =
     }
   | {
       type: 'leaveMatchmaking';
+    }
+  | {
+      type: 'score';
+      player: number;
     };
 
 type ServerTunnelMessage =
