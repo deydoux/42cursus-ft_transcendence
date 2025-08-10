@@ -180,7 +180,7 @@ export default abstract class Match {
     opponent: Player,
     message: ClientTunnelMessage & {type: 'score'},
   ) {
-    if (!this.players.map(player => player.userID).includes(message.player))
+    if (!this.players.some(player => player.userID === message.player))
       return this.sendSocket(player.socket, {
         type: 'error',
         message: 'Invalid score message',
