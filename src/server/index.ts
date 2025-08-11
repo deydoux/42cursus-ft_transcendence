@@ -47,6 +47,7 @@ async function main() {
     dir: join(__dirname, 'routes'),
     autoHooks: true,
     cascadeHooks: true,
+    overwriteHooks: true,
     routeParams: true,
   });
 
