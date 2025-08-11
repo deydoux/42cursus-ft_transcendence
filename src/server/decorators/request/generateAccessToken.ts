@@ -15,7 +15,7 @@ const plugin: FastifyPluginAsync = async server => {
       });
 
       const {ip, headers, session} = this;
-      const userAgent = headers['user-agent'] || null;
+      const userAgent = headers['user-agent'] || '';
 
       if (session)
         await server.db.run(SQL`

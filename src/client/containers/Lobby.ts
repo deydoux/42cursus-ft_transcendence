@@ -14,8 +14,6 @@ export class Lobby extends BaseComponent {
     this.handleNavigation = () => {
       const newPath = window.location.pathname;
 
-      console.log('fuck fuck', {newPath, currentPath: this.currentPath});
-
       // Only trigger if we were in /lobby and are leaving it
       if (this.currentPath === '/lobby' && newPath !== '/lobby') {
         socket.send(
@@ -66,7 +64,7 @@ export class Lobby extends BaseComponent {
     const state = this.store.getState();
     if (!state.isWaitingForMatchmaking) {
       Toastify.error(
-        'You need to subscrible to the matchmaking queue before entering the lobby',
+        'You need to subscribe to the matchmaking queue before entering the lobby',
       );
       this.router.navigate('/homepage');
       return;
