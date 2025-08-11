@@ -32,7 +32,7 @@ export class UserProfile {
       this.fetchAccount();
       Toastify.success('Avatar updated successfully');
     } catch (error) {
-      Toastify.error('An error occured while updloading the avatar');
+      Toastify.error('An error occurred while uploading the avatar');
       console.error(error);
     }
   }

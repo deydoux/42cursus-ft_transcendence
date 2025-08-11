@@ -180,7 +180,7 @@ export class TwoFactorAuthManager {
     step2Header.appendChild(
       DOMUtils.createElement('h2', {
         className: 'font-medium ml-3 text-xl',
-        textContent: 'Get verfication Code',
+        textContent: 'Get verification Code',
       }),
     );
     dialogContent.appendChild(step2Header);
@@ -257,8 +257,7 @@ export class TwoFactorAuthManager {
 
     label.appendChild(
       DOMUtils.createElement('label', {
-        textContent: '2-step verification',
-        className: '2-step verification',
+        textContent: '2 Factor Authorization',
       }),
     );
     label.appendChild(

@@ -31,7 +31,7 @@ export class PasswordManager {
 
       Toastify.success('Password updated successfully');
     } catch (error) {
-      errorField.textContent = error.toString().replaceAll('Error: ', '');
+      errorField.textContent = error.toString().replace(/^Error: /, '');
       console.error(error);
     }
   }

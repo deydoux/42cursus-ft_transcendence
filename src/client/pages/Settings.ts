@@ -35,7 +35,7 @@ export class Settings extends BaseComponent {
       const data = await response.json();
       this.store.setState({user: data});
     } catch (error) {
-      Toastify.error('An error occured while fetching user account');
+      Toastify.error('An error occurred while fetching user account');
       console.error(error);
     }
   }
