@@ -8,6 +8,7 @@ export class Store {
     ((value: any, previousValue: any) => void)[]
   > = new Map<string, ((value: any, previousValue: any) => void)[]>();
   private state: AppState = {
+    totpCode: undefined,
     user: undefined,
     currentRoute: '/',
     isWaitingForMatchmaking: false,

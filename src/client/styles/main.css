@@ -45,3 +45,7 @@
 .animate-wiggle:hover {
   animation: wiggle 1s infinite;
 }
+
+.settings-title>span {
+  color: white;
+}

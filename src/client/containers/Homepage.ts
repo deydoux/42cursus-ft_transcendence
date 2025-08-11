@@ -4,25 +4,29 @@ import {DOMUtils} from '../utils/dom';
 import {socket} from '../utils/websocket';
 
 export class Homepage extends BaseComponent {
-  renderMenuButton = (darkMode = false) => {
+  renderMenuButton = (darkMode = false, label?: string) => {
     const button = DOMUtils.createElement('div', {
       className: 'flex-1 min-w-1/3',
       events: {
         click: () => {
-          socket.send(
-            JSON.stringify({
-              type: 'joinMatchmaking',
-              game: 'pong',
-              mode: 'casual',
-            }),
-          );
+          if (label) {
+            this.router.navigate(`/${label.toLowerCase()}`);
+          } else {
+            socket.send(
+              JSON.stringify({
+                type: 'joinMatchmaking',
+                game: 'pong',
+                mode: 'casual',
+              }),
+            );
+          }
         },
       },
     });
     button.appendChild(
       DOMUtils.createElement('button', {
         className: `w-full h-full bg-linear-to-br ${darkMode ? 'from-pink-200 to-pink-300 text-background' : 'from-gray-500/20 to-gray-800/20 text-pink-300'} text-background font-bold uppercase rounded-xl`,
-        textContent: 'Play pong',
+        textContent: label ? label : 'Play pong',
       }),
     );
 
@@ -40,7 +44,7 @@ export class Homepage extends BaseComponent {
     gameMenu.appendChild(this.renderMenuButton());
     gameMenu.appendChild(this.renderMenuButton(true));
     gameMenu.appendChild(this.renderMenuButton(true));
-    gameMenu.appendChild(this.renderMenuButton());
+    gameMenu.appendChild(this.renderMenuButton(false, 'Settings'));
 
     container.appendChild(gameMenu);
 

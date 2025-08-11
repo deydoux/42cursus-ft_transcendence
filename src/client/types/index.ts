@@ -1,6 +1,10 @@
 export interface AppState {
   currentRoute: string;
   isWaitingForMatchmaking: boolean;
+  totpCode?: {
+    uri: string;
+    secret: string;
+  };
   user?: {
     id: number;
     username: string;
