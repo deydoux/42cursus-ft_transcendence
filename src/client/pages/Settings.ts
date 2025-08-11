@@ -7,6 +7,7 @@ import {TwoFactorAuthManager} from '../containers/settings/twoFactorAuthManager'
 import {UserProfile} from '../containers/settings/userProfile';
 import {api} from '../utils/Api';
 import {createDialog} from '../components/Dialog';
+import {html} from '../utils/html';
 
 export class Settings extends BaseComponent {
   private UserProfile: UserProfile;
@@ -40,20 +41,15 @@ export class Settings extends BaseComponent {
     }
   }
 
-  render(): HTMLElement | undefined {
-    this.fetchAccount();
-
+  private renderHeader() {
     const container = DOMUtils.createElement('div', {
-      className: 'w-screen h-screen flex items-center gap-10 py-16',
-    });
-    const settings = DOMUtils.createElement('div', {
-      className: 'h-full flex-1 overflow-y-auto -mr-4 pr-4',
+      className: 'flex items-center justify-between pb-6',
     });
 
-    // Header
-    const header = DOMUtils.createElement('div', {
-      className: 'flex items-center gap-4 mb-6',
+    const headerLeft = DOMUtils.createElement('div', {
+      className: 'flex items-center justify-center gap-4',
     });
+
     const backIcon = DOMUtils.createElement('button', {
       className:
         'w-6 h-6 mb-1 flex items-center justify-center rounded-full border p-0.5 border-pink-300 cursor-pointer',
@@ -72,17 +68,52 @@ export class Settings extends BaseComponent {
         },
       }),
     );
-    header.appendChild(backIcon);
+    headerLeft.appendChild(backIcon);
 
-    const headerH1 = DOMUtils.createElement('h1', {
-      className:
-        'settings-title text-white/10 text-4xl font-bold my-4 uppercase',
+    const headerText = DOMUtils.createElement('div', {
+      className: 'flex flex-col justify-center items-start gap',
     });
-    headerH1.innerHTML =
-      '<span> S</span>end m<span>e</span> ki<span>tt</span>y th<span>ings</span>';
-    header.appendChild(headerH1);
+    headerText.appendChild(
+      html`<h1
+        class="settings-title text-4xl font-bold text-white/10 uppercase"
+      >
+        <span>S</span>end m<span>e</span> ki<span>tt</span>y th<span>ings</span>
+      </h1>`,
+    );
+    headerLeft.appendChild(headerText);
 
-    settings.appendChild(header);
+    container.appendChild(headerLeft);
+
+    const logoutButton = DOMUtils.createElement('button', {
+      className:
+        'border border-pink-300 py-2 px-4 rounded-lg cursor-pointer hover:bg-pink-300/10 duration-200',
+      textContent: 'Logout',
+      events: {
+        click: async () => {
+          await api.post('auth/logout', {});
+          localStorage.removeItem('accessToken');
+          this.router.navigate('/');
+        },
+      },
+    });
+
+    container.appendChild(logoutButton);
+
+    return container;
+  }
+
+  render(): HTMLElement | undefined {
+    this.fetchAccount();
+
+    const container = DOMUtils.createElement('div', {
+      className: 'w-screen h-screen flex items-center gap-10 py-16',
+    });
+    const settings = DOMUtils.createElement('div', {
+      className: 'h-full flex-1 overflow-y-auto -mr-4 pr-4',
+    });
+
+    // Header
+    settings.appendChild(this.renderHeader());
 
     // User Profile
     const firstRow = DOMUtils.createElement('div', {
