@@ -16,7 +16,13 @@ export class UserProfile {
     try {
       const formData = new FormData();
       formData.append('avatar', file, file.name);
-      const response = await api.put('account/avatar', formData);
+      const response = await api.customFetch('/api/account/avatar', {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+        body: formData,
+      });
 
       if (!response.ok) {
         const errorData = await response.json();

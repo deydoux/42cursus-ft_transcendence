@@ -37,7 +37,7 @@ export class TwoFactorAuthManager {
 
       if (qrcodeElement) {
         try {
-          await QRCode.toCanvas(qrcodeElement, data.secret);
+          await QRCode.toCanvas(qrcodeElement, data.uri);
         } catch (error) {
           console.error('QR code generation failed:', error);
         }
@@ -101,7 +101,7 @@ export class TwoFactorAuthManager {
     this.generateTotp();
 
     const codeSection = DOMUtils.createElement('div', {
-      className: 'w-120 bg-pink-300/20 rounded-lg p-2 mt-2 flex gap-2',
+      className: 'bg-pink-300/20 rounded-lg p-2 mt-2 flex gap-2',
     });
     codeSection.appendChild(
       DOMUtils.createElement('canvas', {
@@ -113,7 +113,7 @@ export class TwoFactorAuthManager {
     );
 
     const codeHelper = DOMUtils.createElement('div', {
-      className: 'flex-1 flex flex-col gap-2 p-4',
+      className: 'max-w-[100%] flex-1 flex flex-col gap-2 p-4',
     });
     codeHelper.appendChild(
       DOMUtils.createElement('p', {
@@ -127,23 +127,22 @@ export class TwoFactorAuthManager {
       }),
     );
 
-    const textCode = DOMUtils.createElement('div', {
-      className: 'relative flex items-center max-w-[100%] text-wrap',
-    });
+    const textCode = DOMUtils.createElement('div');
 
     const renderTextCode = () => {
       const code = this.store.getState().totpCode?.secret;
       textCode.innerHTML = '';
+      textCode.className = 'relative flex justify-center text-wrap';
 
       const copiedToaster = DOMUtils.createElement('p', {
         className:
-          'hidden bg-green-600 px-3 py-1 text-sm text-white absolute rounded top-10 duration-200 right-12',
+          'hidden bg-green-600 px-3 py-1 text-sm text-white absolute rounded top-10 duration-200',
         textContent: 'Secret code copied!',
       });
 
       const copyText = DOMUtils.createElement('p', {
         className:
-          'relative w-50 overflow-x-auto overflow-y-visible px-2 py-1 bg-white/90 text-background rounded cursor-pointer flex',
+          'px-2 py-1 bg-white text-background rounded cursor-pointer flex',
         textContent: code,
         events: {
           click: evt => {

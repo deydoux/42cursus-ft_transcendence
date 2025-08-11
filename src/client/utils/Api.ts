@@ -9,7 +9,7 @@ class Api {
     return localStorage.getItem('accessToken');
   }
 
-  private async customFetch(
+  async customFetch(
     input: string | URL | globalThis.Request,
     init?: RequestInit,
   ): Promise<Response> {
