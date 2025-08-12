@@ -41,6 +41,59 @@ export class Settings extends BaseComponent {
     }
   }
 
+  private renderHeader2() {
+    const container = DOMUtils.createElement('div', {
+      className:
+        'mb-8 w-full h-38 bg-linear-to-br from-pink-200 to-pink-300 text-background flex items-center justify-between px-16 rounded-lg  shadow-lg shadow-pink-300/30',
+    });
+
+    const headerTitle = DOMUtils.createElement('div');
+
+    headerTitle.appendChild(
+      DOMUtils.createElement('h1', {
+        className: 'text-3xl font-bold',
+        textContent: 'Settings',
+      }),
+    );
+    headerTitle.appendChild(
+      DOMUtils.createElement('p', {
+        className: 'opacity-70',
+        textContent: 'Update your personal details and account settings.',
+      }),
+    );
+
+    container.appendChild(headerTitle);
+
+    const logoutButton = DOMUtils.createElement('button', {
+      className:
+        'bg-background text-pink-300 py-2 px-4 rounded-lg cursor-pointer duration-200 flex items-center gap-2',
+      events: {
+        click: async () => {
+          await api.post('auth/logout', {});
+          localStorage.removeItem('accessToken');
+          this.router.navigate('/');
+        },
+      },
+    });
+
+    logoutButton.appendChild(
+      DOMUtils.createElement('i', {
+        className: 'w-5 h-5 -mt-0.5',
+        attributes: {
+          icon: 'exit',
+        },
+      }),
+    );
+    logoutButton.appendChild(
+      DOMUtils.createElement('p', {
+        textContent: 'Logout',
+      }),
+    );
+
+    container.appendChild(logoutButton);
+    return container;
+  }
+
   private renderHeader() {
     const container = DOMUtils.createElement('div', {
       className: 'flex items-center justify-between pb-6',
@@ -113,7 +166,7 @@ export class Settings extends BaseComponent {
     });
 
     // Header
-    settings.appendChild(this.renderHeader());
+    settings.appendChild(this.renderHeader2());
 
     // User Profile
     const firstRow = DOMUtils.createElement('div', {
