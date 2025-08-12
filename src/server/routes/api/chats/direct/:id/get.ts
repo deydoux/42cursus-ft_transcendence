@@ -1,6 +1,7 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
 import {idParamsSchema} from '#lib/schemas';
+import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 const PAGE_SIZE = 25;
 
@@ -20,7 +21,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const {lastID} = request.query;
 
     const other = await server.db.get(SQL`
-      SELECT id
+      SELECT id, username, last_seen AS lastSeen, has_avatar, avatar_version
       FROM users
       WHERE id = ${request.params.id}
     `);
@@ -28,6 +29,10 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     if (!other) return reply.notFound('User not found');
     if (user.id === other.id)
       return reply.badRequest('Cannot view messages with yourself');
+
+    serializeUserAvatar(other);
+    other.lastSeen = new Date(other.lastSeen * 1000);
+    other.online = server.clients.isUserOnline(other.id);
 
     const relationship = await server.db.get(SQL`
       SELECT type
@@ -73,7 +78,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       messages.length !== PAGE_SIZE
         ? null
         : `${url.split('?')[0]}?lastID=${messages[PAGE_SIZE - 1].id}`;
-    return reply.send({messages, next});
+    return reply.send({user: other, messages, next});
   });
 };
 
