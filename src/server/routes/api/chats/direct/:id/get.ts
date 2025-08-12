@@ -82,6 +82,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       messages.length !== PAGE_SIZE
         ? null
         : `${url.split('?')[0]}?lastID=${messages[PAGE_SIZE - 1].id}`;
+
     return reply.send({user: other, messages, next});
   });
 };
