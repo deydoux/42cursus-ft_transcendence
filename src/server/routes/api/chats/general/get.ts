@@ -37,24 +37,25 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       message.createdAt = new Date(message.createdAt * 1000);
     });
 
-    const users = await messages
+    const userIDs = messages
       .map(message => message.userID)
       .reduce((users, id) => {
         if (!users.includes(id)) users.push(id);
         return users;
       }, [])
-      .sort((a: number, b: number) => a - b)
-      .reduce(async (users: Record<number, unknown>, id: number) => {
-        const user = await server.db.get(SQL`
-          SELECT id, username, has_avatar, avatar_version
-          FROM users
-          WHERE id = ${id}
-        `);
-        serializeUserAvatar(user);
+      .sort((a: number, b: number) => a - b);
 
-        users[id] = user;
-        return users;
-      }, {});
+    const users: Record<number, unknown> = {};
+    for (const id of userIDs) {
+      const user = await server.db.get(SQL`
+        SELECT id, username, has_avatar, avatar_version
+        FROM users
+        WHERE id = ${id}
+      `);
+      serializeUserAvatar(user);
+
+      users[id] = user;
+    }
 
     const next =
       messages.length !== PAGE_SIZE
