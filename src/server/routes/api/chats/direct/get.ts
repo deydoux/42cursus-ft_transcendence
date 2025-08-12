@@ -6,7 +6,7 @@ const plugin: FastifyPluginAsync = async server => {
   server.get('/', async (request, reply) => {
     const {user} = request;
 
-    const direct = await server.db.all(SQL`
+    const chats = await server.db.all(SQL`
       SELECT r.id AS relationshipID,
              coalesce(dm.created_at, r.updated_at) AS updatedAt,
              u.id, username, last_seen AS lastSeen, has_avatar, avatar_version,
@@ -34,14 +34,14 @@ const plugin: FastifyPluginAsync = async server => {
       ORDER BY updatedAt DESC
     `);
 
-    direct.forEach(chat => {
+    chats.forEach(chat => {
       serializeUserAvatar(chat);
       chat.updatedAt = new Date(chat.updatedAt * 1000);
       chat.lastSeen = new Date(chat.lastSeen * 1000);
       chat.online = server.clients.isUserOnline(chat.id);
     });
 
-    return reply.send(direct);
+    return reply.send(chats);
   });
 };
 
