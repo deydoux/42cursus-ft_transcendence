@@ -3,6 +3,17 @@ This WebSocket API handles real-time communication and time-sensitive events. To
 
 ## Client Messages
 
+### `gameMessage`
+Sent to send a message in a game match
+
+*Example:*
+```json
+{
+  "type": "gameMessage",
+  "content": "Good luck!"
+}
+```
+
 ### `joinMatchmaking`
 Sent to join the matchmaking queue
 
@@ -38,6 +49,17 @@ Sent to leave the matchmaking queue
 {
   "type": "success",
   "origin": "leaveMatchmaking"
+}
+```
+
+### `move`
+Sent to make a move in a game match
+
+*Example:*
+```jsonc
+{
+  "type": "move",
+  //...
 }
 ```
 
@@ -116,9 +138,26 @@ Received when a game message is sent in a match
 ```jsonc
 {
   "type": "gameMessage",
-  // ...
+  "content": "Good luck!"
 }
 ```
+
+### `generalMessage`
+Received when a general message is sent
+
+*Example:*
+```json
+{
+  "type": "generalMessage",
+  "sender": {
+    "id": 1,
+    "username": "user123",
+    "avatar": "/static/default_avatar.webp"
+  },
+  "content": "Hello, World!"
+}
+```
+
 
 ### `matchCancel`
 Received when a match is cancelled due to an error

@@ -18,7 +18,7 @@ type ClientTunnelMessage =
 
 type ServerTunnelMessage =
   | {
-      type: 'directMessage';
+      type: 'directMessage' | 'generalMessage';
       sender: unknown;
       content: string;
     }
