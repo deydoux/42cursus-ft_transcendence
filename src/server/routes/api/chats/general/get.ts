@@ -66,19 +66,6 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
         return users;
       }, {});
     }
-    console.log(users);
-
-    // const users: Record<number, unknown> = {};
-    // for (const id of userIDs) {
-    //   const user = await server.db.get(SQL`
-    //     SELECT id, username, has_avatar, avatar_version
-    //     FROM users
-    //     WHERE id = ${id}
-    //   `);
-    //   serializeUserAvatar(user);
-
-    //   users[id] = user;
-    // }
 
     const next =
       messages.length !== PAGE_SIZE
