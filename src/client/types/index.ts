@@ -10,6 +10,7 @@ export interface AppState {
     username: string;
     passwordEditedAt: string;
     totp: boolean; // 2FA
+    hasAvatar: boolean;
     avatar: string;
   };
 }

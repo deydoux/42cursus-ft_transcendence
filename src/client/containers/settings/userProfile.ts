@@ -12,6 +12,23 @@ export class UserProfile {
     private fetchAccount: () => void,
   ) {}
 
+  private async removeAvatar() {
+    try {
+      const response = await api.delete('account/avatar', {});
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message);
+      }
+
+      this.fetchAccount();
+      Toastify.success('Avatar removed successfully');
+    } catch (error) {
+      Toastify.error('An error occurred while removing the avatar');
+      console.error(error);
+    }
+  }
+
   private async updateAvatar(file: File) {
     try {
       const formData = new FormData();
@@ -200,7 +217,7 @@ export class UserProfile {
     });
 
     avatarSection.innerHTML = '';
-    avatarSection.className = 'py-4 flex items-center gap-6';
+    avatarSection.className = 'py-4 flex items-center gap-2';
     avatarSection.onsubmit = evt => {
       evt.preventDefault();
       fileInput.click();
@@ -218,13 +235,32 @@ export class UserProfile {
     avatarSection.appendChild(
       DOMUtils.createElement('button', {
         className:
-          'flex-none bg-background border border-pink-300 text-sm rounded-lg h-full px-4 py-2 hover:bg-pink-300/20 duration-200 cursor-pointer',
+          'ml-4 flex-none bg-background border border-pink-300 text-sm rounded-lg h-full px-4 py-2 hover:bg-pink-300/20 duration-200 cursor-pointer',
         textContent: 'Change',
         attributes: {
           type: 'submit',
         },
       }),
     );
+
+    if (user?.hasAvatar) {
+      avatarSection.appendChild(
+        DOMUtils.createElement('button', {
+          className:
+            'border border-white/20 rounded-lg text-sm px-4 py-2 cursor-pointer',
+          textContent: 'Remove',
+          attributes: {
+            type: 'button',
+          },
+          events: {
+            click: evt => {
+              evt.preventDefault();
+              this.removeAvatar();
+            },
+          },
+        }),
+      );
+    }
 
     avatarSection.appendChild(fileInput);
   }
