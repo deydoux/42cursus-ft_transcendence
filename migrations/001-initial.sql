@@ -16,7 +16,7 @@ CREATE TABLE direct_messages(
   FOREIGN KEY(recipient_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_direct_messages_sender_id_recipient_id_created_at_desc ON direct_messages(sender_id, recipient_id);
+CREATE INDEX idx_direct_messages_sender_id_recipient_id ON direct_messages(sender_id, recipient_id);
 CREATE INDEX idx_direct_messages_sender_id_recipient_id_unread ON direct_messages(sender_id, recipient_id, read) WHERE read = FALSE;
 
 
@@ -33,7 +33,7 @@ CREATE TABLE elo(
   FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_elo_user_id_game_created_at_desc ON elo(user_id, game, created_at DESC);
+CREATE INDEX idx_elo_user_id_game ON elo(user_id, game);
 
 
 CREATE TABLE general_messages(
@@ -46,8 +46,6 @@ CREATE TABLE general_messages(
 
   FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
-
-CREATE INDEX idx_general_messages_created_at_desc ON general_messages(created_at DESC);
 
 
 CREATE TABLE matches(
@@ -69,7 +67,7 @@ CREATE TABLE matches(
   CHECK(mode IN ('casual', 'ranked'))
 );
 
-CREATE INDEX idx_matches_winner_id_loser_id_created_at_desc ON matches(winner_id, loser_id, created_at DESC);
+CREATE INDEX idx_matches_winner_id_loser_id ON matches(winner_id, loser_id);
 
 
 CREATE TABLE ranked_matches(
@@ -193,15 +191,14 @@ DROP TABLE relationships;
 
 DROP TABLE ranked_matches;
 
-DROP INDEX idx_matches_winner_id_loser_id_created_at_desc;
+DROP INDEX idx_matches_winner_id_loser_id;
 DROP TABLE matches;
 
-DROP INDEX idx_general_messages_created_at_desc;
 DROP TABLE general_messages;
 
-DROP INDEX idx_elo_user_id_game_created_at_desc;
+DROP INDEX idx_elo_user_id_game;
 DROP TABLE elo;
 
 DROP INDEX idx_direct_messages_sender_id_recipient_id_unread;
-DROP INDEX idx_direct_messages_sender_id_recipient_id_created_at_desc;
+DROP INDEX idx_direct_messages_sender_id_recipient_id;
 DROP TABLE direct_messages;

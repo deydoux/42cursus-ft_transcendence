@@ -64,7 +64,7 @@ export default async function joinMatchmaking(
         SELECT value
         FROM elo
         WHERE game = ${message.game} AND user_id = ${client.userID}
-        ORDER BY created_at DESC
+        ORDER BY id DESC
         LIMIT 1
       `);
 
