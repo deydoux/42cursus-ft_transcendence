@@ -41,7 +41,7 @@ const plugin: FastifyPluginAsync = async server => {
       chat.online = server.clients.isUserOnline(chat.id);
     });
 
-    return reply.send({direct});
+    return reply.send(direct);
   });
 };
 
