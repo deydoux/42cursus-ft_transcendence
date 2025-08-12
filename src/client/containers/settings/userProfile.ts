@@ -180,14 +180,14 @@ export class UserProfile {
           if (!file) return;
 
           if (!this.avatarAcceptedTypes.includes(file.type)) {
-            console.error(
+            Toastify.error(
               `Please select a valid image file (${this.avatarAcceptedTypes.join(', ')})`,
             );
             return;
           }
 
           if (file.size > this.avatarMaxSize * 1024 * 1024) {
-            console.error(
+            Toastify.error(
               `File size must be less than ${this.avatarMaxSize}MB`,
             );
             return;

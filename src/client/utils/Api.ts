@@ -114,6 +114,22 @@ class Api {
       ...init,
     });
   }
+
+  public async delete(
+    endpoint: string,
+    body: object,
+    init?: RequestInit,
+  ): Promise<Response> {
+    return this.customFetch('/api/' + endpoint, {
+      body: JSON.stringify(body),
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(init && init.headers ? init.headers : {}),
+      },
+      ...init,
+    });
+  }
 }
 
 export const api = new Api();
