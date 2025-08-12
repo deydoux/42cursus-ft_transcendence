@@ -20,15 +20,16 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     const messages = await server.db.all(SQL`
       SELECT id, user_id AS userID, content, created_at AS createdAt
-      FROM general_messages
-      WHERE (${lastID} = 0 OR id < ${lastID}) AND NOT EXISTS (
+      FROM general_messages gm
+      WHERE (${lastID} = 0 OR id < ${lastID})
+            AND (user_id = ${user.id} OR NOT EXISTS (
               SELECT NULL
-              FROM relationships
+              FROM relationships r
               WHERE type = 'block' AND (
-                      (user_id = ${user.id} AND other_id = user_id)
-                      OR (user_id = user_id AND other_id = ${user.id})
+                      (r.user_id = ${user.id} AND r.other_id = gm.user_id)
+                      OR (r.user_id = gm.user_id AND r.other_id = ${user.id})
                     )
-            )
+            ))
       ORDER BY id DESC
       LIMIT ${PAGE_SIZE}
     `);
