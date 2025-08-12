@@ -66,6 +66,10 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       LIMIT ${PAGE_SIZE}
     `);
 
+    messages.forEach(message => {
+      message.createdAt = new Date(message.createdAt * 1000);
+    });
+
     // Mark received messages as read
     await server.db.run(SQL`
       UPDATE direct_messages

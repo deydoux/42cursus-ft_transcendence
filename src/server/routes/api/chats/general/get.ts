@@ -1,3 +1,4 @@
+import serializeUserAvatar from '#lib/serializeUserAvatar';
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
 
@@ -18,19 +19,46 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const {lastID} = request.query;
 
     const messages = await server.db.all(SQL`
-      SELECT id, sender_id AS senderID, content, created_at AS createdAt
+      SELECT id, user_id AS userID, content, created_at AS createdAt
       FROM direct_messages
       WHERE (${lastID} = 0 OR id < ${lastID}) AND NOT EXISTS (
               SELECT NULL
               FROM relationships
               WHERE type = 'block' AND (
-                      (user_id = ${user.id} AND other_id = sender_id)
-                      OR (user_id = sender_id AND other_id = ${user.id})
+                      (user_id = ${user.id} AND other_id = user_id)
+                      OR (user_id = user_id AND other_id = ${user.id})
                     )
             )
       ORDER BY id DESC
       LIMIT ${PAGE_SIZE}
     `);
+
+    messages.forEach(message => {
+      message.createdAt = new Date(message.createdAt * 1000);
+    });
+
+    const users = messages
+      .map(message => message.userID)
+      .reduce((users, id) => {
+        if (!users.includes(id)) users.push(id);
+        return users;
+      }, [])
+      .sort((a: number, b: number) => a - b)
+      .reduce((users: Record<number, Promise<unknown>>, id: number) => {
+        users[id] = server.db
+          .get(
+            SQL`
+              SELECT id, username, has_avatar, avatar_version
+              FROM users
+              WHERE id = ${id}
+            `,
+          )
+          .then(user => serializeUserAvatar(user));
+
+        return users;
+      }, {});
+
+    await Promise.all(Object.values(users));
   });
 };
 
