@@ -44,6 +44,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
          )
     `);
 
+    ignoreIDs.push(user.id);
+
     server.clients.broadcast(
       {type: 'generalMessage', sender, content},
       ignoreIDs,
