@@ -3,7 +3,7 @@ import SQL from 'sql-template-strings';
 import {idParamsSchema} from '#lib/schemas';
 import serializeUserAvatar from '#lib/serializeUserAvatar';
 
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 50;
 
 const schema = {
   ...idParamsSchema,
