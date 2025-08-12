@@ -9,14 +9,14 @@ class Api {
     return localStorage.getItem('accessToken');
   }
 
-  private async customFetch(
+  async customFetch(
     input: string | URL | globalThis.Request,
     init?: RequestInit,
   ): Promise<Response> {
     try {
       const requestInit = {
         ...init,
-        headers: {...init?.headers, 'Content-Type': 'application/json'},
+        headers: {...init?.headers},
       } as RequestInit;
       const accessToken = this.getAccessToken();
       if (accessToken && !publicEndpoints.includes(input.toString())) {
@@ -48,7 +48,6 @@ class Api {
           ...init,
           headers: {
             ...init?.headers,
-            'Content-Type': 'application/json',
             authorization: `Bearer ${body.accessToken}`,
           },
         });
@@ -61,16 +60,58 @@ class Api {
     }
   }
 
-  public async get(endpoint: string) {
+  public async get(endpoint: string, init?: RequestInit) {
     return this.customFetch('/api/' + endpoint, {
       method: 'GET',
+      ...init,
     });
   }
 
-  public async post(endpoint: string, body: object): Promise<Response> {
+  public async post(
+    endpoint: string,
+    body: object,
+    init?: RequestInit,
+  ): Promise<Response> {
     return this.customFetch('/api/' + endpoint, {
       body: JSON.stringify(body),
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(init && init.headers ? init.headers : {}),
+      },
+      ...init,
+    });
+  }
+
+  public async patch(
+    endpoint: string,
+    body: object,
+    init?: RequestInit,
+  ): Promise<Response> {
+    return this.customFetch('/api/' + endpoint, {
+      body: JSON.stringify(body),
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(init && init.headers ? init.headers : {}),
+      },
+      ...init,
+    });
+  }
+
+  public async put(
+    endpoint: string,
+    body: object,
+    init?: RequestInit,
+  ): Promise<Response> {
+    return this.customFetch('/api/' + endpoint, {
+      body: JSON.stringify(body),
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(init && init.headers ? init.headers : {}),
+      },
+      ...init,
     });
   }
 }

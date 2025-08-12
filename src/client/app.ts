@@ -5,6 +5,7 @@ import {PageNotFound} from './containers/PageNotFound';
 import {PongGame} from './pages/PongGame';
 import {RacecarGame} from './pages/RacecarGame';
 import {Router} from './services/router';
+import {Settings} from './pages/Settings';
 import {Statistics} from './pages/Statistics';
 import {loadIcons} from './utils/icons';
 import {socket} from './utils/websocket';
@@ -38,6 +39,7 @@ class App {
     this.router.addRoute('*', () => new PageNotFound(this.router));
 
     this.router.addRoute('/homepage', () => new Homepage());
+    this.router.addRoute('/settings', () => new Settings());
     this.router.addRoute('/lobby', () => new Lobby());
     this.router.addRoute('/pong', () => new PongGame());
     this.router.addRoute('/racecar', () => new RacecarGame());

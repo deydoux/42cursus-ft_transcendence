@@ -1,27 +1,32 @@
 import {BaseComponent} from '../components/BaseComponent';
+import {Chat} from './Chat';
 import {DOMUtils} from '../utils/dom';
 import {socket} from '../utils/websocket';
 
 export class Homepage extends BaseComponent {
-  renderMenuButton = (darkMode = false) => {
+  renderMenuButton = (darkMode = false, label?: string) => {
     const button = DOMUtils.createElement('div', {
       className: 'flex-1 min-w-1/3',
       events: {
         click: () => {
-          socket.send(
-            JSON.stringify({
-              type: 'joinMatchmaking',
-              game: 'pong',
-              mode: 'casual',
-            }),
-          );
+          if (label) {
+            this.router.navigate(`/${label.toLowerCase()}`);
+          } else {
+            socket.send(
+              JSON.stringify({
+                type: 'joinMatchmaking',
+                game: 'pong',
+                mode: 'casual',
+              }),
+            );
+          }
         },
       },
     });
     button.appendChild(
       DOMUtils.createElement('button', {
         className: `w-full h-full bg-linear-to-br ${darkMode ? 'from-pink-200 to-pink-300 text-background' : 'from-gray-500/20 to-gray-800/20 text-pink-300'} text-background font-bold uppercase rounded-xl`,
-        textContent: 'Play pong',
+        textContent: label ? label : 'Play pong',
       }),
     );
 
@@ -39,73 +44,12 @@ export class Homepage extends BaseComponent {
     gameMenu.appendChild(this.renderMenuButton());
     gameMenu.appendChild(this.renderMenuButton(true));
     gameMenu.appendChild(this.renderMenuButton(true));
-    gameMenu.appendChild(this.renderMenuButton());
-
-    const chat = DOMUtils.createElement('div', {
-      className:
-        'w-[400px] h-full flex-none border border-pink-300 rounded-3xl flex flex-col p-6',
-    });
-
-    const chatContent = DOMUtils.createElement('div', {
-      className: 'flex-1 pb-6',
-    });
-
-    const header = DOMUtils.createElement('div', {
-      className: 'flex items-end justify-between',
-    });
-    header.appendChild(
-      DOMUtils.createElement('h2', {
-        className: 'text-2xl',
-        textContent: 'General chat',
-      }),
-    );
-
-    const countUsers = DOMUtils.createElement('div', {
-      className:
-        'border border-white rounded-full text-sm py-1 pl-4 px-3 flex gap-1 justify-center items-center',
-    });
-    countUsers.appendChild(
-      DOMUtils.createElement('p', {
-        textContent: '31',
-      }),
-    );
-    countUsers.appendChild(
-      DOMUtils.createElement('i', {
-        className: 'w-3 h-3 fill-white',
-        attributes: {
-          icon: 'user',
-        },
-      }),
-    );
-
-    header.appendChild(countUsers);
-
-    chatContent.appendChild(header);
-
-    const messageInput = DOMUtils.createElement('div', {
-      className: 'h-10 relative flex items-center',
-    });
-    messageInput.appendChild(
-      DOMUtils.createElement('input', {
-        className:
-          'border border-pink-300 h-full w-full focus:outline-none focus:border-white rounded-lg px-3 pr-10 bg-pink-300/10',
-      }),
-    );
-    messageInput.appendChild(
-      DOMUtils.createElement('i', {
-        className:
-          'h-5 w-5 cursor-pointer absolute right-2 -rotate-40 text-pink-300 mb-1 animate-wiggle',
-        attributes: {
-          icon: 'paperAirplane',
-        },
-      }),
-    );
-
-    chat.appendChild(chatContent);
-    chat.appendChild(messageInput);
+    gameMenu.appendChild(this.renderMenuButton(false, 'Settings'));
 
     container.appendChild(gameMenu);
-    container.appendChild(chat);
+
+    const chat = new Chat().render();
+    if (chat) container.appendChild(chat);
     return container;
   }
 }

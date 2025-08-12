@@ -1,5 +1,8 @@
 @import "tailwindcss";
 @import "./toastify.css";
+@import "./stats-page.css";
+@import "./pong-page.css";
+@import "./race-page.css";
 
 :root {
   --background: #0e1111;
@@ -41,4 +44,8 @@
 
 .animate-wiggle:hover {
   animation: wiggle 1s infinite;
+}
+
+.settings-title>span {
+  color: white;
 }

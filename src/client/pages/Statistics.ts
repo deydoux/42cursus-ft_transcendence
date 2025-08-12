@@ -1,5 +1,5 @@
-import '../styles/stats-page.css';
 import {BaseComponent} from '../components/BaseComponent.ts';
+import {Chat} from '../containers/Chat.ts';
 import {DOMUtils} from '../utils/dom.ts';
 import {StatsCanvas} from '../containers/statsCanvas.ts';
 import {renderStats} from '../containers/renderStats.ts';
@@ -48,15 +48,12 @@ export class Statistics extends BaseComponent {
       className: 'h-full flex-1 flex flex-wrap gap-10',
     });
     statistics.appendChild(renderStats());
-    const chat = DOMUtils.createElement('div', {
-      className:
-        'w-[400px] h-full flex-none border border-pink-300 rounded-3xl flex flex-col p-6',
-    });
 
     this.renderBandroll();
 
     container.appendChild(statistics);
-    container.appendChild(chat);
+    const chat = new Chat().render();
+    if (chat) container.appendChild(chat);
     return container;
   }
 }

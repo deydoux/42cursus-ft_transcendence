@@ -1,6 +1,6 @@
-import '../styles/race-page.css';
 import {handleInput, initializeGame} from '../utils/race-content';
 import {BaseComponent} from '../components/BaseComponent';
+import {Chat} from '../containers/Chat';
 import {DOMUtils} from '../utils/dom';
 import {RaceCanvas} from '../containers/raceCanvas';
 import {renderCar} from '../containers/renderRace';
@@ -45,15 +45,11 @@ export class RacecarGame extends BaseComponent {
       className: 'h-full flex-1 flex flex-wrap gap-10',
     });
     game.appendChild(renderCar());
-    const chat = DOMUtils.createElement('div', {
-      className:
-        'w-[400px] h-full flex-none border border-pink-300 rounded-3xl flex flex-col p-6',
-    });
-
     this.renderRacecarCanvas();
 
     container.appendChild(game);
-    container.appendChild(chat);
+    const chat = new Chat().render();
+    if (chat) container.appendChild(chat);
     return container;
   }
 }
