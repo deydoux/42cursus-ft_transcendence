@@ -34,15 +34,17 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     `);
     serializeUserAvatar(sender);
 
-    const ignoreIDs = await server.db.all(SQL`
-      SELECT u.id
-      FROM relationships r
-      JOIN users u
-      ON r.type = 'block' AND (
-           (r.user_id = ${user.id} AND r.other_id = u.id)
-           OR (r.user_id = u.id AND r.other_id = ${user.id})
-         )
-    `);
+    const ignoreIDs = (
+      await server.db.all(SQL`
+        SELECT u.id
+        FROM relationships r
+        JOIN users u
+        ON type = 'block' AND (
+            (r.user_id = ${user.id} AND r.other_id = u.id)
+            OR (r.user_id = u.id AND r.other_id = ${user.id})
+          )
+      `)
+    ).map(row => row.id);
 
     ignoreIDs.push(user.id);
 
