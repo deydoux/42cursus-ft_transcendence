@@ -1,10 +1,23 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
-import {idParamsSchema as schema} from '#lib/schemas';
+import {idParamsSchema} from '#lib/schemas';
+
+const PAGE_SIZE = 25;
+
+const schema = {
+  ...idParamsSchema,
+  querystring: {
+    type: 'object',
+    properties: {
+      lastID: {type: 'integer', default: 0},
+    },
+  } as const,
+};
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  server.patch('/:id', {schema}, async (request, reply) => {
-    const {user} = request;
+  server.get('/', {schema}, async (request, reply) => {
+    const {url, user} = request;
+    const {lastID} = request.query;
 
     const other = await server.db.get(SQL`
       SELECT id
@@ -14,7 +27,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     if (!other) return reply.notFound('User not found');
     if (user.id === other.id)
-      return reply.badRequest('Cannot mark messages with yourself as read');
+      return reply.badRequest('Cannot view messages with yourself');
 
     const relationship = await server.db.get(SQL`
       SELECT type
@@ -35,10 +48,20 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       return reply.notFound('User not found');
 
     if (relationship?.type !== 'friend' && otherRelationship?.type !== 'friend')
-      return reply.badRequest(
-        'You can only mark messages with friends as read',
-      );
+      return reply.badRequest('You can only view messages with friends');
 
+    const messages = await server.db.all(SQL`
+      SELECT id, sender_id AS senderID, content, created_at AS createdAt
+      FROM direct_messages
+      WHERE (${lastID} = 0 OR id < ${lastID}) AND (
+        (sender_id = ${user.id} AND recipient_id = ${other.id})
+        OR (sender_id = ${other.id} AND recipient_id = ${user.id})
+      )
+      ORDER BY id DESC
+      LIMIT ${PAGE_SIZE}
+    `);
+
+    // Mark received messages as read
     await server.db.run(SQL`
       UPDATE direct_messages
       SET read = TRUE
@@ -46,7 +69,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
             AND read = FALSE
     `);
 
-    return reply.code(204).send();
+    const next =
+      messages.length !== PAGE_SIZE
+        ? null
+        : `${url.split('?')[0]}?lastID=${messages[PAGE_SIZE - 1].id}`;
+    return reply.send({messages, next});
   });
 };
 

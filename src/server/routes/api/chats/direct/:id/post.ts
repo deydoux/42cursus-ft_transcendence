@@ -15,7 +15,7 @@ const schema = {
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  server.post('/:id', {schema}, async (request, reply) => {
+  server.post('/', {schema}, async (request, reply) => {
     const content = request.body.content.trim();
     if (content.length === 0)
       return reply.badRequest('Message content cannot be empty');
