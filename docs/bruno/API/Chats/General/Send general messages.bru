@@ -1,0 +1,17 @@
+meta {
+  name: Send general messages
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseURL}}/api/chats/general
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "content": "Hello, World!"
+  }
+}

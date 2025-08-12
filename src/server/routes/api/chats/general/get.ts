@@ -20,7 +20,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     const messages = await server.db.all(SQL`
       SELECT id, user_id AS userID, content, created_at AS createdAt
-      FROM direct_messages
+      FROM general_messages
       WHERE (${lastID} = 0 OR id < ${lastID}) AND NOT EXISTS (
               SELECT NULL
               FROM relationships
@@ -37,28 +37,24 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       message.createdAt = new Date(message.createdAt * 1000);
     });
 
-    const users = messages
+    const users = await messages
       .map(message => message.userID)
       .reduce((users, id) => {
         if (!users.includes(id)) users.push(id);
         return users;
       }, [])
       .sort((a: number, b: number) => a - b)
-      .reduce((users: Record<number, Promise<unknown>>, id: number) => {
-        users[id] = server.db
-          .get(
-            SQL`
-              SELECT id, username, has_avatar, avatar_version
-              FROM users
-              WHERE id = ${id}
-            `,
-          )
-          .then(user => serializeUserAvatar(user));
+      .reduce(async (users: Record<number, unknown>, id: number) => {
+        const user = await server.db.get(SQL`
+          SELECT id, username, has_avatar, avatar_version
+          FROM users
+          WHERE id = ${id}
+        `);
+        serializeUserAvatar(user);
 
+        users[id] = user;
         return users;
       }, {});
-
-    await Promise.all(Object.values(users));
 
     const next =
       messages.length !== PAGE_SIZE
