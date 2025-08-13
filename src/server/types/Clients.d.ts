@@ -52,6 +52,7 @@ type ServerTunnelMessage =
       ranked: boolean;
       players: unknown[];
     }
+  | {type: 'round'}
   | {
       type: 'success';
       origin: string;

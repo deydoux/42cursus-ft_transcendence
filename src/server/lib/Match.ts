@@ -14,6 +14,9 @@ export interface Player extends Client {
 
 export const kFactor = 32;
 
+const SCORE_GOAL = 5;
+const SCORE_TIMEOUT = 1000;
+
 export default class PongMatch {
   private server;
   private players;
@@ -21,7 +24,8 @@ export default class PongMatch {
 
   private draw = false;
   private score?: {
-    player: number;
+    fromPlayer: number;
+    scorer: number;
     timeout: NodeJS.Timeout;
   };
   private unlock = () => undefined;
@@ -68,6 +72,7 @@ export default class PongMatch {
   }
 
   private async destroy(winner?: Player) {
+    if (this.score) clearTimeout(this.score.timeout);
     this.execute(player => delete this.server.game.players[player.userID]);
 
     if (!winner) return;
@@ -186,22 +191,42 @@ export default class PongMatch {
 
     if (!this.score) {
       this.score = {
-        player: message.player,
+        fromPlayer: player.userID,
+        scorer: message.player,
         timeout: this.scoreTimeout(),
       };
 
       return;
     }
 
-    clearTimeout(this.score.timeout);
+    if (
+      this.score.fromPlayer === player.userID ||
+      this.score.scorer !== message.player
+    )
+      return this.cancel('Clients synchronization lost');
+
     const scorer = this.players.find(
-      player => player.userID === this.score?.player,
-    );
+      player => player.userID === this.score?.scorer,
+    ) as Player;
+
+    scorer.score = (scorer.score || 0) + 1;
+
+    if (scorer.score >= SCORE_GOAL) {
+      this.winner = scorer;
+      return this.unlock();
+    }
+
+    this.send({type: 'round'});
+
+    clearTimeout(this.score.timeout);
     this.score = undefined;
   }
 
   private scoreTimeout() {
-    return setTimeout(() => this.cancel('Clients synchronization lost'), 1000);
+    return setTimeout(
+      () => this.cancel('Clients synchronization lost'),
+      SCORE_TIMEOUT,
+    );
   }
 
   private send(message: ServerTunnelMessage) {

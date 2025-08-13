@@ -217,6 +217,16 @@ Received when opponent makes a move in a match
 }
 ```
 
+### `round`
+Received when a round starts in a match
+
+*Example:*
+```json
+{
+  "type": "round"
+}
+```
+
 ### `hotReload` (development only)
 Received when the client should reload the page to apply updates. `NODE_ENV` must be set to `development` for this message to be sent
 
