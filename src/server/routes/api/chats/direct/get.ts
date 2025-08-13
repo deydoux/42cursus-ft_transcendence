@@ -1,79 +1,47 @@
-import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
+import {FastifyPluginAsync} from 'fastify';
 import SQL from 'sql-template-strings';
-import {idParamsSchema} from '#lib/schemas';
+import serializeUserAvatar from '#lib/serializeUserAvatar';
 
-const PAGE_SIZE = 25;
+const plugin: FastifyPluginAsync = async server => {
+  server.get('/', async (request, reply) => {
+    const {user} = request;
 
-const schema = {
-  ...idParamsSchema,
-  querystring: {
-    type: 'object',
-    properties: {
-      lastID: {type: 'integer', default: 0},
-    },
-  } as const,
-};
-
-const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  server.get('/:id', {schema}, async (request, reply) => {
-    const {url, user} = request;
-    const {lastID} = request.query;
-
-    const other = await server.db.get(SQL`
-      SELECT id
-      FROM users
-      WHERE id = ${request.params.id}
+    const chats = await server.db.all(SQL`
+      SELECT r.id AS relationshipID,
+             coalesce(dm.created_at, r.updated_at) AS updatedAt,
+             u.id, username, last_seen AS lastSeen, has_avatar, avatar_version,
+             content, (
+               SELECT count(*)
+               FROM direct_messages
+               WHERE sender_id = u.id AND recipient_id = ${user.id}
+                     AND read = FALSE
+             ) AS unread
+      FROM relationships r
+      JOIN users u
+      ON type = 'friend' AND (
+           (user_id = ${user.id} AND other_id = u.id)
+           OR (user_id = u.id AND other_id = ${user.id})
+         )
+      LEFT JOIN direct_messages dm
+      ON dm.id = (
+           SELECT id
+           FROM direct_messages
+           WHERE (sender_id = ${user.id} AND recipient_id = u.id)
+                 OR (sender_id = u.id AND recipient_id = ${user.id})
+           ORDER BY id DESC
+           LIMIT 1
+         )
+      ORDER BY updatedAt DESC
     `);
 
-    if (!other) return reply.notFound('User not found');
-    if (user.id === other.id)
-      return reply.badRequest('Cannot view messages with yourself');
+    chats.forEach(chat => {
+      serializeUserAvatar(chat);
+      chat.updatedAt = new Date(chat.updatedAt * 1000);
+      chat.lastSeen = new Date(chat.lastSeen * 1000);
+      chat.online = server.clients.isUserOnline(chat.id);
+    });
 
-    const relationship = await server.db.get(SQL`
-      SELECT type
-      FROM relationships
-      WHERE user_id = ${user.id} AND other_id = ${other.id}
-    `);
-
-    if (relationship?.type === 'block')
-      return reply.conflict('You have blocked this user');
-
-    const otherRelationship = await server.db.get(SQL`
-      SELECT type
-      FROM relationships
-      WHERE user_id = ${other.id} AND other_id = ${user.id}
-    `);
-
-    if (otherRelationship?.type === 'block')
-      return reply.notFound('User not found');
-
-    if (relationship?.type !== 'friend' && otherRelationship?.type !== 'friend')
-      return reply.badRequest('You can only view messages with friends');
-
-    const messages = await server.db.all(SQL`
-      SELECT id, sender_id AS senderID, content, created_at AS createdAt
-      FROM direct_messages
-      WHERE (${lastID} = 0 OR id < ${lastID}) AND (
-        (sender_id = ${user.id} AND recipient_id = ${other.id})
-        OR (sender_id = ${other.id} AND recipient_id = ${user.id})
-      )
-      ORDER BY id DESC
-      LIMIT ${PAGE_SIZE}
-    `);
-
-    // Mark received messages as read
-    await server.db.run(SQL`
-      UPDATE direct_messages
-      SET read = TRUE
-      WHERE sender_id = ${other.id} AND recipient_id = ${user.id}
-            AND read = FALSE
-    `);
-
-    const next =
-      messages.length !== PAGE_SIZE
-        ? null
-        : `${url.split('?')[0]}?lastID=${messages[PAGE_SIZE - 1].id}`;
-    return reply.send({messages, next});
+    return reply.send(chats);
   });
 };
 

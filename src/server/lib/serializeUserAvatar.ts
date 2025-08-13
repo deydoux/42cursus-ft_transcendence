@@ -12,4 +12,6 @@ export default function serializeUserAvatar(user: {
   user.avatar = hasAvatar
     ? `/api/users/${id}/avatar?v=${version}`
     : '/static/default_avatar.webp';
+
+  return user;
 }

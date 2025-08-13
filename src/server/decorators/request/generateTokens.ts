@@ -12,7 +12,7 @@ const plugin: FastifyPluginAsync = async server => {
     const accessToken = await this.generateAccessToken(id);
 
     const {ip, session} = this;
-    const userAgent = this.headers['user-agent'] || null;
+    const userAgent = this.headers['user-agent'] || '';
 
     if (session)
       await server.db.run(SQL`

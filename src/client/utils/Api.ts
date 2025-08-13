@@ -1,70 +1,118 @@
-import {navigate} from './navigate';
-
 const publicEndpoints = ['/api/auth/login', '/api/auth/signup'];
 
 class Api {
-  private accessToken: string;
-  private headers: HeadersInit;
-
-  public storeAccessToken(token: string) {
-    this.accessToken = token;
-    this.headers = {
-      Authorization: `Bearer ${this.accessToken}`,
-    };
+  public setAccessToken(token: string) {
+    localStorage.setItem('accessToken', token);
   }
 
-  private async customFetch(
+  private getAccessToken() {
+    return localStorage.getItem('accessToken');
+  }
+
+  async customFetch(
     input: string | URL | globalThis.Request,
     init?: RequestInit,
-  ) {
-    return await fetch(input, init).then(response => {
+  ): Promise<Response> {
+    try {
+      const requestInit = {
+        ...init,
+        headers: {...init?.headers},
+      } as RequestInit;
+      const accessToken = this.getAccessToken();
+      if (accessToken && !publicEndpoints.includes(input.toString())) {
+        requestInit.headers = {
+          ...requestInit.headers,
+          authorization: `Bearer ${accessToken}`,
+        };
+      }
+
+      const response = await fetch(input, requestInit);
+
       if (
         response.status === 401 &&
         !publicEndpoints.includes(input.toString())
       ) {
-        fetch('/api/auth/refresh', {method: 'POST'})
-          .then(async response => {
-            if (response.ok) {
-              const body = await response.json();
-              this.storeAccessToken(body.accessToken);
-              fetch(input, {...init, headers: {...this.headers}});
-            } else throw response;
-          })
-          .catch(() => {
-            navigate('Se connecter', '/signin');
-          });
-      } else return response;
-    });
+        const refreshResponse = await fetch('/api/auth/refresh', {
+          method: 'POST',
+        });
+
+        if (!refreshResponse.ok) {
+          // Redirect to landing page
+          throw refreshResponse;
+        }
+
+        const body = await refreshResponse.json();
+        this.setAccessToken(body.accessToken);
+
+        return fetch(input, {
+          ...init,
+          headers: {
+            ...init?.headers,
+            authorization: `Bearer ${body.accessToken}`,
+          },
+        });
+      }
+
+      return response;
+    } catch (error) {
+      console.error(error.message);
+      throw error;
+    }
   }
 
-  public async get(endpoint: string) {
-    const response = await this.customFetch('/api/' + endpoint, {
-      headers: {...(this.headers ?? {})},
+  public async get(endpoint: string, init?: RequestInit) {
+    return this.customFetch('/api/' + endpoint, {
       method: 'GET',
+      ...init,
     });
-
-    if (response && response.status !== 204)
-      response.json = await response.json();
-    if (response && response.ok) return response;
-
-    throw response;
   }
 
-  public async post(endpoint: string, body: object) {
-    const response = await this.customFetch('/api/' + endpoint, {
-      method: 'POST',
+  public async post(
+    endpoint: string,
+    body: object,
+    init?: RequestInit,
+  ): Promise<Response> {
+    return this.customFetch('/api/' + endpoint, {
       body: JSON.stringify(body),
+      method: 'POST',
       headers: {
-        'content-type': 'application/json',
-        ...(this.headers ?? {}),
+        'Content-Type': 'application/json',
+        ...(init && init.headers ? init.headers : {}),
       },
+      ...init,
     });
+  }
 
-    if (response && response.status !== 204)
-      response.json = await response.json();
-    if (response && response.ok) return response;
+  public async patch(
+    endpoint: string,
+    body: object,
+    init?: RequestInit,
+  ): Promise<Response> {
+    return this.customFetch('/api/' + endpoint, {
+      body: JSON.stringify(body),
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(init && init.headers ? init.headers : {}),
+      },
+      ...init,
+    });
+  }
 
-    throw response;
+  public async put(
+    endpoint: string,
+    body: object,
+    init?: RequestInit,
+  ): Promise<Response> {
+    return this.customFetch('/api/' + endpoint, {
+      body: JSON.stringify(body),
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(init && init.headers ? init.headers : {}),
+      },
+      ...init,
+    });
   }
 }
 

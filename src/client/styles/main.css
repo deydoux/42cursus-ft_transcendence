@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@import "./toastify.css";
+@import "./stats-page.css";
+@import "./pong-page.css";
+@import "./race-page.css";
 
 :root {
   --background: #0e1111;
@@ -28,4 +32,20 @@
   position: relative;
 
   gap: 64px;
+}
+
+@keyframes wiggle {
+    0% { transform: rotate(0deg); }
+   50% { transform: rotate(0deg); }
+   65% { transform: rotate(8deg); }
+   80% { transform: rotate(-8deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.animate-wiggle:hover {
+  animation: wiggle 1s infinite;
+}
+
+.settings-title>span {
+  color: white;
 }
