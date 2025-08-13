@@ -1,7 +1,7 @@
 import {Client, ClientTunnelMessage} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
-import Match from '#lib/Match';
+import PongMatch from '#lib/Match';
 import {RankedClient} from '#types/fastify';
 import SQL from 'sql-template-strings';
 import {kFactor} from '#lib/Match';
@@ -16,7 +16,7 @@ export default async function joinMatchmaking(
 
   let MatchConstructor, queue;
   if (message.game === 'pong') {
-    MatchConstructor = Match;
+    MatchConstructor = PongMatch;
     queue = game.queues.pong;
   } else
     return client.socket.send(

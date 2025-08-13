@@ -14,7 +14,7 @@ export interface Player extends Client {
 
 export const kFactor = 32;
 
-export default class Match {
+export default class PongMatch {
   private server;
   private players;
   private ranked;
