@@ -67,6 +67,6 @@ sequenceDiagram
     m --x s: *nothing sent*
     s -x m: matchCancel
     s -x q: matchCancel
-    Note over s: {cause: 'Cheating detected'}
+    Note over s: {cause: 'Clients synchronization lost'}
   end
 ```
