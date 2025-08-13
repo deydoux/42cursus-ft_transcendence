@@ -14,27 +14,21 @@ export interface Player extends Client {
 
 export const kFactor = 32;
 
-export default abstract class Match {
-  protected server;
-  protected players;
-  protected game;
-  protected ranked;
+export default class Match {
+  private server;
+  private players;
+  private ranked;
 
   private unlock = () => undefined;
-  protected draw = false;
-  protected winner?: Player;
+  private draw = false;
+  private winner?: Player;
 
   private readonly createdAt = Math.floor(Date.now() / 1000);
   private readonly lock;
 
-  constructor(
-    server: FastifyInstance,
-    players: [Player, Player],
-    game: string,
-  ) {
+  constructor(server: FastifyInstance, players: [Player, Player]) {
     this.server = server;
     this.players = players;
-    this.game = game;
     this.ranked = players.every(player => player.elo);
 
     this.lock = new Promise(resolve => {
@@ -64,7 +58,7 @@ export default abstract class Match {
     });
   }
 
-  protected cancel(cause?: string) {
+  private cancel(cause?: string) {
     this.send({type: 'matchCancel', cause});
     this.unlock();
   }
@@ -83,7 +77,7 @@ export default abstract class Match {
     const {lastID: id} = await this.server.db.run(SQL`
       INSERT INTO matches(game, mode, winner_id, loser_id, winner_score,
                          loser_score, draw, created_at)
-      VALUES(${this.game}, ${mode}, ${winner.userID}, ${loser.userID},
+      VALUES('pong', ${mode}, ${winner.userID}, ${loser.userID},
             ${winner.score}, ${loser.score}, ${this.draw}, ${this.createdAt})
     `);
     if (!id) throw new Error('Failed to create match');
@@ -105,8 +99,8 @@ export default abstract class Match {
 
     await this.server.db.run(SQL`
       INSERT INTO elo(game, user_id, value)
-      VALUES(${this.game}, ${winner.userID}, ${winner.elo + change}),
-            (${this.game}, ${loser.userID}, ${loser.elo - change})
+      VALUES('pong', ${winner.userID}, ${winner.elo + change}),
+            ('pong', ${loser.userID}, ${loser.elo - change})
     `);
 
     await this.server.db.run(SQL`
@@ -204,7 +198,7 @@ export default abstract class Match {
 
     this.send({
       type: 'matchStart',
-      game: this.game,
+      game: 'pong',
       ranked: this.ranked,
       players: this.players.map(player => ({
         id: player.userID,
