@@ -14,6 +14,10 @@ type ClientTunnelMessage =
     }
   | {
       type: 'leaveMatchmaking';
+    }
+  | {
+      type: 'score';
+      player: number;
     };
 
 type ServerTunnelMessage =
@@ -48,6 +52,7 @@ type ServerTunnelMessage =
       ranked: boolean;
       players: unknown[];
     }
+  | {type: 'round'}
   | {
       type: 'success';
       origin: string;
