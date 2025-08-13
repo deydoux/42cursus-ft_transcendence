@@ -1,5 +1,6 @@
 import {Client, ClientTunnelMessage, ServerTunnelMessage} from '#types/Clients';
 import Clients from '#lib/Clients';
+import {Data} from 'ws';
 import {FastifyInstance} from 'fastify';
 import SQL from 'sql-template-strings';
 import {WebSocket} from '@fastify/websocket';
@@ -14,7 +15,7 @@ export interface Player extends Client {
 
 export const kFactor = 32;
 
-const SCORE_GOAL = 5;
+const SCORE_GOAL = 3;
 const SCORE_TIMEOUT = 1000;
 
 export default class PongMatch {
@@ -46,9 +47,8 @@ export default class PongMatch {
     this.execute((player, opponent) => {
       player.score = 0;
 
-      player.socket.on('close', () => this.handleClose(opponent));
-      player.socket.on('error', () => this.handleClose(opponent));
-      player.socket.on('message', data => {
+      const onSocketClose = () => this.handleClose(opponent);
+      const onSocketMessage = (data: Data) => {
         let message;
         try {
           message = JSON.parse(data.toString());
@@ -60,6 +60,16 @@ export default class PongMatch {
         }
 
         this.handleMessage(player, opponent, message);
+      };
+
+      player.socket.on('close', onSocketClose);
+      player.socket.on('error', onSocketClose);
+      player.socket.on('message', onSocketMessage);
+
+      this.lock.then(() => {
+        player.socket.off('close', onSocketClose);
+        player.socket.off('error', onSocketClose);
+        player.socket.off('message', onSocketMessage);
       });
 
       server.game.players[player.userID] = opponent.userID;
