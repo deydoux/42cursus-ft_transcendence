@@ -2,18 +2,20 @@ import {DOMUtils} from '../utils/dom';
 
 export const createOTPInput = (nbInputs = 6) => {
   const form = DOMUtils.createElement('form');
+  const container = DOMUtils.createElement('div', {
+    className: 'flex items-center',
+  });
   const inputs: HTMLInputElement[] = [];
 
   [...Array(nbInputs)].forEach((_, i) => {
-    console.log(i, i % 3 === 0);
     const input = DOMUtils.createElement('input', {
-      className: `w-8 h-8 transition-none text-center text-white border border-pink-300/50 focus:border-white transition-border duration-200 focus:outline-none rounded ${i % 3 === 2 ? 'mr-4' : 'mr-2'}`,
+      className: `w-8 h-8 transition-none text-center text-white border border-pink-300/50 focus:border-white transition-border duration-200 focus:outline-none rounded ${i === 2 ? 'mr-4' : i >= 5 ? '' : 'mr-2'}`,
       attributes: {
         name: `otp-${i}`,
       },
     });
 
-    form.appendChild(input);
+    container.appendChild(input);
     inputs.push(input);
   });
 
@@ -64,5 +66,6 @@ export const createOTPInput = (nbInputs = 6) => {
     return inputs.map(input => input.value).join('');
   };
 
+  form.appendChild(container);
   return {form, inputs, getValue};
 };

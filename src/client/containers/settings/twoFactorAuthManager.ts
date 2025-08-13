@@ -227,7 +227,7 @@ export class TwoFactorAuthManager {
     form.appendChild(
       DOMUtils.createElement('button', {
         className:
-          'border border-pink-300 rounded px-4 hover:bg-pink-300/10 duration-200 cursor-pointer',
+          'ml-4 border border-pink-300 rounded px-4 hover:bg-pink-300/10 duration-200 cursor-pointer',
         textContent: 'Confirm',
         attributes: {
           type: 'submit',

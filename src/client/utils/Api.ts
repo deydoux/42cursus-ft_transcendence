@@ -1,4 +1,8 @@
-const publicEndpoints = ['/api/auth/login', '/api/auth/signup'];
+const publicEndpoints = [
+  '/api/auth/login',
+  '/api/auth/signup',
+  '/api/auth/verify',
+];
 
 class Api {
   public setAccessToken(token: string) {
