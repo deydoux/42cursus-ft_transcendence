@@ -19,8 +19,12 @@ export default class PongMatch {
   private players;
   private ranked;
 
-  private unlock = () => undefined;
   private draw = false;
+  private score?: {
+    player: number;
+    timeout: NodeJS.Timeout;
+  };
+  private unlock = () => undefined;
   private winner?: Player;
 
   private readonly createdAt = Math.floor(Date.now() / 1000);
@@ -180,7 +184,24 @@ export default class PongMatch {
         message: 'Invalid score message',
       });
 
-    this.server.log.warn('TODO: Handle score message');
+    if (!this.score) {
+      this.score = {
+        player: message.player,
+        timeout: this.scoreTimeout(),
+      };
+
+      return;
+    }
+
+    clearTimeout(this.score.timeout);
+    const scorer = this.players.find(
+      player => player.userID === this.score?.player,
+    );
+    this.score = undefined;
+  }
+
+  private scoreTimeout() {
+    return setTimeout(() => this.cancel('Clients synchronization lost'), 1000);
   }
 
   private send(message: ServerTunnelMessage) {
