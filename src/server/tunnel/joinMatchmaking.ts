@@ -1,9 +1,10 @@
 import {Client, ClientTunnelMessage} from '#types/Clients';
-import PongMatch, {kFactor} from '#lib/PongMatch';
 import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
+import PongMatch from '#lib/PongMatch';
 import {RankedClient} from '#types/fastify';
 import SQL from 'sql-template-strings';
+import {kFactor} from '#lib/Match';
 import {randomInt} from 'node:crypto';
 
 export default async function joinMatchmaking(
