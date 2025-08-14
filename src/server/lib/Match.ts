@@ -7,10 +7,10 @@ import {WebSocket} from '@fastify/websocket';
 import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 export interface Player extends Client {
+  score?: number;
   username?: string;
   avatar?: string;
   elo?: number;
-  score?: number;
 }
 
 export const kFactor = 32;
@@ -19,7 +19,6 @@ const SCORE_TIMEOUT = 1000;
 
 export default abstract class Match {
   private server;
-  private players;
   private game;
   private ranked;
 
@@ -32,6 +31,7 @@ export default abstract class Match {
   private readonly createdAt = Math.floor(Date.now() / 1000);
   private readonly lock;
 
+  protected players;
   protected result?: 'draw' | 'tie';
   protected unlock = () => undefined;
   protected winner?: Player;
@@ -119,8 +119,11 @@ export default abstract class Match {
   private async destroyRanked(id: number, winner: Player, loser: Player) {
     if (!winner.elo || !loser.elo) throw new Error('Elo not found');
 
-    const rate = 1 / (1 + Math.pow(10, (winner.elo - loser.elo) / 400));
-    const change = Math.round(kFactor * rate);
+    let change = 0;
+    if (this.result !== 'tie') {
+      const rate = 1 / (1 + Math.pow(10, (winner.elo - loser.elo) / 400));
+      change = Math.round(kFactor * rate);
+    }
 
     await this.server.db.run(SQL`
       INSERT INTO elo(game, user_id, value)

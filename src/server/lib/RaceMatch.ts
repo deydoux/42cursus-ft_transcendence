@@ -19,7 +19,18 @@ export default class PongMatch extends Match {
     return super.destroy(winner);
   }
 
-  private handleEnd() {}
+  private handleEnd() {
+    if (this.players[0].score === this.players[1].score) {
+      this.result = 'tie';
+      this.winner = this.players[0];
+    } else
+      this.winner =
+        (this.players[0].score || 0) > (this.players[1].score || 0)
+          ? this.players[0]
+          : this.players[1];
+
+    return this.unlock();
+  }
 
   public async start() {
     this.raceTimeout = setTimeout(this.handleEnd, RACE_TIMEOUT);
