@@ -12,7 +12,7 @@ const schema = {
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  server.get('/matches', {schema}, async (request, reply) => {
+  server.get('/', {schema}, async (request, reply) => {
     const {query} = request;
 
     const user = await server.db.get(SQL`
