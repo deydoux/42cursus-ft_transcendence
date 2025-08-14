@@ -127,6 +127,7 @@ export default async function joinMatchmaking(
 
   if (match)
     try {
+      await match.init();
       await match.start();
     } catch (error) {
       match.error();

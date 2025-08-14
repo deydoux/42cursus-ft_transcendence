@@ -152,22 +152,6 @@ export default abstract class Match {
     }
   }
 
-  public async fetchData() {
-    for (const player of this.players) {
-      const user = await this.server.db.get(SQL`
-        SELECT id, username, has_avatar, avatar_version
-        FROM users
-        WHERE id = ${player.userID}
-      `);
-
-      serializeUserAvatar(user);
-      player.username = user.username;
-      player.avatar = user.avatar;
-
-      if (!this.ranked) delete player.elo;
-    }
-  }
-
   private handleClose(opponent: Player) {
     this.draw = true;
     this.winner = opponent;
@@ -233,6 +217,22 @@ export default abstract class Match {
     this.handleRound(scorer);
   }
 
+  public async init() {
+    for (const player of this.players) {
+      const user = await this.server.db.get(SQL`
+        SELECT id, username, has_avatar, avatar_version
+        FROM users
+        WHERE id = ${player.userID}
+      `);
+
+      serializeUserAvatar(user);
+      player.username = user.username;
+      player.avatar = user.avatar;
+
+      if (!this.ranked) delete player.elo;
+    }
+  }
+
   private scoreTimeout() {
     return setTimeout(
       () => this.cancel('Clients synchronization lost'),
@@ -251,8 +251,6 @@ export default abstract class Match {
   }
 
   public async start() {
-    await this.fetchData();
-
     this.send({
       type: 'matchStart',
       game: this.game,
