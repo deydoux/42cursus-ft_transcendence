@@ -17,7 +17,7 @@ type ClientTunnelMessage =
     }
   | {
       type: 'score';
-      player: number;
+      scorerID: number;
     };
 
 type ServerTunnelMessage =

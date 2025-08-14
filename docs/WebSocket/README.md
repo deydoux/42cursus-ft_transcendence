@@ -63,6 +63,17 @@ Sent to make a move in a game match
 }
 ```
 
+### `score`
+Sent to send a score in a game match
+
+*Example:*
+```json
+{
+  "type": "score",
+  "scorerID": 1
+}
+```
+
 ## Server Messages
 
 ### `directMessage`

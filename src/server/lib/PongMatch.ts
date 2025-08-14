@@ -25,8 +25,8 @@ export default class PongMatch {
 
   private draw = false;
   private score?: {
-    fromPlayer: number;
-    scorer: number;
+    fromPlayerID: number;
+    scorerID: number;
     timeout: NodeJS.Timeout;
   };
   private unlock = () => undefined;
@@ -193,7 +193,7 @@ export default class PongMatch {
     opponent: Player,
     message: ClientTunnelMessage & {type: 'score'},
   ) {
-    if (!this.players.some(player => player.userID === message.player))
+    if (!this.players.some(player => player.userID === message.scorerID))
       return this.sendSocket(player.socket, {
         type: 'error',
         message: 'Invalid score message',
@@ -201,8 +201,8 @@ export default class PongMatch {
 
     if (!this.score) {
       this.score = {
-        fromPlayer: player.userID,
-        scorer: message.player,
+        fromPlayerID: player.userID,
+        scorerID: message.scorerID,
         timeout: this.scoreTimeout(),
       };
 
@@ -210,13 +210,13 @@ export default class PongMatch {
     }
 
     if (
-      this.score.fromPlayer === player.userID ||
-      this.score.scorer !== message.player
+      this.score.fromPlayerID === player.userID ||
+      this.score.scorerID !== message.scorerID
     )
       return this.cancel('Clients synchronization lost');
 
     const scorer = this.players.find(
-      player => player.userID === this.score?.scorer,
+      player => player.userID === this.score?.scorerID,
     ) as Player;
 
     scorer.score = (scorer.score || 0) + 1;
