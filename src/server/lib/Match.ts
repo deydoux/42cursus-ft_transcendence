@@ -87,7 +87,7 @@ export default abstract class Match {
     this.unlock();
   }
 
-  private async destroy(winner?: Player) {
+  protected async destroy(winner?: Player) {
     if (this.score) clearTimeout(this.score.timeout);
     this.execute(player => delete this.server.game.players[player.userID]);
 
