@@ -3,7 +3,7 @@ import {FastifyInstance} from 'fastify';
 
 const RACE_TIMEOUT = 10 * 1000; // 10 seconds
 
-export default class PongMatch extends Match {
+export default class RaceMatch extends Match {
   private raceTimeout?: NodeJS.Timeout;
 
   constructor(server: FastifyInstance, players: [Player, Player]) {

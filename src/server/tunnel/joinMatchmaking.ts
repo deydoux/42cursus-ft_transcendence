@@ -2,6 +2,7 @@ import {Client, ClientTunnelMessage} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
 import PongMatch from '#lib/PongMatch';
+import RaceMatch from '#lib/RaceMatch';
 import {RankedClient} from '#types/fastify';
 import SQL from 'sql-template-strings';
 import {kFactor} from '#lib/Match';
@@ -18,6 +19,9 @@ export default async function joinMatchmaking(
   if (message.game === 'pong') {
     MatchConstructor = PongMatch;
     queue = game.queues.pong;
+  } else if (message.game === 'race') {
+    MatchConstructor = RaceMatch;
+    queue = game.queues.race;
   } else
     return client.socket.send(
       Clients.message({type: 'error', message: 'Invalid game'}),
