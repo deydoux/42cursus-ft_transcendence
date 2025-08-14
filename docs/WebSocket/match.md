@@ -44,7 +44,7 @@ sequenceDiagram
   alt Quentin disconnects
     s --x q: *socket closed*
     s ->> m: matchEnd
-    Note left of s: {winner: 1, draw: true}
+    Note left of s: {winner: 1, result: 'draw'}
 
   else Mathy scores
     m ->> s: score
@@ -58,7 +58,7 @@ sequenceDiagram
     else Mathy wins
       s ->> m: matchEnd
       s ->> q: matchEnd
-      Note over s: {winner: 1, draw: false}
+      Note over s: {winner: 1}
     end
 
   else Quentin cheats

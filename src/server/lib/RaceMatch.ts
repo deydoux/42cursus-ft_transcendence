@@ -1,6 +1,8 @@
 import Match, {Player} from '#lib/Match';
 import {FastifyInstance} from 'fastify';
 
+const RACE_TIMEOUT = 10 * 1000; // 10 seconds
+
 export default class PongMatch extends Match {
   private raceTimeout?: NodeJS.Timeout;
 
@@ -17,9 +19,10 @@ export default class PongMatch extends Match {
     return super.destroy(winner);
   }
 
-  public async start() {
-    this.raceTimeout = setTimeout(() => {}, 10000);
+  private handleEnd() {}
 
+  public async start() {
+    this.raceTimeout = setTimeout(this.handleEnd, RACE_TIMEOUT);
     return super.start();
   }
 }

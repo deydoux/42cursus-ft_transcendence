@@ -23,7 +23,6 @@ export default abstract class Match {
   private game;
   private ranked;
 
-  private draw = false;
   private score?: {
     fromPlayerID: number;
     scorerID: number;
@@ -33,6 +32,7 @@ export default abstract class Match {
   private readonly createdAt = Math.floor(Date.now() / 1000);
   private readonly lock;
 
+  protected result?: 'draw' | 'tie';
   protected unlock = () => undefined;
   protected winner?: Player;
 
@@ -101,9 +101,9 @@ export default abstract class Match {
 
     const {lastID: id} = await this.server.db.run(SQL`
       INSERT INTO matches(game, mode, winner_id, loser_id, winner_score,
-                         loser_score, draw, created_at)
+                         loser_score, result, created_at)
       VALUES(${this.game}, ${mode}, ${winner.userID}, ${loser.userID},
-            ${winner.score}, ${loser.score}, ${this.draw}, ${this.createdAt})
+            ${winner.score}, ${loser.score}, ${this.result}, ${this.createdAt})
     `);
     if (!id) throw new Error('Failed to create match');
 
@@ -112,7 +112,7 @@ export default abstract class Match {
       this.send({
         type: 'matchEnd',
         winner: winner.userID,
-        draw: this.draw,
+        result: this.result,
       });
   }
 
@@ -136,7 +136,7 @@ export default abstract class Match {
     this.send({
       type: 'matchEnd',
       winner: winner.userID,
-      draw: this.draw,
+      result: this.result,
       eloChange: change,
     });
   }
@@ -153,7 +153,7 @@ export default abstract class Match {
   }
 
   private handleClose(opponent: Player) {
-    this.draw = true;
+    this.result = 'draw';
     this.winner = opponent;
     this.unlock();
   }

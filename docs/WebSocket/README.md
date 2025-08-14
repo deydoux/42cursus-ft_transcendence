@@ -189,7 +189,7 @@ Received when a match ends
 {
   "type": "matchEnd",
   "winner": 1,
-  "draw": false,
+  "result": "draw",
   "eloChange": 20
 }
 ```
