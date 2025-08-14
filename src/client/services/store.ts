@@ -10,6 +10,7 @@ export class Store {
   private state: AppState = {
     totpCode: undefined,
     user: undefined,
+    blockedUsers: [],
     currentRoute: '/',
     isWaitingForMatchmaking: false,
   };

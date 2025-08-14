@@ -1,4 +1,5 @@
 import {BaseComponent} from '../components/BaseComponent';
+import {BlockList} from '../containers/settings/blockList';
 import {Chat} from '../containers/Chat';
 import {DOMUtils} from '../utils/dom';
 import {PasswordManager} from '../containers/settings/passwordManager';
@@ -13,9 +14,11 @@ export class Settings extends BaseComponent {
   private UserProfile: UserProfile;
   private TwoFactorAuthManager: TwoFactorAuthManager;
   private PasswordManager: PasswordManager;
+  private BlockList: BlockList;
 
   constructor() {
     super();
+    this.BlockList = new BlockList(this.store);
     this.PasswordManager = new PasswordManager();
     this.UserProfile = new UserProfile(this.store, this.fetchAccount);
     this.TwoFactorAuthManager = new TwoFactorAuthManager(
@@ -219,6 +222,21 @@ export class Settings extends BaseComponent {
     changePassword.appendChild(changePasswordHeader);
     changePassword.appendChild(this.PasswordManager.render());
     settings.appendChild(changePassword);
+
+    // Block list
+
+    const blockList = DOMUtils.createElement('div', {
+      className: 'mt-8 p-4 border bg-white/5 border-white/20 gap-10 rounded-lg',
+    });
+    blockList.appendChild(
+      DOMUtils.createElement('h2', {
+        className: 'font-medium text-lg border-b border-white/20 pb-2',
+        textContent: 'Blocked users',
+      }),
+    );
+
+    blockList.appendChild(this.BlockList.render());
+    settings.appendChild(blockList);
 
     container.appendChild(settings);
     const chat = new Chat().render();

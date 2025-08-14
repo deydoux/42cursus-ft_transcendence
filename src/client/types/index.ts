@@ -13,6 +13,12 @@ export interface AppState {
     hasAvatar: boolean;
     avatar: string;
   };
+  blockedUsers: {
+    relationshipID: number;
+    createdAt: string;
+    id: number;
+    username: string;
+  }[];
 }
 
 export interface Component {

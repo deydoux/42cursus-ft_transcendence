@@ -5,7 +5,7 @@ export class Chat extends BaseComponent {
   render(): HTMLElement | undefined {
     const container = DOMUtils.createElement('div', {
       className:
-        'w-[400px] h-full flex-none border border-pink-300 rounded-3xl flex flex-col p-6',
+        'w-[400px] h-full flex-none border border-pink-300 rounded-xl flex flex-col p-6',
     });
 
     const chatContent = DOMUtils.createElement('div', {
