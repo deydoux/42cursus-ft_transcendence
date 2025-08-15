@@ -189,7 +189,7 @@ export default abstract class Match {
     if (!this.players.some(player => player.userID === message.scorerID))
       return this.sendSocket(player.socket, {
         type: 'error',
-        message: 'Invalid score message',
+        message: 'Invalid scorer ID',
       });
 
     if (!this.score) {
