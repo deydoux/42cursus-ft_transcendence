@@ -1,9 +1,11 @@
 import {Client, ClientTunnelMessage} from '#types/Clients';
-import PongMatch, {kFactor} from '#lib/PongMatch';
 import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
+import PongMatch from '#lib/PongMatch';
+import RaceMatch from '#lib/RaceMatch';
 import {RankedClient} from '#types/fastify';
 import SQL from 'sql-template-strings';
+import {kFactor} from '#lib/Match';
 import {randomInt} from 'node:crypto';
 
 export default async function joinMatchmaking(
@@ -17,6 +19,9 @@ export default async function joinMatchmaking(
   if (message.game === 'pong') {
     MatchConstructor = PongMatch;
     queue = game.queues.pong;
+  } else if (message.game === 'race') {
+    MatchConstructor = RaceMatch;
+    queue = game.queues.race;
   } else
     return client.socket.send(
       Clients.message({type: 'error', message: 'Invalid game'}),
@@ -95,6 +100,7 @@ export default async function joinMatchmaking(
           match = new MatchConstructor(server, [rankedClient, queued]);
 
           try {
+            await match.init();
             await match.start();
           } catch (error) {
             match.error();
@@ -126,6 +132,7 @@ export default async function joinMatchmaking(
 
   if (match)
     try {
+      await match.init();
       await match.start();
     } catch (error) {
       match.error();

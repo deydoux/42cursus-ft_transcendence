@@ -17,7 +17,7 @@ type ClientTunnelMessage =
     }
   | {
       type: 'score';
-      player: number;
+      scorerID: number;
     };
 
 type ServerTunnelMessage =
@@ -43,7 +43,7 @@ type ServerTunnelMessage =
   | {
       type: 'matchEnd';
       winner: number;
-      draw: boolean;
+      result?: 'draw' | 'tie';
       eloChange?: number;
     }
   | {

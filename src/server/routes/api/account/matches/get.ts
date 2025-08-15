@@ -12,7 +12,7 @@ const schema = {
 };
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  server.get('/matches', {schema}, async (request, reply) => {
+  server.get('/', {schema}, async (request, reply) => {
     const {query} = request;
 
     const user = await server.db.get(SQL`
@@ -23,7 +23,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     serializeUserAvatar(user);
 
     const dbQuery = SQL`
-      SELECT game, mode, winner_id, loser_id, winner_score, loser_score, draw,
+      SELECT game, mode, winner_id, loser_id, winner_score, loser_score, result,
              created_at AS createdAt, updated_at AS updatedAt,
              u.id, username, has_avatar, avatar_version,
              winner_elo, loser_elo, elo_change AS eloChange
