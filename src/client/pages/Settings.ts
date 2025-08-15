@@ -3,6 +3,7 @@ import {BlockList} from '../containers/settings/blockList';
 import {Chat} from '../containers/Chat';
 import {DOMUtils} from '../utils/dom';
 import {PasswordManager} from '../containers/settings/passwordManager';
+import {RGPD} from '../containers/settings/rgpd';
 import {Sessions} from '../containers/settings/sessions';
 import {Toastify} from '../utils/toastify';
 import {TwoFactorAuthManager} from '../containers/settings/twoFactorAuthManager';
@@ -16,9 +17,11 @@ export class Settings extends BaseComponent {
   private PasswordManager: PasswordManager;
   private BlockList: BlockList;
   private Sessions: Sessions;
+  private RGPD: RGPD;
 
   constructor() {
     super();
+    this.RGPD = new RGPD(this.router);
     this.Sessions = new Sessions(this.store);
     this.BlockList = new BlockList(this.store);
     this.PasswordManager = new PasswordManager();
@@ -146,14 +149,16 @@ export class Settings extends BaseComponent {
     userProfile.appendChild(this.UserProfile.render());
 
     // Activate / Deactivate 2FA
-    const preferences = renderBlock('Preferences');
-    const {dialogContent, showModal, close} = createDialog('2fa');
-    preferences.appendChild(
-      this.TwoFactorAuthManager.render(dialogContent, showModal, close),
-    );
+    const disconnectAllButton = DOMUtils.createElement('button', {
+      className:
+        'rounded-lg text-white/80 hover:text-red-500 duration-100 cursor-pointer',
+      textContent: 'Disconnect All',
+    });
+    const sessions = renderBlock('Sessions', disconnectAllButton);
+    sessions.appendChild(this.Sessions.render(disconnectAllButton));
 
     firstRow.appendChild(userProfile);
-    firstRow.appendChild(preferences);
+    firstRow.appendChild(sessions);
     settings.appendChild(firstRow);
 
     // Change Password
@@ -171,16 +176,16 @@ export class Settings extends BaseComponent {
     settings.appendChild(blockList);
 
     // Sesssions
-    const disconnectAllButton = DOMUtils.createElement('button', {
-      className:
-        'rounded-lg text-white/80 hover:text-red-500 duration-100 cursor-pointer',
-      textContent: 'Disconnect All',
-    });
-    const sessions = renderBlock('Sessions', disconnectAllButton);
-    sessions.appendChild(this.Sessions.render(disconnectAllButton));
+
+    const preferences = renderBlock('Account Management');
+    const {dialogContent, showModal, close} = createDialog('2fa');
+    preferences.appendChild(
+      this.TwoFactorAuthManager.render(dialogContent, showModal, close),
+    );
+    preferences.appendChild(this.RGPD.render());
 
     thirdRow.appendChild(blockList);
-    thirdRow.appendChild(sessions);
+    thirdRow.appendChild(preferences);
     settings.appendChild(thirdRow);
 
     container.appendChild(settings);
