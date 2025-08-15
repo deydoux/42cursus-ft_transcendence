@@ -33,7 +33,7 @@ export default class RaceMatch extends Match {
   }
 
   public async start() {
-    this.raceTimeout = setTimeout(this.handleEnd, RACE_TIMEOUT);
+    this.raceTimeout = setTimeout(() => this.handleEnd(), RACE_TIMEOUT);
     return super.start();
   }
 }
