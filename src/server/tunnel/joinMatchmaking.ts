@@ -100,6 +100,7 @@ export default async function joinMatchmaking(
           match = new MatchConstructor(server, [rankedClient, queued]);
 
           try {
+            await match.init();
             await match.start();
           } catch (error) {
             match.error();
