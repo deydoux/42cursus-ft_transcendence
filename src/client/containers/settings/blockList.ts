@@ -44,7 +44,7 @@ export class BlockList {
   render() {
     this.fetchBlockedUsers();
     const container = DOMUtils.createElement('div', {
-      className: 'pt-4 flex flex-col gap-4',
+      className: 'pt-4 flex flex-col gap-4 max-h-60 overflow-y-auto',
     });
 
     const renderList = () => {

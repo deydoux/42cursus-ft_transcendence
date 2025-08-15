@@ -11,6 +11,7 @@ export class Store {
     totpCode: undefined,
     user: undefined,
     blockedUsers: [],
+    sessions: {session: 0, sessions: []},
     currentRoute: '/',
     isWaitingForMatchmaking: false,
   };
