@@ -53,7 +53,10 @@ const plugin: FastifyPluginAsync = async server => {
     `);
 
     return reply
-      .header('content-disposition', 'attachment; filename="data.json"')
+      .header(
+        'content-disposition',
+        `attachment; filename="account_${id}.json"`,
+      )
       .send({
         user,
         sessions,
