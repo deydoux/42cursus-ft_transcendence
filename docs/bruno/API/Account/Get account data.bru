@@ -1,0 +1,15 @@
+meta {
+  name: Get account data
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseURL}}/api/account/download
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

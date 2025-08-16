@@ -38,7 +38,7 @@ const plugin: FastifyPluginAsync = async server => {
     `);
 
     const matches = await server.db.all(SQL`
-      SELECT id, game, mode, winner_id, loser_id, winner_score, loser_score,
+      SELECT m.id, game, mode, winner_id, loser_id, winner_score, loser_score,
              result, created_at updated_at, winner_elo, loser_elo, elo_change
       FROM matches m
       LEFT JOIN ranked_matches rm
@@ -46,16 +46,23 @@ const plugin: FastifyPluginAsync = async server => {
       WHERE winner_id = ${id} OR loser_id = ${id}
     `);
 
-    // const elo = await server.db.all(SQL``);
+    const elo = await server.db.all(SQL`
+      SELECT id, game, value, created_at
+      FROM elo
+      WHERE user_id = ${id}
+    `);
 
-    return reply.send({
-      user,
-      sessions,
-      relationships,
-      direct_messages,
-      general_messages,
-      matches,
-    });
+    return reply
+      .header('content-disposition', 'attachment; filename="data.json"')
+      .send({
+        user,
+        sessions,
+        relationships,
+        direct_messages,
+        general_messages,
+        matches,
+        elo,
+      });
   });
 };
 
