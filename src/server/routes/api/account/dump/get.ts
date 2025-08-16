@@ -39,7 +39,7 @@ const plugin: FastifyPluginAsync = async server => {
 
     const matches = await server.db.all(SQL`
       SELECT m.id, game, mode, winner_id, loser_id, winner_score, loser_score,
-             result, created_at updated_at, winner_elo, loser_elo, elo_change
+             result, created_at, updated_at, winner_elo, loser_elo, elo_change
       FROM matches m
       LEFT JOIN ranked_matches rm
       ON mode = 'ranked' AND m.id = rm.id
