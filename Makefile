@@ -1,15 +1,26 @@
 NAME = ft_transcendence
 
-COMPOSE = docker compose
-NPM = npm
+SECRETS_DIR = secrets
+SECRETS_FILES = \
+	cert.pem \
+	key.pem
 
-RM = rm -rf
+SECRETS = $(addprefix $(SECRETS_DIR)/, $(SECRETS_FILES))
+
+COMPOSE = docker compose
 MKDIR = mkdir -p
+NPM = npm
+OPENSSL = openssl
+RM = rm -rf
 
 .DEFAULT_GOAL = all
 
-$(NAME):
+$(NAME): $(SECRETS)
 	$(COMPOSE) up --build
+
+%/cert.pem %/key.pem:
+	@$(MKDIR) $(@D)
+	$(OPENSSL) req -x509 -newkey rsa:4096 -keyout $(@D)/key.pem -out $(@D)/cert.pem -sha256 -days 397 -nodes -subj "/CN=localhost"
 
 node_modules: package.json package-lock.json
 	$(NPM) install
@@ -26,7 +37,7 @@ clean:
 	$(RM) build dist tsconfig.tsbuildinfo
 
 fclean: clean
-	$(RM) data node_modules
+	$(RM) data node_modules $(SECRETS_DIR)
 
 re: fclean all
 
