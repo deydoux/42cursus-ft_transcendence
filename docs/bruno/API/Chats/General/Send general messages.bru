@@ -1,17 +1,13 @@
 meta {
-  name: Send direct message
+  name: Send general messages
   type: http
-  seq: 3
+  seq: 2
 }
 
 post {
-  url: {{baseURL}}/api/chats/direct/:id
+  url: {{baseURL}}/api/chats/general
   body: json
   auth: inherit
-}
-
-params:path {
-  id: 2
 }
 
 body:json {

@@ -14,11 +14,15 @@ type ClientTunnelMessage =
     }
   | {
       type: 'leaveMatchmaking';
+    }
+  | {
+      type: 'score';
+      scorerID: number;
     };
 
 type ServerTunnelMessage =
   | {
-      type: 'directMessage';
+      type: 'directMessage' | 'generalMessage';
       sender: unknown;
       content: string;
     }
@@ -39,7 +43,7 @@ type ServerTunnelMessage =
   | {
       type: 'matchEnd';
       winner: number;
-      draw: boolean;
+      result?: 'draw' | 'tie';
       eloChange?: number;
     }
   | {
@@ -48,6 +52,7 @@ type ServerTunnelMessage =
       ranked: boolean;
       players: unknown[];
     }
+  | {type: 'round'}
   | {
       type: 'success';
       origin: string;

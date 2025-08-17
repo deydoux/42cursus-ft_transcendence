@@ -16,8 +16,9 @@ CREATE TABLE direct_messages(
   FOREIGN KEY(recipient_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_direct_messages_sender_id_recipient_id_created_at_desc ON direct_messages(sender_id, recipient_id);
+CREATE INDEX idx_direct_messages_sender_id_recipient_id ON direct_messages(sender_id, recipient_id);
 CREATE INDEX idx_direct_messages_sender_id_recipient_id_unread ON direct_messages(sender_id, recipient_id, read) WHERE read = FALSE;
+
 
 CREATE TABLE elo(
   id       INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,7 +33,20 @@ CREATE TABLE elo(
   FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_elo_user_id_game_created_at_desc ON elo(user_id, game, created_at DESC);
+CREATE INDEX idx_elo_user_id_game ON elo(user_id, game);
+
+
+CREATE TABLE general_messages(
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+
+  user_id    INTEGER NOT NULL,
+  content    TEXT NOT NULL,
+
+  created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+
+  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 
 CREATE TABLE matches(
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,26 +58,29 @@ CREATE TABLE matches(
 
   winner_score INTEGER NOT NULL,
   loser_score  INTEGER NOT NULL,
-  draw         INTEGER NOT NULL,
+  result       TEXT,
 
   created_at  INTEGER NOT NULL,
   updated_at  INTEGER NOT NULL DEFAULT (unixepoch()),
 
   CHECK(game IN ('pong', 'race')),
-  CHECK(mode IN ('casual', 'ranked'))
+  CHECK(mode IN ('casual', 'ranked')),
+  CHECK(result IN ('draw', 'tie'))
 );
 
-CREATE INDEX idx_matches_winner_id_loser_id_created_at_desc ON matches(winner_id, loser_id, created_at DESC);
+CREATE INDEX idx_matches_winner_id_loser_id ON matches(winner_id, loser_id);
+
 
 CREATE TABLE ranked_matches(
   id         INTEGER PRIMARY KEY,
 
   winner_elo INTEGER NOT NULL,
-  loser_elo INTEGER NOT NULL,
+  loser_elo  INTEGER NOT NULL,
   elo_change INTEGER NOT NULL,
 
   FOREIGN KEY(id) REFERENCES matches(id) ON DELETE CASCADE
 );
+
 
 CREATE TABLE relationships(
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -90,6 +107,7 @@ BEGIN
   UPDATE relationships SET updated_at = unixepoch() WHERE id = NEW.id;
 END;
 
+
 CREATE TABLE sessions(
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id       INTEGER,
@@ -115,6 +133,7 @@ FOR EACH ROW
 BEGIN
   UPDATE sessions SET updated_at = unixepoch() WHERE id = NEW.id;
 END;
+
 
 CREATE TABLE users(
   id                 INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -173,12 +192,14 @@ DROP TABLE relationships;
 
 DROP TABLE ranked_matches;
 
-DROP INDEX idx_matches_winner_id_loser_id_created_at_desc;
+DROP INDEX idx_matches_winner_id_loser_id;
 DROP TABLE matches;
 
-DROP INDEX idx_elo_user_id_game_created_at_desc;
+DROP TABLE general_messages;
+
+DROP INDEX idx_elo_user_id_game;
 DROP TABLE elo;
 
 DROP INDEX idx_direct_messages_sender_id_recipient_id_unread;
-DROP INDEX idx_direct_messages_sender_id_recipient_id_created_at_desc;
+DROP INDEX idx_direct_messages_sender_id_recipient_id;
 DROP TABLE direct_messages;

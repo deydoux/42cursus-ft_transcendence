@@ -3,7 +3,7 @@ import SQL from 'sql-template-strings';
 import {idParamsSchema as schema} from '#lib/schemas';
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
-  server.patch('/:id', {schema}, async (request, reply) => {
+  server.patch('/', {schema}, async (request, reply) => {
     const {user} = request;
 
     const other = await server.db.get(SQL`

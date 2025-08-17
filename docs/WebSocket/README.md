@@ -3,6 +3,17 @@ This WebSocket API handles real-time communication and time-sensitive events. To
 
 ## Client Messages
 
+### `gameMessage`
+Sent to send a message in a game match
+
+*Example:*
+```json
+{
+  "type": "gameMessage",
+  "content": "Good luck!"
+}
+```
+
 ### `joinMatchmaking`
 Sent to join the matchmaking queue
 
@@ -38,6 +49,28 @@ Sent to leave the matchmaking queue
 {
   "type": "success",
   "origin": "leaveMatchmaking"
+}
+```
+
+### `move`
+Sent to make a move in a game match
+
+*Example:*
+```jsonc
+{
+  "type": "move",
+  //...
+}
+```
+
+### `score`
+Sent to send a score in a game match
+
+*Example:*
+```json
+{
+  "type": "score",
+  "scorerID": 1
 }
 ```
 
@@ -116,9 +149,26 @@ Received when a game message is sent in a match
 ```jsonc
 {
   "type": "gameMessage",
-  // ...
+  "content": "Good luck!"
 }
 ```
+
+### `generalMessage`
+Received when a general message is sent
+
+*Example:*
+```json
+{
+  "type": "generalMessage",
+  "sender": {
+    "id": 1,
+    "username": "user123",
+    "avatar": "/static/default_avatar.webp"
+  },
+  "content": "Hello, World!"
+}
+```
+
 
 ### `matchCancel`
 Received when a match is cancelled due to an error
@@ -139,7 +189,7 @@ Received when a match ends
 {
   "type": "matchEnd",
   "winner": 1,
-  "draw": false,
+  "result": "draw",
   "eloChange": 20
 }
 ```
@@ -175,6 +225,16 @@ Received when opponent makes a move in a match
 {
   "type": "move",
   //...
+}
+```
+
+### `round`
+Received when a round starts in a match
+
+*Example:*
+```json
+{
+  "type": "round"
 }
 ```
 

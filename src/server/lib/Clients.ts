@@ -80,10 +80,17 @@ export default class Clients {
     socket.on('message', this.handleMessage(socket));
   };
 
-  broadcast = (message: ServerTunnelMessage) =>
-    this.clients.forEach(client =>
-      client.socket.send(Clients.message(message)),
-    );
+  broadcast = (message: ServerTunnelMessage, ignoreIDs?: number[]) => {
+    if (ignoreIDs)
+      this.clients.forEach(client => {
+        if (!ignoreIDs.includes(client.userID))
+          client.socket.send(Clients.message(message));
+      });
+    else
+      this.clients.forEach(client =>
+        client.socket.send(Clients.message(message)),
+      );
+  };
 
   closeSession = (session: number | null) =>
     this.clients.forEach(client => {

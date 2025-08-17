@@ -44,13 +44,13 @@ sequenceDiagram
   alt Quentin disconnects
     s --x q: *socket closed*
     s ->> m: matchEnd
-    Note left of s: {winner: 1, draw: true}
+    Note left of s: {winner: 1, result: 'draw'}
 
   else Mathy scores
-    m ->> s: scores
-    Note right of m: {player: 1}
-    q ->> s: scores
-    Note left of q: {player: 1}
+    m ->> s: score
+    Note right of m: {scorer: 1}
+    q ->> s: score
+    Note left of q: {scorer: 1}
 
     alt New round
       s ->> m: round
@@ -58,15 +58,15 @@ sequenceDiagram
     else Mathy wins
       s ->> m: matchEnd
       s ->> q: matchEnd
-      Note over s: {winner: 1, draw: false}
+      Note over s: {winner: 1}
     end
 
   else Quentin cheats
-    q ->> s: scores
-    Note left of q: {player: 2}
+    q ->> s: score
+    Note left of q: {scorer: 2}
     m --x s: *nothing sent*
     s -x m: matchCancel
     s -x q: matchCancel
-    Note over s: {cause: 'Cheating detected'}
+    Note over s: {cause: 'Clients synchronization lost'}
   end
 ```
