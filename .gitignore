@@ -1,7 +1,7 @@
-.env*
+.DS_Store
+/.env
 /build/
 /data/
 /dist/
 /node_modules/
 /tsconfig.tsbuildinfo
-.DS_Store
