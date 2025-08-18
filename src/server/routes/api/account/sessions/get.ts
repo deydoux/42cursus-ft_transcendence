@@ -7,7 +7,7 @@ const plugin: FastifyPluginAsync = async server => {
     const {session, user} = request;
 
     const sessions = await server.db.all(SQL`
-      SELECT id, ip, user_agent AS userAgent, created_at AS createdAt,
+      SELECT id, user_agent AS userAgent, created_at AS createdAt,
              updated_at AS updatedAt
       FROM sessions
       WHERE user_id = ${user.id}
