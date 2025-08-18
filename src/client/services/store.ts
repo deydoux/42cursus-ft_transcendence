@@ -12,6 +12,8 @@ export class Store {
     user: undefined,
     currentRoute: '/',
     isWaitingForMatchmaking: false,
+    chats: [],
+    chatsSearchQuery: '',
   };
   private previousState: AppState = {...this.state};
 

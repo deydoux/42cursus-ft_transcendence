@@ -12,6 +12,18 @@ export interface AppState {
     totp: boolean; // 2FA
     avatar: string;
   };
+  chats: {
+    relationshipID: number;
+    username: string;
+    avatar: string;
+    online: boolean;
+    lastSeen: string;
+    updatedAt: string;
+    content: string | undefined;
+    unread: number;
+  }[];
+
+  chatsSearchQuery: string;
 }
 
 export interface Component {
