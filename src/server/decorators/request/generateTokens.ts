@@ -11,21 +11,20 @@ const plugin: FastifyPluginAsync = async server => {
     const refreshToken = generateRefreshToken(id);
     const accessToken = await this.generateAccessToken(id);
 
-    const {ip, session} = this;
+    const {session} = this;
     const userAgent = this.headers['user-agent'] || '';
 
     if (session)
       await server.db.run(SQL`
         UPDATE sessions
-        SET ip = ${ip}, user_agent = ${userAgent},
-            access_token = ${accessToken}, refresh_token = ${refreshToken}
+        SET user_agent = ${userAgent}, access_token = ${accessToken},
+            refresh_token = ${refreshToken}
         WHERE id = ${session}
       `);
     else
       await server.db.run(SQL`
-        INSERT INTO sessions(user_id, ip, user_agent, access_token,
-                    refresh_token)
-        VALUES(${id}, ${ip}, ${userAgent}, ${accessToken}, ${refreshToken})
+        INSERT INTO sessions(user_id, user_agent, access_token, refresh_token)
+        VALUES(${id}, ${userAgent}, ${accessToken}, ${refreshToken})
       `);
 
     return {accessToken, refreshToken};
