@@ -10,7 +10,28 @@ export interface AppState {
     username: string;
     passwordEditedAt: string;
     totp: boolean; // 2FA
+    hasAvatar: boolean;
     avatar: string;
+  };
+  blockedUsers: {
+    relationshipID: number;
+    createdAt: string;
+    id: number;
+    username: string;
+  }[];
+  sessions: {
+    session: number;
+    sessions: {
+      id: number;
+      ip: string;
+      userAgent: {
+        ua: string;
+        browser: {name: string};
+        device: {model: string; vendor: string};
+      };
+      createdAt: string;
+      updatedAt: string;
+    }[];
   };
 }
 
