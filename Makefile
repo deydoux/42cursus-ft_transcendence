@@ -35,9 +35,11 @@ down:
 
 clean:
 	$(RM) build dist tsconfig.tsbuildinfo
+	$(COMPOSE) down --remove-orphans
 
-fclean: clean
-	$(RM) data node_modules $(SECRETS_DIR)
+fclean:
+	$(RM) build data dist node_modules $(SECRETS_DIR) tsconfig.tsbuildinfo
+	$(COMPOSE) down --remove-orphans --rmi all -v
 
 re: fclean all
 
