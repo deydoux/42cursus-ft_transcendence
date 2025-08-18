@@ -44,7 +44,6 @@ export const createOTPInput = (nbInputs = 6) => {
     });
 
     input.addEventListener('paste', event => {
-      console.log('herer');
       event.preventDefault();
       const pasteData = event.clipboardData?.getData('text') ?? '';
       const cleanData = pasteData.replace(/\s/g, '');
