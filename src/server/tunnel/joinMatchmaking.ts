@@ -38,6 +38,7 @@ export default async function joinMatchmaking(
   for (const queue of Object.values(game.queues)) {
     if (
       queue.casual?.userID === client.userID ||
+      queue.invites.some(invite => invite.client.userID === client.userID) ||
       queue.ranked.some(rankedClient => rankedClient.userID === client.userID)
     )
       return client.socket.send(
@@ -60,7 +61,7 @@ export default async function joinMatchmaking(
 
       game.queues[message.game].casual = null;
 
-      match = new MatchConstructor(server, [client, queued]);
+      match = new MatchConstructor(server, [queued, client]);
       break;
     }
     case 'ranked': {
@@ -97,7 +98,7 @@ export default async function joinMatchmaking(
 
           server.leaveMatchmaking(rankedClient.socket);
           server.leaveMatchmaking(queued.socket);
-          match = new MatchConstructor(server, [rankedClient, queued]);
+          match = new MatchConstructor(server, [queued, rankedClient]);
 
           try {
             await match.init();

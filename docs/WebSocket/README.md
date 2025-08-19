@@ -17,12 +17,21 @@ Sent to send a message in a game match
 ### `joinMatchmaking`
 Sent to join the matchmaking queue
 
-*Example:*
+*Examples:*
 ```json
 {
   "type": "joinMatchmaking",
   "game": "pong",
-  "mode": "casual"
+  "mode": "ranked"
+}
+```
+
+```json
+{
+  "type": "joinMatchmaking",
+  "game": "race",
+  "mode": "casual",
+  "invite": 2
 }
 ```
 

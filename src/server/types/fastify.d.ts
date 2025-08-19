@@ -13,6 +13,7 @@ interface RankedClient extends Client {
 
 interface Queue {
   casual: Client | null;
+  invites: {client: Client; other: number}[];
   ranked: RankedClient[];
 }
 
