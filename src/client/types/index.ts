@@ -10,8 +10,10 @@ export interface AppState {
     username: string;
     passwordEditedAt: string;
     totp: boolean; // 2FA
+    hasAvatar: boolean;
     avatar: string;
   };
+
   chats: {
     relationshipID: number;
     username: string;
@@ -22,8 +24,28 @@ export interface AppState {
     content: string | undefined;
     unread: number;
   }[];
-
   chatsSearchQuery: string;
+
+  blockedUsers: {
+    relationshipID: number;
+    createdAt: string;
+    id: number;
+    username: string;
+  }[];
+  sessions: {
+    session: number;
+    sessions: {
+      id: number;
+      ip: string;
+      userAgent: {
+        ua: string;
+        browser: {name: string};
+        device: {model: string; vendor: string};
+      };
+      createdAt: string;
+      updatedAt: string;
+    }[];
+  };
 }
 
 export interface Component {

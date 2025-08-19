@@ -3,6 +3,7 @@ import {BaseComponent} from '../components/BaseComponent';
 import {DOMUtils} from '../utils/dom';
 import {api} from '../utils/Api';
 import {createDialog} from '../components/Dialog';
+import {createOTPInput} from '../components/OTPInput';
 import img from '../assets/kittypong.png';
 import {loadIcons} from '../utils/icons';
 import {socket} from '../utils/websocket';
@@ -10,6 +11,7 @@ import sticker from '../assets/sticker.png';
 
 export class LandingPage extends BaseComponent {
   private authDialogContent: HTMLDivElement;
+  private totpAccessToken: string;
 
   private async register(
     endpoint: string,
@@ -25,6 +27,13 @@ export class LandingPage extends BaseComponent {
       }
 
       const data = await response.json();
+
+      if (data.totp) {
+        this.totpAccessToken = data.accessToken;
+        this.renderTOTPDialog();
+        return;
+      }
+
       api.setAccessToken(data.accessToken);
 
       // Initialize websocket connection
@@ -37,6 +46,118 @@ export class LandingPage extends BaseComponent {
     } catch (error) {
       errorMessage.textContent = error.message;
     }
+  }
+
+  private async verifyTOTP(token: string, errorMessage: HTMLElement) {
+    try {
+      const response = await api.post(
+        'auth/verify',
+        {token},
+        {
+          headers: {
+            Authorization: `Bearer ${this.totpAccessToken}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message);
+      }
+
+      const data = await response.json();
+      api.setAccessToken(data.accessToken);
+
+      socket.updateConfig({
+        protocols: [localStorage.getItem('accessToken') ?? ''],
+      });
+      await socket.connect();
+
+      this.router.navigate('/homepage');
+    } catch (error) {
+      errorMessage.textContent = error.message;
+      console.error(error);
+    }
+  }
+
+  private renderTOTPDialog() {
+    this.authDialogContent.innerHTML = '';
+    this.authDialogContent.appendChild(
+      DOMUtils.createElement('i', {
+        className:
+          'w-14 h-14 mx-auto rounded-full p-2 border border-white mb-8',
+        attributes: {
+          icon: 'lock',
+        },
+      }),
+    );
+
+    loadIcons();
+
+    this.authDialogContent.appendChild(
+      DOMUtils.createElement('h1', {
+        className: 'text-3xl font-bold mb-4',
+        textContent: 'Two-Factor Authentication',
+      }),
+    );
+
+    this.authDialogContent.appendChild(
+      DOMUtils.createElement('p', {
+        className:
+          'w-100 font-light text-white/80 leading-tight mb-10 text-center',
+        textContent:
+          'Two-factor authentication is enabled for your account. Please enter the code from your authentication app.',
+      }),
+    );
+
+    const errorMessage = DOMUtils.createElement('p', {
+      className: 'font-light text-red-500 text-sm mt-2',
+    });
+
+    const {form, getValue} = createOTPInput();
+    form.className = 'flex flex-col justify-center items-center';
+
+    const buttons = DOMUtils.createElement('div', {
+      className: 'mt-8 w-full flex justify-center items-stretch gap-8',
+    });
+
+    buttons.appendChild(
+      DOMUtils.createElement('button', {
+        className:
+          'w-3/5 border border-white/20 rounded text-sm px-4 py-2 cursor-pointer',
+        textContent: 'Return to login',
+        attributes: {
+          type: 'button',
+        },
+        events: {
+          click: evt => {
+            evt.preventDefault();
+            this.renderRegistrationForm('login');
+          },
+        },
+      }),
+    );
+    buttons.appendChild(
+      DOMUtils.createElement('button', {
+        className:
+          'w-3/5 py-2 border border-pink-300 rounded hover:bg-pink-300/10 duration-200 cursor-pointer text-sm',
+        textContent: 'Confirm',
+        attributes: {
+          type: 'submit',
+        },
+      }),
+    );
+    form.appendChild(errorMessage);
+    form.appendChild(buttons);
+
+    form.onsubmit = evt => {
+      evt.preventDefault();
+      const value = getValue();
+      this.verifyTOTP(value, errorMessage);
+    };
+
+    this.authDialogContent.appendChild(form);
   }
 
   private renderRegistrationForm(mode: 'login' | 'signup'): void {

@@ -1,16 +1,36 @@
 services:
   app:
     build:
-      context: .
-      target: ${COMPOSE_TARGET:-production}
-    ports:
-      - ${PORT:-3000}:${PORT:-3000}
+      target: app
     volumes:
-      - ${DEV_MOUNT:-data:/data}
+      - data:/data
     environment:
-      DATA_PATH: ${DATA_PATH:-/data}
+      DATA_PATH: /data
+      GOOGLE_ID:
+      GOOGLE_SECRET:
       JWT_SECRET:
+      NODE_ENV: production
     restart: on-failure
+
+  web:
+    build:
+      target: web
+    depends_on:
+      - app
+    ports:
+      - ${PORT:-3000}:443
+    secrets:
+      - cert.pem
+      - key.pem
+    restart: on-failure
+
+
+secrets:
+  cert.pem:
+    file: ${SECRETS_DIR:-secrets}/cert.pem
+  key.pem:
+    file: ${SECRETS_DIR:-secrets}/key.pem
+
 
 volumes:
   data:

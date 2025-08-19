@@ -3,12 +3,26 @@ import QRCode from 'qrcode';
 import {Store} from '../../services/store';
 import {Toastify} from '../../utils/toastify';
 import {api} from '../../utils/Api';
+import {createOTPInput} from '../../components/OTPInput';
 
 export class TwoFactorAuthManager {
   constructor(
     private store: Store,
     private fetchAccount: () => void,
   ) {}
+
+  private async removeTotp(secretToken: string) {
+    const response = await api.delete('account/totp', {
+      token: secretToken,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message);
+    }
+
+    return response;
+  }
 
   private async confirmTotp(secretToken: string) {
     const response = await api.put('account/totp', {
@@ -55,8 +69,6 @@ export class TwoFactorAuthManager {
     closeDialog: () => void,
   ) => {
     dialogContent.innerHTML = '';
-    dialogContent.className =
-      'p-10 bg-background text-white border border-white/50 rounded-xl';
 
     dialogContent.appendChild(
       DOMUtils.createElement('h1', {
@@ -197,40 +209,25 @@ export class TwoFactorAuthManager {
       className: 'text-red-500 font-light text-sm',
     });
 
-    const codeForm = DOMUtils.createElement('form', {
-      className: 'flex items-stretch justify-between mt-2 gap-4',
-      events: {
-        submit: evt => {
-          evt.preventDefault();
-          const formData = new FormData(evt.target as HTMLFormElement);
-          const body = Object.fromEntries(formData);
-          this.confirmTotp(body.token as string)
-            .then(() => {
-              this.fetchAccount();
-              closeDialog();
-              Toastify.success('2 factor authentication activated');
-            })
-            .catch(response => {
-              errorMessage.textContent = response;
-            });
-        },
-      },
-    });
+    const {form, getValue} = createOTPInput();
+    form.className = 'flex items-stretch w-fit justify-between mt-2';
+    form.onsubmit = evt => {
+      evt.preventDefault();
+      this.confirmTotp(getValue())
+        .then(() => {
+          this.fetchAccount();
+          closeDialog();
+          Toastify.success('2 factor authentication activated');
+        })
+        .catch(response => {
+          errorMessage.textContent = response;
+        });
+    };
 
-    const verificationCode = DOMUtils.createElement('input', {
-      className:
-        'border flex-1 border-pink-300/50 focus:outline-none focus:border-white px-2 py-1 rounded placeholder:font-light',
-      attributes: {
-        placeholder: '000 000',
-        name: 'token',
-      },
-    });
-
-    codeForm.appendChild(verificationCode);
-    codeForm.appendChild(
+    form.appendChild(
       DOMUtils.createElement('button', {
         className:
-          ' border border-pink-300 rounded px-4 hover:bg-pink-300/10 duration-200 cursor-pointer',
+          'ml-4 border border-pink-300 rounded px-4 hover:bg-pink-300/10 duration-200 cursor-pointer',
         textContent: 'Confirm',
         attributes: {
           type: 'submit',
@@ -238,7 +235,78 @@ export class TwoFactorAuthManager {
       }),
     );
 
-    dialogContent.appendChild(codeForm);
+    dialogContent.appendChild(form);
+    dialogContent.appendChild(errorMessage);
+  };
+
+  private renderDeactivate2FADialog = (
+    dialogContent: HTMLDivElement,
+    closeDialog: () => void,
+  ) => {
+    dialogContent.innerHTML = '';
+
+    dialogContent.appendChild(
+      DOMUtils.createElement('h1', {
+        className: 'text-3xl font-bold',
+        textContent: 'Deactivate Authenticator App',
+      }),
+    );
+
+    dialogContent.appendChild(
+      DOMUtils.createElement('p', {
+        className: 'w-100 font-light text-white/50 leading-tight mb-6',
+        textContent:
+          "Once disabled, you'll be able to sign in using only your username and password without any additional verification steps",
+      }),
+    );
+
+    dialogContent.appendChild(
+      DOMUtils.createElement('h2', {
+        className: 'text-xl font-bold',
+        textContent: 'Get verification Code',
+      }),
+    );
+    dialogContent.appendChild(
+      DOMUtils.createElement('h2', {
+        className: 'w-100 text-sm font-light text-white/80 leading-tight mb-6',
+        textContent:
+          'Enter the 6-digit code you see in your authenticator app.',
+      }),
+    );
+
+    const errorMessage = DOMUtils.createElement('p', {
+      className: 'font-light text-red-500 text-sm',
+    });
+
+    const {form, getValue} = createOTPInput();
+    form.className = 'flex justify-center items-stretch';
+    form.appendChild(
+      DOMUtils.createElement('button', {
+        className:
+          'px-4 border border-pink-300 ml-6 rounded hover:bg-pink-300/10 duration-200 cursor-pointer text-sm',
+        textContent: 'Confirm',
+        attributes: {
+          type: 'submit',
+        },
+      }),
+    );
+
+    form.onsubmit = evt => {
+      evt.preventDefault();
+      const value = getValue();
+      this.removeTotp(value)
+        .then(() => {
+          this.fetchAccount();
+          closeDialog();
+          Toastify.success('2 Factor Authentication deactivated');
+        })
+        .catch(response => {
+          errorMessage.textContent = response;
+        })
+        .finally(() => closeDialog());
+    };
+
+    dialogContent.appendChild(form);
     dialogContent.appendChild(errorMessage);
   };
 
@@ -270,6 +338,9 @@ export class TwoFactorAuthManager {
 
     container.appendChild(label);
 
+    totpDialog.className =
+      'p-10 bg-background text-white border border-white/50 rounded-xl';
+
     const renderToggle = (toggle: HTMLDivElement) => {
       const {user} = this.store.getState();
 
@@ -281,7 +352,9 @@ export class TwoFactorAuthManager {
 
         if (user && user?.totp) {
           // Deactivate
-          this.store.setState({user: {...user, totp: false}});
+          showDialog();
+          this.renderDeactivate2FADialog(totpDialog, closeDialog);
+          // Call backend
         } else {
           // Activate
           showDialog();

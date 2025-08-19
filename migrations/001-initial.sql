@@ -111,8 +111,8 @@ END;
 CREATE TABLE sessions(
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id       INTEGER,
-  ip            TEXT NOT NULL,
   user_agent    TEXT,
+
   access_token  TEXT NOT NULL,
   refresh_token TEXT,
 
