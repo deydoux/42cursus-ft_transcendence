@@ -6,7 +6,17 @@ const plugin: FastifyPluginAsync = async server => {
   server.get('/', async (request, reply) => {
     const {user} = request;
 
-    const chats = await server.db.all(SQL`
+    const general =
+      (await server.db.get(SQL`
+        SELECT content, created_at AS createdAt
+        FROM general_messages
+        ORDER BY id DESC
+        LIMIT 1
+      `)) || null;
+
+    if (general) general.createdAt = new Date(general.createdAt * 1000);
+
+    const directs = await server.db.all(SQL`
       SELECT r.id AS relationshipID,
              coalesce(dm.created_at, r.updated_at) AS updatedAt,
              u.id, username, last_seen AS lastSeen, has_avatar, avatar_version,
@@ -34,7 +44,7 @@ const plugin: FastifyPluginAsync = async server => {
       ORDER BY updatedAt DESC
     `);
 
-    chats.forEach(chat => {
+    directs.forEach(chat => {
       serializeUserAvatar(chat);
 
       chat.user = {
@@ -60,7 +70,7 @@ const plugin: FastifyPluginAsync = async server => {
     `)
     ).count;
 
-    return reply.send({friendRequests, chats});
+    return reply.send({friendRequests, general, directs});
   });
 };
 
