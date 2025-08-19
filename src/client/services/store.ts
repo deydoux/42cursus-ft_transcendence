@@ -16,6 +16,9 @@ export class Store {
     isWaitingForMatchmaking: false,
     chats: [],
     chatsSearchQuery: '',
+    chatView: 'friendRequests',
+    friendRequests: [],
+    sentFriendRequests: [],
   };
   private previousState: AppState = {...this.state};
 

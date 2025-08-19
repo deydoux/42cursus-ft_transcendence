@@ -49,7 +49,7 @@ export class Sessions {
   render(disconnectAllButton: HTMLButtonElement) {
     this.fetchSessions();
     const container = DOMUtils.createElement('div', {
-      className: 'flex flex-col gap-4 pt-4 max-h-60 overflow-y-auto',
+      className: 'flex flex-col gap-4 pt-4 max-h-50 overflow-y-auto',
     });
 
     disconnectAllButton.onclick = () => {
