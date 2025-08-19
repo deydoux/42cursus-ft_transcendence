@@ -22,7 +22,7 @@ type ClientTunnelMessage =
 
 type ServerTunnelMessage =
   | {
-      type: 'directMessage' | 'generalMessage';
+      type: 'directMessage';
       sender: unknown;
       content: string;
     }
@@ -34,6 +34,12 @@ type ServerTunnelMessage =
       type: 'friendRequest' | 'friendRequestAccepted';
       user: unknown;
       relationship?: number;
+    }
+  | {
+      type: 'generalMessage';
+      sender: unknown;
+      content: string;
+      mention: boolean;
     }
   | {type: 'hotReload'}
   | {

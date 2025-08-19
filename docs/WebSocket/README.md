@@ -165,7 +165,8 @@ Received when a general message is sent
     "username": "user123",
     "avatar": "/static/default_avatar.webp"
   },
-  "content": "Hello, World!"
+  "content": "Hello, World!",
+  "mention": false
 }
 ```
 

@@ -27,6 +27,28 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       VALUES(${user.id}, ${content})
     `);
 
+    const usernames =
+      content
+        .match(/(?<=@)[a-zA-Z0-9_]+/g)
+        ?.map(username => username.toLowerCase()) || [];
+
+    let mentionedIDs: number[] = [];
+    if (usernames.length > 0) {
+      const query = SQL`
+        SELECT id
+        FROM users
+        WHERE lower(username) IN (`;
+
+      for (const [index, username] of usernames.entries()) {
+        if (index !== 0) query.append(SQL`, `);
+        query.append(SQL`${username}`);
+      }
+
+      query.append(SQL`)`);
+
+      mentionedIDs = (await server.db.all(query)).map(row => row.id);
+    }
+
     const sender = await server.db.get(SQL`
       SELECT id, username, has_avatar, avatar_version
       FROM users
@@ -47,11 +69,20 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     ).map(row => row.id);
 
     ignoreIDs.push(user.id);
+    mentionedIDs = mentionedIDs.filter(id => !ignoreIDs.includes(id));
+    ignoreIDs.push(...mentionedIDs);
 
-    server.clients.broadcast(
-      {type: 'generalMessage', sender, content},
-      ignoreIDs,
-    );
+    const message = {
+      type: 'generalMessage' as const,
+      sender,
+      content,
+      mention: true,
+    };
+
+    for (const id of mentionedIDs) server.clients.sendUser(id, message);
+
+    message.mention = false;
+    server.clients.broadcast(message, ignoreIDs);
   });
 };
 
