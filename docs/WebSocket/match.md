@@ -48,9 +48,9 @@ sequenceDiagram
 
   else Mathy scores
     m ->> s: score
-    Note right of m: {scorer: 1}
+    Note right of m: {scorerID: 1}
     q ->> s: score
-    Note left of q: {scorer: 1}
+    Note left of q: {scorerID: 1}
 
     alt New round
       s ->> m: round
@@ -63,7 +63,7 @@ sequenceDiagram
 
   else Quentin cheats
     q ->> s: score
-    Note left of q: {scorer: 2}
+    Note left of q: {scorerID: 2}
     m --x s: *nothing sent*
     s -x m: matchCancel
     s -x q: matchCancel
