@@ -31,7 +31,7 @@ Sent to join the matchmaking queue
   "type": "joinMatchmaking",
   "game": "race",
   "mode": "casual",
-  "invite": 2
+  "inviterID": 2
 }
 ```
 
@@ -148,6 +148,22 @@ Received when a user accepts a friend request
     "avatar": "/static/default_avatar.webp"
   },
   "relationship": 1
+}
+```
+
+### `gameInvite`
+Received when a user invites another user to a game
+
+*Example:*
+```json
+{
+  "type": "gameInvite",
+  "game": "pong",
+  "user": {
+    "id": 1,
+    "username": "user123",
+    "avatar": "/static/default_avatar.webp"
+  }
 }
 ```
 
