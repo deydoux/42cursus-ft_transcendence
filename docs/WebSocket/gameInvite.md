@@ -7,14 +7,14 @@ sequenceDiagram
   actor q as Quentin (ID 2)
 
   m ->> s: joinMatchmaking
-  Note right of m: {game: 'pong', mode: 'casual', inviterID: 2}
+  Note right of m: {game: 'pong', mode: 'casual', targetID: 2}
   s -->> m: success
   Note left of s: {origin: 'joinMatchmaking'}
   s ->> q: gameInvite
   Note right of s: {game: 'pong', user: {id: 1, ...}}
 
   q ->> s: joinMatchmaking
-  Note left of q: {game: 'pong', mode: 'casual', inviterID: 1}
+  Note left of q: {game: 'pong', mode: 'casual', targetID: 1}
   s -->> q: success
   Note right of s: {origin: 'joinMatchmaking'}
 

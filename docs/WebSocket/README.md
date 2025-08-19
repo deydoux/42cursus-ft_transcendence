@@ -31,7 +31,7 @@ Sent to join the matchmaking queue
   "type": "joinMatchmaking",
   "game": "race",
   "mode": "casual",
-  "inviterID": 2
+  "targetID": 2
 }
 ```
 
