@@ -19,7 +19,7 @@ const SCORE_TIMEOUT = 1000;
 
 export default abstract class Match {
   private server;
-  private game;
+  private _game;
   private ranked;
 
   private score?: {
@@ -43,7 +43,7 @@ export default abstract class Match {
   ) {
     this.server = server;
     this.players = players;
-    this.game = game;
+    this._game = game;
     this.ranked = players.every(player => player.elo);
 
     this.lock = new Promise(resolve => {
@@ -78,8 +78,12 @@ export default abstract class Match {
         player.socket.off('message', onSocketMessage);
       });
 
-      server.game.players[player.userID] = opponent.userID;
+      server.game.players[player.userID] = this;
     });
+  }
+
+  get game() {
+    return this._game;
   }
 
   private cancel(cause?: string) {
@@ -102,7 +106,7 @@ export default abstract class Match {
     const {lastID: id} = await this.server.db.run(SQL`
       INSERT INTO matches(game, mode, winner_id, loser_id, winner_score,
                          loser_score, result, created_at)
-      VALUES(${this.game}, ${mode}, ${winner.userID}, ${loser.userID},
+      VALUES(${this._game}, ${mode}, ${winner.userID}, ${loser.userID},
             ${winner.score}, ${loser.score}, ${this.result}, ${this.createdAt})
     `);
     if (!id) throw new Error('Failed to create match');
@@ -127,8 +131,8 @@ export default abstract class Match {
 
     await this.server.db.run(SQL`
       INSERT INTO elo(game, user_id, value)
-      VALUES(${this.game}, ${winner.userID}, ${winner.elo + change}),
-            (${this.game}, ${loser.userID}, ${loser.elo - change})
+      VALUES(${this._game}, ${winner.userID}, ${winner.elo + change}),
+            (${this._game}, ${loser.userID}, ${loser.elo - change})
     `);
 
     await this.server.db.run(SQL`
@@ -256,7 +260,7 @@ export default abstract class Match {
   public async start() {
     this.send({
       type: 'matchStart',
-      game: this.game,
+      game: this._game,
       ranked: this.ranked,
       players: this.players.map(player => ({
         id: player.userID,

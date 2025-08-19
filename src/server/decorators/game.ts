@@ -6,10 +6,12 @@ const plugin: FastifyPluginAsync = async server => {
     queues: {
       pong: {
         casual: null,
+        invites: [],
         ranked: [],
       },
       race: {
         casual: null,
+        invites: [],
         ranked: [],
       },
     },
