@@ -36,9 +36,18 @@ const plugin: FastifyPluginAsync = async server => {
 
     chats.forEach(chat => {
       serializeUserAvatar(chat);
+
+      chat.user = {
+        id: chat.id,
+        username: chat.username,
+        avatar: chat.avatar,
+        lastSeen: new Date(chat.lastSeen * 1000),
+      };
+
+      chat.user.status = server.getUserStatus(chat.user.id);
+      chat.user.invite = server.getUserInvite(user.id, chat.user.id);
+
       chat.updatedAt = new Date(chat.updatedAt * 1000);
-      chat.lastSeen = new Date(chat.lastSeen * 1000);
-      chat.online = server.clients.isUserOnline(chat.id);
     });
 
     const friendRequests = (

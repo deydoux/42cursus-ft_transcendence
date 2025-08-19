@@ -33,6 +33,8 @@ declare module 'fastify' {
         race: Queue;
       };
     };
+    getUserInvite: (user: number, other: number) => string | null;
+    getUserStatus: (id: number) => string | null;
     leaveMatchmaking: (socket: WebSocket) => void;
     paths: {
       avatars: string;
