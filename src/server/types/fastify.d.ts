@@ -1,6 +1,7 @@
 import {Client} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {Database} from 'sqlite';
+import Match from '#lib/Match';
 import {SharpInput} from 'sharp';
 import {WebSocket} from '@fastify/websocket';
 
@@ -27,7 +28,7 @@ declare module 'fastify' {
     db: Database;
     dev: boolean;
     game: {
-      players: Record<number, number>;
+      players: Record<number, Match>;
       queues: {
         pong: Queue;
         race: Queue;

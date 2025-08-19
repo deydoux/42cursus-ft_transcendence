@@ -54,15 +54,15 @@ export default async function joinMatchmaking(
 
   switch (message.mode) {
     case 'casual': {
-      if (message.inviterID) {
+      if (message.targetID) {
         const inviter = game.queues[message.game].invites.find(
-          invite => invite.client.userID === message.inviterID,
+          invite => invite.client.userID === message.targetID,
         );
 
         if (!inviter) {
           queue.invites.push({
             client,
-            other: message.inviterID,
+            other: message.targetID,
           });
 
           const relationship = await server.db.get(SQL`
@@ -70,8 +70,8 @@ export default async function joinMatchmaking(
             FROM relationships
             WHERE type = 'friend' AND (
                   (user_id = ${client.userID}
-                    AND other_id = ${message.inviterID})
-                  OR (user_id = ${message.inviterID}
+                    AND other_id = ${message.targetID})
+                  OR (user_id = ${message.targetID}
                        AND other_id = ${client.userID})
             )
           `);
@@ -84,7 +84,7 @@ export default async function joinMatchmaking(
             `);
             serializeUserAvatar(user);
 
-            server.clients.sendUser(message.inviterID, {
+            server.clients.sendUser(message.targetID, {
               type: 'gameInvite',
               game: message.game,
               user,

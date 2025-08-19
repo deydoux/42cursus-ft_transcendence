@@ -44,8 +44,10 @@ const plugin: FastifyPluginAsync = async server => {
         lastSeen: new Date(chat.lastSeen * 1000),
       };
 
+      ['id', 'username', 'avatar', 'lastSeen'].forEach(key => delete chat[key]);
+
       chat.user.status = server.getUserStatus(chat.user.id);
-      chat.user.invite = server.getUserInvite(user.id, chat.user.id);
+      chat.invite = server.getUserInvite(user.id, chat.user.id);
 
       chat.updatedAt = new Date(chat.updatedAt * 1000);
     });

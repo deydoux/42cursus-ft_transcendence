@@ -11,7 +11,7 @@ type ClientTunnelMessage =
       type: 'joinMatchmaking';
       game: string;
       mode: string;
-      inviterID?: number;
+      targetID?: number;
     }
   | {
       type: 'leaveMatchmaking';

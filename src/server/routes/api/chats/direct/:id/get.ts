@@ -32,7 +32,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     serializeUserAvatar(other);
     other.lastSeen = new Date(other.lastSeen * 1000);
-    other.online = server.clients.isUserOnline(other.id);
+    other.status = server.getUserStatus(other.id);
 
     const relationship = await server.db.get(SQL`
       SELECT type
