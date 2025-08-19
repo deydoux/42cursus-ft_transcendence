@@ -41,7 +41,15 @@ const plugin: FastifyPluginAsync = async server => {
       chat.online = server.clients.isUserOnline(chat.id);
     });
 
-    return reply.send(chats);
+    const friendRequests = (
+      await server.db.get(SQL`
+      SELECT count(*) as count
+      FROM relationships
+      WHERE type = 'pending' AND other_id = ${user.id}
+    `)
+    ).count;
+
+    return reply.send({friendRequests, chats});
   });
 };
 
