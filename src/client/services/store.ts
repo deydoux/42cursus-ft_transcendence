@@ -16,7 +16,7 @@ export class Store {
     isWaitingForMatchmaking: false,
     chats: [],
     chatsSearchQuery: '',
-    chatView: 'friendRequests',
+    chatView: {label: 'chatsList'},
     friendRequests: [],
     sentFriendRequests: [],
   };

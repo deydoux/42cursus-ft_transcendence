@@ -1,28 +1,9 @@
-import {getRelativeTime, getTimeElapsed} from '../utils/string';
+import {getRelativeTime, getTimeElapsed, truncateString} from '../utils/string';
 import {BaseComponent} from '../components/BaseComponent';
 import {DOMUtils} from '../utils/dom';
 import {Toastify} from '../utils/toastify';
 import {api} from '../utils/Api';
 import {loadIcons} from '../utils/icons';
-
-// const messageInput = DOMUtils.createElement('div', {
-//   className: 'h-10 relative flex items-center',
-// });
-// messageInput.appendChild(
-//   DOMUtils.createElement('input', {
-//     className:
-//       'border border-pink-300 h-full w-full focus:outline-none focus:border-white rounded-lg px-3 pr-10 bg-pink-300/10',
-//   }),
-// );
-// messageInput.appendChild(
-//   DOMUtils.createElement('i', {
-//     className:
-//       'h-5 w-5 cursor-pointer absolute right-2 -rotate-40 text-pink-300 mb-1 animate-wiggle',
-//     attributes: {
-//       icon: 'paperAirplane',
-//     },
-//   }),
-// );
 
 export class Chat extends BaseComponent {
   private async fetchChats() {
@@ -76,7 +57,11 @@ export class Chat extends BaseComponent {
     }
   }
 
-  private async acceptFriendRequest(username: string, relationshipID: number) {
+  private async acceptFriendRequest(
+    username: string,
+    userID: number,
+    relationshipID: number,
+  ) {
     try {
       const response = await api.patch(`relationships/${relationshipID}`, {});
 
@@ -85,13 +70,18 @@ export class Chat extends BaseComponent {
         throw new Error(errorData.message);
       }
 
-      // TODO: redirect to user message view
       const {friendRequests} = this.store.getState();
 
       const filteredRequests = friendRequests.filter(request => {
         return request.username !== username;
       });
-      this.store.setState({friendRequests: filteredRequests});
+      this.store.setState({
+        friendRequests: filteredRequests,
+        chatView: {
+          id: userID,
+          label: username,
+        },
+      });
       Toastify.success(`You can now chat with ${username}!`);
     } catch (error) {
       Toastify.error('An error occured while accepting friend request');
@@ -124,6 +114,71 @@ export class Chat extends BaseComponent {
     }
   }
 
+  private async fetchDiscussion(username: string, userID: number) {
+    try {
+      const response = await api.get(`chats/direct/${userID}`);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message);
+      }
+
+      const data = await response.json();
+      this.store.setState({discussion: data});
+    } catch (error) {
+      Toastify.error('An error occured while accepting friend request');
+      console.error(error);
+    }
+  }
+
+  private async sendPrivateMessage(
+    toUserID: number,
+    fromUserID: number,
+    message: string,
+  ) {
+    try {
+      const response = await api.post(`chats/direct/${toUserID}`, {
+        content: message,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message);
+      }
+
+      const {discussion} = this.store.getState();
+      if (!discussion) return;
+
+      const newMessages = [
+        {
+          id: (discussion.messages[0]?.id ?? 0) + 1,
+          senderID: fromUserID,
+          content: message,
+          createdAt: new Date().toISOString(),
+        },
+        ...discussion.messages,
+      ];
+      this.store.setState({discussion: {...discussion, messages: newMessages}});
+    } catch (error) {
+      Toastify.error('An error occured while sending a message');
+      console.error(error);
+    }
+  }
+
+  static async markMessagesAsRead(userID: number) {
+    try {
+      const response = await api.patch(`chats/direct/${userID}`, {});
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message);
+      }
+    } catch (error) {
+      Toastify.error('An error occured while smarking messages as read');
+      console.error(error);
+    }
+  }
+
   private renderChatsList() {
     this.fetchChats();
     const container = DOMUtils.createElement('div');
@@ -137,6 +192,7 @@ export class Chat extends BaseComponent {
           'peer border border-pink-300/50 w-full py-2 px-4 pl-10 rounded-md focus:outline-none focus:border-white placeholder:font-light',
         attributes: {
           placeholder: 'Search user',
+          value: this.store.getState().chatsSearchQuery,
         },
         events: {
           input: evt => {
@@ -171,7 +227,8 @@ export class Chat extends BaseComponent {
         className: 'text-white/50 cursor-pointer hover:text-pink-300',
         textContent: 'Friend requests',
         events: {
-          click: () => this.store.setState({chatView: 'friendRequests'}),
+          click: () =>
+            this.store.setState({chatView: {label: 'friendRequests'}}),
         },
       }),
     );
@@ -186,6 +243,7 @@ export class Chat extends BaseComponent {
 
       const filteredChats = [
         {
+          id: 0,
           username: 'General',
           relationshipID: 0,
           updatedAt: '',
@@ -216,6 +274,12 @@ export class Chat extends BaseComponent {
         const line = DOMUtils.createElement('div', {
           className:
             'flex items-center justify-between hover:bg-white/5 py-2 px-6 cursor-pointer',
+          events: {
+            click: () =>
+              this.store.setState({
+                chatView: {label: chat.username, id: chat.id},
+              }),
+          },
         });
         const leftContent = DOMUtils.createElement('div', {
           className: 'flex items-center justify-start gap-4',
@@ -249,9 +313,9 @@ export class Chat extends BaseComponent {
         );
         text.appendChild(
           DOMUtils.createElement('p', {
-            className: `text-sm ${chat.content ? (chat.unread ? 'text-white font-bold' : 'text-white/60') : 'text-white/40 italic'}`,
+            className: `text-sm text-nowrap overflow-x-hidden ${chat.content ? (chat.unread ? 'text-white font-bold' : 'text-white/60') : 'text-white/40 italic'}`,
             textContent: chat.content
-              ? `${chat.content} • ${getTimeElapsed(chat.updatedAt)}`
+              ? `${truncateString(chat.content, 35)} • ${getTimeElapsed(chat.updatedAt)}`
               : 'Aucun message',
           }),
         );
@@ -297,7 +361,11 @@ export class Chat extends BaseComponent {
         'border border-pink-300 rounded-full w-6 h-6 p-1 flex items-center justify-center cursor-pointer',
       events: {
         click: () => {
-          this.store.setState({chatView: 'chatsList'});
+          this.store.setState({
+            chatView: {
+              label: 'chatsList',
+            },
+          });
         },
       },
     });
@@ -322,7 +390,7 @@ export class Chat extends BaseComponent {
 
     container.appendChild(
       DOMUtils.createElement('p', {
-        className: 'px-6 font-bold',
+        className: 'mt-4 px-6 font-bold',
         textContent: 'Received requests',
       }),
     );
@@ -386,6 +454,7 @@ export class Chat extends BaseComponent {
             click: () => {
               this.acceptFriendRequest(
                 request.username,
+                request.id,
                 request.relationshipID,
               );
             },
@@ -448,7 +517,7 @@ export class Chat extends BaseComponent {
       const {sentFriendRequests} = this.store.getState();
 
       if (sentFriendRequests.length === 0) {
-        container.appendChild(
+        sentList.appendChild(
           DOMUtils.createElement('p', {
             className: 'pt-2 px-6 italic text-white/50',
             textContent: 'No friend requests sent',
@@ -520,6 +589,204 @@ export class Chat extends BaseComponent {
     return container;
   }
 
+  private renderPrivateDiscussion(username: string, userID: number) {
+    this.fetchDiscussion(username, userID);
+    const {user} = this.store.getState();
+
+    const container = DOMUtils.createElement('div', {
+      className: 'flex flex-col h-full',
+    });
+
+    const header = DOMUtils.createElement('div', {
+      className:
+        'flex items-center justify-between px-6 py-4 border-b border-pink-300/50 flex-none',
+    });
+    const leftContent = DOMUtils.createElement('div', {
+      className: 'flex items-center gap-4',
+    });
+
+    const backButton = DOMUtils.createElement('button', {
+      className: 'cursor-pointer group',
+      events: {
+        click: () => this.store.setState({chatView: {label: 'chatsList'}}),
+      },
+    });
+    backButton.appendChild(
+      DOMUtils.createElement('i', {
+        className: 'w-5 group-hover:text-pink-300',
+        attributes: {
+          icon: 'leftArrow',
+        },
+      }),
+    );
+    leftContent.appendChild(backButton);
+    const userInfos = DOMUtils.createElement('div', {
+      className: 'flex items-center gap-4',
+    });
+
+    const renderUserInformations = () => {
+      userInfos.innerHTML = '';
+      const {discussion} = this.store.getState();
+      if (!discussion) return;
+
+      userInfos.appendChild(
+        DOMUtils.createElement('img', {
+          className: 'h-9 rounded-full',
+          attributes: {
+            src: discussion.user.avatar,
+          },
+        }),
+      );
+
+      const text = DOMUtils.createElement('div');
+      text.appendChild(
+        DOMUtils.createElement('p', {
+          className: 'font-bold',
+          textContent: discussion.user.username,
+        }),
+      );
+      text.appendChild(
+        DOMUtils.createElement('p', {
+          className: 'text-sm text-white/50',
+          textContent: discussion.user.online
+            ? 'Connected'
+            : `Offline • last seen ${getRelativeTime(discussion.user.lastSeen)}`,
+        }),
+      );
+
+      userInfos.appendChild(text);
+      leftContent.appendChild(userInfos);
+    };
+
+    this.store.subscribeToPath('discussion.user', renderUserInformations);
+    header.appendChild(leftContent);
+
+    header.appendChild(
+      DOMUtils.createElement('i', {
+        className:
+          'w-10 h-10 hover:text-pink-300 hover:bg-pink-300/10 rounded-full cursor-pointer p-2 duration-100',
+        attributes: {
+          icon: 'pingpong',
+        },
+      }),
+    );
+
+    container.appendChild(header);
+
+    const messages = DOMUtils.createElement('div', {
+      className: 'flex flex-col-reverse gap-2 overflow-y-auto flex-1 px-6 pt-6',
+    });
+    const renderMessages = () => {
+      messages.innerHTML = '';
+      const {discussion} = this.store.getState();
+      if (!discussion) return;
+
+      if (discussion.messages.length === 0) {
+        const noChat = DOMUtils.createElement('div', {
+          className:
+            'flex flex-1 flex-col justify-center items-center text-center text-white/30',
+        });
+        noChat.appendChild(
+          DOMUtils.createElement('i', {
+            className: 'w-30 h-30',
+            attributes: {
+              icon: 'chats',
+            },
+          }),
+        );
+        noChat.appendChild(
+          DOMUtils.createElement('p', {
+            className: 'max-w-70 font-light mt-4',
+            textContent: `Send a first message to start the discussion with ${discussion.user.username}`,
+          }),
+        );
+
+        messages.appendChild(noChat);
+        loadIcons();
+        return;
+      }
+
+      discussion.messages.forEach(message => {
+        const received = message.senderID === discussion.user.id;
+
+        const messageWrapper = DOMUtils.createElement('div', {
+          className: 'flex group items-center gap-4',
+        });
+
+        const messageContainer = DOMUtils.createElement('div', {
+          className: `peer px-4 py-2 rounded-md ${received ? 'border border-pink-300 rounded-tl-none hover:translate-x-1' : 'bg-pink-300 rounded-tr-none hover:-translate-x-1 text-background'} duration-100 leading-tight overflow-x-auto`,
+          textContent: message.content,
+        });
+        const blankSpace = DOMUtils.createElement('div', {
+          className: `flex-1 min-w-12 opacity-0 group-hover:opacity-100 text-sm text-white/50 ${received ? 'text-left' : 'text-right'}`,
+          textContent: getTimeElapsed(message.createdAt),
+        });
+
+        if (received) {
+          messageWrapper.appendChild(messageContainer);
+          messageWrapper.appendChild(blankSpace);
+        } else {
+          messageWrapper.appendChild(blankSpace);
+          messageWrapper.appendChild(messageContainer);
+        }
+
+        messages.appendChild(messageWrapper);
+      });
+    };
+
+    this.store.subscribeToPath('discussion.messages', renderMessages);
+    container.appendChild(messages);
+
+    const input = DOMUtils.createElement('input', {
+      className:
+        'border border-pink-300 h-full w-full focus:outline-none focus:border-white rounded-lg px-3 pr-10 bg-pink-300/10 placeholder:text-pink-300/50',
+      attributes: {
+        name: 'message',
+        maxLength: '1024',
+        placeholder: 'Message...',
+      },
+    });
+
+    const messageInput = DOMUtils.createElement('form', {
+      className: 'h-10 mx-6 my-6 flex-none relative flex items-center',
+    });
+    messageInput.onsubmit = async evt => {
+      evt.preventDefault();
+
+      const formData = new FormData(evt.target as HTMLFormElement);
+      const message = formData.get('message')?.toString() ?? '';
+      await this.sendPrivateMessage(userID, user?.id ?? 0, message);
+      input.value = '';
+      messages.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'start',
+      });
+    };
+
+    messageInput.appendChild(input);
+    const sendButton = DOMUtils.createElement('button', {
+      className:
+        'h-5 w-5 cursor-pointer absolute right-2 -rotate-40 text-pink-300 mb-1 animate-wiggle',
+      attributes: {
+        type: 'submit',
+      },
+    });
+    sendButton.appendChild(
+      DOMUtils.createElement('i', {
+        className: 'h-5 w-5',
+        attributes: {
+          icon: 'paperAirplane',
+        },
+      }),
+    );
+
+    messageInput.appendChild(sendButton);
+    container.appendChild(messageInput);
+
+    return container;
+  }
+
   render(): HTMLElement | undefined {
     const container = DOMUtils.createElement('div', {
       className:
@@ -531,7 +798,7 @@ export class Chat extends BaseComponent {
       const {chatView} = this.store.getState();
       let view: HTMLDivElement;
 
-      switch (chatView) {
+      switch (chatView.label) {
         case 'friendRequests':
           view = this.renderFriendRequests();
           break;
@@ -539,7 +806,9 @@ export class Chat extends BaseComponent {
           view = this.renderChatsList();
           break;
         default:
-          view = this.renderFriendRequests();
+          if (chatView.id) {
+            view = this.renderPrivateDiscussion(chatView.label, chatView.id);
+          } else view = DOMUtils.createElement('div');
       }
 
       container.appendChild(view);
@@ -547,6 +816,7 @@ export class Chat extends BaseComponent {
 
     renderView();
     this.store.subscribeToPath('chatView', renderView);
+    this.store.subscribe(loadIcons);
     return container;
   }
 }

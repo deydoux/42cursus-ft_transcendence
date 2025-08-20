@@ -1,3 +1,4 @@
+import {Chat} from '../containers/Chat';
 import {Store} from '../services/store';
 import {Toastify} from '../utils/toastify';
 import {socket} from '../utils/websocket';
@@ -12,21 +13,47 @@ const handleDirectMessage = (data: {
 }) => {
   const store = Store.getInstance();
 
-  const {chats} = store.getState();
-  store.setState({
-    chats: chats.map(chat => {
-      if (chat.username !== data.sender.username) {
-        return chat;
-      }
+  const {chats, chatView, discussion} = store.getState();
+  if (chatView.id === data.sender.id && discussion) {
+    // In a private discussion
+    store.setState({
+      discussion: {
+        ...discussion,
+        user: {
+          ...discussion.user,
+          online: true,
+        },
+        messages: [
+          {
+            id: 0,
+            senderID: data.sender.id,
+            content: data.content,
+            createdAt: new Date().toISOString(),
+          },
+          ...discussion.messages,
+        ],
+      },
+    });
 
-      return {
-        ...chat,
-        content: data.content,
-        updatedAt: new Date().toISOString(),
-      };
-    }),
-  });
-  Toastify.success('You received a message');
+    Chat.markMessagesAsRead(data.sender.id);
+  } else {
+    // In the chats list
+    store.setState({
+      chats: chats.map(chat => {
+        if (chat.username !== data.sender.username) {
+          return chat;
+        }
+
+        return {
+          ...chat,
+          content: data.content,
+          updatedAt: new Date().toISOString(),
+        };
+      }),
+    });
+
+    Toastify.success('You received a message');
+  }
 };
 
 const handleFriendRequest = (data: {

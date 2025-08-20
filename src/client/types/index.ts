@@ -14,9 +14,13 @@ export interface AppState {
     avatar: string;
   };
 
-  chatView: string;
+  chatView: {
+    label: string;
+    id?: number;
+  };
   chats: {
     relationshipID: number;
+    id: number;
     username: string;
     avatar: string;
     online: boolean;
@@ -26,6 +30,22 @@ export interface AppState {
     unread: number;
   }[];
   chatsSearchQuery: string;
+  discussion?: {
+    user: {
+      id: number;
+      username: string;
+      lastSeen: string;
+      avatar: string;
+      online: boolean;
+    };
+    messages: {
+      id: number;
+      senderID: number;
+      content: string;
+      createdAt: string;
+    }[];
+    next: string;
+  };
 
   friendRequests: {
     relationshipID: number;
