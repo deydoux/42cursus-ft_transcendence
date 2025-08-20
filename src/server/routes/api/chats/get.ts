@@ -6,20 +6,51 @@ const plugin: FastifyPluginAsync = async server => {
   server.get('/', async (request, reply) => {
     const {user} = request;
 
-    const general =
-      (await server.db.get(SQL`
-        SELECT content, created_at AS createdAt
-        FROM general_messages
-        ORDER BY id DESC
-        LIMIT 1
-      `)) || null;
+    const friendRequests = (
+      await server.db.get(SQL`
+      SELECT count(*) as count
+      FROM relationships
+      WHERE type = 'pending' AND other_id = ${user.id}
+    `)
+    ).count;
 
-    if (general) general.createdAt = new Date(general.createdAt * 1000);
+    let general = await server.db.get(SQL`
+      SELECT content, created_at AS createdAt,
+             u.id, username, has_avatar, avatar_version
+      FROM general_messages gm
+      JOIN users u
+      ON u.id = gm.user_id
+      WHERE user_id = ${user.id} OR NOT EXISTS (
+              SELECT NULL
+              FROM relationships r
+              WHERE type = 'block' AND (
+                      (r.user_id = ${user.id} AND r.other_id = gm.user_id)
+                      OR (r.user_id = gm.user_id AND r.other_id = ${user.id})
+                    )
+            )
+      ORDER BY gm.id DESC
+      LIMIT 1
+    `);
+
+    if (!general) general = null;
+    else {
+      serializeUserAvatar(general);
+
+      general.user = {
+        id: general.id,
+        username: general.username,
+        avatar: general.avatar,
+      };
+
+      ['id', 'username', 'avatar'].forEach(key => delete general[key]);
+
+      general.createdAt = new Date(general.createdAt * 1000);
+    }
 
     const directs = await server.db.all(SQL`
       SELECT r.id AS relationshipID,
              coalesce(dm.created_at, r.updated_at) AS updatedAt,
-             u.id, username, last_seen AS lastSeen, has_avatar, avatar_version,
+             u.id, username, last_seen, has_avatar, avatar_version,
              content, (
                SELECT count(*)
                FROM direct_messages
@@ -51,24 +82,18 @@ const plugin: FastifyPluginAsync = async server => {
         id: chat.id,
         username: chat.username,
         avatar: chat.avatar,
-        lastSeen: new Date(chat.lastSeen * 1000),
+        lastSeen: new Date(chat.last_seen * 1000),
       };
 
-      ['id', 'username', 'avatar', 'lastSeen'].forEach(key => delete chat[key]);
+      ['id', 'username', 'avatar', 'last_seen'].forEach(
+        key => delete chat[key],
+      );
 
       chat.user.status = server.getUserStatus(chat.user.id);
       chat.invite = server.getUserInvite(user.id, chat.user.id);
 
       chat.updatedAt = new Date(chat.updatedAt * 1000);
     });
-
-    const friendRequests = (
-      await server.db.get(SQL`
-      SELECT count(*) as count
-      FROM relationships
-      WHERE type = 'pending' AND other_id = ${user.id}
-    `)
-    ).count;
 
     return reply.send({friendRequests, general, directs});
   });
