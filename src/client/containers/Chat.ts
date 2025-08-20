@@ -131,11 +131,7 @@ export class Chat extends BaseComponent {
     }
   }
 
-  private async sendPrivateMessage(
-    toUserID: number,
-    fromUserID: number,
-    message: string,
-  ) {
+  private async sendPrivateMessage(toUserID: number, message: string) {
     try {
       const response = await api.post(`chats/direct/${toUserID}`, {
         content: message,
@@ -152,7 +148,7 @@ export class Chat extends BaseComponent {
       const newMessages = [
         {
           id: (discussion.messages[0]?.id ?? 0) + 1,
-          senderID: fromUserID,
+          senderID: 0,
           content: message,
           createdAt: new Date().toISOString(),
         },
@@ -591,7 +587,6 @@ export class Chat extends BaseComponent {
 
   private renderPrivateDiscussion(username: string, userID: number) {
     this.fetchDiscussion(username, userID);
-    const {user} = this.store.getState();
 
     const container = DOMUtils.createElement('div', {
       className: 'flex flex-col h-full',
@@ -755,7 +750,10 @@ export class Chat extends BaseComponent {
 
       const formData = new FormData(evt.target as HTMLFormElement);
       const message = formData.get('message')?.toString() ?? '';
-      await this.sendPrivateMessage(userID, user?.id ?? 0, message);
+      const {user} = this.store.getState();
+
+      console.log('user', user);
+      await this.sendPrivateMessage(userID, message);
       input.value = '';
       messages.scrollIntoView({
         behavior: 'smooth',
