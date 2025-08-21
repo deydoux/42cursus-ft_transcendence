@@ -3,17 +3,6 @@ This WebSocket API handles real-time communication and time-sensitive events. To
 
 ## Client Messages
 
-### `gameMessage`
-Sent to send a message in a game match
-
-*Example:*
-```json
-{
-  "type": "gameMessage",
-  "content": "Good luck!"
-}
-```
-
 ### `joinMatchmaking`
 Sent to join the matchmaking queue
 
@@ -164,17 +153,6 @@ Received when a user invites another user to a game
     "username": "user123",
     "avatar": "/static/default_avatar.webp"
   }
-}
-```
-
-### `gameMessage`
-Received when a game message is sent in a match
-
-*Example:*
-```jsonc
-{
-  "type": "gameMessage",
-  "content": "Good luck!"
 }
 ```
 

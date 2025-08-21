@@ -34,11 +34,6 @@ sequenceDiagram
     s ->> q: move
     q ->> s: move
     s ->> m: move
-
-    m ->> s: gameMessage
-    s ->> q: gameMessage
-    q ->> s: gameMessage
-    s ->> m: gameMessage
   end
 
   alt Quentin disconnects

@@ -172,7 +172,6 @@ export default abstract class Match {
   ) {
     switch (message?.type) {
       case 'move':
-      case 'gameMessage':
         this.sendSocket(opponent.socket, message as ServerTunnelMessage);
         break;
       case 'score':
