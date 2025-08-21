@@ -1,0 +1,15 @@
+meta {
+  name: Block by ID
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseURL}}/api/relationships/block/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 2
+}
