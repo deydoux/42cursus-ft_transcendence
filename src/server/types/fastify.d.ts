@@ -1,6 +1,7 @@
 import {Client} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {Database} from 'sqlite';
+import Match from '#lib/Match';
 import {SharpInput} from 'sharp';
 import {WebSocket} from '@fastify/websocket';
 
@@ -13,6 +14,7 @@ interface RankedClient extends Client {
 
 interface Queue {
   casual: Client | null;
+  invites: {client: Client; other: number}[];
   ranked: RankedClient[];
 }
 
@@ -26,12 +28,14 @@ declare module 'fastify' {
     db: Database;
     dev: boolean;
     game: {
-      players: Record<number, number>;
+      players: Record<number, Match>;
       queues: {
         pong: Queue;
         race: Queue;
       };
     };
+    getUserInvite: (user: number, other: number) => string | null;
+    getUserStatus: (id: number) => string | null;
     leaveMatchmaking: (socket: WebSocket) => void;
     paths: {
       avatars: string;

@@ -7,6 +7,7 @@ import {RankedClient} from '#types/fastify';
 import SQL from 'sql-template-strings';
 import {kFactor} from '#lib/Match';
 import {randomInt} from 'node:crypto';
+import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 export default async function joinMatchmaking(
   server: FastifyInstance,
@@ -38,6 +39,7 @@ export default async function joinMatchmaking(
   for (const queue of Object.values(game.queues)) {
     if (
       queue.casual?.userID === client.userID ||
+      queue.invites.some(invite => invite.client.userID === client.userID) ||
       queue.ranked.some(rankedClient => rankedClient.userID === client.userID)
     )
       return client.socket.send(
@@ -52,6 +54,52 @@ export default async function joinMatchmaking(
 
   switch (message.mode) {
     case 'casual': {
+      if (message.targetID) {
+        const inviter = game.queues[message.game].invites.find(
+          invite => invite.client.userID === message.targetID,
+        );
+
+        if (!inviter) {
+          queue.invites.push({
+            client,
+            other: message.targetID,
+          });
+
+          const relationship = await server.db.get(SQL`
+            SELECT NULL
+            FROM relationships
+            WHERE type = 'friend' AND (
+                  (user_id = ${client.userID}
+                    AND other_id = ${message.targetID})
+                  OR (user_id = ${message.targetID}
+                       AND other_id = ${client.userID})
+            )
+          `);
+
+          if (relationship) {
+            const user = await server.db.get(SQL`
+              SELECT id, username, has_avatar, avatar_version
+              FROM users
+              WHERE id = ${client.userID}
+            `);
+            serializeUserAvatar(user);
+
+            server.clients.sendUser(message.targetID, {
+              type: 'gameInvite',
+              game: message.game,
+              user,
+            });
+          }
+
+          break;
+        }
+
+        server.leaveMatchmaking(inviter.client.socket);
+        match = new MatchConstructor(server, [inviter.client, client]);
+
+        break;
+      }
+
       const queued = game.queues[message.game].casual;
       if (!queued) {
         game.queues[message.game].casual = client;
@@ -60,7 +108,7 @@ export default async function joinMatchmaking(
 
       game.queues[message.game].casual = null;
 
-      match = new MatchConstructor(server, [client, queued]);
+      match = new MatchConstructor(server, [queued, client]);
       break;
     }
     case 'ranked': {
@@ -97,7 +145,7 @@ export default async function joinMatchmaking(
 
           server.leaveMatchmaking(rankedClient.socket);
           server.leaveMatchmaking(queued.socket);
-          match = new MatchConstructor(server, [rankedClient, queued]);
+          match = new MatchConstructor(server, [queued, rankedClient]);
 
           try {
             await match.init();

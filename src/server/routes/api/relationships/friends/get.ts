@@ -21,7 +21,7 @@ const plugin: FastifyPluginAsync = async server => {
     friends.forEach(friend => {
       serializeUserAvatar(friend);
       friend.lastSeen = new Date(friend.lastSeen * 1000);
-      friend.online = server.clients.isUserOnline(friend.id);
+      friend.status = server.getUserStatus(friend.id);
     });
 
     return reply.send(friends);

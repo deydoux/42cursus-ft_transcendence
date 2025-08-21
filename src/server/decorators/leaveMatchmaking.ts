@@ -10,6 +10,10 @@ const plugin: FastifyPluginAsync = async server => {
       return;
     }
 
+    queue.invites = queue.invites.filter(
+      invite => invite.client.socket !== socket,
+    );
+
     queue.ranked = queue.ranked.filter(client => {
       if (client.socket !== socket) return true;
 

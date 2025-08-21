@@ -17,12 +17,21 @@ Sent to send a message in a game match
 ### `joinMatchmaking`
 Sent to join the matchmaking queue
 
-*Example:*
+*Examples:*
 ```json
 {
   "type": "joinMatchmaking",
   "game": "pong",
-  "mode": "casual"
+  "mode": "ranked"
+}
+```
+
+```json
+{
+  "type": "joinMatchmaking",
+  "game": "race",
+  "mode": "casual",
+  "targetID": 2
 }
 ```
 
@@ -142,6 +151,22 @@ Received when a user accepts a friend request
 }
 ```
 
+### `gameInvite`
+Received when a user invites another user to a game
+
+*Example:*
+```json
+{
+  "type": "gameInvite",
+  "game": "pong",
+  "user": {
+    "id": 1,
+    "username": "user123",
+    "avatar": "/static/default_avatar.webp"
+  }
+}
+```
+
 ### `gameMessage`
 Received when a game message is sent in a match
 
@@ -165,7 +190,8 @@ Received when a general message is sent
     "username": "user123",
     "avatar": "/static/default_avatar.webp"
   },
-  "content": "Hello, World!"
+  "content": "Hello, World!",
+  "mention": false
 }
 ```
 

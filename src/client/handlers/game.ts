@@ -1,4 +1,3 @@
-import {Lobby} from '../containers/Lobby';
 import {Router} from '../services/router';
 import {Store} from '../services/store';
 import {Toastify} from '../utils/toastify';
@@ -6,17 +5,27 @@ import {socket} from '../utils/websocket';
 
 const handleMatchStart = (data: {
   game: string;
-  opponent: {username: string};
+  ranked: boolean;
+  players: [
+    {
+      id: number;
+      username: string;
+      avatar: string;
+      elo: number;
+    },
+    {
+      id: number;
+      username: string;
+      avatar: string;
+      elo: number;
+    },
+  ];
 }) => {
   const router = Router.getInstance();
   const store = Store.getInstance();
 
-  Lobby.renderFoundOpponent(data.opponent);
-
-  setTimeout(() => {
-    store.setState({isWaitingForMatchmaking: false});
-    router.navigate(`/${data.game}`);
-  }, 3000);
+  store.setState({isWaitingForMatchmaking: false});
+  router.navigate(`/${data.game}`);
 };
 
 const handleSuccess = (data: {origin: string}) => {

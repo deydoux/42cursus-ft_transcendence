@@ -11,6 +11,7 @@ type ClientTunnelMessage =
       type: 'joinMatchmaking';
       game: string;
       mode: string;
+      targetID?: number;
     }
   | {
       type: 'leaveMatchmaking';
@@ -22,7 +23,7 @@ type ClientTunnelMessage =
 
 type ServerTunnelMessage =
   | {
-      type: 'directMessage' | 'generalMessage';
+      type: 'directMessage';
       sender: unknown;
       content: string;
     }
@@ -34,6 +35,17 @@ type ServerTunnelMessage =
       type: 'friendRequest' | 'friendRequestAccepted';
       user: unknown;
       relationship?: number;
+    }
+  | {
+      type: 'gameInvite';
+      game: string;
+      user: unknown;
+    }
+  | {
+      type: 'generalMessage';
+      sender: unknown;
+      content: string;
+      mention: boolean;
     }
   | {type: 'hotReload'}
   | {
