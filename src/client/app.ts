@@ -7,11 +7,13 @@ import {RacecarGame} from './pages/RacecarGame';
 import {Router} from './services/router';
 import {Settings} from './pages/Settings';
 import {Statistics} from './pages/Statistics';
+import {Store} from './services/store';
 import {loadIcons} from './utils/icons';
 import {socket} from './utils/websocket';
 
 class App {
   private router: Router;
+  private store: Store;
 
   constructor() {
     this.initializeApp();
@@ -23,8 +25,33 @@ class App {
       throw new Error('Root container not found');
     }
 
+    this.store = Store.getInstance();
+
     // Initialize router
     this.router = Router.getInstance(rootContainer);
+    this.router.setAuthenticationGuard(async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) return false;
+
+      try {
+        const response = await fetch('/api/account', {
+          headers: {Authorization: `Bearer ${token}`},
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message);
+        }
+
+        const data = await response.json();
+        this.store.setState({user: data});
+        return true;
+      } catch (error) {
+        console.error(error);
+        return false;
+      }
+    });
+
     this.setupRoutes();
     this.router.initialize();
 
@@ -35,15 +62,15 @@ class App {
   }
 
   private setupRoutes(): void {
-    this.router.addRoute('/', () => new LandingPage());
-    this.router.addRoute('*', () => new PageNotFound(this.router));
+    this.router.addPublicRoute('/', () => new LandingPage());
+    this.router.addPublicRoute('*', () => new PageNotFound(this.router));
 
-    this.router.addRoute('/homepage', () => new Homepage());
-    this.router.addRoute('/settings', () => new Settings());
-    this.router.addRoute('/lobby', () => new Lobby());
-    this.router.addRoute('/pong', () => new PongGame());
-    this.router.addRoute('/racecar', () => new RacecarGame());
-    this.router.addRoute('/statistics', () => new Statistics());
+    this.router.addPrivateRoute('/homepage', () => new Homepage());
+    this.router.addPrivateRoute('/settings', () => new Settings());
+    this.router.addPrivateRoute('/lobby', () => new Lobby());
+    this.router.addPrivateRoute('/pong', () => new PongGame());
+    this.router.addPrivateRoute('/racecar', () => new RacecarGame());
+    this.router.addPrivateRoute('/statistics', () => new Statistics());
   }
 }
 
