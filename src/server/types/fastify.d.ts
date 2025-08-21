@@ -24,6 +24,11 @@ declare module 'fastify' {
       scope?: string,
     ) => (request: FastifyRequest) => Promise<void>;
     authenticateRefresh: (request: FastifyRequest) => Promise<void>;
+    blockUser: (
+      request: FastifyRequest,
+      reply: FastifyReply,
+      other?: {id: number; username: string},
+    ) => Promise<void>;
     clients: Clients;
     db: Database;
     dev: boolean;
