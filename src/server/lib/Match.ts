@@ -22,6 +22,7 @@ export default abstract class Match {
   private _game;
   private ranked;
 
+  private block = false;
   private score?: {
     fromPlayerID: number;
     scorerID: number;
@@ -78,7 +79,10 @@ export default abstract class Match {
         player.socket.off('message', onSocketMessage);
       });
 
-      server.game.players[player.userID] = this;
+      server.game.players[player.userID] = {
+        match: this,
+        opponent: opponent.userID,
+      };
     });
   }
 
@@ -172,7 +176,6 @@ export default abstract class Match {
   ) {
     switch (message?.type) {
       case 'move':
-      case 'gameMessage':
         this.sendSocket(opponent.socket, message as ServerTunnelMessage);
         break;
       case 'score':
@@ -225,6 +228,18 @@ export default abstract class Match {
   }
 
   public async init() {
+    const userIDs = this.players.map(player => player.userID);
+    const relationship = await this.server.db.get(SQL`
+      SELECT NULL
+      FROM relationships
+      WHERE type = 'block' AND (
+              (user_id = ${userIDs[0]} AND other_id = ${userIDs[1]})
+              OR (user_id = ${userIDs[1]} AND other_id = ${userIDs[0]})
+            )
+    `);
+
+    if (relationship) this.block = true;
+
     for (const player of this.players) {
       const user = await this.server.db.get(SQL`
         SELECT id, username, has_avatar, avatar_version
@@ -262,6 +277,7 @@ export default abstract class Match {
       type: 'matchStart',
       game: this._game,
       ranked: this.ranked,
+      block: this.block,
       players: this.players.map(player => ({
         id: player.userID,
         username: player.username,

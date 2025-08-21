@@ -34,7 +34,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     if (otherRelationship?.type === 'block')
       return reply.notFound('User not found');
 
-    if (relationship?.type !== 'friend' && otherRelationship?.type !== 'friend')
+    if (
+      relationship?.type !== 'friend' &&
+      otherRelationship?.type !== 'friend' &&
+      server.game.players[user.id]?.opponent !== other.id
+    )
       return reply.badRequest(
         'You can only mark messages with friends as read',
       );
