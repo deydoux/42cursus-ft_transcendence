@@ -18,17 +18,28 @@ export interface AppState {
     label: string;
     id?: number;
   };
-  chats: {
-    relationshipID: number;
-    id: number;
-    username: string;
-    avatar: string;
-    online: boolean;
-    lastSeen: string;
+  directChats: {
+    relationshipID?: number;
     updatedAt: string;
-    content: string | undefined;
-    unread: number;
+    content: string;
+    unread?: number;
+    user: {
+      id: number;
+      username: string;
+      avatar: string;
+    };
+    invite?: string;
   }[];
+  generalChat?: {
+    content: string;
+    createdAt: string;
+    user: {
+      id: number;
+      username: string;
+      avatar: string;
+    };
+  };
+  countFriendRequests: number;
   chatsSearchQuery: string;
   discussion?: {
     user: {
@@ -41,6 +52,23 @@ export interface AppState {
     messages: {
       id: number;
       senderID: number;
+      content: string;
+      createdAt: string;
+    }[];
+    next: string;
+  };
+  generalDiscussion?: {
+    users: Record<
+      string,
+      {
+        id: number;
+        username: string;
+        avatar: string;
+      }
+    >;
+    messages: {
+      id: number;
+      userID: number;
       content: string;
       createdAt: string;
     }[];
