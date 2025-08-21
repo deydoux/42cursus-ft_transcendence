@@ -24,9 +24,24 @@ declare module 'fastify' {
       scope?: string,
     ) => (request: FastifyRequest) => Promise<void>;
     authenticateRefresh: (request: FastifyRequest) => Promise<void>;
+    blockUser: (
+      request: FastifyRequest,
+      reply: FastifyReply,
+      other?: {id: number; username: string},
+    ) => Promise<void>;
     clients: Clients;
     db: Database;
     dev: boolean;
+    friendRequest: (
+      request: FastifyRequest,
+      reply: FastifyReply,
+      other: {
+        id: number;
+        username: string;
+        has_avatar: boolean;
+        avatar_version: number;
+      },
+    ) => Promise<void>;
     game: {
       players: Record<number, {match?: Match; opponent?: number}>;
       queues: {

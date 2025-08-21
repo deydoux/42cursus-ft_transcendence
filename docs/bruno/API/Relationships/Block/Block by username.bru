@@ -1,11 +1,11 @@
 meta {
-  name: Send friend request
+  name: Block by username
   type: http
   seq: 3
 }
 
 post {
-  url: {{baseURL}}/api/relationships/friends/requests
+  url: {{baseURL}}/api/relationships/block
   body: json
   auth: inherit
 }

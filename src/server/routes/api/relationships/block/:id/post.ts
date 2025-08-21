@@ -1,27 +1,18 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
-
-const schema = {
-  body: {
-    type: 'object',
-    properties: {
-      username: {type: 'string'},
-    },
-    required: ['username'],
-  } as const,
-};
+import {idParamsSchema as schema} from '#lib/schemas';
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.post('/', {schema}, async (request, reply) => {
-    const {username} = request.body;
+    const {id} = request.params;
 
     const other = await server.db.get(SQL`
-      SELECT id, username, has_avatar, avatar_version
+      SELECT id, username
       FROM users
-      WHERE lower(username) = lower(${username})
+      WHERE id = ${id}
     `);
 
-    return server.friendRequest(request, reply, other);
+    return server.blockUser(request, reply, other);
   });
 };
 
