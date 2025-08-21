@@ -62,6 +62,7 @@ type ServerTunnelMessage =
       type: 'matchStart';
       game: string;
       ranked: boolean;
+      block: boolean;
       players: unknown[];
     }
   | {type: 'round'}

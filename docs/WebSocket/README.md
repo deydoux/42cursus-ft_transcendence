@@ -207,6 +207,7 @@ Received when a match is starting
   "type": "matchStart",
   "game": "pong",
   "ranked": true,
+  "block": false,
   "players": [{
     "id": 1,
     "username": "user123",

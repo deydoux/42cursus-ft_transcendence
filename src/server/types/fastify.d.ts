@@ -28,7 +28,7 @@ declare module 'fastify' {
     db: Database;
     dev: boolean;
     game: {
-      players: Record<number, Match>;
+      players: Record<number, {match?: Match; opponent: number}>;
       queues: {
         pong: Queue;
         race: Queue;
