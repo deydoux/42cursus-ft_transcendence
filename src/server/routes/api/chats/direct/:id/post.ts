@@ -57,7 +57,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     if (otherRelationship?.type === 'block')
       return reply.notFound('User not found');
 
-    if (relationship?.type !== 'friend' && otherRelationship?.type !== 'friend')
+    if (
+      relationship?.type !== 'friend' &&
+      otherRelationship?.type !== 'friend' &&
+      server.game.players[sender.id]?.opponent !== recipient.id
+    )
       return reply.badRequest('You can only send messages to friends');
 
     await server.db.run(SQL`
