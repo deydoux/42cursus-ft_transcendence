@@ -13,7 +13,7 @@ const handleDirectMessage = (data: {
 }) => {
   const store = Store.getInstance();
 
-  const {chats, chatView, discussion} = store.getState();
+  const {directChats, chatView, discussion} = store.getState();
   if (chatView.id === data.sender.id && discussion) {
     // In a private discussion
     store.setState({
@@ -39,8 +39,8 @@ const handleDirectMessage = (data: {
   } else {
     // In the chats list
     store.setState({
-      chats: chats.map(chat => {
-        if (chat.username !== data.sender.username) {
+      directChats: directChats.map(chat => {
+        if (chat.user.username !== data.sender.username) {
           return chat;
         }
 
@@ -52,7 +52,63 @@ const handleDirectMessage = (data: {
       }),
     });
 
-    Toastify.success('You received a message');
+    Toastify.message(
+      {
+        username: data.sender.username,
+        avatar: data.sender.avatar,
+      },
+      data.content,
+    );
+  }
+};
+
+const handleGeneralMessage = (data: {
+  sender: {
+    id: number;
+    username: string;
+    avatar: string;
+  };
+  content: string;
+  mention: boolean;
+}) => {
+  const store = Store.getInstance();
+
+  const {generalChat, chatView, generalDiscussion} = store.getState();
+  if (chatView.label === 'general' && generalDiscussion) {
+    // Inside the general chat
+    store.setState({
+      generalDiscussion: {
+        ...generalDiscussion,
+        messages: [
+          {
+            id: 0,
+            userID: data.sender.id,
+            content: data.content,
+            createdAt: new Date().toISOString(),
+          },
+          ...generalDiscussion.messages,
+        ],
+      },
+    });
+  } else if (generalChat) {
+    // In the chats list
+    store.setState({
+      generalChat: {
+        ...generalChat,
+        content: data.content,
+        createdAt: new Date().toISOString(),
+      },
+    });
+
+    if (data.mention) {
+      Toastify.message(
+        {
+          username: `General: ${data.sender.username}`,
+          avatar: data.sender.avatar,
+        },
+        data.content,
+      );
+    }
   }
 };
 
@@ -105,6 +161,7 @@ const handleFriendRequestAccepted = (data: {
 
 export const setupChatHandlers = () => {
   socket.on('directMessage', handleDirectMessage);
+  socket.on('generalMessage', handleGeneralMessage);
   socket.on('friendRequest', handleFriendRequest);
   socket.on('friendRequestAccepted', handleFriendRequestAccepted);
 };
