@@ -15,8 +15,14 @@ const schema = {
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   server.get('/', {schema}, async (request, reply) => {
-    const {url, user} = request;
+    const {url} = request;
     const {lastID} = request.query;
+
+    const user = await server.db.get(SQL`
+      SELECT id, username
+      FROM users
+      WHERE id = ${request.user.id}
+    `);
 
     const messages = await server.db.all(SQL`
       SELECT id, user_id AS userID, content, created_at AS createdAt
@@ -36,6 +42,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     messages.forEach(message => {
       message.createdAt = new Date(message.createdAt * 1000);
+      message.mention = message.content
+        .toLowerCase()
+        .includes(`@${user.username.toLowerCase()}`);
     });
 
     const userIDs = messages
