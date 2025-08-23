@@ -19,7 +19,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const {lastID} = request.query;
 
     const user = await server.db.get(SQL`
-      SELECT id, username,
+      SELECT id, username
       FROM users
       WHERE id = ${request.user.id}
     `);
