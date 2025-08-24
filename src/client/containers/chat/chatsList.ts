@@ -4,6 +4,7 @@ import {Store} from '../../services/store';
 import {Toastify} from '../../utils/toastify';
 import {api} from '../../utils/Api';
 import {loadIcons} from '../../utils/icons';
+import {renderUserContextMenu} from './userContextMenu';
 
 export class ChatsList {
   constructor(private store: Store) {}
@@ -29,6 +30,25 @@ export class ChatsList {
     }
   }
 
+  static async sendFriendRequest(username: string) {
+    try {
+      const response = await api.post('relationships/friends/requests', {
+        username,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (errorData.message !== 'User not found')
+          throw new Error(errorData.message);
+      }
+
+      Toastify.success('Friend request sent successfully');
+    } catch (error) {
+      Toastify.error('Could not send friend request');
+      console.error(error);
+    }
+  }
+
   private renderSearchBar() {
     const searchBar = DOMUtils.createElement('div', {
       className: 'px-6 py-4 pt-6 relative flex items-center',
@@ -38,7 +58,7 @@ export class ChatsList {
         className:
           'peer border border-pink-300/50 w-full py-2 px-4 pl-10 rounded-md focus:outline-none focus:border-white placeholder:font-light',
         attributes: {
-          placeholder: 'Search user',
+          placeholder: 'Find or add users...',
           value: this.store.getState().chatsSearchQuery,
         },
         events: {
@@ -132,7 +152,7 @@ export class ChatsList {
     if (filteredChats.length === 0) {
       list.appendChild(
         DOMUtils.createElement('p', {
-          className: 'text-center mt-10 italic text-white/50',
+          className: 'text-center mt-6 italic text-white/50',
           textContent: 'No friends with this username',
         }),
       );
@@ -143,15 +163,25 @@ export class ChatsList {
       const line = DOMUtils.createElement('div', {
         className:
           'flex items-center justify-between hover:bg-white/5 py-2 px-6 cursor-pointer',
-        events: {
-          click: () =>
-            this.store.setState({
-              chatView: chat.isGeneral
-                ? {label: 'general'}
-                : {label: chat.user.username, id: chat.user.id},
-            }),
-        },
       });
+      line.onclick = () =>
+        this.store.setState({
+          chatView: chat.isGeneral
+            ? {label: 'general'}
+            : {label: chat.user.username, id: chat.user.id},
+        });
+
+      if (!chat.isGeneral) {
+        line.oncontextmenu = evt => {
+          evt.preventDefault();
+          renderUserContextMenu(
+            chat.user,
+            ['unfriend', 'invite', 'markAsRead', 'block'],
+            [evt.pageX, evt.pageY],
+          );
+        };
+      }
+
       const leftContent = DOMUtils.createElement('div', {
         className: 'flex items-center justify-start gap-4',
       });
@@ -213,6 +243,45 @@ export class ChatsList {
     });
   }
 
+  renderSendFriendRequestButton(sendRequestContainer: HTMLDivElement) {
+    const {chatsSearchQuery} = this.store.getState();
+    sendRequestContainer.innerHTML = '';
+
+    if (chatsSearchQuery && chatsSearchQuery.length > 0) {
+      const button = DOMUtils.createElement('button', {
+        className:
+          'mx-auto mt-4 flex text-sm items-center justify-center gap-2 hover:text-pink-300 cursor-pointer rounded-lg px-4 py-2 border hover:bg-pink-300/10 border-pink-300 transition-all',
+        events: {
+          click: () => {
+            ChatsList.sendFriendRequest(chatsSearchQuery);
+          },
+        },
+      });
+
+      button.appendChild(
+        DOMUtils.createElement('p', {
+          textContent: 'Send friend request',
+          attributes: {
+            type: 'text',
+          },
+        }),
+      );
+      button.appendChild(
+        DOMUtils.createElement('i', {
+          className: 'w-3 h-3 -rotate-30 mb-1',
+          attributes: {
+            icon: 'paperAirplane',
+          },
+        }),
+      );
+
+      sendRequestContainer.appendChild(button);
+    }
+
+    loadIcons();
+    return sendRequestContainer;
+  }
+
   render() {
     this.fetchChats();
     const container = DOMUtils.createElement('div');
@@ -230,6 +299,15 @@ export class ChatsList {
     );
 
     container.appendChild(list);
+
+    const sendRequestContainer = DOMUtils.createElement('div');
+    container.appendChild(
+      this.renderSendFriendRequestButton(sendRequestContainer),
+    );
+    this.store.subscribeToPath('chatsSearchQuery', () =>
+      this.renderSendFriendRequestButton(sendRequestContainer),
+    );
+
     return container;
   }
 }

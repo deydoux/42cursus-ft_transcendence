@@ -175,7 +175,7 @@ export class FriendRequests {
 
   private renderActionButton(
     type: 'accept' | 'close',
-    request: {username: string; relationshipID: number},
+    request: {username: string; relationshipID: number; id: number},
   ) {
     const button = DOMUtils.createElement('button', {
       className: `border border-white/50 transition-all p-3 rounded cursor-pointer ${type === 'close' ? 'hover:bg-white/10' : 'hover:border-pink-300 hover:text-pink-300 hover:bg-pink-300/10'}`,
@@ -183,6 +183,12 @@ export class FriendRequests {
         click: () => {
           if (type === 'close')
             this.closeRequest(request.username, request.relationshipID);
+          else
+            this.acceptFriendRequest(
+              request.username,
+              request.id,
+              request.relationshipID,
+            );
         },
       },
     });

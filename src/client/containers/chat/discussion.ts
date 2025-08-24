@@ -4,6 +4,7 @@ import {Store} from '../../services/store';
 import {Toastify} from '../../utils/toastify';
 import {api} from '../../utils/Api';
 import {loadIcons} from '../../utils/icons';
+import {renderUserContextMenu} from './userContextMenu';
 
 export class Discussion {
   constructor(private store: Store) {}
@@ -105,6 +106,44 @@ export class Discussion {
     }
   }
 
+  static async unfriendUser(relationshipID: number, username: string) {
+    try {
+      const response = await api.delete(`relationships/${relationshipID}`, {});
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message);
+      }
+
+      Store.getInstance().setState({chatView: {label: 'chatsList'}});
+      Toastify.success(`You and ${username} are no longer friends anymore`);
+    } catch (error) {
+      Toastify.error(
+        `An error occured while closing relationship with ${username}`,
+      );
+      console.error(error);
+    }
+  }
+
+  static async blockUser(userID: number, username: string) {
+    try {
+      const response = await api.post(`relationships/block/${userID}`, {});
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message);
+      }
+
+      Store.getInstance().setState({chatView: {label: 'chatsList'}});
+      Toastify.success(`You blocked ${username}`);
+    } catch (error) {
+      Toastify.error(
+        `An error occured while closing relationship with ${username}`,
+      );
+      console.error(error);
+    }
+  }
+
   private renderNoChatPlaceholder(username?: string) {
     const noChat = DOMUtils.createElement('div', {
       className:
@@ -159,39 +198,65 @@ export class Discussion {
   }
 
   private renderGeneralMessage(
-    message: {content: string; createdAt: string},
-    sender: {username: string; avatar: string},
+    message: {content: string; createdAt: string; mention: boolean},
+    sender: {username: string; avatar: string; id: number},
     isReceived: boolean,
   ) {
     const messageWrapper = DOMUtils.createElement('div', {
-      className: 'flex group items-center gap-4',
+      className: `flex group items-center gap-4 ${message.mention ? 'bg-pink-300/10' : ''}`,
     });
 
+    const isSenderFriend = () => {
+      const {directChats} = this.store.getState();
+      return directChats.find(chat => sender.id === chat.user.id);
+    };
+
     const messageContainer = DOMUtils.createElement('div', {
-      className: 'flex items-center gap-2',
+      className: 'flex items-end gap-2',
     });
-    if (isReceived) {
-      messageContainer.appendChild(
-        DOMUtils.createElement('img', {
-          className: 'w-8 h-8 rounded-full',
-          attributes: {
-            src: sender.avatar,
-          },
-        }),
+    messageContainer.oncontextmenu = evt => {
+      evt.preventDefault();
+      renderUserContextMenu(
+        sender,
+        [isSenderFriend() ? 'unfriend' : 'friend', 'block'],
+        [evt.pageX, evt.pageY],
       );
+    };
+
+    if (isReceived) {
+      const profilePicture = DOMUtils.createElement('img', {
+        className: 'w-8 h-8 mb-1 rounded-full cursor-pointer',
+        attributes: {
+          src: sender.avatar,
+        },
+      });
+      profilePicture.onclick = evt =>
+        renderUserContextMenu(
+          sender,
+          [isSenderFriend() ? 'unfriend' : 'friend', 'block'],
+          [evt.pageX, evt.pageY],
+        );
+      messageContainer.appendChild(profilePicture);
     }
 
     const text = DOMUtils.createElement('div', {
-      className: `peer rounded-md ${isReceived ? 'px-3 py-[5px] border border-pink-300 rounded-tl-none' : 'px-4 py-2 bg-pink-300 rounded-tr-none text-background'} duration-100 leading-tight overflow-x-auto`,
+      className: `peer rounded-md ${isReceived ? 'px-3 py-[5px] border border-pink-300 rounded-bl-none' : 'px-4 py-2 bg-pink-300 rounded-br-none text-background'} duration-100 leading-tight overflow-x-auto`,
     });
     if (isReceived) {
-      text.appendChild(
-        DOMUtils.createElement('p', {
-          className: 'text-pink-300/50 text-sm',
-          textContent: sender.username,
-        }),
-      );
+      const usernameButton = DOMUtils.createElement('button', {
+        className:
+          'text-pink-300/50 text-sm cursor-pointer hover:underline hover:text-pink-300',
+        textContent: sender.username,
+      });
+      usernameButton.onclick = evt =>
+        renderUserContextMenu(
+          sender,
+          [isSenderFriend() ? 'unfriend' : 'friend', 'block'],
+          [evt.pageX, evt.pageY],
+        );
+      text.appendChild(usernameButton);
     }
+
     text.appendChild(
       DOMUtils.createElement('p', {
         className: 'break-words hyphens-auto',
@@ -356,7 +421,7 @@ export class Discussion {
           className: 'text-sm text-white/50',
           textContent: discussion.user.online
             ? 'Connected'
-            : `Offline • last seen ${getRelativeTime(discussion.user.lastSeen)}`,
+            : `Offline • ${getRelativeTime(discussion.user.lastSeen)}`,
         }),
       );
 
@@ -367,15 +432,48 @@ export class Discussion {
     this.store.subscribeToPath('discussion.user', renderUserInformations);
     header.appendChild(leftContent);
 
-    header.appendChild(
+    const actionButtons = DOMUtils.createElement('div', {
+      className: 'flex items-center justify-center gap-2',
+    });
+
+    const pongButton = DOMUtils.createElement('button', {
+      className:
+        'w-10 h-10 flex items-center justify-center hover:text-pink-300 hover:bg-pink-300/10 rounded cursor-pointer p-2 duration-100',
+    });
+    pongButton.appendChild(
       DOMUtils.createElement('i', {
-        className:
-          'w-10 h-10 hover:text-pink-300 hover:bg-pink-300/10 rounded-full cursor-pointer p-2 duration-100',
         attributes: {
           icon: 'pingpong',
         },
       }),
     );
+    actionButtons.appendChild(pongButton);
+
+    const cogButton = DOMUtils.createElement('button', {
+      className:
+        'w-10 h-10 flex items-center justify-center hover:text-pink-300 hover:bg-pink-300/10 rounded cursor-pointer p-1 duration-100',
+    });
+    cogButton.onclick = evt => {
+      const {discussion} = this.store.getState();
+      if (!discussion) return;
+
+      renderUserContextMenu(
+        discussion?.user,
+        ['unfriend', 'invite', 'block'],
+        [evt.pageX - 100, evt.pageY + 30],
+      );
+    };
+
+    cogButton.appendChild(
+      DOMUtils.createElement('i', {
+        attributes: {
+          icon: 'cog',
+        },
+      }),
+    );
+    actionButtons.appendChild(cogButton);
+
+    header.appendChild(actionButtons);
 
     return header;
   }
