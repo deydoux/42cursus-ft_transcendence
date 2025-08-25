@@ -637,9 +637,10 @@ export class Discussion {
       className: 'overflow-hidden flex-1',
     });
 
+    let view: HTMLDivElement;
     const renderDiscussion = () => {
       const {chatView} = this.store.getState();
-      let view: HTMLDivElement;
+      view.innerHTML = '';
 
       if (chatView.label === 'general') view = this.renderGeneralDiscussion();
       else if (chatView.id) view = this.renderPrivateDiscussion(chatView.id);

@@ -1,11 +1,11 @@
-import {BaseComponent} from '../components/BaseComponent';
-import {ChatsList} from './chat/chatsList';
-import {DOMUtils} from '../utils/dom';
-import {Discussion} from './chat/discussion';
-import {FriendRequests} from './chat/friendRequests';
-import {Toastify} from '../utils/toastify';
-import {api} from '../utils/Api';
-import {loadIcons} from '../utils/icons';
+import {BaseComponent} from '../../components/BaseComponent';
+import {ChatsList} from './chatsList';
+import {DOMUtils} from '../../utils/dom';
+import {Discussion} from './discussion';
+import {FriendRequests} from './friendRequests';
+import {Toastify} from '../../utils/toastify';
+import {api} from '../../utils/Api';
+import {loadIcons} from '../../utils/icons';
 
 export class Chat extends BaseComponent {
   private chatsList: ChatsList;
