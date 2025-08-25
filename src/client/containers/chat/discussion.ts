@@ -26,6 +26,37 @@ export class Discussion {
     }
   }
 
+  private async loadMoreMessages(nextUri: string) {
+    try {
+      const response = await api.get(nextUri.replaceAll('/api/', ''));
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message);
+      }
+
+      const data = await response.json();
+      const {discussion} = this.store.getState();
+      if (!discussion) return;
+
+      const newMessages = [...(discussion?.messages ?? []), ...data.messages];
+      console.log(
+        `before ${discussion.messages.length}; after ${newMessages.length}`,
+      );
+
+      this.store.setState({
+        discussion: {
+          ...discussion,
+          messages: newMessages,
+          next: data.next,
+        },
+      });
+    } catch (error) {
+      Toastify.error('An error occured while fetching discussion');
+      console.error(error);
+    }
+  }
+
   private async sendPrivateMessage(toUserID: number, message: string) {
     try {
       const response = await api.post(`chats/direct/${toUserID}`, {
@@ -178,7 +209,7 @@ export class Discussion {
     });
 
     const messageContainer = DOMUtils.createElement('div', {
-      className: `peer px-4 py-2 rounded-md ${isReceived ? 'border border-pink-300 rounded-tl-none' : 'bg-pink-300 rounded-tr-none text-background'} duration-100 leading-tight overflow-x-auto`,
+      className: `peer my-1 mx-6 px-4 py-2 rounded-md ${isReceived ? 'border border-pink-300 rounded-bl-none' : 'bg-pink-300 rounded-br-none text-background'} duration-100 leading-tight overflow-x-auto`,
       textContent: message.content,
     });
     const blankSpace = DOMUtils.createElement('div', {
@@ -212,7 +243,7 @@ export class Discussion {
     };
 
     const messageContainer = DOMUtils.createElement('div', {
-      className: 'flex items-end gap-2',
+      className: `flex items-end gap-2 ${isReceived ? (message.mention ? 'pl-5' : 'pl-6') : 'pr-6'} ${message.mention ? 'py-2 border-l-4 pl-2 border-pink-300' : 'py-1'}`,
     });
     messageContainer.oncontextmenu = evt => {
       evt.preventDefault();
@@ -240,7 +271,7 @@ export class Discussion {
     }
 
     const text = DOMUtils.createElement('div', {
-      className: `peer rounded-md ${isReceived ? 'px-3 py-[5px] border border-pink-300 rounded-bl-none' : 'px-4 py-2 bg-pink-300 rounded-br-none text-background'} duration-100 leading-tight overflow-x-auto`,
+      className: `peer rounded-md ${isReceived ? 'px-3 py-[5px] border border-pink-300 bg-background rounded-bl-none' : 'px-4 py-2 bg-pink-300 rounded-br-none text-background'} duration-100 leading-tight overflow-x-auto`,
     });
     if (isReceived) {
       const usernameButton = DOMUtils.createElement('button', {
@@ -266,7 +297,7 @@ export class Discussion {
     messageContainer.appendChild(text);
 
     const blankSpace = DOMUtils.createElement('div', {
-      className: `flex-1 min-w-12 opacity-0 group-hover:opacity-100 text-sm text-white/50 ${isReceived ? 'text-left' : 'text-right'}`,
+      className: `flex-1 min-w-20 opacity-0 group-hover:opacity-100 text-sm text-white/50 ${isReceived ? 'text-left' : 'text-right'}`,
       textContent: getTimeElapsed(message.createdAt),
     });
 
@@ -282,7 +313,7 @@ export class Discussion {
   }
 
   private renderMessages(
-    list: HTMLDivElement,
+    container: HTMLDivElement,
     type: 'discussion' | 'generalDiscussion',
   ) {
     const state = this.store.getState();
@@ -292,7 +323,24 @@ export class Discussion {
     const messages = state[type]?.messages;
     if (!messages) return;
 
-    list.innerHTML = '';
+    container.innerHTML = '';
+
+    const list = DOMUtils.createElement('div', {
+      className: 'flex flex-col-reverse overflow-y-auto flex-1',
+    });
+
+    let isAtTop = false;
+    list.addEventListener('scroll', async () => {
+      const atTop = list.clientHeight - list.scrollTop >= list.scrollHeight;
+
+      if (atTop && !isAtTop && state[type]?.next) {
+        console.log('scrolled to top');
+        await this.loadMoreMessages(state[type]?.next);
+        isAtTop = true;
+      } else if (!atTop) {
+        isAtTop = false;
+      }
+    });
 
     if (messages.length === 0) {
       list.appendChild(this.renderNoChatPlaceholder());
@@ -313,6 +361,8 @@ export class Discussion {
             ),
       );
     });
+
+    container.appendChild(list);
   }
 
   private renderMessageInput(
@@ -487,12 +537,14 @@ export class Discussion {
     container.appendChild(this.renderPrivateDiscussionHeader());
 
     const messagesList = DOMUtils.createElement('div', {
-      className: 'flex flex-col-reverse gap-2 overflow-y-auto flex-1 px-6 pt-6',
+      className: 'flex flex-col-reverse gap-2 overflow-y-auto flex-1 pt-6',
     });
 
-    this.store.subscribeToPath('discussion.messages', () =>
-      this.renderMessages(messagesList, 'discussion'),
-    );
+    console.log('rendering renderPrivateDiscussion');
+
+    this.store.subscribeToPath('discussion.messages', () => {
+      this.renderMessages(messagesList, 'discussion');
+    });
     container.appendChild(messagesList);
 
     container.appendChild(
@@ -563,7 +615,7 @@ export class Discussion {
     container.appendChild(this.renderGeneralDiscussionHeader());
 
     const messagesList = DOMUtils.createElement('div', {
-      className: 'flex flex-col-reverse gap-2 overflow-y-auto flex-1 px-6 pt-6',
+      className: 'flex flex-col-reverse overflow-y-auto flex-1 pt-6',
     });
 
     this.store.subscribeToPath('generalDiscussion.messages', () =>
