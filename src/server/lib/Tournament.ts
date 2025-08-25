@@ -5,6 +5,7 @@ import {FastifyInstance} from 'fastify';
 export class Tournament {
   public readonly game = 'tournament';
 
+  private readonly server: FastifyInstance;
   private readonly id;
   private readonly name;
 
@@ -16,13 +17,20 @@ export class Tournament {
     name: string,
     owner: Client,
   ) {
+    this.server = server;
     this.id = id;
     this.name = name;
-    this.addParticipant(owner);
+    this.addParticipant(owner, true);
   }
 
-  public addParticipant(client: Client) {
-    // TODO: check if already in game/tournament
+  public addParticipant(client: Client, isOwner = false) {
+    if (!isOwner)
+      try {
+        this.server.playAvailability(client);
+      } catch {
+        return;
+      }
+
     this.participants.push(client);
   }
 
