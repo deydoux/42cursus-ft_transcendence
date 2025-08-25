@@ -33,7 +33,7 @@ export default abstract class Match {
   private readonly lock;
 
   protected players;
-  protected result?: 'draw' | 'tie';
+  protected result?: 'forfeit' | 'tie';
   protected unlock = () => undefined;
   protected winner?: Player;
 
@@ -164,7 +164,7 @@ export default abstract class Match {
   }
 
   private handleClose(opponent: Player) {
-    this.result = 'draw';
+    this.result = 'forfeit';
     this.winner = opponent;
     this.unlock();
   }
