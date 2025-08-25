@@ -39,7 +39,7 @@ sequenceDiagram
   alt Quentin disconnects
     s --x q: *socket closed*
     s ->> m: matchEnd
-    Note left of s: {winner: 1, result: 'draw'}
+    Note left of s: {winner: 1, result: 'forfeit'}
 
   else Mathy scores
     m ->> s: score
