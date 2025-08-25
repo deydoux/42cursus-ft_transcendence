@@ -1,5 +1,5 @@
 import {BaseComponent} from '../components/BaseComponent';
-import {Chat} from './Chat';
+import {Chat} from './chat/Chat';
 import {DOMUtils} from '../utils/dom';
 import {socket} from '../utils/websocket';
 

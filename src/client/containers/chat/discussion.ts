@@ -640,7 +640,7 @@ export class Discussion {
     let view: HTMLDivElement;
     const renderDiscussion = () => {
       const {chatView} = this.store.getState();
-      view.innerHTML = '';
+      if (view) view.innerHTML = '';
 
       if (chatView.label === 'general') view = this.renderGeneralDiscussion();
       else if (chatView.id) view = this.renderPrivateDiscussion(chatView.id);

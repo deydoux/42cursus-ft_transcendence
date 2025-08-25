@@ -1,4 +1,4 @@
-import {Chat} from '../containers/Chat';
+import {Chat} from '../containers/chat/Chat';
 import {Store} from '../services/store';
 import {Toastify} from '../utils/toastify';
 import {socket} from '../utils/websocket';

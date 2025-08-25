@@ -1,6 +1,6 @@
 import {BaseComponent} from '../components/BaseComponent';
 import {BlockList} from '../containers/settings/blockList';
-import {Chat} from '../containers/Chat';
+import {Chat} from '../containers/chat/Chat';
 import {DOMUtils} from '../utils/dom';
 import {PasswordManager} from '../containers/settings/passwordManager';
 import {RGPD} from '../containers/settings/rgpd';
