@@ -60,10 +60,7 @@ export default abstract class Match {
         try {
           message = JSON.parse(data.toString());
         } catch {
-          return this.sendSocket(player.socket, {
-            type: 'error',
-            message: 'Invalid JSON',
-          });
+          return;
         }
 
         this.handleMessage(player, opponent, message);
