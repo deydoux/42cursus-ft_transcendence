@@ -3,8 +3,8 @@ import Clients from '#lib/Clients';
 import {Database} from 'sqlite';
 import Match from '#lib/Match';
 import {SharpInput} from 'sharp';
-import {WebSocket} from '@fastify/websocket';
 import {Tournament} from '#lib/Tournament';
+import {WebSocket} from '@fastify/websocket';
 
 interface RankedClient extends Client {
   elo: number;

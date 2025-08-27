@@ -17,6 +17,9 @@ type ClientTunnelMessage =
       type: 'leaveMatchmaking';
     }
   | {
+      type: 'leaveTournament';
+    }
+  | {
       type: 'score';
       scorerID: number;
     };

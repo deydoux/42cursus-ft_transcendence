@@ -5,6 +5,7 @@ import SQL from 'sql-template-strings';
 import {WebSocket} from '@fastify/websocket';
 import joinMatchmaking from '#tunnel/joinMatchmaking';
 import leaveMatchmaking from '#tunnel/leaveMatchmaking';
+import leaveTournament from '#tunnel/leaveTournament';
 
 export default class Clients {
   private clients: Client[] = [];
@@ -46,6 +47,9 @@ export default class Clients {
           break;
         case 'leaveMatchmaking':
           leaveMatchmaking(this.server, client, message);
+          break;
+        case 'leaveTournament':
+          leaveTournament(this.server, client, message);
           break;
       }
     }

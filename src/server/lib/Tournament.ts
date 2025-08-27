@@ -1,6 +1,5 @@
-import {Client, ClientTunnelMessage, ServerTunnelMessage} from '#types/Clients';
+import {Client, ServerTunnelMessage} from '#types/Clients';
 import Clients from '#lib/Clients';
-import {Data} from 'ws';
 import {FastifyInstance} from 'fastify';
 
 interface Participant extends Client {
@@ -15,6 +14,7 @@ export class Tournament {
   private readonly name;
 
   private participants: Participant[] = [];
+  private _started = false;
 
   constructor(
     server: FastifyInstance,
@@ -42,6 +42,10 @@ export class Tournament {
 
     participant.socket.on('close', participant.onSocketClose);
     participant.socket.on('error', participant.onSocketClose);
+  }
+
+  get started() {
+    return this._started;
   }
 
   public removeClient(client: Client) {
