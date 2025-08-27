@@ -5,7 +5,6 @@ import {FastifyInstance} from 'fastify';
 
 interface Participant extends Client {
   onSocketClose?: () => void;
-  onSocketMessage?: (data: Data) => void;
 }
 
 export class Tournament {
@@ -40,23 +39,10 @@ export class Tournament {
     this.participants.push(participant);
 
     participant.onSocketClose = () => this.removeParticipant(participant);
-    participant.onSocketMessage = this.handleMessage(participant);
 
     participant.socket.on('close', participant.onSocketClose);
     participant.socket.on('error', participant.onSocketClose);
-    participant.socket.on('message', participant.onSocketMessage);
   }
-
-  private handleMessage = (participant: Participant) => (data: Data) => {
-    let message: Record<string, unknown>;
-    try {
-      message = JSON.parse(data.toString());
-    } catch {
-      return;
-    }
-
-    void message;
-  };
 
   private removeParticipant(participant: Participant) {
     this.participants = this.participants.filter(p => p !== participant);
@@ -65,8 +51,6 @@ export class Tournament {
       participant.socket.off('close', participant.onSocketClose);
       participant.socket.off('error', participant.onSocketClose);
     }
-    if (participant.onSocketMessage)
-      participant.socket.off('message', participant.onSocketMessage);
   }
 
   private sendSocket(socket: WebSocket, message: ServerTunnelMessage) {
