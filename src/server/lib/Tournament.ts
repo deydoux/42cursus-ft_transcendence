@@ -44,6 +44,11 @@ export class Tournament {
     participant.socket.on('error', participant.onSocketClose);
   }
 
+  public removeClient(client: Client) {
+    const participant = this.participants.find(p => p.userID === client.userID);
+    if (participant) this.removeParticipant(participant);
+  }
+
   private removeParticipant(participant: Participant) {
     this.participants = this.participants.filter(p => p !== participant);
 
