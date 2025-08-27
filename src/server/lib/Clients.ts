@@ -4,6 +4,7 @@ import {RawData} from 'ws';
 import SQL from 'sql-template-strings';
 import {WebSocket} from '@fastify/websocket';
 import joinMatchmaking from '#tunnel/joinMatchmaking';
+import joinTournament from '#tunnel/joinTournament';
 import leaveMatchmaking from '#tunnel/leaveMatchmaking';
 import leaveTournament from '#tunnel/leaveTournament';
 
@@ -44,6 +45,9 @@ export default class Clients {
       switch (message.type) {
         case 'joinMatchmaking':
           joinMatchmaking(this.server, client, message);
+          break;
+        case 'joinTournament':
+          joinTournament(this.server, client, message);
           break;
         case 'leaveMatchmaking':
           leaveMatchmaking(this.server, client, message);

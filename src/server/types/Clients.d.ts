@@ -14,6 +14,10 @@ type ClientTunnelMessage =
       targetID?: number;
     }
   | {
+      type: 'joinTournament';
+      tournamentID: number;
+    }
+  | {
       type: 'leaveMatchmaking';
     }
   | {
