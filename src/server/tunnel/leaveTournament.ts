@@ -1,7 +1,7 @@
 import {Client} from '#types/Clients';
 import {FastifyInstance} from 'fastify';
 
-export default function leaveMatchmaking(
+export default function leaveTournament(
   server: FastifyInstance,
   client: Client,
   message: {type: 'leaveTournament'},
