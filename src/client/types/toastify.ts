@@ -1,6 +1,7 @@
 export interface ToastOptions {
   message: string;
-  type?: 'success' | 'error' | 'warning' | 'info';
+  user?: {username: string; avatar: string};
+  type?: 'success' | 'error' | 'warning' | 'info' | 'message';
   duration?: number; // in milliseconds
   closable?: boolean;
   position?:

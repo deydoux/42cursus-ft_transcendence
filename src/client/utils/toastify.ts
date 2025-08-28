@@ -47,6 +47,19 @@ export class Toastify {
     return Toastify.getInstance().show({message, type: 'info', ...options});
   }
 
+  static message(
+    user: {username: string; avatar: string},
+    message: string,
+    options?: Omit<ToastOptions, 'message' | 'type'>,
+  ) {
+    return Toastify.getInstance().show({
+      message,
+      user,
+      type: 'message',
+      ...options,
+    });
+  }
+
   static dismiss(toastId: string): void {
     Toastify.getInstance().hide(toastId);
   }
@@ -58,6 +71,7 @@ export class Toastify {
   show(options: ToastOptions): string {
     const {
       message,
+      user,
       type = 'info',
       duration = 4000,
       closable = true,
@@ -66,7 +80,7 @@ export class Toastify {
 
     const toastId = this.generateId();
     const toastElement = this.createToastElement(
-      message,
+      {message, username: user?.username, avatar: user?.avatar},
       type,
       closable,
       toastId,
@@ -145,7 +159,7 @@ export class Toastify {
   }
 
   private createToastElement(
-    message: string,
+    content: {username?: string; avatar?: string; message: string},
     type: string,
     closable: boolean,
     toastId: string,
@@ -158,21 +172,48 @@ export class Toastify {
       },
     });
 
-    // Create content
-    const content = DOMUtils.createElement('div', {
+    const container = DOMUtils.createElement('div', {
       className: 'toast-content',
     });
 
-    content.appendChild(
-      DOMUtils.createElement('span', {
-        className: 'toast-message',
-        textContent: message,
-      }),
-    );
+    if (type === 'message' && content.avatar && content.username) {
+      container.appendChild(
+        DOMUtils.createElement('img', {
+          className: 'toast-user-avatar',
+          attributes: {
+            src: content.avatar,
+          },
+        }),
+      );
 
-    toast.appendChild(content);
+      const userInfo = DOMUtils.createElement('div', {
+        className: 'toast-users-info',
+      });
+      userInfo.appendChild(
+        DOMUtils.createElement('p', {
+          className: 'toast-username',
+          textContent: content.username,
+        }),
+      );
+      userInfo.appendChild(
+        DOMUtils.createElement('p', {
+          className: 'toast-text',
+          textContent: content.message,
+        }),
+      );
 
-    // Close button
+      container.appendChild(userInfo);
+    } else {
+      container.appendChild(
+        DOMUtils.createElement('span', {
+          className: 'toast-text',
+          textContent: content.message,
+        }),
+      );
+    }
+
+    toast.appendChild(container);
+
     if (closable) {
       const closeButton = DOMUtils.createElement('button', {
         className: 'toast-close',

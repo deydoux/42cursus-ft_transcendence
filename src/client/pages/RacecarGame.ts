@@ -1,6 +1,6 @@
 import {handleInput, initializeGame} from '../utils/race-content';
 import {BaseComponent} from '../components/BaseComponent';
-import {Chat} from '../containers/Chat';
+import {Chat} from '../containers/chat/Chat';
 import {DOMUtils} from '../utils/dom';
 import {RaceCanvas} from '../containers/raceCanvas';
 import {renderCar} from '../containers/renderRace';

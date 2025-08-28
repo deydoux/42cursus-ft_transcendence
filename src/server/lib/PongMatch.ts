@@ -14,6 +14,12 @@ export default class PongMatch extends Match {
       return this.unlock();
     }
 
-    this.send({type: 'round'});
+    const angle = Match.generateAngle();
+
+    this.send({
+      type: 'round',
+      dx: Math.cos(angle),
+      dy: Math.sin(angle),
+    });
   }
 }

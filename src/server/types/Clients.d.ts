@@ -71,8 +71,14 @@ type ServerTunnelMessage =
       ranked: boolean;
       block: boolean;
       players: unknown[];
+      dx: number;
+      dy: number;
     }
-  | {type: 'round'}
+  | {
+      type: 'round';
+      dx: number;
+      dy: number;
+    }
   | {
       type: 'success';
       origin: string;

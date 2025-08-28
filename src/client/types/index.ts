@@ -13,6 +13,83 @@ export interface AppState {
     hasAvatar: boolean;
     avatar: string;
   };
+
+  chatView: {
+    label: string;
+    id?: number;
+  };
+  directChats: {
+    relationshipID?: number;
+    updatedAt: string;
+    content: string;
+    unread?: number;
+    user: {
+      id: number;
+      username: string;
+      avatar: string;
+    };
+    invite?: string;
+  }[];
+  generalChat?: {
+    content: string;
+    createdAt: string;
+    user: {
+      id: number;
+      username: string;
+      avatar: string;
+    };
+  };
+  countFriendRequests: number;
+  chatsSearchQuery: string;
+  discussion?: {
+    user: {
+      id: number;
+      username: string;
+      lastSeen: string;
+      avatar: string;
+      online: boolean;
+    };
+    messages: {
+      id: number;
+      senderID: number;
+      content: string;
+      createdAt: string;
+    }[];
+    next: string;
+  };
+  generalDiscussion?: {
+    users: Record<
+      string,
+      {
+        id: number;
+        username: string;
+        avatar: string;
+      }
+    >;
+    messages: {
+      id: number;
+      userID: number;
+      content: string;
+      createdAt: string;
+    }[];
+    next: string;
+  };
+
+  friendRequests: {
+    relationshipID: number;
+    createdAt: string;
+    id: number;
+    username: string;
+    avatar: string;
+  }[];
+  sentFriendRequests: {
+    relationshipID: number;
+    createdAt: string;
+    id: number;
+    username: string;
+    avatar: string;
+  }[];
+
   blockedUsers: {
     relationshipID: number;
     createdAt: string;

@@ -14,6 +14,12 @@ export class Store {
     sessions: {session: 0, sessions: []},
     currentRoute: '/',
     isWaitingForMatchmaking: false,
+    directChats: [],
+    chatsSearchQuery: '',
+    chatView: {label: 'chatsList'},
+    friendRequests: [],
+    sentFriendRequests: [],
+    countFriendRequests: 0,
   };
   private previousState: AppState = {...this.state};
 
