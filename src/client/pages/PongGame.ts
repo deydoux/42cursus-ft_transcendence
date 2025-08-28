@@ -1,6 +1,6 @@
 import {handleInput, initializeGame} from '../utils/content';
 import {BaseComponent} from '../components/BaseComponent';
-import {Chat} from '../containers/Chat';
+import {Chat} from '../containers/chat/Chat';
 import {DOMUtils} from '../utils/dom';
 import {PongCanvas} from '../containers/pongCanvas';
 import {renderPong} from '../containers/renderPong';

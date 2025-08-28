@@ -16,11 +16,9 @@ export class Lobby extends BaseComponent {
 
       // Only trigger if we were in /lobby and are leaving it
       if (this.currentPath === '/lobby' && newPath !== '/lobby') {
-        socket.send(
-          JSON.stringify({
-            type: 'leaveMatchmaking',
-          }),
-        );
+        socket.send({
+          type: 'leaveMatchmaking',
+        });
       }
 
       this.currentPath = newPath;

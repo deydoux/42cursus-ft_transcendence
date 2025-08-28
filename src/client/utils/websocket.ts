@@ -4,6 +4,7 @@ import {
   WebSocketMessage,
   WebSocketState,
 } from '../types/websocket';
+import {setupChatHandlers} from '../handlers/chat';
 import {setupGameHandlers} from '../handlers/game';
 
 class WebSocketUtility {
@@ -310,3 +311,4 @@ export const socket = new WebSocketUtility({
 });
 
 setupGameHandlers();
+setupChatHandlers();
