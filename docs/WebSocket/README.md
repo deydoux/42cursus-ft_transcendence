@@ -1,12 +1,15 @@
 # WebSocket API Documentation
+
 This WebSocket API handles real-time communication and time-sensitive events. To establish a connection, connect to the `/api/tunnel` endpoint. All messages must be sent and received as JSON objects.
 
 ## Client Messages
 
 ### `joinMatchmaking`
+
 Sent to join the matchmaking queue
 
-*Examples:*
+_Examples:_
+
 ```json
 {
   "type": "joinMatchmaking",
@@ -24,7 +27,8 @@ Sent to join the matchmaking queue
 }
 ```
 
-*Response:*
+_Response:_
+
 ```json
 {
   "type": "success",
@@ -33,16 +37,19 @@ Sent to join the matchmaking queue
 ```
 
 ### `leaveMatchmaking`
+
 Sent to leave the matchmaking queue
 
-*Example:*
+_Example:_
+
 ```json
 {
   "type": "leaveMatchmaking"
 }
 ```
 
-*Response: (to all client sockets)*
+_Response: (to all client sockets)_
+
 ```json
 {
   "type": "success",
@@ -51,9 +58,11 @@ Sent to leave the matchmaking queue
 ```
 
 ### `move`
+
 Sent to make a move in a game match
 
-*Example:*
+_Example:_
+
 ```jsonc
 {
   "type": "move",
@@ -62,9 +71,11 @@ Sent to make a move in a game match
 ```
 
 ### `score`
+
 Sent to send a score in a game match
 
-*Example:*
+_Example:_
+
 ```json
 {
   "type": "score",
@@ -75,9 +86,11 @@ Sent to send a score in a game match
 ## Server Messages
 
 ### `directMessage`
+
 Received when another user sends you a direct message
 
-*Example:*
+_Example:_
+
 ```json
 {
   "type": "directMessage",
@@ -91,9 +104,11 @@ Received when another user sends you a direct message
 ```
 
 ### `error`
+
 Received when there is an error processing a message
 
-*Examples:*
+_Examples:_
+
 ```json
 {
   "type": "error",
@@ -109,9 +124,11 @@ Received when there is an error processing a message
 ```
 
 ### `friendRequest`
+
 Received when a user receives a friend request
 
-*Example:*
+_Example:_
+
 ```json
 {
   "type": "friendRequest",
@@ -125,9 +142,11 @@ Received when a user receives a friend request
 ```
 
 ### `friendRequestAccepted`
+
 Received when a user accepts a friend request
 
-*Example:*
+_Example:_
+
 ```json
 {
   "type": "friendRequestAccepted",
@@ -141,9 +160,11 @@ Received when a user accepts a friend request
 ```
 
 ### `gameInvite`
+
 Received when a user invites another user to a game
 
-*Example:*
+_Example:_
+
 ```json
 {
   "type": "gameInvite",
@@ -157,9 +178,11 @@ Received when a user invites another user to a game
 ```
 
 ### `generalMessage`
+
 Received when a general message is sent
 
-*Example:*
+_Example:_
+
 ```json
 {
   "type": "generalMessage",
@@ -173,11 +196,12 @@ Received when a general message is sent
 }
 ```
 
-
 ### `matchCancel`
+
 Received when a match is cancelled due to an error
 
-*Example:*
+_Example:_
+
 ```json
 {
   "type": "matchCancel",
@@ -186,9 +210,11 @@ Received when a match is cancelled due to an error
 ```
 
 ### `matchEnd`
+
 Received when a match ends
 
-*Example:*
+_Example:_
+
 ```json
 {
   "type": "matchEnd",
@@ -199,33 +225,40 @@ Received when a match ends
 ```
 
 ### `matchStart`
+
 Received when a match is starting
 
-*Example:*
+_Example:_
+
 ```json
 {
   "type": "matchStart",
   "game": "pong",
   "ranked": true,
   "block": false,
-  "players": [{
-    "id": 1,
-    "username": "user123",
-    "avatar": "/static/default_avatar.webp",
-    "elo": 1000
-  }, {
-    "id": 2,
-    "username": "user456",
-    "avatar": "/static/default_avatar.webp",
-    "elo": 1000
-  }]
+  "players": [
+    {
+      "id": 1,
+      "username": "user123",
+      "avatar": "/static/default_avatar.webp",
+      "elo": 1000
+    },
+    {
+      "id": 2,
+      "username": "user456",
+      "avatar": "/static/default_avatar.webp",
+      "elo": 1000
+    }
+  ]
 }
 ```
 
 ### `move`
+
 Received when opponent makes a move in a match
 
-*Example:*
+_Example:_
+
 ```jsonc
 {
   "type": "move",
@@ -234,21 +267,13 @@ Received when opponent makes a move in a match
 ```
 
 ### `round`
+
 Received when a round starts in a match
 
-*Example:*
+_Example:_
+
 ```json
 {
   "type": "round"
-}
-```
-
-### `hotReload` (development only)
-Received when the client should reload the page to apply updates. `NODE_ENV` must be set to `development` for this message to be sent
-
-*Example:*
-```json
-{
-  "type": "hotReload"
 }
 ```
