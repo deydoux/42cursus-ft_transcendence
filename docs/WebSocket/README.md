@@ -193,7 +193,7 @@ Received when a match ends
 {
   "type": "matchEnd",
   "winner": 1,
-  "result": "draw",
+  "result": "forfeit",
   "eloChange": 20
 }
 ```

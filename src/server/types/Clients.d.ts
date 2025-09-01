@@ -55,7 +55,7 @@ type ServerTunnelMessage =
   | {
       type: 'matchEnd';
       winner: number;
-      result?: 'draw' | 'tie';
+      result?: 'forfeit' | 'tie';
       eloChange?: number;
     }
   | {
@@ -64,8 +64,14 @@ type ServerTunnelMessage =
       ranked: boolean;
       block: boolean;
       players: unknown[];
+      dx: number;
+      dy: number;
     }
-  | {type: 'round'}
+  | {
+      type: 'round';
+      dx: number;
+      dy: number;
+    }
   | {
       type: 'success';
       origin: string;

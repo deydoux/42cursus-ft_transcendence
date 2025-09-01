@@ -65,7 +65,7 @@ CREATE TABLE matches(
 
   CHECK(game IN ('pong', 'race')),
   CHECK(mode IN ('casual', 'ranked')),
-  CHECK(result IN ('draw', 'tie'))
+  CHECK(result IN ('forfeit', 'tie'))
 );
 
 CREATE INDEX idx_matches_winner_id_loser_id ON matches(winner_id, loser_id);

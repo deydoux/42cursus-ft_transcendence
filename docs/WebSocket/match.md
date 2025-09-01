@@ -23,7 +23,7 @@ sequenceDiagram
 
   s ->> m: matchStart
   s ->> q: matchStart
-  Note over s: {game: 'pong', ranked: false, block: false, players: [...]}<br><br> players:<br>{id: 1, username: 'mapale', avatar: '/api/users/1/avatar?v=1'}<br>{id: 2, username: 'quteriss', avatar: '/api/users/2/avatar?v=1'}
+  Note over s: {game: 'pong', ranked: false, block: false, players: [...], dx: 0.94, dy: 0.34}<br><br> players:<br>{id: 1, username: 'mapale', avatar: '/api/users/1/avatar?v=1'}<br>{id: 2, username: 'quteriss', avatar: '/api/users/2/avatar?v=1'}
 
   q ->> s: joinMatchmaking
   s -->> q: error
@@ -39,7 +39,7 @@ sequenceDiagram
   alt Quentin disconnects
     s --x q: *socket closed*
     s ->> m: matchEnd
-    Note left of s: {winner: 1, result: 'draw'}
+    Note left of s: {winner: 1, result: 'forfeit'}
 
   else Mathy scores
     m ->> s: score
@@ -50,6 +50,7 @@ sequenceDiagram
     alt New round
       s ->> m: round
       s ->> q: round
+      Note over s: {dx: 0.74, dy: -0.68}
     else Mathy wins
       s ->> m: matchEnd
       s ->> q: matchEnd

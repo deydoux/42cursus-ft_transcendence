@@ -33,7 +33,7 @@ export default abstract class Match {
   private readonly lock;
 
   protected players;
-  protected result?: 'draw' | 'tie';
+  protected result?: 'forfeit' | 'tie';
   protected unlock = () => undefined;
   protected winner?: Player;
 
@@ -84,6 +84,13 @@ export default abstract class Match {
         opponent: opponent.userID,
       };
     });
+  }
+
+  protected static generateAngle() {
+    return (
+      Math.random() * (Math.PI / 3) +
+      Math.round(Math.random() * 3) * (Math.PI / 2)
+    );
   }
 
   get game() {
@@ -164,7 +171,7 @@ export default abstract class Match {
   }
 
   private handleClose(opponent: Player) {
-    this.result = 'draw';
+    this.result = 'forfeit';
     this.winner = opponent;
     this.unlock();
   }
@@ -273,6 +280,8 @@ export default abstract class Match {
   }
 
   public async start() {
+    const angle = Match.generateAngle();
+
     this.send({
       type: 'matchStart',
       game: this._game,
@@ -284,6 +293,8 @@ export default abstract class Match {
         avatar: player.avatar,
         elo: player.elo,
       })),
+      dx: Math.cos(angle),
+      dy: Math.sin(angle),
     });
 
     await this.lock;
