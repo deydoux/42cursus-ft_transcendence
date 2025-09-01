@@ -54,20 +54,8 @@ export default abstract class Match {
     this.execute((player, opponent) => {
       player.score = 0;
 
-      const onSocketClose = () => this.handleClose(opponent);
-      const onSocketMessage = (data: Data) => {
-        let message;
-        try {
-          message = JSON.parse(data.toString());
-        } catch {
-          return this.sendSocket(player.socket, {
-            type: 'error',
-            message: 'Invalid JSON',
-          });
-        }
-
-        this.handleMessage(player, opponent, message);
-      };
+      const onSocketClose = () => this.forfeits(opponent);
+      const onSocketMessage = this.handleMessage(player, opponent);
 
       player.socket.on('close', onSocketClose);
       player.socket.on('error', onSocketClose);
@@ -84,17 +72,6 @@ export default abstract class Match {
         opponent: opponent.userID,
       };
     });
-  }
-
-  protected static generateAngle() {
-    return (
-      Math.random() * (Math.PI / 3) +
-      Math.round(Math.random() * 3) * (Math.PI / 2)
-    );
-  }
-
-  get game() {
-    return this._game;
   }
 
   private cancel(cause?: string) {
@@ -170,29 +147,47 @@ export default abstract class Match {
     }
   }
 
-  private handleClose(opponent: Player) {
+  get game() {
+    return this._game;
+  }
+
+  protected static generateAngle() {
+    return (
+      Math.random() * (Math.PI / 3) +
+      Math.round(Math.random() * 3) * (Math.PI / 2)
+    );
+  }
+
+  private forfeits(winner: Player) {
     this.result = 'forfeit';
-    this.winner = opponent;
+    this.winner = winner;
     this.unlock();
   }
 
-  private handleMessage(
-    player: Player,
-    opponent: Player,
-    message: Record<string, unknown>,
-  ) {
-    switch (message?.type) {
-      case 'move':
-        this.sendSocket(opponent.socket, message as ServerTunnelMessage);
-        break;
-      case 'score':
-        this.handleScore(
-          player,
-          message as ClientTunnelMessage & {type: 'score'},
-        );
-        break;
-    }
-  }
+  private handleMessage =
+    (player: Player, opponent: Player) => (data: Data) => {
+      let message;
+      try {
+        message = JSON.parse(data.toString());
+      } catch {
+        return;
+      }
+
+      switch (message?.type) {
+        case 'leaveMatchmaking':
+          this.forfeits(opponent);
+          break;
+        case 'move':
+          this.sendSocket(opponent.socket, message as ServerTunnelMessage);
+          break;
+        case 'score':
+          this.handleScore(
+            player,
+            message as ClientTunnelMessage & {type: 'score'},
+          );
+          break;
+      }
+    };
 
   protected abstract handleRound(scorer: Player): void;
 

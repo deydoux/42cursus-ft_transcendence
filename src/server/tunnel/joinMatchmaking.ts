@@ -28,26 +28,10 @@ export default async function joinMatchmaking(
       Clients.message({type: 'error', message: 'Invalid game'}),
     );
 
-  if (game.players[client.userID])
-    return client.socket.send(
-      Clients.message({
-        type: 'error',
-        message: 'You are already playing a match',
-      }),
-    );
-
-  for (const queue of Object.values(game.queues)) {
-    if (
-      queue.casual?.userID === client.userID ||
-      queue.invites.some(invite => invite.client.userID === client.userID) ||
-      queue.ranked.some(rankedClient => rankedClient.userID === client.userID)
-    )
-      return client.socket.send(
-        Clients.message({
-          type: 'error',
-          message: 'You are already in a matchmaking queue',
-        }),
-      );
+  try {
+    server.playAvailability(client);
+  } catch (e) {
+    return;
   }
 
   let match = null;
