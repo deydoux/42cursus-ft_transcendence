@@ -4,6 +4,7 @@ import {Toastify} from '../../utils/toastify';
 import {api} from '../../utils/Api';
 import {getRelativeTime} from '../../utils/string';
 import {loadIcons} from '../../utils/icons';
+import {renderUserContextMenu} from './userContextMenu';
 
 export class FriendRequests {
   constructor(private store: Store) {}
@@ -221,6 +222,11 @@ export class FriendRequests {
       const line = DOMUtils.createElement('div', {
         className: 'flex items-center justify-between py-2 px-6',
       });
+      line.oncontextmenu = evt => {
+        evt.preventDefault();
+        renderUserContextMenu(request, ['block'], [evt.pageX, evt.pageY]);
+      };
+
       line.appendChild(this.renderRequestUserInfo(request));
 
       const rightContent = DOMUtils.createElement('div', {
