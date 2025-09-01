@@ -36,7 +36,7 @@
     "@types/qrcode": "^1.5.5",
     "@types/sqlite3": "^5.1.0",
     "@types/ws": "^8.18.1",
-    "concurrently": "^9.2.0",
+    "concurrently": "^9.2.1",
     "eslint": "^9.34.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
