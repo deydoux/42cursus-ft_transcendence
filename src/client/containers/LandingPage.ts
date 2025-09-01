@@ -396,6 +396,9 @@ export class LandingPage extends BaseComponent {
                 throw response;
               }
 
+              const data = await response.json();
+              this.store.setState({user: data});
+
               this.router.navigate('/homepage');
             } catch (error) {
               this.renderRegistrationForm('login');
