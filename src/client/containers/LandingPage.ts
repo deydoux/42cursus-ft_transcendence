@@ -400,9 +400,8 @@ export class LandingPage extends BaseComponent {
               this.store.setState({user: data});
 
               this.router.navigate('/homepage');
-            } catch (error) {
+            } catch {
               this.renderRegistrationForm('login');
-              console.error(error);
               showAuthDialog();
             }
           },

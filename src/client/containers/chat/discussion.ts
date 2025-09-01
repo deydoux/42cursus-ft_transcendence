@@ -40,9 +40,6 @@ export class Discussion {
       if (!discussion) return;
 
       const newMessages = [...(discussion?.messages ?? []), ...data.messages];
-      console.log(
-        `before ${discussion.messages.length}; after ${newMessages.length}`,
-      );
 
       this.store.setState({
         discussion: {
@@ -334,7 +331,6 @@ export class Discussion {
       const atTop = list.clientHeight - list.scrollTop >= list.scrollHeight;
 
       if (atTop && !isAtTop && state[type]?.next) {
-        console.log('scrolled to top');
         await this.loadMoreMessages(state[type]?.next);
         isAtTop = true;
       } else if (!atTop) {
@@ -539,8 +535,6 @@ export class Discussion {
     const messagesList = DOMUtils.createElement('div', {
       className: 'flex flex-col-reverse gap-2 overflow-y-auto flex-1 pt-6',
     });
-
-    console.log('rendering renderPrivateDiscussion');
 
     this.store.subscribeToPath('discussion.messages', () => {
       this.renderMessages(messagesList, 'discussion');
