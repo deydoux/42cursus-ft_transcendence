@@ -2,6 +2,11 @@ import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-sche
 import {idParamsSchema as schema} from '#lib/schemas';
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
+  if (server.prod)
+    await server.register(import('@fastify/static'), {
+      root: server.paths.avatars,
+    });
+
   server.setNotFoundHandler((_, reply) =>
     reply.redirect('/static/default_avatar.webp', 302),
   );
