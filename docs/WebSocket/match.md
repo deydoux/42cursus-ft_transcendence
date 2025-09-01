@@ -46,7 +46,8 @@ sequenceDiagram
     s -->> q: success
     Note right of s: {origin: 'leaveMatchmaking'}
     s ->> m: matchEnd
-    Note left of s: {winner: 1, result: 'forfeit'}
+    s ->> q: matchEnd
+    Note over s: {winner: 1, result: 'forfeit'}
 
   else Mathy scores
     m ->> s: score

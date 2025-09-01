@@ -54,7 +54,7 @@ export default abstract class Match {
     this.execute((player, opponent) => {
       player.score = 0;
 
-      const onSocketClose = () => this.handleClose(opponent);
+      const onSocketClose = () => this.forfeits(opponent);
       const onSocketMessage = this.handleMessage(player, opponent);
 
       player.socket.on('close', onSocketClose);
@@ -158,9 +158,9 @@ export default abstract class Match {
     );
   }
 
-  private handleClose(opponent: Player) {
+  private forfeits(winner: Player) {
     this.result = 'forfeit';
-    this.winner = opponent;
+    this.winner = winner;
     this.unlock();
   }
 
@@ -174,6 +174,9 @@ export default abstract class Match {
       }
 
       switch (message?.type) {
+        case 'leaveMatchmaking':
+          this.forfeits(opponent);
+          break;
         case 'move':
           this.sendSocket(opponent.socket, message as ServerTunnelMessage);
           break;
