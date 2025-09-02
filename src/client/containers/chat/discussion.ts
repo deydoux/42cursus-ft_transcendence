@@ -513,7 +513,7 @@ export class Discussion {
     cogButton.appendChild(
       DOMUtils.createElement('i', {
         attributes: {
-          icon: 'cog',
+          icon: 'verticalEllipsis',
         },
       }),
     );
