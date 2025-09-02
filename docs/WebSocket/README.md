@@ -260,7 +260,8 @@ Received when a participant leaves a tournament
     "id": 1,
     "username": "user123",
     "avatar": "/static/default_avatar.webp"
-  }
+  },
+  "ownerID": 2
 }
 ```
 
