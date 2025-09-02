@@ -8,10 +8,10 @@ interface Participant extends Client {
 
 export class Tournament {
   public readonly game = 'tournament';
+  public readonly id;
+  public readonly name;
 
   private readonly server: FastifyInstance;
-  private readonly id;
-  private readonly name;
 
   private participants: Participant[] = [];
   private _started = false;
