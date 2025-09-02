@@ -75,20 +75,24 @@ export class Tournament {
     participant.socket.on('error', participant.onSocketClose);
   }
 
-  private handleMessage = (participant: Participant) => (data: RawData) => {
-    let message;
-    try {
-      message = JSON.parse(data.toString());
-    } catch {
-      return;
-    }
+  private handleMessage =
+    (participant: Participant) => async (data: RawData) => {
+      let message;
+      try {
+        message = JSON.parse(data.toString());
+      } catch {
+        return;
+      }
 
-    switch (message?.type) {
-      case 'leaveTournament':
-        this.removeParticipant(participant);
-        break;
-    }
-  };
+      switch (message?.type) {
+        case 'leaveTournament':
+          this.removeParticipant(participant);
+          break;
+        case 'startTournament':
+          this.start(participant);
+          break;
+      }
+    };
 
   get started() {
     return this._started;
@@ -129,6 +133,7 @@ export class Tournament {
     this.send({
       type: 'participantLeft',
       participant: user,
+      ownerID: this.participants[0].userID,
     });
   }
 
@@ -142,7 +147,30 @@ export class Tournament {
     return socket.send(Clients.message(message));
   }
 
-  public start() {
+  private start(participant: Participant) {
+    if (this.participants[0].userID !== participant.userID)
+      return this.sendSocket(participant.socket, {
+        type: 'error',
+        message: 'Only the tournament owner can start the tournament',
+      });
+
+    if (this.started)
+      return this.sendSocket(participant.socket, {
+        type: 'error',
+        message: 'Tournament already started',
+      });
+
+    if (this.participants.length < 2)
+      return this.sendSocket(participant.socket, {
+        type: 'error',
+        message: 'Not enough participants to start the tournament',
+      });
+
+    //TODO
+    // this.send({
+    //   type: 'tournamentStarted',
+    // });
+
     this._started = true;
   }
 }

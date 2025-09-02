@@ -75,8 +75,13 @@ type ServerTunnelMessage =
       dy: number;
     }
   | {
-      type: 'participantJoined' | 'participantLeft';
+      type: 'participantJoined';
       participant: unknown;
+    }
+  | {
+      type: 'participantLeft';
+      participant: unknown;
+      ownerID: number;
     }
   | {
       type: 'round';
