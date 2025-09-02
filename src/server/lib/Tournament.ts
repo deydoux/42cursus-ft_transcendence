@@ -1,8 +1,10 @@
 import {Client, ServerTunnelMessage} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
+import {RawData} from 'ws';
 
 interface Participant extends Client {
+  onSocketMessage?: (data: RawData) => void;
   onSocketClose?: () => void;
 }
 
@@ -38,11 +40,24 @@ export class Tournament {
 
     this.participants.push(participant);
 
+    participant.onSocketMessage = this.handleMessage(participant);
     participant.onSocketClose = () => this.removeParticipant(participant);
 
+    participant.socket.on('message', participant.onSocketMessage);
     participant.socket.on('close', participant.onSocketClose);
     participant.socket.on('error', participant.onSocketClose);
   }
+
+  private handleMessage = (participant: Participant) => (data: RawData) => {
+    let message;
+    try {
+      message = JSON.parse(data.toString());
+    } catch {
+      return;
+    }
+
+    void message;
+  };
 
   get started() {
     return this._started;
@@ -58,6 +73,8 @@ export class Tournament {
   private removeParticipant(participant: Participant) {
     this.participants = this.participants.filter(p => p !== participant);
 
+    if (participant.onSocketMessage)
+      participant.socket.off('message', participant.onSocketMessage);
     if (participant.onSocketClose) {
       participant.socket.off('close', participant.onSocketClose);
       participant.socket.off('error', participant.onSocketClose);
@@ -66,5 +83,9 @@ export class Tournament {
 
   private sendSocket(socket: WebSocket, message: ServerTunnelMessage) {
     return socket.send(Clients.message(message));
+  }
+
+  public start() {
+    this._started = true;
   }
 }
