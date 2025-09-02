@@ -233,6 +233,37 @@ Received when opponent makes a move in a match
 }
 ```
 
+
+### `participantJoined`
+Received when a participant joins a tournament
+
+*Example:*
+```json
+{
+  "type": "participantJoined",
+  "participant": {
+    "id": 1,
+    "username": "user123",
+    "avatar": "/static/default_avatar.webp"
+  }
+}
+```
+
+### `participantLeft`
+Received when a participant leaves a tournament
+
+*Example:*
+```json
+{
+  "type": "participantLeft",
+  "participant": {
+    "id": 1,
+    "username": "user123",
+    "avatar": "/static/default_avatar.webp"
+  }
+}
+```
+
 ### `round`
 Received when a round starts in a match
 
