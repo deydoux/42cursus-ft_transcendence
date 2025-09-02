@@ -12,7 +12,7 @@ export default class Tournaments {
     this.server = server;
   }
 
-  create(name: string, owner: Client) {
+  public create(name: string, owner: Client) {
     try {
       this.server.playAvailability(owner);
     } catch {
@@ -22,5 +22,9 @@ export default class Tournaments {
     this.id++;
     const tournament = new Tournament(this.server, this.id, name, owner);
     this.tournaments[this.id] = tournament;
+  }
+
+  public delete(id: number) {
+    delete this.tournaments[id];
   }
 }

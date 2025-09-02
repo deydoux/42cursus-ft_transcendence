@@ -2,6 +2,7 @@ import {Client, ServerTunnelMessage} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
 import {RawData} from 'ws';
+import {WebSocket} from '@fastify/websocket';
 
 interface Participant extends Client {
   onSocketMessage?: (data: RawData) => void;
@@ -56,7 +57,11 @@ export class Tournament {
       return;
     }
 
-    void message;
+    switch (message?.type) {
+      case 'leaveTournament':
+        this.removeParticipant(participant);
+        break;
+    }
   };
 
   get started() {
@@ -78,6 +83,19 @@ export class Tournament {
     if (participant.onSocketClose) {
       participant.socket.off('close', participant.onSocketClose);
       participant.socket.off('error', participant.onSocketClose);
+    }
+
+    this.sendSocket(participant.socket, {
+      type: 'success',
+      origin: 'leaveTournament',
+    });
+
+    if (this.participants.length === 0) this.server.tournaments.delete(this.id);
+  }
+
+  private send(message: ServerTunnelMessage) {
+    for (const participant of this.participants) {
+      this.sendSocket(participant.socket, message);
     }
   }
 
