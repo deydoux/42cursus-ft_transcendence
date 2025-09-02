@@ -16,7 +16,7 @@ const plugin: FastifyPluginAsync = async server => {
   await db.migrate();
 
   db.on('trace', (sql: string) => {
-    server.log.trace(`${filename}: ${sql}`);
+    server.log.trace(`${filename}: ${sql.replace(/\s+/g, ' ').trim()}`);
   });
 
   const clean = async () => {

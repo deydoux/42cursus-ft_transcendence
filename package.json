@@ -28,7 +28,7 @@
     "tunnel": "wscat -s \"$TOKEN\" -c ws://localhost:3000/api/tunnel"
   },
   "devDependencies": {
-    "@dotenvx/dotenvx": "^1.48.4",
+    "@dotenvx/dotenvx": "^1.49.0",
     "@eslint/js": "^9.34.0",
     "@tailwindcss/vite": "^4.1.12",
     "@types/bcrypt": "^6.0.0",
@@ -36,7 +36,7 @@
     "@types/qrcode": "^1.5.5",
     "@types/sqlite3": "^5.1.0",
     "@types/ws": "^8.18.1",
-    "concurrently": "^9.2.0",
+    "concurrently": "^9.2.1",
     "eslint": "^9.34.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
@@ -45,7 +45,7 @@
     "prettier-plugin-tailwindcss": "^0.6.14",
     "tailwindcss": "^4.1.11",
     "typescript": "^5.9.2",
-    "typescript-eslint": "^8.40.0",
+    "typescript-eslint": "^8.41.0",
     "vite": "^7.1.3",
     "wscat": "^6.1.0"
   },
