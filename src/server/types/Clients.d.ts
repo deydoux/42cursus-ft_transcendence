@@ -75,6 +75,10 @@ type ServerTunnelMessage =
       dy: number;
     }
   | {
+      type: 'participantJoined' | 'participantLeft';
+      participant: unknown;
+    }
+  | {
       type: 'round';
       dx: number;
       dy: number;

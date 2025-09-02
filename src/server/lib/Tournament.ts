@@ -3,6 +3,8 @@ import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
 import {RawData} from 'ws';
 import {WebSocket} from '@fastify/websocket';
+import SQL from 'sql-template-strings';
+import serializeUserAvatar from './serializeUserAvatar';
 
 interface Participant extends Client {
   onSocketMessage?: (data: RawData) => void;
@@ -31,13 +33,27 @@ export class Tournament {
     this.addParticipant(owner, true);
   }
 
-  public addParticipant(participant: Participant, isOwner = false) {
+  public async addParticipant(participant: Participant, isOwner = false) {
     if (!isOwner)
       try {
         this.server.playAvailability(participant);
       } catch {
         return;
       }
+
+    if (this.participants.length > 0) {
+      const user = await this.server.db.get(SQL`
+      SELECT id, username, has_avatar, avatar_version
+      FROM users
+      WHERE id = ${participant.userID}
+    `);
+      serializeUserAvatar(user);
+
+      this.send({
+        type: 'participantJoined',
+        participant: user,
+      });
+    }
 
     this.participants.push(participant);
 
@@ -75,7 +91,7 @@ export class Tournament {
     if (participant) this.removeParticipant(participant);
   }
 
-  private removeParticipant(participant: Participant) {
+  private async removeParticipant(participant: Participant) {
     this.participants = this.participants.filter(p => p !== participant);
 
     if (participant.onSocketMessage)
@@ -90,7 +106,20 @@ export class Tournament {
       origin: 'leaveTournament',
     });
 
-    if (this.participants.length === 0) this.server.tournaments.delete(this.id);
+    if (this.participants.length === 0)
+      return this.server.tournaments.delete(this.id);
+
+    const user = await this.server.db.get(SQL`
+      SELECT id, username, has_avatar, avatar_version
+      FROM users
+      WHERE id = ${participant.userID}
+    `);
+    serializeUserAvatar(user);
+
+    this.send({
+      type: 'participantLeft',
+      participant: user,
+    });
   }
 
   private send(message: ServerTunnelMessage) {
