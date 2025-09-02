@@ -148,16 +148,16 @@ export class Tournament {
   }
 
   private start(participant: Participant) {
-    if (this.participants[0].userID !== participant.userID)
-      return this.sendSocket(participant.socket, {
-        type: 'error',
-        message: 'Only the tournament owner can start the tournament',
-      });
-
     if (this.started)
       return this.sendSocket(participant.socket, {
         type: 'error',
         message: 'Tournament already started',
+      });
+
+    if (this.participants[0].userID !== participant.userID)
+      return this.sendSocket(participant.socket, {
+        type: 'error',
+        message: 'Only the tournament owner can start the tournament',
       });
 
     if (this.participants.length < 2)
