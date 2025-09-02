@@ -4,6 +4,7 @@ import {Database} from 'sqlite';
 import Match from '#lib/Match';
 import {SharpInput} from 'sharp';
 import {Tournament} from '#lib/Tournament';
+import {Tournaments} from '#lib/Tournaments';
 import {WebSocket} from '@fastify/websocket';
 
 interface RankedClient extends Client {
@@ -65,6 +66,7 @@ declare module 'fastify' {
     prod: boolean;
     removeAvatar: (id: number) => Promise<void>;
     storeAvatar: (id: number, avatar: SharpInput) => Promise<void>;
+    tournaments: Tournaments;
     validateTOTP: (secret: string, token: string) => void;
     validateUsernameAvailability: (
       username: string,

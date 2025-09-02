@@ -2,7 +2,7 @@ import {Client} from '#types/Clients';
 import {FastifyInstance} from 'fastify';
 import {Tournament} from '#lib/Tournament';
 
-export class Tournaments {
+export default class Tournaments {
   private id = 0;
   private tournaments: Record<number, Tournament> = {};
 
