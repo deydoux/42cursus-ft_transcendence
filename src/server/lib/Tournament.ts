@@ -34,12 +34,22 @@ export class Tournament {
   }
 
   public async addParticipant(participant: Participant, isOwner = false) {
-    if (!isOwner)
+    if (!isOwner) {
       try {
         this.server.playAvailability(participant);
       } catch {
         return;
       }
+
+      this.sendSocket(participant.socket, {
+        type: 'success',
+        origin: 'joinTournament',
+      });
+    } else
+      this.sendSocket(participant.socket, {
+        type: 'success',
+        origin: 'createTournament',
+      });
 
     if (this.participants.length > 0) {
       const user = await this.server.db.get(SQL`
