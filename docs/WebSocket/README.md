@@ -234,14 +234,14 @@ Received when opponent makes a move in a match
 ```
 
 
-### `participantJoined`
+### `participantJoin`
 Received when a participant joins a tournament
 
 *Example:*
 ```json
 {
-  "type": "participantJoined",
-  "participant": {
+  "type": "participantJoin",
+  "user": {
     "id": 1,
     "username": "user123",
     "avatar": "/static/default_avatar.webp"
@@ -256,7 +256,7 @@ Received when a participant leaves a tournament
 ```json
 {
   "type": "participantLeft",
-  "participant": {
+  "user": {
     "id": 1,
     "username": "user123",
     "avatar": "/static/default_avatar.webp"

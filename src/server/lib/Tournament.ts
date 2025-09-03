@@ -60,8 +60,8 @@ export class Tournament {
       serializeUserAvatar(user);
 
       this.send({
-        type: 'participantJoined',
-        participant: user,
+        type: 'participantJoin',
+        user,
       });
     }
 
@@ -132,7 +132,7 @@ export class Tournament {
 
     this.send({
       type: 'participantLeft',
-      participant: user,
+      user,
       ownerID: this.participants[0].userID,
     });
   }
