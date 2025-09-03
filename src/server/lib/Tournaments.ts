@@ -4,7 +4,7 @@ import {Tournament} from '#lib/Tournament';
 
 export default class Tournaments {
   private id = 0;
-  private tournaments: Record<number, Tournament> = {};
+  private tournaments: Record<number, Readonly<Tournament>> = {};
 
   private server: FastifyInstance;
 
@@ -26,5 +26,13 @@ export default class Tournaments {
 
   public delete(id: number) {
     delete this.tournaments[id];
+  }
+
+  get _() {
+    return Object.values(this.tournaments).map(tournament => ({
+      id: tournament.id,
+      name: tournament.name,
+      owner: {id: tournament.owner.userID},
+    }));
   }
 }

@@ -94,6 +94,10 @@ export class Tournament {
       }
     };
 
+  get owner() {
+    return this.participants[0];
+  }
+
   get started() {
     return this._started;
   }
