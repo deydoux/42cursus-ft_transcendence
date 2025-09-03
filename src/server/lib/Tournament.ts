@@ -2,8 +2,8 @@ import {Client, ServerTunnelMessage} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
 import {RawData} from 'ws';
-import {WebSocket} from '@fastify/websocket';
 import SQL from 'sql-template-strings';
+import {WebSocket} from '@fastify/websocket';
 import serializeUserAvatar from './serializeUserAvatar';
 
 interface Participant extends Client {
