@@ -172,5 +172,8 @@ export class Tournament {
     // });
 
     this._started = true;
+    this.server.tournaments.delete(this.id);
+
+    //TODO: implement tournament logic
   }
 }
