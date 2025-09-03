@@ -55,6 +55,8 @@ export class Discussion {
   }
 
   private async sendPrivateMessage(toUserID: number, message: string) {
+    if (message.length === 0 || message.trim().length === 0) return;
+
     try {
       const response = await api.post(`chats/direct/${toUserID}`, {
         content: message,
@@ -77,7 +79,9 @@ export class Discussion {
         },
         ...discussion.messages,
       ];
-      this.store.setState({discussion: {...discussion, messages: newMessages}});
+      this.store.setState({
+        discussion: {...discussion, messages: newMessages},
+      });
     } catch (error) {
       Toastify.error('An error occured while sending a message');
       console.error(error);
@@ -102,6 +106,8 @@ export class Discussion {
   }
 
   private async sendGeneralMessage(message: string) {
+    if (message.length === 0 || message.trim().length === 0) return;
+
     try {
       const response = await api.post(`chats/general`, {
         content: message,

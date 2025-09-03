@@ -188,6 +188,7 @@ const handleGeneralMessage = (data: {
             userID: data.sender.id,
             content: data.content,
             createdAt: new Date().toISOString(),
+            mention: data.mention,
           },
           ...generalDiscussion.messages,
         ],

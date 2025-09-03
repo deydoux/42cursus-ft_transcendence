@@ -38,12 +38,25 @@ export class UserCard {
           textContent: user.username,
         }),
       );
-      userInfos.appendChild(
-        DOMUtils.createElement('p', {
-          className: 'text-white/60 -mt-1 text-sm',
-          textContent: `${directChats.length} friend${directChats.length > 1 ? 's' : ''} • ${user.elo ?? 300}xp`,
+
+      const userStats = DOMUtils.createElement('div', {
+        className: '-mt-1 text-sm flex items-center text-white/60',
+      });
+      userStats.appendChild(
+        DOMUtils.createElement('span', {
+          textContent: `${directChats.length} friend${directChats.length > 1 ? 's' : ''} • ${user.elo ?? 300} `,
         }),
       );
+      userStats.appendChild(
+        DOMUtils.createElement('i', {
+          className: 'w-3 h-3 ml-0.5',
+          attributes: {
+            icon: 'sparkles',
+          },
+        }),
+      );
+
+      userInfos.appendChild(userStats);
     };
 
     leftPart.appendChild(userInfos);

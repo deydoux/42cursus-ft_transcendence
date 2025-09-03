@@ -57,7 +57,8 @@ export class Chat extends BaseComponent {
 
     const view = DOMUtils.createElement('div');
     const renderView = () => {
-      const {chatView} = this.store.getState();
+      const {chatView, user} = this.store.getState();
+      if (!user) return;
       view.innerHTML = '';
 
       switch (chatView.label) {

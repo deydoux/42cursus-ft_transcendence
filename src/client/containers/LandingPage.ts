@@ -499,6 +499,10 @@ export class LandingPage extends BaseComponent {
   }
 
   render(): HTMLElement {
+    if (location.pathname === '/') {
+      this.store.clearState();
+    }
+
     const container = DOMUtils.createElement('div', {
       className:
         'w-screen h-screen overflow-hidden flex justify-around max-w-[1600px] items-center gap-20',
