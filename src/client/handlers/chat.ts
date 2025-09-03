@@ -1,7 +1,116 @@
 import {Chat} from '../containers/chat/Chat';
+import {DOMUtils} from '../utils/dom';
+import {FriendRequests} from '../containers/chat/friendRequests';
 import {Store} from '../services/store';
 import {Toastify} from '../utils/toastify';
 import {socket} from '../utils/websocket';
+
+const toastMessageNotification = (
+  user: {
+    username: string;
+    avatar: string;
+    id: number;
+  },
+  message: string,
+  isGeneralMessage?: boolean,
+) => {
+  const container = DOMUtils.createElement('div', {
+    className: 'flex items-center gap-4',
+  });
+
+  container.appendChild(
+    DOMUtils.createElement('img', {
+      className: 'w-10 h-10 rounded-full',
+      attributes: {
+        src: user.avatar,
+      },
+    }),
+  );
+
+  const userInfo = DOMUtils.createElement('div');
+  userInfo.appendChild(
+    DOMUtils.createElement('p', {
+      className: 'font-bold -mb-1',
+      textContent: user.username,
+    }),
+  );
+  userInfo.appendChild(
+    DOMUtils.createElement('p', {
+      textContent: `General: ${message}`,
+    }),
+  );
+  container.appendChild(userInfo);
+
+  Toastify.info(container, {
+    onClick: (toastID: string) => {
+      Toastify.dismiss(toastID);
+      Store.getInstance().setState(
+        isGeneralMessage
+          ? {
+              chatView: {label: user.username, id: user.id},
+            }
+          : {chatView: {label: 'general'}},
+      );
+    },
+    closable: false,
+  });
+};
+
+const toastFriendRequestNotification = (
+  user: {
+    username: string;
+    avatar: string;
+    id: number;
+  },
+  relationshipID: number,
+) => {
+  const acceptButton = DOMUtils.createElement('button', {
+    className:
+      'cursor-pointer border rounded flex items-center justify-center w-6 h-6',
+    textContent: '✓',
+  });
+  acceptButton.onclick = async () => {
+    Toastify.dismissAll();
+    await FriendRequests.acceptFriendRequest(
+      user.username,
+      user.id,
+      relationshipID,
+    );
+  };
+  const refuseButton = DOMUtils.createElement('button', {
+    className:
+      'cursor-pointer border rounded flex items-center justify-center w-6 h-6',
+    textContent: '✗',
+  });
+  refuseButton.onclick = async () => {
+    Toastify.dismissAll();
+    await FriendRequests.closeRequest(user.username, relationshipID);
+  };
+
+  const content = DOMUtils.createElement('div', {
+    className: 'flex items-center gap-4',
+  });
+  content.appendChild(
+    DOMUtils.createElement('img', {
+      className: 'w-10 h-10 rounded-full',
+      attributes: {
+        src: user.avatar,
+      },
+    }),
+  );
+
+  const userInfos = DOMUtils.createElement('div', {
+    className: 'max-w-30 leading-tight',
+  });
+  userInfos.innerHTML = `<strong>${user.username}</strong> wants to be your friend!`;
+
+  content.appendChild(userInfos);
+
+  Toastify.info(content, {
+    closable: false,
+    actionButtons: [acceptButton, refuseButton],
+  });
+};
 
 const handleDirectMessage = (data: {
   sender: {
@@ -52,13 +161,7 @@ const handleDirectMessage = (data: {
       }),
     });
 
-    Toastify.message(
-      {
-        username: data.sender.username,
-        avatar: data.sender.avatar,
-      },
-      data.content,
-    );
+    toastMessageNotification(data.sender, data.content);
   }
 };
 
@@ -101,13 +204,7 @@ const handleGeneralMessage = (data: {
     });
 
     if (data.mention) {
-      Toastify.message(
-        {
-          username: `General: ${data.sender.username}`,
-          avatar: data.sender.avatar,
-        },
-        data.content,
-      );
+      toastMessageNotification(data.sender, data.content);
     }
   }
 };
@@ -136,7 +233,7 @@ const handleFriendRequest = (data: {
     ],
   });
 
-  Toastify.info(`You received a new friend request from ${data.user.username}`);
+  toastFriendRequestNotification(data.user, data.relationship);
 };
 
 const handleFriendRequestAccepted = (data: {

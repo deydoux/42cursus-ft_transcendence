@@ -20,44 +20,31 @@ export class Toastify {
 
   // Static convenience methods
   static success(
-    message: string,
+    message: string | HTMLElement,
     options?: Omit<ToastOptions, 'message' | 'type'>,
   ): string {
     return Toastify.getInstance().show({message, type: 'success', ...options});
   }
 
   static error(
-    message: string,
+    message: string | HTMLElement,
     options?: Omit<ToastOptions, 'message' | 'type'>,
   ): string {
     return Toastify.getInstance().show({message, type: 'error', ...options});
   }
 
   static warning(
-    message: string,
+    message: string | HTMLElement,
     options?: Omit<ToastOptions, 'message' | 'type'>,
   ): string {
     return Toastify.getInstance().show({message, type: 'warning', ...options});
   }
 
   static info(
-    message: string,
+    message: string | HTMLElement,
     options?: Omit<ToastOptions, 'message' | 'type'>,
   ): string {
     return Toastify.getInstance().show({message, type: 'info', ...options});
-  }
-
-  static message(
-    user: {username: string; avatar: string},
-    message: string,
-    options?: Omit<ToastOptions, 'message' | 'type'>,
-  ) {
-    return Toastify.getInstance().show({
-      message,
-      user,
-      type: 'message',
-      ...options,
-    });
   }
 
   static dismiss(toastId: string): void {
@@ -71,19 +58,22 @@ export class Toastify {
   show(options: ToastOptions): string {
     const {
       message,
-      user,
       type = 'info',
       duration = 4000,
       closable = true,
       position = 'top-right',
+      actionButtons = [],
+      onClick = undefined,
     } = options;
 
     const toastId = this.generateId();
     const toastElement = this.createToastElement(
-      {message, username: user?.username, avatar: user?.avatar},
+      message,
       type,
       closable,
+      actionButtons,
       toastId,
+      onClick,
     );
 
     // Update container position if needed
@@ -159,10 +149,12 @@ export class Toastify {
   }
 
   private createToastElement(
-    content: {username?: string; avatar?: string; message: string},
+    content: string | HTMLElement,
     type: string,
     closable: boolean,
+    actionButtons: HTMLButtonElement[],
     toastId: string,
+    onClick?: (toatID: string) => void,
   ): HTMLElement {
     const toast = DOMUtils.createElement('div', {
       className: `toast toast-${type}`,
@@ -173,43 +165,22 @@ export class Toastify {
     });
 
     const container = DOMUtils.createElement('div', {
-      className: 'toast-content',
+      className: `toast-content ${onClick ? 'cursor-pointer' : ''}`,
     });
 
-    if (type === 'message' && content.avatar && content.username) {
-      container.appendChild(
-        DOMUtils.createElement('img', {
-          className: 'toast-user-avatar',
-          attributes: {
-            src: content.avatar,
-          },
-        }),
-      );
+    if (onClick) {
+      container.onclick = () => onClick(toastId);
+    }
 
-      const userInfo = DOMUtils.createElement('div', {
-        className: 'toast-users-info',
-      });
-      userInfo.appendChild(
-        DOMUtils.createElement('p', {
-          className: 'toast-username',
-          textContent: content.username,
-        }),
-      );
-      userInfo.appendChild(
-        DOMUtils.createElement('p', {
-          className: 'toast-text',
-          textContent: content.message,
-        }),
-      );
-
-      container.appendChild(userInfo);
-    } else {
+    if (typeof content === 'string') {
       container.appendChild(
         DOMUtils.createElement('span', {
           className: 'toast-text',
-          textContent: content.message,
+          textContent: content,
         }),
       );
+    } else {
+      container.appendChild(content);
     }
 
     toast.appendChild(container);
@@ -227,6 +198,13 @@ export class Toastify {
       });
 
       toast.appendChild(closeButton);
+    } else if (actionButtons.length > 0) {
+      const buttons = DOMUtils.createElement('div', {
+        className: 'flex items-center ml-4 gap-2',
+      });
+
+      actionButtons.forEach(b => buttons.appendChild(b));
+      toast.appendChild(buttons);
     }
 
     return toast;

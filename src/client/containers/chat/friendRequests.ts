@@ -43,7 +43,7 @@ export class FriendRequests {
     }
   }
 
-  private async acceptFriendRequest(
+  static async acceptFriendRequest(
     username: string,
     userID: number,
     relationshipID: number,
@@ -56,12 +56,14 @@ export class FriendRequests {
         throw new Error(errorData.message);
       }
 
-      const {friendRequests} = this.store.getState();
+      const store = Store.getInstance();
+
+      const {friendRequests} = store.getState();
 
       const filteredRequests = friendRequests.filter(request => {
         return request.username !== username;
       });
-      this.store.setState({
+      store.setState({
         friendRequests: filteredRequests,
         chatView: {
           id: userID,
@@ -75,7 +77,7 @@ export class FriendRequests {
     }
   }
 
-  private async closeRequest(username: string, relationshipID: number) {
+  static async closeRequest(username: string, relationshipID: number) {
     try {
       const response = await api.delete(`relationships/${relationshipID}`, {});
 
@@ -84,8 +86,10 @@ export class FriendRequests {
         throw new Error(errorData.message);
       }
 
-      const {friendRequests, sentFriendRequests} = this.store.getState();
-      this.store.setState({
+      const store = Store.getInstance();
+
+      const {friendRequests, sentFriendRequests} = store.getState();
+      store.setState({
         friendRequests: friendRequests.filter(
           request => request.username !== username,
         ),
@@ -183,9 +187,12 @@ export class FriendRequests {
       events: {
         click: () => {
           if (type === 'close')
-            this.closeRequest(request.username, request.relationshipID);
+            FriendRequests.closeRequest(
+              request.username,
+              request.relationshipID,
+            );
           else
-            this.acceptFriendRequest(
+            FriendRequests.acceptFriendRequest(
               request.username,
               request.id,
               request.relationshipID,
