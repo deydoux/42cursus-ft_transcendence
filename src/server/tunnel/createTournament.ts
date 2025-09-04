@@ -21,4 +21,9 @@ export default async function createTournament(
     });
 
   server.tournaments.create(name, client);
+
+  Clients.sendClient(client, {
+    type: 'success',
+    origin: 'createTournament',
+  });
 }

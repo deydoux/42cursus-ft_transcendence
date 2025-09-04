@@ -29,16 +29,11 @@ export class Tournament {
     this.server = server;
     this.id = id;
     this.name = name;
-    this.addParticipant(owner, true);
-
-    Clients.sendClient(owner, {
-      type: 'success',
-      origin: 'createTournament',
-    });
+    this.addParticipant(owner);
   }
 
-  public async addParticipant(participant: Participant, isOwner = false) {
-    if (!isOwner) {
+  public async addParticipant(participant: Participant) {
+    if (this.participants.length > 0) {
       try {
         this.server.playAvailability(participant);
       } catch {
@@ -49,13 +44,7 @@ export class Tournament {
         type: 'success',
         origin: 'joinTournament',
       });
-    } else
-      Clients.sendClient(participant, {
-        type: 'success',
-        origin: 'createTournament',
-      });
 
-    if (this.participants.length > 0) {
       const user = await this.server.db.get(SQL`
       SELECT id, username, has_avatar, avatar_version
       FROM users
