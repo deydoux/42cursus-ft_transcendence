@@ -21,6 +21,7 @@ export default abstract class Match {
   private server;
   private _game;
   private ranked;
+  private tournament;
 
   private block = false;
   private score?: {
@@ -46,6 +47,10 @@ export default abstract class Match {
     this.players = players;
     this._game = game;
     this.ranked = players.every(player => player.elo);
+    this.tournament = players.every(
+      player =>
+        this.server.game.players[player.userID].match?.game === 'tournament',
+    );
 
     this.lock = new Promise(resolve => {
       this.unlock = () => void resolve(undefined);
@@ -67,10 +72,11 @@ export default abstract class Match {
         player.socket.off('message', onSocketMessage);
       });
 
-      server.game.players[player.userID] = {
-        match: this,
-        opponent: opponent.userID,
-      };
+      if (!this.tournament)
+        server.game.players[player.userID] = {
+          match: this,
+          opponent: opponent.userID,
+        };
     });
   }
 
@@ -81,7 +87,8 @@ export default abstract class Match {
 
   protected async destroy(winner?: Player) {
     if (this.score) clearTimeout(this.score.timeout);
-    this.execute(player => delete this.server.game.players[player.userID]);
+    if (!this.tournament)
+      this.execute(player => delete this.server.game.players[player.userID]);
 
     if (!winner) return;
 
