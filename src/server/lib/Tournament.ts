@@ -19,7 +19,7 @@ export class Tournament {
   private readonly server: FastifyInstance;
 
   private participants: Participant[] = [];
-  private _started = false;
+  private started = false;
 
   constructor(
     server: FastifyInstance,
@@ -98,10 +98,6 @@ export class Tournament {
     return this.participants[0];
   }
 
-  get started() {
-    return this._started;
-  }
-
   public removeClient(client: Client) {
     const participant = this.participants.find(
       participant => participant.socket === client.socket,
@@ -151,6 +147,10 @@ export class Tournament {
     return socket.send(Clients.message(message));
   }
 
+  get size() {
+    return this.participants.length;
+  }
+
   private start(participant: Participant) {
     if (this.started)
       return this.sendSocket(participant.socket, {
@@ -175,7 +175,7 @@ export class Tournament {
     //   type: 'tournamentStarted',
     // });
 
-    this._started = true;
+    this.started = true;
     this.server.tournaments.delete(this.id);
 
     //TODO: implement tournament logic

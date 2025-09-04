@@ -32,6 +32,7 @@ export default class Tournaments {
     return Object.values(this.tournaments).map(tournament => ({
       id: tournament.id,
       name: tournament.name,
+      size: tournament.size,
       owner: {id: tournament.owner.userID},
     }));
   }
