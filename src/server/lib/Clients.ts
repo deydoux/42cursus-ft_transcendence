@@ -3,6 +3,7 @@ import {FastifyInstance, FastifyRequest} from 'fastify';
 import {RawData} from 'ws';
 import SQL from 'sql-template-strings';
 import {WebSocket} from '@fastify/websocket';
+import createTournament from '#tunnel/createTournament';
 import joinMatchmaking from '#tunnel/joinMatchmaking';
 import joinTournament from '#tunnel/joinTournament';
 import leaveMatchmaking from '#tunnel/leaveMatchmaking';
@@ -46,6 +47,9 @@ export default class Clients {
 
     if (message.type) {
       switch (message.type) {
+        case 'createTournament':
+          createTournament(this.server, client, message);
+          break;
         case 'joinMatchmaking':
           joinMatchmaking(this.server, client, message);
           break;

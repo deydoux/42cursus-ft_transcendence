@@ -8,6 +8,10 @@ interface Client {
 
 type ClientTunnelMessage =
   | {
+      type: 'createTournament';
+      name: string;
+    }
+  | {
       type: 'joinMatchmaking';
       game: string;
       mode: string;
