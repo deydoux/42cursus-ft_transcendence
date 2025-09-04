@@ -13,14 +13,14 @@ sequenceDiagram
   Note left of s: {origin: 'createTournament'}
 
   m ->> s: joinTournament
-  Note right of m: {id: 1}
+  Note right of m: {tournamentID: 1}
   s -->> d: participantJoin
   Note left of s: {user: {id: 2, username: ..., avatar: ...}}
   s -->> m: success
   Note left of s: {origin: 'joinTournament'}
 
   q ->> s: joinTournament
-  Note right of q: {id: 1}
+  Note right of q: {tournamentID: 1}
   s -->> d: participantJoin
   s -->> m: participantJoin
   Note left of s: {user: {id: 3, username: ..., avatar: ...}}
