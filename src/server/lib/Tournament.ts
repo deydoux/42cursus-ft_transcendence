@@ -72,6 +72,8 @@ export class Tournament {
     participant.socket.on('message', participant.onSocketMessage);
     participant.socket.on('close', participant.onSocketClose);
     participant.socket.on('error', participant.onSocketClose);
+
+    this.server.game.players[participant.userID] = {match: this};
   }
 
   private handleMessage =
