@@ -30,6 +30,11 @@ export class Tournament {
     this.id = id;
     this.name = name;
     this.addParticipant(owner, true);
+
+    Clients.sendClient(owner, {
+      type: 'success',
+      origin: 'createTournament',
+    });
   }
 
   public async addParticipant(participant: Participant, isOwner = false) {
