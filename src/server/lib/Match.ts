@@ -3,7 +3,6 @@ import Clients from '#lib/Clients';
 import {Data} from 'ws';
 import {FastifyInstance} from 'fastify';
 import SQL from 'sql-template-strings';
-import {WebSocket} from '@fastify/websocket';
 import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 export interface Player extends Client {
@@ -185,7 +184,7 @@ export default abstract class Match {
           this.forfeits(opponent);
           break;
         case 'move':
-          this.sendSocket(opponent.socket, message as ServerTunnelMessage);
+          Clients.sendClient(opponent, message as ServerTunnelMessage);
           break;
         case 'score':
           this.handleScore(
@@ -203,7 +202,7 @@ export default abstract class Match {
     message: ClientTunnelMessage & {type: 'score'},
   ) {
     if (!this.players.some(player => player.userID === message.scorerID))
-      return this.sendSocket(player.socket, {
+      return Clients.sendClient(player, {
         type: 'error',
         message: 'Invalid scorer ID',
       });
@@ -272,13 +271,7 @@ export default abstract class Match {
   }
 
   protected send(message: ServerTunnelMessage) {
-    return this.players.forEach(player =>
-      player.socket.send(Clients.message(message)),
-    );
-  }
-
-  private sendSocket(socket: WebSocket, message: ServerTunnelMessage) {
-    return socket.send(Clients.message(message));
+    return this.players.forEach(player => Clients.sendClient(player, message));
   }
 
   public async start() {

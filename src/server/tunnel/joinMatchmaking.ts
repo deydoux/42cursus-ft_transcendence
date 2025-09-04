@@ -24,13 +24,11 @@ export default async function joinMatchmaking(
     MatchConstructor = RaceMatch;
     queue = game.queues.race;
   } else
-    return client.socket.send(
-      Clients.message({type: 'error', message: 'Invalid game'}),
-    );
+    return Clients.sendClient(client, {type: 'error', message: 'Invalid game'});
 
   try {
     server.playAvailability(client);
-  } catch (e) {
+  } catch {
     return;
   }
 
@@ -147,20 +145,16 @@ export default async function joinMatchmaking(
       break;
     }
     default:
-      return client.socket.send(
-        Clients.message({
-          type: 'error',
-          message: 'Invalid mode',
-        }),
-      );
+      return Clients.sendClient(client, {
+        type: 'error',
+        message: 'Invalid mode',
+      });
   }
 
-  client.socket.send(
-    Clients.message({
-      type: 'success',
-      origin: 'joinMatchmaking',
-    }),
-  );
+  Clients.sendClient(client, {
+    type: 'success',
+    origin: 'joinMatchmaking',
+  });
 
   if (match)
     try {

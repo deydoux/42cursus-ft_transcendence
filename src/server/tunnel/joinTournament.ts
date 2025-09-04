@@ -5,4 +5,6 @@ export default async function joinTournament(
   server: FastifyInstance,
   client: Client,
   message: ClientTunnelMessage & {type: 'joinTournament'},
-) {}
+) {
+  // if (server.game.players[client.userID]) return client.socket;
+}

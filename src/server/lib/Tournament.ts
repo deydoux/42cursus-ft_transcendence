@@ -3,7 +3,6 @@ import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
 import {RawData} from 'ws';
 import SQL from 'sql-template-strings';
-import {WebSocket} from '@fastify/websocket';
 import serializeUserAvatar from './serializeUserAvatar';
 
 interface Participant extends Client {
@@ -41,12 +40,12 @@ export class Tournament {
         return;
       }
 
-      this.sendSocket(participant.socket, {
+      Clients.sendClient(participant, {
         type: 'success',
         origin: 'joinTournament',
       });
     } else
-      this.sendSocket(participant.socket, {
+      Clients.sendClient(participant, {
         type: 'success',
         origin: 'createTournament',
       });
@@ -115,7 +114,7 @@ export class Tournament {
       participant.socket.off('error', participant.onSocketClose);
     }
 
-    this.sendSocket(participant.socket, {
+    Clients.sendClient(participant, {
       type: 'success',
       origin: 'leaveTournament',
     });
@@ -139,12 +138,8 @@ export class Tournament {
 
   private send(message: ServerTunnelMessage) {
     for (const participant of this.participants) {
-      this.sendSocket(participant.socket, message);
+      Clients.sendClient(participant, message);
     }
-  }
-
-  private sendSocket(socket: WebSocket, message: ServerTunnelMessage) {
-    return socket.send(Clients.message(message));
   }
 
   get size() {
@@ -153,19 +148,19 @@ export class Tournament {
 
   private start(participant: Participant) {
     if (this.started)
-      return this.sendSocket(participant.socket, {
+      return Clients.sendClient(participant, {
         type: 'error',
         message: 'Tournament already started',
       });
 
     if (this.participants[0].userID !== participant.userID)
-      return this.sendSocket(participant.socket, {
+      return Clients.sendClient(participant, {
         type: 'error',
         message: 'Only the tournament owner can start the tournament',
       });
 
     if (this.participants.length < 2)
-      return this.sendSocket(participant.socket, {
+      return Clients.sendClient(participant, {
         type: 'error',
         message: 'Not enough participants to start the tournament',
       });
