@@ -3,6 +3,19 @@ This WebSocket API handles real-time communication and time-sensitive events. To
 
 ## Client Messages
 
+### `createTournament`
+Sent to create a new tournament
+
+*Example:*
+```json
+{
+  "type": "createTournament",
+  "name": "Kittournament"
+}
+```
+
+**Note:** the `name` field must be `.trim()`, at least **3** and not exceed **64** characters in length.
+
 ### `joinMatchmaking`
 Sent to join the matchmaking queue
 
