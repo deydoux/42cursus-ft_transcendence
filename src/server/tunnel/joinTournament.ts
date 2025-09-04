@@ -1,4 +1,5 @@
 import {Client, ClientTunnelMessage} from '#types/Clients';
+import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
 
 export default async function joinTournament(
@@ -6,5 +7,10 @@ export default async function joinTournament(
   client: Client,
   message: ClientTunnelMessage & {type: 'joinTournament'},
 ) {
-  // if (server.game.players[client.userID]) return client.socket;
+  const player = server.game.players[client.userID];
+  if (player)
+    return Clients.sendClient(client, {
+      type: 'error',
+      message: `You are already in a ${player.match?.game === 'tournament' ? 'tournament' : 'match'}`,
+    });
 }
