@@ -149,7 +149,7 @@ export class Tournament {
     }
   }
 
-  get size() {
+  get participantCount() {
     return this.participants.length;
   }
 
