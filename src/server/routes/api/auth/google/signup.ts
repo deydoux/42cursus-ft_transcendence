@@ -23,6 +23,13 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     const payload = await server.verifyGoogle(request.body.token);
     if (!payload) return reply.unauthorized('Invalid token');
 
+    const user = await server.db.get(SQL`
+      SELECT id
+      FROM users
+      WHERE google_sub = ${payload.sub}
+    `);
+    if (user) return reply.conflict('Google account already signed up');
+
     const {lastID: id} = await server.db.run(SQL`
       INSERT INTO users(google_sub, username)
       VALUES(${payload.sub}, ${username})

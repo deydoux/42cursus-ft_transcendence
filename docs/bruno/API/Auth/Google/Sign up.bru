@@ -1,17 +1,18 @@
 meta {
-  name: Verify
+  name: Sign up
   type: http
-  seq: 2
+  seq: 1
 }
 
 post {
-  url: {{baseURL}}/api/auth/google/verify
+  url: {{baseURL}}/api/auth/google/signup
   body: json
   auth: inherit
 }
 
 body:json {
   {
+    "username": "deydoux",
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
   }
 }
