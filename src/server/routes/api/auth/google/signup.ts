@@ -16,6 +16,22 @@ const schema = {
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
   if (!server.verifyGoogle) return;
 
+  const setAvatar = async (id: number, url?: string) => {
+    if (!url) return;
+
+    url = url.replace(/=s96-c$/, '=s1024-c');
+    const response = await fetch(url);
+    if (!response.ok || !response.body) return;
+
+    const buffer = await response.arrayBuffer();
+
+    try {
+      await server.storeAvatar(id, buffer);
+    } catch (error) {
+      server.log.warn(error);
+    }
+  };
+
   server.post('/signup', {schema}, async (request, reply) => {
     const {username} = request.body;
     await server.validateUsernameAvailability(username);
@@ -35,6 +51,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       VALUES(${payload.sub}, ${username})
     `);
     if (!id) throw new Error('Failed to create user');
+
+    await setAvatar(id, payload.picture);
 
     const {accessToken, refreshToken} = await request.generateTokens(id);
     return reply
