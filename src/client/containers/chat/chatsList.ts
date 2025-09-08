@@ -284,12 +284,16 @@ export class ChatsList {
 
   render() {
     this.fetchChats();
-    const container = DOMUtils.createElement('div');
+    const container = DOMUtils.createElement('div', {
+      className: 'flex flex-col overflow-hidden',
+    });
 
     container.appendChild(this.renderSearchBar());
     container.appendChild(this.renderHeader());
 
-    const list = DOMUtils.createElement('div');
+    const list = DOMUtils.createElement('div', {
+      className: 'flex flex-col flex-1 overflow-auto',
+    });
     this.renderChats(list);
 
     this.store.subscribeToPath('generalChat', () => this.renderChats(list));

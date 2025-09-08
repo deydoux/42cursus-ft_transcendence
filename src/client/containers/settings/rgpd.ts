@@ -1,11 +1,16 @@
 import {DOMUtils} from '../../utils/dom';
 import {Router} from '../../services/router';
+import {Store} from '../../services/store';
 import {Toastify} from '../../utils/toastify';
 import {api} from '../../utils/Api';
 import {createDialog} from '../../components/Dialog';
+import {downloadResponse} from '../../utils/string';
 
 export class RGPD {
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private store: Store,
+  ) {}
 
   private async deleteAccount(
     password: string,
@@ -23,6 +28,24 @@ export class RGPD {
       Toastify.success('Account deleted successfully');
     } catch (error) {
       errorMessage.textContent = error;
+      console.error(error);
+    }
+  }
+
+  private async downloadData() {
+    try {
+      const response = await api.get('account/dump');
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message);
+      }
+
+      const {user} = Store.getInstance().getState();
+      if (!user) throw new Error('User is undefined');
+      downloadResponse(`KittyPong-${user.username}-data.txt`, response);
+    } catch (error) {
+      Toastify.error('An error occured while downloading data');
       console.error(error);
     }
   }
@@ -54,6 +77,9 @@ export class RGPD {
         className:
           'px-4 py-2 rounded-lg border border-white/20 text-white/80 text-sm hover:bg-white/10 duration-200 cursor-pointer',
         textContent: 'Download',
+        events: {
+          click: this.downloadData,
+        },
       }),
     );
 

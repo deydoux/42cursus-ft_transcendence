@@ -49,7 +49,7 @@ class Api {
           if (location.pathname !== this.unauthorizedRedirect) {
             Router.getInstance().navigate(this.unauthorizedRedirect);
             Toastify.dismissAll();
-            Toastify.error('You are no longer connected');
+            Toastify.error("You've been disconnected");
           }
           throw refreshResponse;
         }

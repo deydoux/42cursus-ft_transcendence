@@ -500,6 +500,8 @@ export const loadIcons = () => {
         .forEach(classElem => icon.classList.add(classElem));
       inputContainer.appendChild(icon);
 
+      inputCopy.removeAttribute('input-icon');
+
       inputContainer.appendChild(inputCopy);
     });
 };

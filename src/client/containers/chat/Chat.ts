@@ -7,6 +7,7 @@ import {Toastify} from '../../utils/toastify';
 import {UserCard} from './userCard';
 import {api} from '../../utils/Api';
 import {loadIcons} from '../../utils/icons';
+import {renderGDPR} from './gdpr';
 
 export class Chat extends BaseComponent {
   private chatsList: ChatsList;
@@ -79,6 +80,8 @@ export class Chat extends BaseComponent {
     renderView();
     container.appendChild(view);
     this.store.subscribeToPath('chatView', renderView);
+
+    container.appendChild(renderGDPR());
 
     this.store.subscribe(loadIcons);
     return container;

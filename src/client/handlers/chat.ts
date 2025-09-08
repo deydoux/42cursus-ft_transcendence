@@ -192,6 +192,10 @@ const handleGeneralMessage = (data: {
           },
           ...generalDiscussion.messages,
         ],
+        users: {
+          ...generalDiscussion.users,
+          [data.sender.id]: data.sender,
+        },
       },
     });
   } else if (generalChat) {
