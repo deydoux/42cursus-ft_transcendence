@@ -4,12 +4,14 @@ import {DOMUtils} from '../utils/dom';
 import {api} from '../utils/Api';
 import {createDialog} from '../components/Dialog';
 import {createOTPInput} from '../components/OTPInput';
+import {gdpr} from './chat/gdpr';
 import img from '../assets/kittypong.png';
 import {loadIcons} from '../utils/icons';
 import {socket} from '../utils/websocket';
 import sticker from '../assets/sticker.png';
 
 export class LandingPage extends BaseComponent {
+  private gdprDialogOpened = false;
   private authDialogContent: HTMLDivElement;
   private totpAccessToken: string;
 
@@ -19,6 +21,10 @@ export class LandingPage extends BaseComponent {
     errorMessage: HTMLElement,
   ): Promise<void> {
     try {
+      if (endpoint === 'signup' && body.password !== body.confirmPassword) {
+        throw new Error('The two passwords are not matching');
+      }
+
       const response = await api.post(`auth/${endpoint}`, body);
 
       if (!response.ok) {
@@ -83,7 +89,12 @@ export class LandingPage extends BaseComponent {
 
   private renderTOTPDialog() {
     this.authDialogContent.innerHTML = '';
-    this.authDialogContent.appendChild(
+    const container = DOMUtils.createElement('div', {
+      className:
+        'max-w-[550px] text-white bg-background border border-white rounded-3xl p-16',
+    });
+
+    container.appendChild(
       DOMUtils.createElement('i', {
         className:
           'w-14 h-14 mx-auto rounded-full p-2 border border-white mb-8',
@@ -95,14 +106,14 @@ export class LandingPage extends BaseComponent {
 
     loadIcons();
 
-    this.authDialogContent.appendChild(
+    container.appendChild(
       DOMUtils.createElement('h1', {
         className: 'text-3xl font-bold mb-4',
         textContent: 'Two-Factor Authentication',
       }),
     );
 
-    this.authDialogContent.appendChild(
+    container.appendChild(
       DOMUtils.createElement('p', {
         className:
           'w-100 font-light text-white/80 leading-tight mb-10 text-center',
@@ -157,12 +168,17 @@ export class LandingPage extends BaseComponent {
       this.verifyTOTP(value, errorMessage);
     };
 
-    this.authDialogContent.appendChild(form);
+    container.appendChild(form);
+    this.authDialogContent.appendChild(container);
   }
 
   private renderRegistrationForm(mode: 'login' | 'signup'): void {
     // Empty authentication dialog content before renderering new registration form
     this.authDialogContent.innerHTML = '';
+    const container = DOMUtils.createElement('div', {
+      className:
+        'max-w-[550px] text-white bg-background border border-white rounded-3xl p-16',
+    });
     const signin = mode === 'login';
 
     // Header
@@ -184,8 +200,8 @@ export class LandingPage extends BaseComponent {
       }),
     );
 
-    this.authDialogContent.appendChild(dialogHeader);
-    this.authDialogContent.appendChild(
+    container.appendChild(dialogHeader);
+    container.appendChild(
       DOMUtils.createElement('p', {
         textContent: signin
           ? 'So wonderful to see you again! Please sign in to continue our pong adventures. 🏓'
@@ -201,7 +217,7 @@ export class LandingPage extends BaseComponent {
     const googleButton = DOMUtils.createElement('button', {
       textContent: `Sign ${signin ? 'in' : 'up'} with`,
       className:
-        'h-14 w-full rounded-t-2xl border border-white bg-linear-to-br from-background to-background text-white hover:from-pink-200 hover:to-pink-300 hover:text-black hover:border-pink-300 cursor-pointer',
+        'h-14 w-full rounded-2xl border border-white bg-linear-to-br from-background to-background text-white hover:from-pink-200 hover:to-pink-300 hover:text-black hover:border-pink-300 cursor-pointer',
     });
     googleButton.appendChild(
       DOMUtils.createElement('strong', {
@@ -210,19 +226,7 @@ export class LandingPage extends BaseComponent {
     );
     remoteAuths.appendChild(googleButton);
 
-    const ftButton = DOMUtils.createElement('button', {
-      textContent: `Sign ${signin ? 'in' : 'up'} with`,
-      className:
-        'mt-1 h-14 w-full rounded-b-2xl border border-white bg-linear-to-br from-background to-background text-white hover:from-pink-200 hover:to-pink-300 hover:text-black hover:border-pink-300 cursor-pointer',
-    });
-    ftButton.appendChild(
-      DOMUtils.createElement('strong', {
-        textContent: ' 42',
-      }),
-    );
-    remoteAuths.appendChild(ftButton);
-
-    this.authDialogContent.appendChild(remoteAuths);
+    container.appendChild(remoteAuths);
 
     const separator = DOMUtils.createElement('div', {
       className: 'relative w-full px-4 text-center mb-8 opacity-50 text-sm',
@@ -235,7 +239,7 @@ export class LandingPage extends BaseComponent {
       }),
     );
 
-    this.authDialogContent.appendChild(separator);
+    container.appendChild(separator);
 
     // Manual authentication form
     const errorMessage = DOMUtils.createElement('p', {
@@ -258,7 +262,7 @@ export class LandingPage extends BaseComponent {
     };
 
     const form = DOMUtils.createElement('form', {
-      className: 'flex flex-col gap-2',
+      className: 'flex flex-col gap-2 w-full',
       events: {
         submit: handleSubmitForm,
       },
@@ -287,12 +291,90 @@ export class LandingPage extends BaseComponent {
       }),
     );
 
+    if (mode === 'signup') {
+      form.appendChild(
+        DOMUtils.createElement('input', {
+          className:
+            'border w-full flex justify-center border-white focus:outline-none pl-12 py-3 px-5 rounded-lg',
+          attributes: {
+            type: 'password',
+            placeholder: 'Confirm password',
+            'input-icon': 'key',
+            name: 'confirmPassword',
+          },
+        }),
+      );
+
+      const gdprConfirmation = DOMUtils.createElement('p', {
+        className: 'text-sm max-w-2/3 mx-auto text-white/50 text-center',
+        textContent:
+          "By creating an account, you confirm that you have read Kitty Pong's ",
+      });
+      gdprConfirmation.appendChild(
+        DOMUtils.createElement('span', {
+          className: 'font-bold cursor-pointer underline',
+          textContent: 'privacy policy',
+          events: {
+            click: () => {
+              if (this.gdprDialogOpened) return;
+              this.gdprDialogOpened = true;
+
+              const gdprContainer = DOMUtils.createElement('div', {
+                className:
+                  'text-white bg-background border border-white rounded-3xl max-h-[700px] overflow-hidden p-10 w-100 flex flex-col',
+              });
+              const gdprHeader = DOMUtils.createElement('div', {
+                className: 'flex mb-6 items-center justify-between',
+              });
+              gdprHeader.appendChild(
+                DOMUtils.createElement('h1', {
+                  textContent: 'Privacy Policy',
+                  className: 'font-bold text-2xl flex-none',
+                }),
+              );
+              const closeButton = DOMUtils.createElement('button', {
+                className:
+                  'rounded-lg text-white/20 border border-white/20 hover:text-white hover:border-white cursor-pointer p-1',
+                events: {
+                  click: () => {
+                    this.authDialogContent.removeChild(gdprContainer);
+                    this.gdprDialogOpened = false;
+                  },
+                },
+              });
+              closeButton.appendChild(
+                DOMUtils.createElement('i', {
+                  className: 'w-4 h-4',
+                  attributes: {
+                    icon: 'x',
+                  },
+                }),
+              );
+              gdprHeader.appendChild(closeButton);
+              gdprContainer.appendChild(gdprHeader);
+
+              gdprContainer.appendChild(
+                DOMUtils.createElement('p', {
+                  className: 'flex-1 overflow-auto',
+                  textContent: gdpr,
+                }),
+              );
+
+              this.authDialogContent.appendChild(gdprContainer);
+              loadIcons();
+            },
+          },
+        }),
+      );
+      form.appendChild(gdprConfirmation);
+    }
+
     form.appendChild(errorMessage);
 
     form.appendChild(
       DOMUtils.createElement('button', {
         className:
-          'w-full h-16 rounded-full font-bold uppercase bg-linear-to-br from-pink-200 to-pink-300 text-black mt-6 shadow-lg shadow-pink-300/20 hover:shadow-pink-300/30 hover:-translate-y-1 transition-all',
+          'w-full cursor-pointer h-16 rounded-full font-bold uppercase bg-linear-to-br from-pink-200 to-pink-300 text-black mt-6 shadow-lg shadow-pink-300/20 hover:shadow-pink-300/30 hover:-translate-y-1 transition-all',
         textContent: signin ? 'Start playing' : 'Create account',
         attributes: {
           type: 'submit',
@@ -300,7 +382,7 @@ export class LandingPage extends BaseComponent {
       }),
     );
 
-    this.authDialogContent.appendChild(form);
+    container.appendChild(form);
 
     // Other registration mode link
     const registrationLink = DOMUtils.createElement('p', {
@@ -320,7 +402,8 @@ export class LandingPage extends BaseComponent {
       }),
     );
 
-    this.authDialogContent.appendChild(registrationLink);
+    container.appendChild(registrationLink);
+    this.authDialogContent.appendChild(container);
     loadIcons();
   }
 
@@ -385,7 +468,7 @@ export class LandingPage extends BaseComponent {
       DOMUtils.createElement('button', {
         textContent: 'Log in',
         className:
-          'rounded-full w-50 uppercase font-bold h-full bg-linear-to-br from-pink-200 to-pink-300 text-black shadow-lg shadow-pink-300/20 hover:brightness-95 hover:shadow-pink-300/40 hover:-translate-y-1 transition-all',
+          'rounded-full cursor-pointer w-50 uppercase font-bold h-full bg-linear-to-br from-pink-200 to-pink-300 text-black shadow-lg shadow-pink-300/20 hover:brightness-95 hover:shadow-pink-300/40 hover:-translate-y-1 transition-all',
         events: {
           click: async () => {
             try {
@@ -396,10 +479,12 @@ export class LandingPage extends BaseComponent {
                 throw response;
               }
 
+              const data = await response.json();
+              this.store.setState({user: data});
+
               this.router.navigate('/homepage');
-            } catch (error) {
+            } catch {
               this.renderRegistrationForm('login');
-              console.error(error);
               showAuthDialog();
             }
           },
@@ -410,7 +495,7 @@ export class LandingPage extends BaseComponent {
       DOMUtils.createElement('button', {
         textContent: 'Sign up',
         className:
-          'rounded-full w-50 uppercase font-bold h-full bg-gray-500/20 text-pink-300 shadow-lg hover:brightness-95 hover:-translate-y-1 transition-all',
+          'rounded-full cursor-pointer w-50 uppercase font-bold h-full bg-gray-500/20 text-pink-300 shadow-lg hover:brightness-95 hover:-translate-y-1 transition-all',
         events: {
           click: () => {
             this.renderRegistrationForm('signup');
@@ -497,14 +582,17 @@ export class LandingPage extends BaseComponent {
   }
 
   render(): HTMLElement {
+    if (location.pathname === '/') {
+      this.store.clearState();
+    }
+
     const container = DOMUtils.createElement('div', {
       className:
         'w-screen h-screen overflow-hidden flex justify-around max-w-[1600px] items-center gap-20',
     });
 
     const {dialogContent, showModal} = createDialog('auth');
-    dialogContent.className =
-      'max-w-[550px] text-white bg-background border border-white rounded-3xl p-16';
+    dialogContent.className = 'flex overflow-hidden items-center gap-4';
     this.authDialogContent = dialogContent;
 
     container.appendChild(this.renderKPIContainer());

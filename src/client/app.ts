@@ -8,6 +8,7 @@ import {Router} from './services/router';
 import {Settings} from './pages/Settings';
 import {Statistics} from './pages/Statistics';
 import {Store} from './services/store';
+import {api} from './utils/Api';
 import {loadIcons} from './utils/icons';
 import {socket} from './utils/websocket';
 
@@ -33,8 +34,11 @@ class App {
       const token = localStorage.getItem('accessToken');
       if (!token) return false;
 
+      const {user} = this.store.getState();
+      if (user?.id) return true;
+
       try {
-        const response = await fetch('/api/account', {
+        const response = await api.get('account', {
           headers: {Authorization: `Bearer ${token}`},
         });
 

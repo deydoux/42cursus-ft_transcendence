@@ -1,7 +1,6 @@
 export interface ToastOptions {
-  message: string;
-  user?: {username: string; avatar: string};
-  type?: 'success' | 'error' | 'warning' | 'info' | 'message';
+  message: string | HTMLElement;
+  type?: 'success' | 'error' | 'warning' | 'info';
   duration?: number; // in milliseconds
   closable?: boolean;
   position?:
@@ -11,6 +10,8 @@ export interface ToastOptions {
     | 'bottom-left'
     | 'top-center'
     | 'bottom-center';
+  actionButtons?: HTMLButtonElement[];
+  onClick?: (toastID: string) => void;
 }
 
 export interface Toast {

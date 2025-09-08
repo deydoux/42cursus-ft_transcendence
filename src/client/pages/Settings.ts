@@ -21,10 +21,10 @@ export class Settings extends BaseComponent {
 
   constructor() {
     super();
-    this.RGPD = new RGPD(this.router);
     this.Sessions = new Sessions(this.store);
     this.BlockList = new BlockList(this.store);
     this.PasswordManager = new PasswordManager();
+    this.RGPD = new RGPD(this.router, this.store);
     this.UserProfile = new UserProfile(this.store, this.fetchAccount);
     this.TwoFactorAuthManager = new TwoFactorAuthManager(
       this.store,

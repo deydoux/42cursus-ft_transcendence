@@ -71,3 +71,18 @@ export const truncateString = (str: string, maxLength: number) => {
 
   return str.slice(0, maxLength - 3) + ' ...';
 };
+
+export const downloadResponse = async (
+  filename: string,
+  response: Response,
+) => {
+  const blob: Blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+
+  const link: HTMLAnchorElement = document.createElement('a');
+  link.href = objectUrl;
+  link.download = filename;
+  link.click();
+
+  URL.revokeObjectURL(objectUrl);
+};

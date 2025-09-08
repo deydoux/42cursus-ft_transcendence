@@ -1,26 +1,28 @@
 import {AppState} from '../types';
 
+const defaultValues = {
+  totpCode: undefined,
+  user: undefined,
+  blockedUsers: [],
+  sessions: {session: 0, sessions: []},
+  currentRoute: '/',
+  isWaitingForMatchmaking: false,
+  directChats: [],
+  chatsSearchQuery: '',
+  chatView: {label: 'chatsList'},
+  friendRequests: [],
+  sentFriendRequests: [],
+  countFriendRequests: 0,
+};
+
 export class Store {
   private static instance: Store;
   private listeners: ((state: AppState) => void)[] = [];
   private selectiveListeners: Map<
     string,
-    ((value: any, previousValue: any) => void)[]
-  > = new Map<string, ((value: any, previousValue: any) => void)[]>();
-  private state: AppState = {
-    totpCode: undefined,
-    user: undefined,
-    blockedUsers: [],
-    sessions: {session: 0, sessions: []},
-    currentRoute: '/',
-    isWaitingForMatchmaking: false,
-    directChats: [],
-    chatsSearchQuery: '',
-    chatView: {label: 'chatsList'},
-    friendRequests: [],
-    sentFriendRequests: [],
-    countFriendRequests: 0,
-  };
+    ((value: unknown, previousValue: unknown) => void)[]
+  > = new Map<string, ((value: unknown, previousValue: unknown) => void)[]>();
+  private state: AppState = {...defaultValues};
   private previousState: AppState = {...this.state};
 
   private notifyListeners(): void {
@@ -38,8 +40,19 @@ export class Store {
     });
   }
 
-  private getValueByPath(obj: any, path: string): any {
-    return path.split('.').reduce((current, key) => current?.[key], obj);
+  private getValueByPath(
+    obj: AppState | Record<string, unknown>,
+    path: string,
+  ): unknown {
+    return path.split('.').reduce(
+      (current: unknown, key: string) => {
+        if (current && typeof current === 'object' && key in current) {
+          return (current as Record<string, unknown>)[key];
+        }
+        return undefined;
+      },
+      obj as Record<string, unknown>,
+    );
   }
 
   static getInstance(): Store {
@@ -61,6 +74,14 @@ export class Store {
     return {...this.state};
   }
 
+  clearState(): void {
+    this.previousState = {...this.state};
+    this.state = {...defaultValues};
+
+    this.notifyListeners();
+    this.notifySelectiveListeners();
+  }
+
   subscribe(listener: (state: AppState) => void): () => void {
     this.listeners.push(listener);
     return () => {
@@ -77,12 +98,20 @@ export class Store {
     }
 
     const listeners = this.selectiveListeners.get(path);
-    if (listeners) listeners.push(listener);
+    if (listeners) {
+      listeners.push(
+        listener as (value: unknown, previousValue: unknown) => void,
+      );
+    }
 
     return () => {
       const listeners = this.selectiveListeners.get(path);
       if (listeners) {
-        const index = listeners.indexOf(listener);
+        const index = listeners.findIndex(
+          l =>
+            l ===
+            (listener as (value: unknown, previousValue: unknown) => void),
+        );
         if (index > -1) {
           listeners.splice(index, 1);
         }
