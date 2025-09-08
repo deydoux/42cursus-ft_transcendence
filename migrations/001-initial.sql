@@ -137,7 +137,7 @@ END;
 
 CREATE TABLE users(
   id                 INTEGER PRIMARY KEY AUTOINCREMENT,
-  google_sub         TEXT UNIQUE NOT NULL,
+  google_sub         TEXT UNIQUE,
 
   username           TEXT UNIQUE NOT NULL,
   password           TEXT,
