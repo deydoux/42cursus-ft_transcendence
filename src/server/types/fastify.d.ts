@@ -70,6 +70,7 @@ declare module 'fastify' {
       username: string,
       id?: number,
     ) => Promise<void>;
+    verifyGoogle: (token: string) => TokenPayload?;
   }
 
   interface FastifyRequest {

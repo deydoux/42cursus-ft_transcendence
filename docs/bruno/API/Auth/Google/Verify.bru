@@ -1,0 +1,21 @@
+meta {
+  name: Verify
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseURL}}/api/auth/google/verify
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

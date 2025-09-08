@@ -137,6 +137,8 @@ END;
 
 CREATE TABLE users(
   id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+  google_sub         TEXT UNIQUE NOT NULL,
+
   username           TEXT UNIQUE NOT NULL,
   password           TEXT,
 
@@ -150,6 +152,7 @@ CREATE TABLE users(
   avatar_version     INTEGER NOT NULL DEFAULT FALSE
 );
 
+CREATE INDEX idx_users_google_sub ON users(google_sub);
 CREATE INDEX idx_users_lower_username ON users(lower(username));
 CREATE INDEX idx_users_last_seen_desc ON users(last_seen DESC);
 
@@ -177,6 +180,7 @@ DROP TRIGGER update_users_password_edited_at;
 DROP TRIGGER insert_users_elo;
 DROP INDEX idx_users_last_seen_desc;
 DROP INDEX idx_users_lower_username;
+DROP INDEX idx_users_google_sub;
 DROP TABLE users;
 
 DROP TRIGGER update_sessions_updated_at;
