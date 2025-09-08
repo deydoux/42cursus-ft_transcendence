@@ -1,15 +1,12 @@
 # WebSocket API Documentation
-
 This WebSocket API handles real-time communication and time-sensitive events. To establish a connection, connect to the `/api/tunnel` endpoint. All messages must be sent and received as JSON objects.
 
 ## Client Messages
 
 ### `joinMatchmaking`
-
 Sent to join the matchmaking queue
 
-_Examples:_
-
+*Examples:*
 ```json
 {
   "type": "joinMatchmaking",
@@ -27,8 +24,7 @@ _Examples:_
 }
 ```
 
-_Response:_
-
+*Response:*
 ```json
 {
   "type": "success",
@@ -37,19 +33,16 @@ _Response:_
 ```
 
 ### `leaveMatchmaking`
-
 Sent to leave the matchmaking queue
 
-_Example:_
-
+*Example:*
 ```json
 {
   "type": "leaveMatchmaking"
 }
 ```
 
-_Response: (to all client sockets)_
-
+*Response: (to all client sockets)*
 ```json
 {
   "type": "success",
@@ -58,11 +51,9 @@ _Response: (to all client sockets)_
 ```
 
 ### `move`
-
 Sent to make a move in a game match
 
-_Example:_
-
+*Example:*
 ```jsonc
 {
   "type": "move",
@@ -71,11 +62,9 @@ _Example:_
 ```
 
 ### `score`
-
 Sent to send a score in a game match
 
-_Example:_
-
+*Example:*
 ```json
 {
   "type": "score",
@@ -86,11 +75,9 @@ _Example:_
 ## Server Messages
 
 ### `directMessage`
-
 Received when another user sends you a direct message
 
-_Example:_
-
+*Example:*
 ```json
 {
   "type": "directMessage",
@@ -104,11 +91,9 @@ _Example:_
 ```
 
 ### `error`
-
 Received when there is an error processing a message
 
-_Examples:_
-
+*Examples:*
 ```json
 {
   "type": "error",
@@ -124,11 +109,9 @@ _Examples:_
 ```
 
 ### `friendRequest`
-
 Received when a user receives a friend request
 
-_Example:_
-
+*Example:*
 ```json
 {
   "type": "friendRequest",
@@ -142,11 +125,9 @@ _Example:_
 ```
 
 ### `friendRequestAccepted`
-
 Received when a user accepts a friend request
 
-_Example:_
-
+*Example:*
 ```json
 {
   "type": "friendRequestAccepted",
@@ -160,11 +141,9 @@ _Example:_
 ```
 
 ### `gameInvite`
-
 Received when a user invites another user to a game
 
-_Example:_
-
+*Example:*
 ```json
 {
   "type": "gameInvite",
@@ -178,11 +157,9 @@ _Example:_
 ```
 
 ### `generalMessage`
-
 Received when a general message is sent
 
-_Example:_
-
+*Example:*
 ```json
 {
   "type": "generalMessage",
@@ -196,12 +173,11 @@ _Example:_
 }
 ```
 
-### `matchCancel`
 
+### `matchCancel`
 Received when a match is cancelled due to an error
 
-_Example:_
-
+*Example:*
 ```json
 {
   "type": "matchCancel",
@@ -210,11 +186,9 @@ _Example:_
 ```
 
 ### `matchEnd`
-
 Received when a match ends
 
-_Example:_
-
+*Example:*
 ```json
 {
   "type": "matchEnd",
@@ -225,40 +199,33 @@ _Example:_
 ```
 
 ### `matchStart`
-
 Received when a match is starting
 
-_Example:_
-
+*Example:*
 ```json
 {
   "type": "matchStart",
   "game": "pong",
   "ranked": true,
   "block": false,
-  "players": [
-    {
-      "id": 1,
-      "username": "user123",
-      "avatar": "/static/default_avatar.webp",
-      "elo": 1000
-    },
-    {
-      "id": 2,
-      "username": "user456",
-      "avatar": "/static/default_avatar.webp",
-      "elo": 1000
-    }
-  ]
+  "players": [{
+    "id": 1,
+    "username": "user123",
+    "avatar": "/static/default_avatar.webp",
+    "elo": 1000
+  }, {
+    "id": 2,
+    "username": "user456",
+    "avatar": "/static/default_avatar.webp",
+    "elo": 1000
+  }]
 }
 ```
 
 ### `move`
-
 Received when opponent makes a move in a match
 
-_Example:_
-
+*Example:*
 ```jsonc
 {
   "type": "move",
@@ -267,11 +234,9 @@ _Example:_
 ```
 
 ### `round`
-
 Received when a round starts in a match
 
-_Example:_
-
+*Example:*
 ```json
 {
   "type": "round"
