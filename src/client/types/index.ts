@@ -71,6 +71,7 @@ export interface AppState {
       userID: number;
       content: string;
       createdAt: string;
+      mention?: boolean;
     }[];
     next: string;
   };

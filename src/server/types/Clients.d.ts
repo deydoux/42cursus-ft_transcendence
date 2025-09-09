@@ -58,7 +58,6 @@ type ServerTunnelMessage =
       content: string;
       mention: boolean;
     }
-  | {type: 'hotReload'}
   | {
       type: 'matchCancel';
       cause?: string;

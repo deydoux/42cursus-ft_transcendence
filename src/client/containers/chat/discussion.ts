@@ -7,6 +7,8 @@ import {loadIcons} from '../../utils/icons';
 import {renderUserContextMenu} from './userContextMenu';
 
 export class Discussion {
+  private lastMessageSentIndex?: number;
+
   constructor(private store: Store) {}
 
   private async fetchDiscussion(userID: number) {
@@ -36,21 +38,39 @@ export class Discussion {
       }
 
       const data = await response.json();
-      const {discussion} = this.store.getState();
-      if (!discussion) return;
+      const isGeneral = nextUri.includes('general');
 
-      const newMessages = [...(discussion?.messages ?? []), ...data.messages];
-      console.log(
-        `before ${discussion.messages.length}; after ${newMessages.length}`,
-      );
+      if (isGeneral) {
+        const {generalDiscussion} = this.store.getState();
+        if (!generalDiscussion) return;
 
-      this.store.setState({
-        discussion: {
-          ...discussion,
-          messages: newMessages,
-          next: data.next,
-        },
-      });
+        const newMessages = [
+          ...(generalDiscussion?.messages ?? []),
+          ...data.messages,
+        ];
+
+        this.store.setState({
+          generalDiscussion: {
+            ...generalDiscussion,
+            messages: newMessages,
+            users: {...generalDiscussion.users, ...data.users},
+            next: data.next,
+          },
+        });
+      } else {
+        const {discussion} = this.store.getState();
+        if (!discussion) return;
+
+        const newMessages = [...(discussion?.messages ?? []), ...data.messages];
+
+        this.store.setState({
+          discussion: {
+            ...discussion,
+            messages: newMessages,
+            next: data.next,
+          },
+        });
+      }
     } catch (error) {
       Toastify.error('An error occured while fetching discussion');
       console.error(error);
@@ -58,6 +78,8 @@ export class Discussion {
   }
 
   private async sendPrivateMessage(toUserID: number, message: string) {
+    if (message.length === 0 || message.trim().length === 0) return;
+
     try {
       const response = await api.post(`chats/direct/${toUserID}`, {
         content: message,
@@ -80,7 +102,9 @@ export class Discussion {
         },
         ...discussion.messages,
       ];
-      this.store.setState({discussion: {...discussion, messages: newMessages}});
+      this.store.setState({
+        discussion: {...discussion, messages: newMessages},
+      });
     } catch (error) {
       Toastify.error('An error occured while sending a message');
       console.error(error);
@@ -105,6 +129,8 @@ export class Discussion {
   }
 
   private async sendGeneralMessage(message: string) {
+    if (message.length === 0 || message.trim().length === 0) return;
+
     try {
       const response = await api.post(`chats/general`, {
         content: message,
@@ -321,6 +347,7 @@ export class Discussion {
 
     const senders = state.generalDiscussion?.users ?? [];
     const messages = state[type]?.messages;
+    const next = state[type]?.next;
     if (!messages) return;
 
     container.innerHTML = '';
@@ -333,9 +360,9 @@ export class Discussion {
     list.addEventListener('scroll', async () => {
       const atTop = list.clientHeight - list.scrollTop >= list.scrollHeight;
 
-      if (atTop && !isAtTop && state[type]?.next) {
-        console.log('scrolled to top');
-        await this.loadMoreMessages(state[type]?.next);
+      if (atTop && !isAtTop && next) {
+        this.lastMessageSentIndex = messages.length - 1;
+        await this.loadMoreMessages(next);
         isAtTop = true;
       } else if (!atTop) {
         isAtTop = false;
@@ -363,6 +390,14 @@ export class Discussion {
     });
 
     container.appendChild(list);
+
+    if (this.lastMessageSentIndex) {
+      list.children[this.lastMessageSentIndex].scrollIntoView({
+        block: 'nearest',
+        inline: 'start',
+      });
+      this.lastMessageSentIndex = undefined;
+    }
   }
 
   private renderMessageInput(
@@ -376,6 +411,7 @@ export class Discussion {
         name: 'message',
         maxLength: '1024',
         placeholder: 'Message...',
+        autocomplete: 'off',
       },
     });
 
@@ -517,7 +553,7 @@ export class Discussion {
     cogButton.appendChild(
       DOMUtils.createElement('i', {
         attributes: {
-          icon: 'cog',
+          icon: 'verticalEllipsis',
         },
       }),
     );
@@ -539,8 +575,6 @@ export class Discussion {
     const messagesList = DOMUtils.createElement('div', {
       className: 'flex flex-col-reverse gap-2 overflow-y-auto flex-1 pt-6',
     });
-
-    console.log('rendering renderPrivateDiscussion');
 
     this.store.subscribeToPath('discussion.messages', () => {
       this.renderMessages(messagesList, 'discussion');

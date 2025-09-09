@@ -7,7 +7,7 @@ const plugin: FastifyPluginAsync = async server => {
     const {id} = request.user;
 
     const user = await server.db.get(SQL`
-      SELECT id, username, password_edited_at AS passwordEditedAt,
+      SELECT id, username, password, password_edited_at AS passwordEditedAt,
              totp_enabled AS totp, has_avatar, avatar_version
       FROM users
       WHERE id = ${id}
@@ -17,8 +17,9 @@ const plugin: FastifyPluginAsync = async server => {
 
     user.hasAvatar = Boolean(user.has_avatar);
     user.totp = Boolean(user.totp);
-    if (user.passwordEditedAt)
-      user.passwordEditedAt = new Date(user.passwordEditedAt * 1000);
+    if (!user.password) user.passwordEditedAt = null;
+    else user.passwordEditedAt = new Date(user.passwordEditedAt * 1000);
+    delete user.password;
     serializeUserAvatar(user);
 
     return reply.send(user);

@@ -1,3 +1,6 @@
+import {Router} from '../services/router';
+import {Toastify} from './toastify';
+
 const publicEndpoints = [
   '/api/auth/login',
   '/api/auth/signup',
@@ -5,6 +8,8 @@ const publicEndpoints = [
 ];
 
 class Api {
+  private unauthorizedRedirect = '/';
+
   public setAccessToken(token: string) {
     localStorage.setItem('accessToken', token);
   }
@@ -41,7 +46,11 @@ class Api {
         });
 
         if (!refreshResponse.ok) {
-          // Redirect to landing page
+          if (location.pathname !== this.unauthorizedRedirect) {
+            Router.getInstance().navigate(this.unauthorizedRedirect);
+            Toastify.dismissAll();
+            Toastify.error("You've been disconnected");
+          }
           throw refreshResponse;
         }
 
