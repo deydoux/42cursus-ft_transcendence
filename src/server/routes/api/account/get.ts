@@ -1,7 +1,6 @@
 import {FastifyPluginAsync} from 'fastify';
 import SQL from 'sql-template-strings';
 import serializeUserAvatar from '#lib/serializeUserAvatar';
-import {password} from '#lib/schemas';
 
 const plugin: FastifyPluginAsync = async server => {
   server.get('/', async (request, reply) => {
@@ -18,7 +17,6 @@ const plugin: FastifyPluginAsync = async server => {
 
     user.hasAvatar = Boolean(user.has_avatar);
     user.totp = Boolean(user.totp);
-    console.log(user.password, !user.password);
     if (!user.password) user.passwordEditedAt = null;
     else user.passwordEditedAt = new Date(user.passwordEditedAt * 1000);
     delete user.password;
