@@ -32,6 +32,7 @@ const connect = () => {
 
   socket.addEventListener('close', event => {
     console.error('\r</ Socket closed');
+    process.stdout.write(prompt);
   });
 };
 connect();
