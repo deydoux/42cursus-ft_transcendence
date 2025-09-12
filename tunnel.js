@@ -44,13 +44,11 @@ const send = data => socket.send(JSON.stringify(data));
 const setToken = token => (protocol = token);
 
 const joinMatchmaking = (game = 'pong', mode = 'casual') =>
-  send({
-    type: 'joinMatchmaking',
-    game,
-    mode,
-  });
+  send({type: 'joinMatchmaking', game, mode});
 
 const leaveMatchmaking = () => send({type: 'leaveMatchmaking'});
+const move = direction => send({type: 'move', direction});
+const score = scorerID => send({type: 'score', scorerID});
 
 socket.addEventListener('open', () => {
   console.log();
@@ -60,6 +58,8 @@ socket.addEventListener('open', () => {
   r.context.ft = 42;
   r.context.joinMatchmaking = joinMatchmaking;
   r.context.leaveMatchmaking = leaveMatchmaking;
+  r.context.move = move;
+  r.context.score = score;
   r.context.send = send;
   r.context.setToken = setToken;
 
