@@ -17,7 +17,10 @@ if (process.argv.length < 3) {
 let protocol = process.argv[2];
 
 let socket;
-const connect = () => {
+const connect = token => {
+  if (token) protocol = token;
+
+  socket?.close();
   socket = new WebSocket(url, protocol);
 
   socket.addEventListener('message', event => {
@@ -31,7 +34,7 @@ const connect = () => {
   });
 
   socket.addEventListener('close', event => {
-    console.error('\r</ Socket closed');
+    console.error('\r</ ', event);
     process.stdout.write(prompt);
   });
 };
@@ -47,6 +50,8 @@ const joinMatchmaking = (game = 'pong', mode = 'casual') =>
     mode,
   });
 
+const leaveMatchmaking = () => send({type: 'leaveMatchmaking'});
+
 socket.addEventListener('open', () => {
   console.log();
   const r = repl.start(prompt);
@@ -54,10 +59,9 @@ socket.addEventListener('open', () => {
   r.context.connect = connect;
   r.context.ft = 42;
   r.context.joinMatchmaking = joinMatchmaking;
+  r.context.leaveMatchmaking = leaveMatchmaking;
   r.context.send = send;
   r.context.setToken = setToken;
 
-  r.on('exit', () => {
-    if (socket?.readyState === WebSocket.OPEN) socket.close();
-  });
+  r.on('exit', () => socket?.close());
 });
