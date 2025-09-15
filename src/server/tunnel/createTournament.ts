@@ -13,17 +13,5 @@ export default async function createTournament(
       message: 'Invalid tournament name',
     });
 
-  const name = message.name.trim();
-  if (name.length < 3 || name.length > 64)
-    return Clients.sendClient(client, {
-      type: 'error',
-      message: 'Tournament name must be between 3 and 64 characters',
-    });
-
-  server.tournaments.create(name, client);
-
-  Clients.sendClient(client, {
-    type: 'success',
-    origin: 'createTournament',
-  });
+  server.tournaments.create(message.name, client);
 }

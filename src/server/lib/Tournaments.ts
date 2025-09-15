@@ -1,4 +1,5 @@
 import {Client} from '#types/Clients';
+import Clients from './Clients';
 import {FastifyInstance} from 'fastify';
 import {Tournament} from '#lib/Tournament';
 
@@ -19,9 +20,21 @@ export default class Tournaments {
       return;
     }
 
+    name = name.trim();
+    if (name.length < 3 || name.length > 64)
+      return Clients.sendClient(owner, {
+        type: 'error',
+        message: 'Tournament name must be between 3 and 64 characters',
+      });
+
     this.id++;
     const tournament = new Tournament(this.server, this.id, name, owner);
     this.tournaments[this.id] = tournament;
+
+    Clients.sendClient(owner, {
+      type: 'success',
+      origin: 'createTournament',
+    });
   }
 
   public delete(id: number) {
