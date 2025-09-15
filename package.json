@@ -69,6 +69,6 @@
     "sql-template-strings": "^2.2.2",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
-    "ua-parser-js": "^2.0.4"
+    "ua-parser-js": "^2.0.5"
   }
 }
