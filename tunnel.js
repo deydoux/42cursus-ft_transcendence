@@ -43,10 +43,13 @@ connect();
 const send = data => socket.send(JSON.stringify(data));
 const setToken = token => (protocol = token);
 
+const createTournament = name => send({type: 'createTournament', name});
 const joinMatchmaking = (game = 'pong', mode = 'casual') =>
   send({type: 'joinMatchmaking', game, mode});
-
+const joinTournament = tournamentID =>
+  send({type: 'joinTournament', tournamentID});
 const leaveMatchmaking = () => send({type: 'leaveMatchmaking'});
+const leaveTournament = () => send({type: 'leaveTournament'});
 const move = direction => send({type: 'move', direction});
 const score = scorerID => send({type: 'score', scorerID});
 
@@ -54,14 +57,19 @@ socket.addEventListener('open', () => {
   console.log();
   const r = repl.start(prompt);
 
-  r.context.connect = connect;
   r.context.ft = 42;
-  r.context.joinMatchmaking = joinMatchmaking;
-  r.context.leaveMatchmaking = leaveMatchmaking;
-  r.context.move = move;
-  r.context.score = score;
+
+  r.context.connect = connect;
   r.context.send = send;
   r.context.setToken = setToken;
+
+  r.context.createTournament = createTournament;
+  r.context.joinMatchmaking = joinMatchmaking;
+  r.context.joinTournament = joinTournament;
+  r.context.leaveMatchmaking = leaveMatchmaking;
+  r.context.leaveTournament = leaveTournament;
+  r.context.move = move;
+  r.context.score = score;
 
   r.on('exit', () => socket?.close());
 });
