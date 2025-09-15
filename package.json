@@ -24,8 +24,7 @@
     "lint:server": "npm run lint -- src/server",
     "fix": "eslint --fix",
     "fix:client": "npm run fix -- src/client",
-    "fix:server": "npm run fix -- src/server",
-    "tunnel": "wscat -s \"$TOKEN\" -c ws://localhost:3000/api/tunnel"
+    "fix:server": "npm run fix -- src/server"
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.49.0",
@@ -46,8 +45,7 @@
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.43.0",
-    "vite": "^7.1.5",
-    "wscat": "^6.1.0"
+    "vite": "^7.1.5"
   },
   "dependencies": {
     "@fastify/autoload": "^6.3.1",

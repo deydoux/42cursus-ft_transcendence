@@ -2,9 +2,9 @@ import {Client} from '#types/Clients';
 import {FastifyInstance} from 'fastify';
 import {Tournament} from '#lib/Tournament';
 
-export class Tournaments {
+export default class Tournaments {
   private id = 0;
-  private tournaments: Record<number, Tournament> = {};
+  private tournaments: Record<number, Readonly<Tournament>> = {};
 
   private server: FastifyInstance;
 
@@ -12,7 +12,7 @@ export class Tournaments {
     this.server = server;
   }
 
-  create(name: string, owner: Client) {
+  public create(name: string, owner: Client) {
     try {
       this.server.playAvailability(owner);
     } catch {
@@ -22,5 +22,18 @@ export class Tournaments {
     this.id++;
     const tournament = new Tournament(this.server, this.id, name, owner);
     this.tournaments[this.id] = tournament;
+  }
+
+  public delete(id: number) {
+    delete this.tournaments[id];
+  }
+
+  get _() {
+    return Object.values(this.tournaments).map(tournament => ({
+      id: tournament.id,
+      name: tournament.name,
+      participantCount: tournament.participantCount,
+      owner: {id: tournament.owner.userID},
+    }));
   }
 }

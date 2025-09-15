@@ -1,0 +1,15 @@
+meta {
+  name: Get all tournaments
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseURL}}/api/tournaments
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

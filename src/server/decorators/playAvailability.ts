@@ -8,19 +8,15 @@ const plugin: FastifyPluginAsync = async server => {
     const player = game.players[client.userID];
     if (player) {
       if (player.match?.game === 'tournament')
-        throw client.socket.send(
-          Clients.message({
-            type: 'error',
-            message: 'You are already in a tournament',
-          }),
-        );
+        throw Clients.sendClient(client, {
+          type: 'error',
+          message: 'You are already in a tournament',
+        });
       else
-        throw client.socket.send(
-          Clients.message({
-            type: 'error',
-            message: 'You are already playing a match',
-          }),
-        );
+        throw Clients.sendClient(client, {
+          type: 'error',
+          message: 'You are already playing a match',
+        });
     }
 
     for (const queue of Object.values(game.queues)) {
@@ -29,12 +25,10 @@ const plugin: FastifyPluginAsync = async server => {
         queue.invites.some(invite => invite.client.userID === client.userID) ||
         queue.ranked.some(rankedClient => rankedClient.userID === client.userID)
       )
-        throw client.socket.send(
-          Clients.message({
-            type: 'error',
-            message: 'You are already in a matchmaking queue',
-          }),
-        );
+        throw Clients.sendClient(client, {
+          type: 'error',
+          message: 'You are already in a matchmaking queue',
+        });
     }
   });
 };

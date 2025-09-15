@@ -3,7 +3,6 @@ import Clients from '#lib/Clients';
 import {Data} from 'ws';
 import {FastifyInstance} from 'fastify';
 import SQL from 'sql-template-strings';
-import {WebSocket} from '@fastify/websocket';
 import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 export interface Player extends Client {
@@ -21,6 +20,7 @@ export default abstract class Match {
   private server;
   private _game;
   private ranked;
+  private tournament;
 
   private block = false;
   private score?: {
@@ -46,6 +46,10 @@ export default abstract class Match {
     this.players = players;
     this._game = game;
     this.ranked = players.every(player => player.elo);
+    this.tournament = players.every(
+      player =>
+        this.server.game.players[player.userID].match?.game === 'tournament',
+    );
 
     this.lock = new Promise(resolve => {
       this.unlock = () => void resolve(undefined);
@@ -67,10 +71,11 @@ export default abstract class Match {
         player.socket.off('message', onSocketMessage);
       });
 
-      server.game.players[player.userID] = {
-        match: this,
-        opponent: opponent.userID,
-      };
+      if (!this.tournament)
+        server.game.players[player.userID] = {
+          match: this,
+          opponent: opponent.userID,
+        };
     });
   }
 
@@ -81,7 +86,8 @@ export default abstract class Match {
 
   protected async destroy(winner?: Player) {
     if (this.score) clearTimeout(this.score.timeout);
-    this.execute(player => delete this.server.game.players[player.userID]);
+    if (!this.tournament)
+      this.execute(player => delete this.server.game.players[player.userID]);
 
     if (!winner) return;
 
@@ -178,7 +184,7 @@ export default abstract class Match {
           this.forfeits(opponent);
           break;
         case 'move':
-          this.sendSocket(opponent.socket, message as ServerTunnelMessage);
+          Clients.sendClient(opponent, message as ServerTunnelMessage);
           break;
         case 'score':
           this.handleScore(
@@ -196,7 +202,7 @@ export default abstract class Match {
     message: ClientTunnelMessage & {type: 'score'},
   ) {
     if (!this.players.some(player => player.userID === message.scorerID))
-      return this.sendSocket(player.socket, {
+      return Clients.sendClient(player, {
         type: 'error',
         message: 'Invalid scorer ID',
       });
@@ -265,13 +271,7 @@ export default abstract class Match {
   }
 
   protected send(message: ServerTunnelMessage) {
-    return this.players.forEach(player =>
-      player.socket.send(Clients.message(message)),
-    );
-  }
-
-  private sendSocket(socket: WebSocket, message: ServerTunnelMessage) {
-    return socket.send(Clients.message(message));
+    return this.players.forEach(player => Clients.sendClient(player, message));
   }
 
   public async start() {

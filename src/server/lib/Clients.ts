@@ -3,6 +3,7 @@ import {FastifyInstance, FastifyRequest} from 'fastify';
 import {RawData} from 'ws';
 import SQL from 'sql-template-strings';
 import {WebSocket} from '@fastify/websocket';
+import createTournament from '#tunnel/createTournament';
 import joinMatchmaking from '#tunnel/joinMatchmaking';
 import joinTournament from '#tunnel/joinTournament';
 import leaveMatchmaking from '#tunnel/leaveMatchmaking';
@@ -21,9 +22,10 @@ export default class Clients {
     try {
       message = JSON.parse(data.toString());
     } catch {
-      return socket.send(
-        Clients.message({type: 'error', message: 'Invalid JSON'}),
-      );
+      return Clients.sendSocket(socket, {
+        type: 'error',
+        message: 'Invalid JSON',
+      });
     }
 
     if (
@@ -31,18 +33,23 @@ export default class Clients {
       typeof message !== 'object' ||
       typeof message.type !== 'string'
     )
-      return socket.send(
-        Clients.message({type: 'error', message: 'Invalid message type'}),
-      );
+      return Clients.sendSocket(socket, {
+        type: 'error',
+        message: 'Invalid message type',
+      });
 
     const client = this.clients.find(client => client.socket === socket);
     if (!client)
-      return socket.send(
-        Clients.message({type: 'error', message: 'Client not found'}),
-      );
+      return Clients.sendSocket(socket, {
+        type: 'error',
+        message: 'Client not found',
+      });
 
     if (message.type) {
       switch (message.type) {
+        case 'createTournament':
+          createTournament(this.server, client, message);
+          break;
         case 'joinMatchmaking':
           joinMatchmaking(this.server, client, message);
           break;
@@ -59,13 +66,19 @@ export default class Clients {
     }
   };
 
-  static message = (message: ServerTunnelMessage) => JSON.stringify(message);
+  public static sendClient = (client: Client, message: ServerTunnelMessage) =>
+    this.sendSocket(client.socket, message);
+  public static sendSocket = (
+    socket: WebSocket,
+    message: ServerTunnelMessage,
+  ) => socket.send(JSON.stringify(message));
 
-  routeHandler = (socket: WebSocket, request: FastifyRequest) => {
+  public routeHandler = (socket: WebSocket, request: FastifyRequest) => {
     if (!request.user)
-      socket.send(
-        Clients.message({type: 'error', message: 'Authentication failed'}),
-      );
+      Clients.sendSocket(socket, {
+        type: 'error',
+        message: 'Authentication failed',
+      });
 
     const session = request.session || 0;
     const userID = request.user?.id || 0;
@@ -88,34 +101,31 @@ export default class Clients {
     socket.on('message', this.handleMessage(socket));
   };
 
-  broadcast = (message: ServerTunnelMessage, ignoreIDs?: number[]) => {
+  public broadcast = (message: ServerTunnelMessage, ignoreIDs?: number[]) => {
     if (ignoreIDs)
       this.clients.forEach(client => {
         if (!ignoreIDs.includes(client.userID))
-          client.socket.send(Clients.message(message));
+          Clients.sendClient(client, message);
       });
-    else
-      this.clients.forEach(client =>
-        client.socket.send(Clients.message(message)),
-      );
+    else this.clients.forEach(client => Clients.sendClient(client, message));
   };
 
-  closeSession = (session: number | null) =>
+  public closeSession = (session: number | null) =>
     this.clients.forEach(client => {
       if (client.session === session) client.socket.close();
     });
 
-  closeUser = (id: number, ignoreSession: number | null = null) =>
+  public closeUser = (id: number, ignoreSession: number | null = null) =>
     this.clients.forEach(client => {
       if (client.userID === id && client.session !== ignoreSession)
         client.socket.close();
     });
 
-  isUserOnline = (id: number) =>
+  public isUserOnline = (id: number) =>
     this.clients.some(client => client.userID === id);
 
-  sendUser = (id: number, message: ServerTunnelMessage) =>
+  public sendUser = (id: number, message: ServerTunnelMessage) =>
     this.clients.forEach(client => {
-      if (client.userID === id) client.socket.send(Clients.message(message));
+      if (client.userID === id) Clients.sendClient(client, message);
     });
 }

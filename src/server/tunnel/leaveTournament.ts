@@ -13,11 +13,12 @@ export default function leaveTournament(
       message: 'You are not in a tournament',
     });
 
-  if (player.match.started)
-    return server.clients.sendUser(client.userID, {
-      type: 'error',
-      message: 'You cannot leave a tournament that has started',
-    });
+  //TODO forfeit
+  // if (player.match.started)
+  //   return server.clients.sendUser(client.userID, {
+  //     type: 'error',
+  //     message: 'You cannot leave a tournament that has started',
+  //   });
 
   player.match.removeClient(client);
 

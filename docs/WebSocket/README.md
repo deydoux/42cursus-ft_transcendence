@@ -3,6 +3,19 @@ This WebSocket API handles real-time communication and time-sensitive events. To
 
 ## Client Messages
 
+### `createTournament`
+Sent to create a new tournament
+
+*Example:*
+```json
+{
+  "type": "createTournament",
+  "name": "Kittournament"
+}
+```
+
+**Note:** the `name` field must be `.trim()`, at least **3** and not exceed **64** characters in length.
+
 ### `joinMatchmaking`
 Sent to join the matchmaking queue
 
@@ -230,6 +243,38 @@ Received when opponent makes a move in a match
 {
   "type": "move",
   //...
+}
+```
+
+
+### `participantJoin`
+Received when a participant joins a tournament
+
+*Example:*
+```json
+{
+  "type": "participantJoin",
+  "user": {
+    "id": 1,
+    "username": "user123",
+    "avatar": "/static/default_avatar.webp"
+  }
+}
+```
+
+### `participantLeft`
+Received when a participant leaves a tournament
+
+*Example:*
+```json
+{
+  "type": "participantLeft",
+  "user": {
+    "id": 1,
+    "username": "user123",
+    "avatar": "/static/default_avatar.webp"
+  },
+  "ownerID": 2
 }
 ```
 

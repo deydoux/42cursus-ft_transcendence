@@ -8,6 +8,10 @@ interface Client {
 
 type ClientTunnelMessage =
   | {
+      type: 'createTournament';
+      name: string;
+    }
+  | {
       type: 'joinMatchmaking';
       game: string;
       mode: string;
@@ -72,6 +76,15 @@ type ServerTunnelMessage =
       players: unknown[];
       dx: number;
       dy: number;
+    }
+  | {
+      type: 'participantJoin';
+      user: unknown;
+    }
+  | {
+      type: 'participantLeft';
+      user: unknown;
+      ownerID: number;
     }
   | {
       type: 'round';
