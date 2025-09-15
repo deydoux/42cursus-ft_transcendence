@@ -41,6 +41,17 @@ export default class Tournaments {
     delete this.tournaments[id];
   }
 
+  public join(id: number, participant: Client) {
+    const tournament = this.tournaments[id];
+    if (!tournament)
+      return Clients.sendClient(participant, {
+        type: 'error',
+        message: 'Tournament not found',
+      });
+
+    tournament.addParticipant(participant);
+  }
+
   get _() {
     return Object.values(this.tournaments).map(tournament => ({
       id: tournament.id,

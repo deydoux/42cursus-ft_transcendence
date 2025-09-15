@@ -110,6 +110,8 @@ export class Tournament {
       participant.socket.off('error', participant.onSocketClose);
     }
 
+    delete this.server.game.players[participant.userID];
+
     Clients.sendClient(participant, {
       type: 'success',
       origin: 'leaveTournament',
