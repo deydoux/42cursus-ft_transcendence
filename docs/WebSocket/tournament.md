@@ -21,7 +21,7 @@ sequenceDiagram
   s -->> m: success
   Note left of s: {origin: 'joinTournament'}
   s -->>- d: participantJoin
-  Note left of s: {user: {id: 2, username: ..., avatar: ...}}
+  Note left of s: {user: {id: 2, ...}}
 
   q ->>+ s: joinTournament
   Note right of q: {tournamentID: 1}
@@ -29,7 +29,7 @@ sequenceDiagram
   Note left of s: {origin: 'joinTournament'}
   s -->> m: participantJoin
   s -->>- d: participantJoin
-  Note left of s: {user: {id: 3, username: ..., avatar: ...}}
+  Note left of s: {user: {id: 3, ...}}
 
   alt
     q ->>+ s: joinTournament
@@ -37,7 +37,7 @@ sequenceDiagram
     q ->> s: joinMatchmaking
   end
   s --x- q: error
-  Note left of s: {message: 'You are already in a tournament'}
+  Note left of s: {message: 'Already in tournament'}
 
   alt
     d ->>+ s: leaveTournament
