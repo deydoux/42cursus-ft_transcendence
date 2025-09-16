@@ -57,19 +57,25 @@ socket.addEventListener('open', () => {
   console.log();
   const r = repl.start(prompt);
 
-  r.context.ft = 42;
+  const ft = 42;
 
-  r.context.connect = connect;
-  r.context.send = send;
-  r.context.setToken = setToken;
+  const context = {
+    ft,
 
-  r.context.createTournament = createTournament;
-  r.context.joinMatchmaking = joinMatchmaking;
-  r.context.joinTournament = joinTournament;
-  r.context.leaveMatchmaking = leaveMatchmaking;
-  r.context.leaveTournament = leaveTournament;
-  r.context.move = move;
-  r.context.score = score;
+    connect,
+    send,
+    setToken,
+
+    createTournament,
+    joinMatchmaking,
+    joinTournament,
+    leaveMatchmaking,
+    leaveTournament,
+    move,
+    score,
+  };
+
+  Object.entries(context).forEach(([key, value]) => (r.context[key] = value));
 
   r.on('exit', () => socket?.close());
 });
