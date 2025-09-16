@@ -121,16 +121,9 @@ export class Tournament {
     if (this.participants.length === 0)
       return this.server.tournaments.delete(this.id);
 
-    const user = await this.server.db.get(SQL`
-      SELECT id, username, has_avatar, avatar_version
-      FROM users
-      WHERE id = ${participant.userID}
-    `);
-    serializeUserAvatar(user);
-
     this.send({
       type: 'participantLeft',
-      user,
+      userID: participant.userID,
       ownerID: this.participants[0].userID,
     });
   }

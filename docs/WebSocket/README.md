@@ -269,11 +269,7 @@ Received when a participant leaves a tournament
 ```json
 {
   "type": "participantLeft",
-  "user": {
-    "id": 1,
-    "username": "user123",
-    "avatar": "/static/default_avatar.webp"
-  },
+  "userID":1,
   "ownerID": 2
 }
 ```

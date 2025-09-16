@@ -12,14 +12,6 @@ sequenceDiagram
   s -->>- d: success
   Note left of s: {origin: 'createTournament'}
 
-  alt common errors
-    d ->>+ s: joinTournament
-  else
-    d ->> s: joinMatchmaking
-  end
-  s --x- d: error
-  Note left of s: {message: 'You are already in a tournament'}
-
   d ->>+ s: startTournament
   s --x- d: error
   Note left of s: {message: 'Not enough participants'}
@@ -39,3 +31,19 @@ sequenceDiagram
   s -->>- d: participantJoin
   Note left of s: {user: {id: 3, username: ..., avatar: ...}}
 
+  alt
+    q ->>+ s: joinTournament
+  else
+    q ->> s: joinMatchmaking
+  end
+  s --x- q: error
+  Note left of s: {message: 'You are already in a tournament'}
+
+  alt
+    d ->>+ s: leaveTournament
+  else
+    d --x s: *socket closed*
+  end
+  s -->> q: participantLeft
+  s -->>- m: participantLeft
+  Note left of s: {userID: 1, ownerID: 2}

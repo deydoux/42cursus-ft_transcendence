@@ -83,7 +83,7 @@ type ServerTunnelMessage =
     }
   | {
       type: 'participantLeft';
-      user: unknown;
+      userID: number;
       ownerID: number;
     }
   | {
