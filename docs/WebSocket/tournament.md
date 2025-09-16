@@ -7,23 +7,35 @@ sequenceDiagram
   actor q as Quentin (ID 3)
   participant s as Server
 
-  d ->> s: createTournament
+  d ->>+ s: createTournament
   Note right of d: {name: 'Kittournament'}
-  s -->> d: success
+  s -->>- d: success
   Note left of s: {origin: 'createTournament'}
 
-  m ->> s: joinTournament
+  alt common errors
+    d ->>+ s: joinTournament
+  else
+    d ->> s: joinMatchmaking
+  end
+  s --x- d: error
+  Note left of s: {message: 'You are already in a tournament'}
+
+  d ->>+ s: startTournament
+  s --x- d: error
+  Note left of s: {message: 'Not enough participants'}
+
+  m ->>+ s: joinTournament
   Note right of m: {tournamentID: 1}
   s -->> m: success
   Note left of s: {origin: 'joinTournament'}
-  s -->> d: participantJoin
+  s -->>- d: participantJoin
   Note left of s: {user: {id: 2, username: ..., avatar: ...}}
 
-  q ->> s: joinTournament
+  q ->>+ s: joinTournament
   Note right of q: {tournamentID: 1}
   s -->> q: success
   Note left of s: {origin: 'joinTournament'}
   s -->> m: participantJoin
-  s -->> d: participantJoin
+  s -->>- d: participantJoin
   Note left of s: {user: {id: 3, username: ..., avatar: ...}}
 
