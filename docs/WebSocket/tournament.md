@@ -18,15 +18,15 @@ sequenceDiagram
 
   m ->>+ s: joinTournament
   Note right of m: {tournamentID: 1}
-  s -->> m: success
-  Note left of s: {origin: 'joinTournament'}
+  s -->> m: tournamentJoined
+  Note left of s: {participants: [...]}<br><br>participants:<br>{id: 1, ...}
   s -->>- d: participantJoin
   Note left of s: {user: {id: 2, ...}}
 
   q ->>+ s: joinTournament
   Note right of q: {tournamentID: 1}
-  s -->> q: success
-  Note left of s: {origin: 'joinTournament'}
+  s -->> q: tournamentJoined
+  Note left of s: {participants: [...]}<br><br>participants:<br>{id: 1, ...}<br>{id: 2, ...}
   s -->> m: participantJoin
   s -->>- d: participantJoin
   Note left of s: {user: {id: 3, ...}}
@@ -47,3 +47,15 @@ sequenceDiagram
   s -->> q: participantLeft
   s -->>- m: participantLeft
   Note left of s: {userID: 1, ownerID: 2}
+
+  d ->>+ s: joinTournament
+  Note right of d: {tournamentID: 1}
+  s -->> d: tournamentJoined
+  Note left of s: {participants: [...]}<br><br>participants:<br>{id: 2, ...}<br>{id: 3, ...}
+  s -->> m: participantJoin
+  s -->>- q: participantJoin
+  Note left of s: {user: {id: 1, ...}}
+
+  d ->>+ s: startTournament
+  s --x- d: error
+  Note left of s: {message: 'Not owner'}
