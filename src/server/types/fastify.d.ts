@@ -63,6 +63,7 @@ declare module 'fastify' {
       static: string;
     };
     playAvailability: (client: Client) => void;
+    playerify: (client: Client) => Promise<Player>;
     prod: boolean;
     removeAvatar: (id: number) => Promise<void>;
     storeAvatar: (id: number, avatar: SharpInput) => Promise<void>;

@@ -13,5 +13,6 @@ export default async function joinTournament(
       message: 'Invalid tournament ID',
     });
 
-  server.tournaments.join(message.tournamentID, client);
+  const player = await server.playerify(client);
+  server.tournaments.join(message.tournamentID, player);
 }

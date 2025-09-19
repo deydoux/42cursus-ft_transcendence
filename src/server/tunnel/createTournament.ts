@@ -13,5 +13,6 @@ export default async function createTournament(
       message: 'Invalid tournament name',
     });
 
-  server.tournaments.create(message.name, client);
+  const player = await server.playerify(client);
+  server.tournaments.create(message.name, player);
 }
