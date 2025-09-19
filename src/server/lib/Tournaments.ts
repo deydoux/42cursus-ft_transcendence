@@ -1,6 +1,6 @@
-import {Client} from '#types/Clients';
-import Clients from './Clients';
+import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
+import {Player} from '#lib/Match';
 import {Tournament} from '#lib/Tournament';
 
 export default class Tournaments {
@@ -13,7 +13,7 @@ export default class Tournaments {
     this.server = server;
   }
 
-  public create(name: string, owner: Client) {
+  public create(name: string, owner: Player) {
     try {
       this.server.playAvailability(owner);
     } catch {
@@ -41,7 +41,7 @@ export default class Tournaments {
     delete this.tournaments[id];
   }
 
-  public join(id: number, participant: Client) {
+  public join(id: number, participant: Player) {
     const tournament = this.tournaments[id];
     if (!tournament)
       return Clients.sendClient(participant, {

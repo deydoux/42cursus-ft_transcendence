@@ -1,11 +1,12 @@
 import {Client, ServerTunnelMessage} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
+import {Player} from '#lib/Match';
 import {RawData} from 'ws';
 import SQL from 'sql-template-strings';
-import serializeUserAvatar from './serializeUserAvatar';
+import serializeUserAvatar from '#lib/serializeUserAvatar';
 
-interface Participant extends Client {
+interface Participant extends Player {
   onSocketMessage?: (data: RawData) => void;
   onSocketClose?: () => void;
 }
@@ -24,7 +25,7 @@ export class Tournament {
     server: FastifyInstance,
     id: number,
     name: string,
-    owner: Client,
+    owner: Player,
   ) {
     this.server = server;
     this.id = id;
