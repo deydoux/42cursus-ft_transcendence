@@ -3,12 +3,11 @@ import Clients from '#lib/Clients';
 import {Data} from 'ws';
 import {FastifyInstance} from 'fastify';
 import SQL from 'sql-template-strings';
-import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 export interface Player extends Client {
-  score?: number;
-  username?: string;
-  avatar?: string;
+  username: string;
+  avatar: string;
+  score: number;
   elo?: number;
 }
 
@@ -23,7 +22,7 @@ export default abstract class Match {
   private tournament;
 
   private block = false;
-  private score?: {
+  private scoring?: {
     fromPlayerID: number;
     scorerID: number;
     timeout: NodeJS.Timeout;
@@ -56,8 +55,6 @@ export default abstract class Match {
     });
 
     this.execute((player, opponent) => {
-      player.score = 0;
-
       const onSocketClose = () => this.forfeits(opponent);
       const onSocketMessage = this.handleMessage(player, opponent);
 
@@ -85,7 +82,7 @@ export default abstract class Match {
   }
 
   protected async destroy(winner?: Player) {
-    if (this.score) clearTimeout(this.score.timeout);
+    if (this.scoring) clearTimeout(this.scoring.timeout);
     if (!this.tournament)
       this.execute(player => delete this.server.game.players[player.userID]);
 
@@ -207,8 +204,8 @@ export default abstract class Match {
         message: 'Invalid scorer ID',
       });
 
-    if (!this.score) {
-      this.score = {
+    if (!this.scoring) {
+      this.scoring = {
         fromPlayerID: player.userID,
         scorerID: message.scorerID,
         timeout: this.scoreTimeout(),
@@ -218,50 +215,50 @@ export default abstract class Match {
     }
 
     if (
-      this.score.fromPlayerID === player.userID ||
-      this.score.scorerID !== message.scorerID
+      this.scoring.fromPlayerID === player.userID ||
+      this.scoring.scorerID !== message.scorerID
     )
       return this.cancel('Clients synchronization lost');
 
     const scorer = this.players.find(
-      player => player.userID === this.score?.scorerID,
+      player => player.userID === this.scoring?.scorerID,
     ) as Player;
 
-    clearTimeout(this.score.timeout);
-    this.score = undefined;
+    clearTimeout(this.scoring.timeout);
+    this.scoring = undefined;
 
-    scorer.score = (scorer.score || 0) + 1;
+    scorer.score++;
 
     this.handleRound(scorer);
   }
 
-  public async init() {
-    const userIDs = this.players.map(player => player.userID);
-    const relationship = await this.server.db.get(SQL`
-      SELECT NULL
-      FROM relationships
-      WHERE type = 'block' AND (
-              (user_id = ${userIDs[0]} AND other_id = ${userIDs[1]})
-              OR (user_id = ${userIDs[1]} AND other_id = ${userIDs[0]})
-            )
-    `);
+  // public async init() {
+  //   const userIDs = this.players.map(player => player.userID);
+  //   const relationship = await this.server.db.get(SQL`
+  //     SELECT NULL
+  //     FROM relationships
+  //     WHERE type = 'block' AND (
+  //             (user_id = ${userIDs[0]} AND other_id = ${userIDs[1]})
+  //             OR (user_id = ${userIDs[1]} AND other_id = ${userIDs[0]})
+  //           )
+  //   `);
 
-    if (relationship) this.block = true;
+  //   if (relationship) this.block = true;
 
-    for (const player of this.players) {
-      const user = await this.server.db.get(SQL`
-        SELECT id, username, has_avatar, avatar_version
-        FROM users
-        WHERE id = ${player.userID}
-      `);
+  //   for (const player of this.players) {
+  //     const user = await this.server.db.get(SQL`
+  //       SELECT id, username, has_avatar, avatar_version
+  //       FROM users
+  //       WHERE id = ${player.userID}
+  //     `);
 
-      serializeUserAvatar(user);
-      player.username = user.username;
-      player.avatar = user.avatar;
+  //     serializeUserAvatar(user);
+  //     player.username = user.username;
+  //     player.avatar = user.avatar;
 
-      if (!this.ranked) delete player.elo;
-    }
-  }
+  //     if (!this.ranked) delete player.elo;
+  //   }
+  // }
 
   private scoreTimeout() {
     return setTimeout(

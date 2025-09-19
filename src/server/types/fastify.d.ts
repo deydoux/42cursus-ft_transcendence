@@ -1,7 +1,7 @@
+import Match, {Player} from '#lib/Match';
 import {Client} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {Database} from 'sqlite';
-import Match from '#lib/Match';
 import {SharpInput} from 'sharp';
 import {Tournament} from '#lib/Tournament';
 import {Tournaments} from '#lib/Tournaments';
@@ -15,8 +15,8 @@ interface RankedClient extends Client {
 }
 
 interface Queue {
-  casual: Client | null;
-  invites: {client: Client; other: number}[];
+  casual: Player | null;
+  invites: {player: Player; other: number}[];
   ranked: RankedClient[];
 }
 

@@ -36,14 +36,25 @@ export default async function joinMatchmaking(
 
   switch (message.mode) {
     case 'casual': {
+      const user = await server.db.get(SQL`
+        SELECT id, username, has_avatar, avatar_version
+        FROM users
+        WHERE id = ${client.userID}
+      `);
+      serializeUserAvatar(user);
+      delete user.id;
+
+      const player = {...user, ...client};
+      console.log(player);
+
       if (message.targetID) {
         const inviter = game.queues[message.game].invites.find(
-          invite => invite.client.userID === message.targetID,
+          invite => invite.player.userID === message.targetID,
         );
 
         if (!inviter) {
           queue.invites.push({
-            client,
+            player,
             other: message.targetID,
           });
 
@@ -76,21 +87,21 @@ export default async function joinMatchmaking(
           break;
         }
 
-        server.leaveMatchmaking(inviter.client.socket);
-        match = new MatchConstructor(server, [inviter.client, client]);
+        server.leaveMatchmaking(inviter.player.socket);
+        match = new MatchConstructor(server, [inviter.player, player]);
 
         break;
       }
 
       const queued = game.queues[message.game].casual;
       if (!queued) {
-        game.queues[message.game].casual = client;
+        game.queues[message.game].casual = player;
         break;
       }
 
       game.queues[message.game].casual = null;
 
-      match = new MatchConstructor(server, [queued, client]);
+      match = new MatchConstructor(server, [queued, player]);
       break;
     }
     case 'ranked': {

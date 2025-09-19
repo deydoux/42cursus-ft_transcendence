@@ -9,7 +9,7 @@ export default class PongMatch extends Match {
   }
 
   protected handleRound(scorer: Player) {
-    if ((scorer.score || 0) >= SCORE_GOAL) {
+    if (scorer.score >= SCORE_GOAL) {
       this.winner = scorer;
       return this.unlock();
     }
