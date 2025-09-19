@@ -7,7 +7,7 @@ import {Tournament} from '#lib/Tournament';
 import {Tournaments} from '#lib/Tournaments';
 import {WebSocket} from '@fastify/websocket';
 
-interface RankedClient extends Client {
+interface RankedPlayer extends Player {
   elo: number;
   lowerElo: number;
   upperElo: number;
@@ -17,7 +17,7 @@ interface RankedClient extends Client {
 interface Queue {
   casual: Player | null;
   invites: {player: Player; other: number}[];
-  ranked: RankedClient[];
+  ranked: RankedPlayer[];
 }
 
 declare module 'fastify' {

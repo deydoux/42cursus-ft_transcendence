@@ -3,7 +3,7 @@ import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
 import PongMatch from '#lib/PongMatch';
 import RaceMatch from '#lib/RaceMatch';
-import {RankedClient} from '#types/fastify';
+import {RankedPlayer} from '#types/fastify';
 import SQL from 'sql-template-strings';
 import {kFactor} from '#lib/Match';
 import {randomInt} from 'node:crypto';
@@ -34,19 +34,19 @@ export default async function joinMatchmaking(
 
   let match = null;
 
+  const user = await server.db.get(SQL`
+    SELECT id, username, has_avatar, avatar_version
+    FROM users
+    WHERE id = ${client.userID}
+  `);
+  serializeUserAvatar(user);
+  delete user.id;
+
+  const player = {...user, ...client};
+  console.log(player);
+
   switch (message.mode) {
     case 'casual': {
-      const user = await server.db.get(SQL`
-        SELECT id, username, has_avatar, avatar_version
-        FROM users
-        WHERE id = ${client.userID}
-      `);
-      serializeUserAvatar(user);
-      delete user.id;
-
-      const player = {...user, ...client};
-      console.log(player);
-
       if (message.targetID) {
         const inviter = game.queues[message.game].invites.find(
           invite => invite.player.userID === message.targetID,
@@ -113,14 +113,14 @@ export default async function joinMatchmaking(
         LIMIT 1
       `);
 
-      const rankedClient: RankedClient = {
-        ...client,
+      const rankedPlayer = {
+        ...player,
         elo: elo.value,
         lowerElo: elo.value,
         upperElo: elo.value,
       };
 
-      rankedClient.timeout = setInterval(
+      rankedPlayer.timeout = setInterval(
         async rankedClient => {
           rankedClient.lowerElo -= kFactor;
           rankedClient.upperElo += kFactor;
@@ -141,7 +141,6 @@ export default async function joinMatchmaking(
           match = new MatchConstructor(server, [queued, rankedClient]);
 
           try {
-            await match.init();
             await match.start();
           } catch (error) {
             match.error();
@@ -149,10 +148,10 @@ export default async function joinMatchmaking(
           }
         },
         1000,
-        rankedClient,
+        rankedPlayer,
       );
 
-      queue.ranked.push(rankedClient);
+      queue.ranked.push(rankedPlayer);
       break;
     }
     default:
@@ -169,7 +168,6 @@ export default async function joinMatchmaking(
 
   if (match)
     try {
-      await match.init();
       await match.start();
     } catch (error) {
       match.error();
