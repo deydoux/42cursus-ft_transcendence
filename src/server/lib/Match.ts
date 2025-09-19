@@ -47,7 +47,7 @@ export default abstract class Match {
     this.ranked = players.every(player => player.elo);
     this.tournament = players.every(
       player =>
-        this.server.game.players[player.userID].match?.game === 'tournament',
+        this.server.game.players[player.userID]?.match?.game === 'tournament',
     );
 
     this.lock = new Promise(resolve => {
@@ -244,6 +244,18 @@ export default abstract class Match {
   }
 
   public async start() {
+    const userIDs = this.players.map(player => player.userID);
+    const relationship = await this.server.db.get(SQL`
+      SELECT NULL
+      FROM relationships
+      WHERE type = 'block' AND (
+              (user_id = ${userIDs[0]} AND other_id = ${userIDs[1]})
+              OR (user_id = ${userIDs[1]} AND other_id = ${userIDs[0]})
+            )
+    `);
+
+    if (relationship) this.block = true;
+
     const angle = Match.generateAngle();
 
     this.send({

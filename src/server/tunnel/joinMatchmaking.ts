@@ -3,7 +3,6 @@ import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
 import PongMatch from '#lib/PongMatch';
 import RaceMatch from '#lib/RaceMatch';
-import {RankedPlayer} from '#types/fastify';
 import SQL from 'sql-template-strings';
 import {kFactor} from '#lib/Match';
 import {randomInt} from 'node:crypto';
@@ -42,8 +41,7 @@ export default async function joinMatchmaking(
   serializeUserAvatar(user);
   delete user.id;
 
-  const player = {...user, ...client};
-  console.log(player);
+  const player = {...user, ...client, score: 0};
 
   switch (message.mode) {
     case 'casual': {
