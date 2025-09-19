@@ -34,7 +34,7 @@ const connect = token => {
   });
 
   socket.addEventListener('close', event => {
-    console.error('\r</ ', event);
+    console.error('\r</', event);
     process.stdout.write(prompt);
   });
 };
