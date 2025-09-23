@@ -215,7 +215,5 @@ export class Tournament {
     // });
 
     this.server.tournaments.delete(this.id);
-
-    //TODO: implement tournament logic
   }
 }

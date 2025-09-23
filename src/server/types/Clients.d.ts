@@ -65,7 +65,7 @@ type ServerTunnelMessage =
   | {
       type: 'matchEnd';
       winner: number;
-      result?: 'forfeit' | 'tie';
+      result?: 'cancel' | 'forfeit' | 'tie';
       eloChange?: number;
     }
   | {
