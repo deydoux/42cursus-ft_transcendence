@@ -4,7 +4,7 @@ import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 const plugin: FastifyPluginAsync = async server => {
   server.get('/', async (request, reply) => {
-    const tournaments = server.tournaments._ as {owner: {id: number}}[];
+    const tournaments = server.tournaments.get() as {owner: {id: number}}[];
 
     let owners = [];
 

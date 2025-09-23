@@ -151,7 +151,7 @@ export default abstract class Match {
     }
   }
 
-  get game() {
+  public get game() {
     return this._game;
   }
 

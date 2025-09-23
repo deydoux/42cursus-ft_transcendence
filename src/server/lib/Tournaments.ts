@@ -41,6 +41,15 @@ export default class Tournaments {
     delete this.tournaments[id];
   }
 
+  public get() {
+    return Object.values(this.tournaments).map(tournament => ({
+      id: tournament.id,
+      name: tournament.name,
+      participantCount: tournament.participantCount,
+      owner: {id: tournament.owner.userID},
+    }));
+  }
+
   public join(id: number, participant: Player) {
     const tournament = this.tournaments[id];
     if (!tournament)
@@ -50,14 +59,5 @@ export default class Tournaments {
       });
 
     tournament.addParticipant(participant);
-  }
-
-  get _() {
-    return Object.values(this.tournaments).map(tournament => ({
-      id: tournament.id,
-      name: tournament.name,
-      participantCount: tournament.participantCount,
-      owner: {id: tournament.owner.userID},
-    }));
   }
 }

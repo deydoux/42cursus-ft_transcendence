@@ -99,7 +99,7 @@ export class Tournament {
       }
     };
 
-  get owner() {
+  public get owner() {
     return this.participants[0];
   }
 

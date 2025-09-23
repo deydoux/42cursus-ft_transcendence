@@ -5,7 +5,7 @@ import PongMatch from '#lib/PongMatch';
 export default class Round {
   private server;
   private rounds: Round[] = [];
-  private participants: Participant[] = [];
+  private _participants: Participant[] = [];
 
   constructor(server: FastifyInstance, size: number) {
     this.server = server;
@@ -16,7 +16,7 @@ export default class Round {
   }
 
   public addParticipant(participant: Participant) {
-    this.participants.push(participant);
+    this._participants.push(participant);
   }
 
   public get firstRounds(): Round[] {
@@ -24,18 +24,22 @@ export default class Round {
     return [this];
   }
 
+  public get participants() {
+    return this._participants;
+  }
+
   public async start() {
     for (const round of this.rounds || []) {
       const result = await round.start();
-      if (result.winner) this.participants.push(result.winner);
+      if (result.winner) this._participants.push(result.winner);
     }
 
-    if (this.participants.length < 2)
-      return {winner: this.participants[0], result: 'empty'};
+    if (this._participants.length < 2)
+      return {winner: this._participants[0], result: 'empty'};
 
     const match = new PongMatch(this.server, [
-      this.participants[0],
-      this.participants[1],
+      this._participants[0],
+      this._participants[1],
     ]);
     return await match.start();
   }
