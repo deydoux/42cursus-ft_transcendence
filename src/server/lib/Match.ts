@@ -276,6 +276,6 @@ export default abstract class Match {
     await this.lock;
     await this.destroy(this.winner);
 
-    return this.winner;
+    return {winner: this.winner, result: this.result};
   }
 }
