@@ -11,6 +11,8 @@ interface Participant extends Player {
   onSocketClose?: () => void;
 }
 
+const MAX_PARTICIPANTS = 8;
+
 export class Tournament {
   public readonly game = 'tournament';
   public readonly id;
@@ -40,6 +42,12 @@ export class Tournament {
       } catch {
         return;
       }
+
+      if (this.participants.length >= MAX_PARTICIPANTS)
+        return Clients.sendClient(participant, {
+          type: 'error',
+          message: 'Tournament is full',
+        });
 
       Clients.sendClient(participant, {
         type: 'success',
