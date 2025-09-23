@@ -32,7 +32,7 @@ export default abstract class Match {
   private readonly lock;
 
   protected players;
-  protected result?: 'forfeit' | 'tie';
+  protected result?: 'cancel' | 'forfeit' | 'tie';
   protected unlock = () => undefined;
   protected winner?: Player;
 
@@ -78,6 +78,7 @@ export default abstract class Match {
 
   private cancel(cause?: string) {
     this.send({type: 'matchCancel', cause});
+    this.result = 'cancel';
     this.unlock();
   }
 
