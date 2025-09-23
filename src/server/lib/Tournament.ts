@@ -2,6 +2,7 @@ import {Client, ServerTunnelMessage} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
 import {Player} from '#lib/Match';
+import PongMatch from '#lib/PongMatch';
 import {RawData} from 'ws';
 import SQL from 'sql-template-strings';
 import serializeUserAvatar from '#lib/serializeUserAvatar';
@@ -13,6 +14,37 @@ interface Participant extends Player {
 
 const MAX_PARTICIPANTS = 8;
 
+class Round {
+  private server;
+  private rounds;
+  private participants: Participant[] = [];
+
+  constructor(server: FastifyInstance, size: number) {
+    this.server = server;
+
+    const half = size / 2;
+    if (half > 2)
+      this.rounds = [new Round(server, half), new Round(server, half)];
+  }
+
+  public addParticipant(participant: Participant) {
+    this.participants.push(participant);
+  }
+
+  public get firstRounds(): Round[] {
+    if (this.rounds) return this.rounds.map(round => round.firstRounds).flat();
+    return [this];
+  }
+
+  // public get result() {
+  //   if (this.participants.length === 2)
+  //     return new PongMatch(this.server, [
+  //       this.participants[0],
+  //       this.participants[1],
+  //     ]).start();
+  // }
+}
+
 export class Tournament {
   public readonly game = 'tournament';
   public readonly id;
@@ -21,7 +53,7 @@ export class Tournament {
   private readonly server: FastifyInstance;
 
   private participants: Participant[] = [];
-  private started = false;
+  private round: Round | null = null;
 
   constructor(
     server: FastifyInstance,
@@ -148,7 +180,7 @@ export class Tournament {
   }
 
   private start(participant: Participant) {
-    if (this.started)
+    if (this.round)
       return Clients.sendClient(participant, {
         type: 'error',
         message: 'Tournament already started',
@@ -166,12 +198,14 @@ export class Tournament {
         message: 'Not enough participants to start the tournament',
       });
 
+    const size = 2 ** Math.floor(Math.log2(this.participants.length) + 1);
+    this.round = new Round(this.server, size);
+
     //TODO
     // this.send({
     //   type: 'tournamentStarted',
     // });
 
-    this.started = true;
     this.server.tournaments.delete(this.id);
 
     //TODO: implement tournament logic
