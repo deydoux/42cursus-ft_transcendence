@@ -1,31 +1,35 @@
+import {Lobby} from '../containers/Lobby';
 import {Router} from '../services/router';
 import {Store} from '../services/store';
 import {Toastify} from '../utils/toastify';
 import {socket} from '../utils/websocket';
 
+export interface User {
+  id: number;
+  username: string;
+  avatar: string;
+  elo: number;
+}
+
 const handleMatchStart = (data: {
   game: string;
   ranked: boolean;
-  players: [
-    {
-      id: number;
-      username: string;
-      avatar: string;
-      elo: number;
-    },
-    {
-      id: number;
-      username: string;
-      avatar: string;
-      elo: number;
-    },
-  ];
+  players: [User, User];
+  // isOpponentBlocked: ;
 }) => {
   const router = Router.getInstance();
   const store = Store.getInstance();
 
-  store.setState({isWaitingForMatchmaking: false});
-  router.navigate(`/${data.game}`);
+  setTimeout(() => {
+    const {user} = store.getState();
+    const opponent = user && data.players.find(player => player.id !== user.id);
+    if (opponent) Lobby.renderFoundOpponent(opponent);
+  }, 50);
+
+  setTimeout(() => {
+    store.setState({isWaitingForMatchmaking: false});
+    router.navigate(`/${data.game}`);
+  }, 3000);
 };
 
 const handleSuccess = (data: {origin: string}) => {

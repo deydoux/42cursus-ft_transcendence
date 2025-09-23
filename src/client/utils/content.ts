@@ -2,6 +2,8 @@ import {Keys, keys} from './keys.ts';
 import {Ball} from '../containers/ball.ts';
 import {Paddle} from '../containers/paddle.ts';
 import {Timer} from '../containers/timer.ts';
+import { PongGame } from '../pages/PongGame.ts';
+import { Store } from '../services/store.ts';
 
 export const welcomeEmojis = [
   '👋',
@@ -42,38 +44,26 @@ export const asciiArt = [
   '⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀',
 ];
 
-export interface PongGame {
-  leftPlayer: HTMLElement;
-  rightPlayer: HTMLElement;
-  leftPaddle: Paddle;
-  rightPaddle: Paddle;
-  ball: Ball;
-  ctx: CanvasRenderingContext2D;
-  leftPlayerScore: number;
-  rightPlayerScore: number;
-  leftPlayerScoreElement: HTMLElement;
-  rightPlayerScoreElement: HTMLElement;
-  keys: Keys;
-  gameStarted: boolean;
-  isScoring: boolean;
-  timer: Timer;
-}
-
 export function initializeGame(ctx: CanvasRenderingContext2D): PongGame {
-  const leftPlayer = document.getElementById('p1_name');
-  const rightPlayer = document.getElementById('p2_name');
-  const leftPlayerScoreElement = document.getElementById('p1_score');
-  const rightPlayerScoreElement = document.getElementById('p2_score');
-  const missingElements = [];
-  if (!leftPlayer) missingElements.push('p1_name');
-  if (!rightPlayer) missingElements.push('p2_name');
-  if (!leftPlayerScoreElement) missingElements.push('p1_score');
-  if (!rightPlayerScoreElement) missingElements.push('p2_score');
+  const missingElements: string[] = [];
+  const getHTMLElement = (name: string) => {
+    const value = document.getElementById(name) as HTMLElement;
+    if (!value) missingElements.push(name);
+    return value;
+  };
+  const leftPlayer = getHTMLElement('p1_name');
+  const rightPlayer = getHTMLElement('p2_name');
+  const leftPlayerScoreElement = getHTMLElement('p1_score');
+  const rightPlayerScoreElement = getHTMLElement('p2_score');
   if (missingElements.length > 0) {
-    throw new Error(`Required HTML elements not found: ${missingElements.join(', ')}`);
+    throw new Error(
+      `Required HTML elements not found: ${missingElements.join(', ')}`,
+    );
   }
-  leftPlayer.innerText = 'Player 1';
-  rightPlayer.innerText = 'Player 2';
+  const initilizePlayers () => {
+    const isBlocked = 
+  }
+
   const leftPaddle = new Paddle(
     ctx,
     10,

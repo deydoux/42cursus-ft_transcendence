@@ -111,6 +111,7 @@ export interface AppState {
       updatedAt: string;
     }[];
   };
+  block: boolean;
 }
 
 export interface Component {
