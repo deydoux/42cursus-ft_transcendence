@@ -1,11 +1,16 @@
 import {FastifyPluginAsync} from 'fastify';
 import SQL from 'sql-template-strings';
 
+const {JWT_REFRESH_EXPIRES_IN} = process.env;
 let it = 0;
 
 const plugin: FastifyPluginAsync = async server => {
-  const generateRefreshToken = (id: number) =>
-    server.jwt.sign({type: 'refresh', id, it: ++it}, {expiresIn: '30d'});
+  const generateRefreshToken = (id: number) => {
+    const expiresIn =
+      JWT_REFRESH_EXPIRES_IN && server.dev ? JWT_REFRESH_EXPIRES_IN : '30d';
+
+    return server.jwt.sign({type: 'refresh', id, it: ++it}, {expiresIn});
+  };
 
   server.decorateRequest('generateTokens', async function (id) {
     const refreshToken = generateRefreshToken(id);
