@@ -102,7 +102,7 @@ type ServerTunnelMessage =
   | {
       type: 'tournamentMatchEnd';
       winner?: unknown;
-      result?: 'cancel' | 'forfeit' | 'tie' | 'empty';
+      result?: 'cancel' | 'empty' | 'forfeit' | 'tie';
     }
   | {
       type: 'tournamentStarted';

@@ -32,14 +32,33 @@ export default class Round {
     return [...this._participants];
   }
 
+  private sendTournamentMatchEnd(
+    winner?: Participant,
+    result?: 'cancel' | 'empty' | 'forfeit' | 'tie',
+  ) {
+    this.tournament.send({
+      type: 'tournamentMatchEnd',
+      winner: winner
+        ? {
+            id: winner.userID,
+            username: winner.username,
+            avatar: winner.avatar,
+          }
+        : undefined,
+      result: result,
+    });
+  }
+
   public async start() {
     for (const round of this.rounds || []) {
       const result = await round.start();
       if (result.winner) this._participants.push(result.winner);
     }
 
-    if (this._participants.length < 2)
+    if (this._participants.length < 2) {
+      this.sendTournamentMatchEnd(this._participants[0], 'empty');
       return {winner: this._participants[0], result: 'empty'};
+    }
 
     const match = new PongMatch(this.server, [
       this._participants[0],
@@ -56,19 +75,7 @@ export default class Round {
     });
 
     const result = await match.start();
-
-    this.tournament.send({
-      type: 'tournamentMatchEnd',
-      winner: result.winner
-        ? {
-            id: result.winner.userID,
-            username: result.winner.username,
-            avatar: result.winner.avatar,
-          }
-        : undefined,
-      result: result.result,
-    });
-
+    this.sendTournamentMatchEnd(result.winner, result.result);
     return result;
   }
 }
