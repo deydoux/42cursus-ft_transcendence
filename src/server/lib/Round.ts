@@ -25,7 +25,7 @@ export default class Round {
   }
 
   public get participants() {
-    return this._participants;
+    return [...this._participants];
   }
 
   public async start() {
