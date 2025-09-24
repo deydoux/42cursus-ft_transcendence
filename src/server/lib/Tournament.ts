@@ -169,13 +169,25 @@ export class Tournament {
         message: 'Not enough participants to start the tournament',
       });
 
-    const size = 2 ** Math.floor(Math.log2(this.participants.length - 1) + 1);
+    let size = 2 ** Math.floor(Math.log2(this.participants.length - 1) + 1);
     this.round = new Round(this.server, size);
 
     const {firstRounds} = this.round;
     const seed = this.participants.sort(() => Math.random() - 0.5);
-    for (let i = 0; i < seed.length; i++)
-      firstRounds[i % firstRounds.length].addParticipant(seed[i]);
+
+    for (let i = 0; i < seed.length; i++) {
+      let idx = 0;
+      let n = i % firstRounds.length;
+      let div = 2;
+
+      while (n) {
+        idx += (n & 1) * (firstRounds.length / div);
+        n >>= 1;
+        div *= 2;
+      }
+
+      firstRounds[idx].addParticipant(seed[i]);
+    }
 
     this.send({
       type: 'tournamentStarted',
