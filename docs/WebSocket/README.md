@@ -283,3 +283,59 @@ Received when a round starts in a match
   "type": "round"
 }
 ```
+
+### `tournamentMatchStart`
+Received when a tournament match starts
+
+*Example:*
+```json
+{
+  "type": "tournamentMatchStart",
+  "participants": [
+    {"id": 1, "username": "user123", "avatar": "/static/default_avatar.webp"},
+    {"id": 2, "username": "user456", "avatar": "/static/default_avatar.webp"}
+  ]
+}
+```
+
+### `tournamentMatchEnd`
+Received when a tournament match ends
+
+*Example:*
+```json
+{
+  "type": "tournamentMatchEnd",
+  "winner": {
+    "id": 1,
+    "username": "user123",
+    "avatar": "/static/default_avatar.webp"
+  },
+  "result": "forfeit"
+}
+```
+
+### `tournamentStarted`
+Received when a tournament starts
+
+*Example:*
+```json
+{
+  "type": "tournamentStarted",
+  "firstRounds": [
+    [
+      {"id": 1, "username": "user123", "avatar": "/static/default_avatar.webp"},
+      {"id": 2, "username": "user456", "avatar": "/static/default_avatar.webp"}
+    ],
+    [
+      {"id": 3, "username": "user789", "avatar": "/static/default_avatar.webp"}
+    ],
+    [
+      {"id": 4, "username": "user012", "avatar": "/static/default_avatar.webp"},
+      {"id": 5, "username": "user345", "avatar": "/static/default_avatar.webp"}
+    ],
+    [
+      {"id": 6, "username": "user678", "avatar": "/static/default_avatar.webp"}
+    ]
+  ]
+}
+

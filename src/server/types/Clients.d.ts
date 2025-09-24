@@ -96,6 +96,15 @@ type ServerTunnelMessage =
       origin: string;
     }
   | {
+      type: 'tournamentMatchStart';
+      participants: unknown[];
+    }
+  | {
+      type: 'tournamentMatchEnd';
+      winner: unknown;
+      result?: 'cancel' | 'forfeit' | 'tie' | 'empty';
+    }
+  | {
       type: 'tournamentStarted';
       firstRounds: unknown;
     };
