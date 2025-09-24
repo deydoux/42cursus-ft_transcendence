@@ -53,6 +53,7 @@ const leaveMatchmaking = () => send({type: 'leaveMatchmaking'});
 const leaveTournament = () => send({type: 'leaveTournament'});
 const move = direction => send({type: 'move', direction});
 const score = scorerID => send({type: 'score', scorerID});
+const startTournament = () => send({type: 'startTournament'});
 
 socket.addEventListener('open', () => {
   console.log();
@@ -74,6 +75,7 @@ socket.addEventListener('open', () => {
     leaveTournament,
     move,
     score,
+    startTournament,
   };
 
   Object.entries(context).forEach(([key, value]) => (r.context[key] = value));
