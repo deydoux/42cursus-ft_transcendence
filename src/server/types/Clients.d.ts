@@ -94,4 +94,8 @@ type ServerTunnelMessage =
   | {
       type: 'success';
       origin: string;
+    }
+  | {
+      type: 'tournamentStarted';
+      firstRounds: unknown;
     };
