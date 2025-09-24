@@ -101,7 +101,7 @@ type ServerTunnelMessage =
     }
   | {
       type: 'tournamentMatchEnd';
-      winner: unknown;
+      winner?: unknown;
       result?: 'cancel' | 'forfeit' | 'tie' | 'empty';
     }
   | {

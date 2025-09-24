@@ -46,6 +46,29 @@ export default class Round {
       this._participants[1],
     ]);
 
-    return await match.start();
+    this.tournament.send({
+      type: 'tournamentMatchStart',
+      participants: this._participants.map(participant => ({
+        id: participant.userID,
+        username: participant.username,
+        avatar: participant.avatar,
+      })),
+    });
+
+    const result = await match.start();
+
+    this.tournament.send({
+      type: 'tournamentMatchEnd',
+      winner: result.winner
+        ? {
+            id: result.winner.userID,
+            username: result.winner.username,
+            avatar: result.winner.avatar,
+          }
+        : undefined,
+      result: result.result,
+    });
+
+    return result;
   }
 }
