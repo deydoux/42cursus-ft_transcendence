@@ -4,11 +4,13 @@ import PongMatch from '#lib/PongMatch';
 
 export default class Round {
   private server;
+  private tournament;
   private rounds: Round[] = [];
   private _participants: Participant[] = [];
 
   constructor(server: FastifyInstance, tournament: Tournament, size: number) {
     this.server = server;
+    this.tournament = tournament;
 
     const half = size / 2;
     if (half > 1)
@@ -43,6 +45,7 @@ export default class Round {
       this._participants[0],
       this._participants[1],
     ]);
+
     return await match.start();
   }
 }
