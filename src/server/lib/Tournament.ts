@@ -110,7 +110,7 @@ export class Tournament {
     if (participant) this.removeParticipant(participant);
   }
 
-  private async removeParticipant(participant: Participant) {
+  private async removeParticipant(participant: Participant, silent = false) {
     // TODO: forfeit if started
     this.participants = this.participants.filter(p => p !== participant);
 
@@ -125,19 +125,20 @@ export class Tournament {
 
     if (this.round) return;
 
-    Clients.sendClient(participant, {
-      type: 'success',
-      origin: 'leaveTournament',
-    });
+    if (!silent) {
+      Clients.sendClient(participant, {
+        type: 'success',
+        origin: 'leaveTournament',
+      });
 
-    if (this.participants.length === 0)
-      return this.server.tournaments.delete(this.id);
+      this.send({
+        type: 'participantLeft',
+        userID: participant.userID,
+        ownerID: this.participants[0].userID,
+      });
+    }
 
-    this.send({
-      type: 'participantLeft',
-      userID: participant.userID,
-      ownerID: this.participants[0].userID,
-    });
+    if (this.participants.length === 0) this.server.tournaments.delete(this.id);
   }
 
   private send(message: ServerTunnelMessage) {
@@ -150,7 +151,7 @@ export class Tournament {
     return this.participants.length;
   }
 
-  private start(participant: Participant) {
+  private async start(participant: Participant) {
     if (this.round)
       return Clients.sendClient(participant, {
         type: 'error',
@@ -200,6 +201,10 @@ export class Tournament {
       ),
     });
 
-    this.server.tournaments.delete(this.id);
+    const result = await this.round.start();
+    console.log('result:', result);
+
+    for (const participant of this.participants)
+      this.removeParticipant(participant, true);
   }
 }
