@@ -25,7 +25,10 @@ const connect = token => {
   socket = new WebSocket(url, protocol);
 
   socket.addEventListener('message', event => {
-    console.log('\r<', inspect(JSON.parse(event.data), {depth: null}));
+    console.log(
+      '\r<',
+      inspect(JSON.parse(event.data), {colors: true, depth: null}),
+    );
     process.stdout.write(prompt);
   });
 
