@@ -55,6 +55,8 @@ export default abstract class Match {
     });
 
     this.execute((player, opponent) => {
+      player.score = 0;
+
       const onSocketClose = () => this.forfeits(opponent);
       const onSocketMessage = this.handleMessage(player, opponent);
 
