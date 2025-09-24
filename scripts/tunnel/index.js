@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {inspect} from 'node:util';
 import repl from 'node:repl';
 
 const scheme = 'ws';
@@ -24,7 +25,7 @@ const connect = token => {
   socket = new WebSocket(url, protocol);
 
   socket.addEventListener('message', event => {
-    console.log('\r<', JSON.parse(event.data));
+    console.log('\r<', inspect(JSON.parse(event.data), {depth: null}));
     process.stdout.write(prompt);
   });
 
