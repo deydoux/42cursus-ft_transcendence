@@ -169,7 +169,7 @@ export class Tournament {
         message: 'Not enough participants to start the tournament',
       });
 
-    let size = 2 ** Math.floor(Math.log2(this.participants.length - 1) + 1);
+    const size = 2 ** Math.floor(Math.log2(this.participants.length - 1) + 1);
     this.round = new Round(this.server, size);
 
     const {firstRounds} = this.round;
