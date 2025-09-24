@@ -112,6 +112,8 @@ export class Tournament {
 
   private async removeParticipant(participant: Participant) {
     // TODO: forfeit if started
+    if (this.round) return;
+
     this.participants = this.participants.filter(p => p !== participant);
 
     if (participant.onSocketMessage)
@@ -175,10 +177,10 @@ export class Tournament {
     for (let i = 0; i < seed.length; i++)
       firstRounds[i % firstRounds.length].addParticipant(seed[i]);
 
-    //TODO
-    // this.send({
-    //   type: 'tournamentStarted',
-    // });
+    this.send({
+      type: 'tournamentStarted',
+      firstRounds: firstRounds.map(r => r.participants.map(p => {id: p.userID, username: p.username, avatar: p.avatar})),
+    });
 
     this.server.tournaments.delete(this.id);
   }
