@@ -11,7 +11,7 @@ export default class Round {
     this.server = server;
 
     const half = size / 2;
-    if (half > 2)
+    if (half > 1)
       for (let i = 0; i < 2; i++) this.rounds.push(new Round(server, half));
   }
 
@@ -20,7 +20,8 @@ export default class Round {
   }
 
   public get firstRounds(): Round[] {
-    if (this.rounds) return this.rounds.map(round => round.firstRounds).flat();
+    if (this.rounds.length)
+      return this.rounds.map(round => round.firstRounds).flat();
     return [this];
   }
 
