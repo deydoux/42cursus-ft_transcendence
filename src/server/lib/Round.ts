@@ -50,10 +50,16 @@ export default class Round {
   }
 
   public async start() {
+    const results = [];
+
     for (const round of this.rounds || []) {
-      const result = await round.start();
-      if (result.winner) this._participants.push(result.winner);
+      const result = round.start();
+      results.push(result);
     }
+
+    (await Promise.all(results)).forEach(result => {
+      if (result.winner) this._participants.push(result.winner);
+    });
 
     if (this._participants.length < 2) {
       this.sendTournamentMatchEnd(this._participants[0], 'empty');
