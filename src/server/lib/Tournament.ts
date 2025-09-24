@@ -192,13 +192,14 @@ export class Tournament {
 
     this.send({
       type: 'tournamentStarted',
-      firstRounds: firstRounds.map(round =>
-        round.participants.map(participant => ({
+      firstRounds: firstRounds.map(round => ({
+        id: round.id,
+        participants: round.participants.map(participant => ({
           id: participant.userID,
           username: participant.username,
           avatar: participant.avatar,
         })),
-      ),
+      })),
     });
 
     const result = await this.round.start();

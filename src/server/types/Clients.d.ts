@@ -97,10 +97,12 @@ type ServerTunnelMessage =
     }
   | {
       type: 'tournamentMatchStart';
+      id: number;
       participants: unknown[];
     }
   | {
       type: 'tournamentMatchEnd';
+      id: number;
       winner?: unknown;
       result?: 'cancel' | 'empty' | 'forfeit' | 'tie';
     }

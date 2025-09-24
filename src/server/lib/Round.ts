@@ -2,9 +2,12 @@ import {Participant, Tournament} from '#lib/Tournament';
 import {FastifyInstance} from 'fastify';
 import PongMatch from '#lib/PongMatch';
 
+let id = 0;
+
 export default class Round {
   private server;
   private tournament;
+  private _id = ++id;
   private rounds: Round[] = [];
   private _participants: Participant[] = [];
 
@@ -28,6 +31,10 @@ export default class Round {
     return [this];
   }
 
+  public get id() {
+    return this._id;
+  }
+
   public get participants() {
     return [...this._participants];
   }
@@ -38,6 +45,7 @@ export default class Round {
   ) {
     this.tournament.send({
       type: 'tournamentMatchEnd',
+      id: this.id,
       winner: winner
         ? {
             id: winner.userID,
@@ -73,6 +81,7 @@ export default class Round {
 
     this.tournament.send({
       type: 'tournamentMatchStart',
+      id: this.id,
       participants: this._participants.map(participant => ({
         id: participant.userID,
         username: participant.username,

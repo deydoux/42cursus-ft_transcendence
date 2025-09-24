@@ -291,6 +291,7 @@ Received when a tournament match starts
 ```json
 {
   "type": "tournamentMatchStart",
+  "id": 1,
   "participants": [
     {"id": 1, "username": "user123", "avatar": "/static/default_avatar.webp"},
     {"id": 2, "username": "user456", "avatar": "/static/default_avatar.webp"}
@@ -305,6 +306,7 @@ Received when a tournament match ends
 ```json
 {
   "type": "tournamentMatchEnd",
+  "id": 1,
   "winner": {
     "id": 1,
     "username": "user123",
@@ -321,21 +323,28 @@ Received when a tournament starts
 ```json
 {
   "type": "tournamentStarted",
-  "firstRounds": [
-    [
+  "firstRounds": [{
+    "id": 1,
+    "participants": [
       {"id": 1, "username": "user123", "avatar": "/static/default_avatar.webp"},
       {"id": 2, "username": "user456", "avatar": "/static/default_avatar.webp"}
-    ],
-    [
+    ]
+  }, {
+    "id": 2,
+    "participants": [
       {"id": 3, "username": "user789", "avatar": "/static/default_avatar.webp"}
-    ],
-    [
+    ]
+  }, {
+    "id": 3,
+    "participants": [
       {"id": 4, "username": "user012", "avatar": "/static/default_avatar.webp"},
       {"id": 5, "username": "user345", "avatar": "/static/default_avatar.webp"}
-    ],
-    [
+    ]
+  }, {
+    "id": 4,
+    "participants": [
       {"id": 6, "username": "user678", "avatar": "/static/default_avatar.webp"}
     ]
-  ]
+  }]
 }
 
