@@ -1,5 +1,5 @@
+import {Participant, Tournament} from '#lib/Tournament';
 import {FastifyInstance} from 'fastify';
-import {Participant} from '#lib/Tournament';
 import PongMatch from '#lib/PongMatch';
 
 export default class Round {
@@ -7,12 +7,13 @@ export default class Round {
   private rounds: Round[] = [];
   private _participants: Participant[] = [];
 
-  constructor(server: FastifyInstance, size: number) {
+  constructor(server: FastifyInstance, tournament: Tournament, size: number) {
     this.server = server;
 
     const half = size / 2;
     if (half > 1)
-      for (let i = 0; i < 2; i++) this.rounds.push(new Round(server, half));
+      for (let i = 0; i < 2; i++)
+        this.rounds.push(new Round(server, tournament, half));
   }
 
   public addParticipant(participant: Participant) {

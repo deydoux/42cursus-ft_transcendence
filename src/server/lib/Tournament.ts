@@ -141,7 +141,7 @@ export class Tournament {
     if (this.participants.length === 0) this.server.tournaments.delete(this.id);
   }
 
-  private send(message: ServerTunnelMessage) {
+  public send(message: ServerTunnelMessage) {
     for (const participant of this.participants) {
       Clients.sendClient(participant, message);
     }
@@ -171,7 +171,7 @@ export class Tournament {
       });
 
     const size = 2 ** Math.floor(Math.log2(this.participants.length - 1) + 1);
-    this.round = new Round(this.server, size);
+    this.round = new Round(this.server, this, size);
 
     const {firstRounds} = this.round;
     const seed = this.participants.sort(() => Math.random() - 0.5);
