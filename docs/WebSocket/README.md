@@ -341,29 +341,25 @@ Received when a tournament starts
 ```json
 {
   "type": "tournamentStarted",
-  "firstRounds": [{
+  "rounds": {
     "id": 1,
-    "participants": [
-      {"id": 1, "username": "user123", "avatar": "/static/default_avatar.webp"},
-      {"id": 2, "username": "user456", "avatar": "/static/default_avatar.webp"}
-    ]
-  }, {
-    "id": 2,
-    "participants": [
-      {"id": 3, "username": "user789", "avatar": "/static/default_avatar.webp"}
-    ]
-  }, {
-    "id": 3,
-    "participants": [
-      {"id": 4, "username": "user012", "avatar": "/static/default_avatar.webp"},
-      {"id": 5, "username": "user345", "avatar": "/static/default_avatar.webp"}
-    ]
-  }, {
-    "id": 4,
-    "participants": [
-      {"id": 6, "username": "user678", "avatar": "/static/default_avatar.webp"}
-    ]
-  }]
+    "participants": [],
+    "rounds": [{
+      "id": 2,
+      "participants": [
+        {"id": 3, "username": "3doux", "avatar": "/static/default_avatar.webp"},
+        {"id": 1, "username": "1doux", "avatar": "/static/default_avatar.webp"}
+      ],
+      "rounds": []
+    }, {
+      "id": 3,
+      "participants": [
+        {"id": 2, "username": "2doux", "avatar": "/static/default_avatar.webp"}
+      ],
+      "rounds": []
+    }]
+  }
 }
+
 ```
 
