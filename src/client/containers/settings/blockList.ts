@@ -1,105 +1,65 @@
-import {DOMUtils} from '../../utils/dom';
-import {Store} from '../../services/store';
-import {Toastify} from '../../utils/toastify';
-import {api} from '../../utils/Api';
+import {fetchBlockedUsers, unblockUser} from '../../api/relationships';
+import {BaseComponent} from '../../components/BaseComponent';
+import {createElement} from '../../utils/dom';
 import {getRelativeTime} from '../../utils/string';
 
-export class BlockList {
-  constructor(private store: Store) {}
+export class BlockList extends BaseComponent {
+  private renderList(container: HTMLDivElement) {
+    const {blockedUsers} = this.store.getState();
+    container.innerHTML = '';
 
-  private async fetchBlockedUsers() {
-    try {
-      const response = await api.get('relationships/block');
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message);
-      }
-
-      const data = await response.json();
-      this.store.setState({blockedUsers: data});
-    } catch (error) {
-      Toastify.error('An error occurred while fetching blocked users');
-      console.error(error);
+    if (blockedUsers.length === 0) {
+      container.appendChild(
+        createElement('p', {
+          textContent: 'No users currently blocked',
+          className: 'text-white/50 italic',
+        }),
+      );
+      return;
     }
-  }
 
-  private async unblockUser(relationshipID: number) {
-    try {
-      const response = await api.delete(`relationships/${relationshipID}`, {});
+    blockedUsers.forEach(relationship => {
+      const line = createElement('div', {
+        className: 'flex items-center justify-between',
+      });
+      const leftContent = createElement('div', {
+        className: 'flex flex-col',
+      });
+      leftContent.appendChild(
+        createElement('p', {
+          textContent: relationship.username,
+        }),
+      );
+      leftContent.appendChild(
+        createElement('p', {
+          className: 'text-sm text-white/50 leading-tight',
+          textContent: `Blocked ${getRelativeTime(relationship.createdAt)}`,
+        }),
+      );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message);
-      }
+      line.appendChild(leftContent);
 
-      this.fetchBlockedUsers();
-      Toastify.success('User unblocked successfully');
-    } catch (error) {
-      Toastify.error('An error occurred while unblocking a user');
-      console.error(error);
-    }
+      line.appendChild(
+        createElement('button', {
+          className: `px-4 py-2 rounded-lg border border-white/20 text-white/80 text-sm hover:bg-white/10 duration-200 cursor-pointer`,
+          textContent: 'Unblock',
+          events: {
+            click: () => unblockUser(relationship.relationshipID),
+          },
+        }),
+      );
+
+      container.appendChild(line);
+    });
   }
 
   render() {
-    this.fetchBlockedUsers();
-    const container = DOMUtils.createElement('div', {
+    fetchBlockedUsers();
+
+    const container = createElement('div', {
       className: 'pt-4 flex flex-col gap-4 max-h-60 overflow-y-auto',
     });
-
-    const renderList = () => {
-      const {blockedUsers} = this.store.getState();
-      container.innerHTML = '';
-
-      if (blockedUsers.length === 0) {
-        container.appendChild(
-          DOMUtils.createElement('p', {
-            textContent: 'No users currently blocked',
-            className: 'text-white/50 italic',
-          }),
-        );
-        return;
-      }
-
-      blockedUsers.forEach(relationship => {
-        const line = DOMUtils.createElement('div', {
-          className: 'flex items-center justify-between',
-        });
-        const leftContent = DOMUtils.createElement('div', {
-          className: 'flex flex-col',
-        });
-        leftContent.appendChild(
-          DOMUtils.createElement('p', {
-            textContent: relationship.username,
-          }),
-        );
-        leftContent.appendChild(
-          DOMUtils.createElement('p', {
-            className: 'text-sm text-white/50 leading-tight',
-            textContent: `Blocked ${getRelativeTime(relationship.createdAt)}`,
-          }),
-        );
-
-        line.appendChild(leftContent);
-
-        line.appendChild(
-          DOMUtils.createElement('button', {
-            className:
-              'px-4 py-2 rounded-lg border border-white/20 text-white/80 text-sm hover:bg-white/10 duration-200 cursor-pointer',
-            textContent: 'Unblock',
-            events: {
-              click: () => {
-                this.unblockUser(relationship.relationshipID);
-              },
-            },
-          }),
-        );
-
-        container.appendChild(line);
-      });
-    };
-
-    this.store.subscribeToPath('blockedUsers', () => renderList());
+    this.subscribeToPath('blockedUsers', () => this.renderList(container));
     return container;
   }
 }

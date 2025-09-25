@@ -1,62 +1,19 @@
 import {getTimeElapsed, truncateString} from '../../utils/string';
-import {DOMUtils} from '../../utils/dom';
-import {Store} from '../../services/store';
-import {Toastify} from '../../utils/toastify';
-import {api} from '../../utils/Api';
+import {BaseComponent} from '../../components/BaseComponent';
+import {createElement} from '../../utils/dom';
+import {fetchChats} from '../../api/chats';
 import {loadIcons} from '../../utils/icons';
 import {renderUserContextMenu} from './userContextMenu';
+import {sendFriendRequest} from '../../api/relationships';
 
-export class ChatsList {
-  constructor(private store: Store) {}
-
-  private async fetchChats() {
-    try {
-      const response = await api.get('chats');
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message);
-      }
-
-      const data = await response.json();
-      this.store.setState({
-        directChats: data.directs,
-        generalChat: data.general,
-        countFriendRequests: data.friendRequests,
-      });
-    } catch (error) {
-      Toastify.error('Could not fetch direct chats');
-      console.error(error);
-    }
-  }
-
-  static async sendFriendRequest(username: string) {
-    try {
-      const response = await api.post('relationships/friends/requests', {
-        username,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        if (errorData.message !== 'User not found')
-          throw new Error(errorData.message);
-      }
-
-      Toastify.success('Friend request sent successfully');
-    } catch (error) {
-      Toastify.error('Could not send friend request');
-      console.error(error);
-    }
-  }
-
+export class ChatsList extends BaseComponent {
   private renderSearchBar() {
-    const searchBar = DOMUtils.createElement('div', {
+    const searchBar = createElement('div', {
       className: 'px-6 py-4 pt-6 relative flex items-center',
     });
     searchBar.appendChild(
-      DOMUtils.createElement('input', {
-        className:
-          'peer border border-pink-300/50 w-full py-2 px-4 pl-10 rounded-md focus:outline-none focus:border-white placeholder:font-light',
+      createElement('input', {
+        className: `peer border border-pink-300/50 w-full py-2 px-4 pl-10 rounded-md focus:outline-none focus:border-white placeholder:font-light`,
         attributes: {
           placeholder: 'Find or add users...',
           value: this.store.getState().chatsSearchQuery,
@@ -70,11 +27,9 @@ export class ChatsList {
       }),
     );
     searchBar.appendChild(
-      DOMUtils.createElement('i', {
+      createElement('i', {
         className: 'absolute left-8 h-5 text-pink-300/50 peer-focus:text-white',
-        attributes: {
-          icon: 'loop',
-        },
+        icon: 'loop',
       }),
     );
 
@@ -82,21 +37,19 @@ export class ChatsList {
   }
 
   private renderHeader() {
-    const header = DOMUtils.createElement('div', {
+    const header = createElement('div', {
       className: 'flex items-center justify-between px-6 py-2',
     });
     header.appendChild(
-      DOMUtils.createElement('p', {
+      createElement('p', {
         textContent: 'Messages',
         className: 'font-bold text-lg',
       }),
     );
-    const friendRequestsButton = DOMUtils.createElement('button', {
+    const friendRequestsButton = createElement('button', {
       className: 'text-white/50 cursor-pointer hover:text-pink-300',
       textContent: 'Friend requests',
-      events: {
-        click: () => this.store.setState({chatView: {label: 'friendRequests'}}),
-      },
+      onclick: () => this.store.setState({chatView: {label: 'friendRequests'}}),
     });
     header.appendChild(friendRequestsButton);
 
@@ -108,10 +61,7 @@ export class ChatsList {
     };
 
     renderCountFriendRequests();
-    this.store.subscribeToPath(
-      'countFriendRequests',
-      renderCountFriendRequests,
-    );
+    this.subscribeToPath('countFriendRequests', renderCountFriendRequests);
 
     return header;
   }
@@ -151,7 +101,7 @@ export class ChatsList {
 
     if (filteredChats.length === 0) {
       list.appendChild(
-        DOMUtils.createElement('p', {
+        createElement('p', {
           className: 'text-center mt-6 italic text-white/50',
           textContent: 'No friends with this username',
         }),
@@ -160,9 +110,8 @@ export class ChatsList {
     }
 
     filteredChats.forEach(chat => {
-      const line = DOMUtils.createElement('div', {
-        className:
-          'flex items-center justify-between hover:bg-white/5 py-2 px-6 cursor-pointer',
+      const line = createElement('div', {
+        className: `flex items-center justify-between hover:bg-white/5 py-2 px-6 cursor-pointer`,
       });
       line.onclick = () =>
         this.store.setState({
@@ -182,21 +131,18 @@ export class ChatsList {
         };
       }
 
-      const leftContent = DOMUtils.createElement('div', {
+      const leftContent = createElement('div', {
         className: 'flex items-center justify-start gap-4',
       });
 
       let icon: HTMLElement;
       if (chat.isGeneral) {
-        icon = DOMUtils.createElement('i', {
-          className:
-            'w-12 h-12 rounded-full text-pink-300 p-3 border border-pink-300 bg-pink-300/10',
-          attributes: {
-            icon: 'usersGroup',
-          },
+        icon = createElement('i', {
+          className: `w-12 h-12 rounded-full text-pink-300 p-3 border border-pink-300 bg-pink-300/10`,
+          icon: 'usersGroup',
         });
       } else {
-        icon = DOMUtils.createElement('img', {
+        icon = createElement('img', {
           className: 'w-12 h-12 rounded-full',
           attributes: {
             src: chat.user.avatar,
@@ -205,9 +151,9 @@ export class ChatsList {
       }
       leftContent.appendChild(icon);
 
-      const text = DOMUtils.createElement('div');
+      const text = createElement('div');
       text.appendChild(
-        DOMUtils.createElement('p', {
+        createElement('p', {
           className: chat.unread ? 'font-bold' : '',
           textContent: chat.isGeneral ? 'General' : chat.user.username,
         }),
@@ -217,7 +163,7 @@ export class ChatsList {
       const content = truncateString(chat.content || '', 35);
       const timeDelta = getTimeElapsed(chat.updatedAt);
       text.appendChild(
-        DOMUtils.createElement('p', {
+        createElement('p', {
           className: `text-sm text-nowrap overflow-x-hidden ${chat.content ? (chat.unread ? 'text-white font-bold' : 'text-white/60') : 'text-white/40 italic'}`,
           textContent: chat.content
             ? `${prefix}${content} • ${timeDelta}`
@@ -228,10 +174,10 @@ export class ChatsList {
       leftContent.appendChild(text);
       line.appendChild(leftContent);
 
-      const rightContent = DOMUtils.createElement('div');
+      const rightContent = createElement('div');
       if (chat.unread) {
         rightContent.appendChild(
-          DOMUtils.createElement('div', {
+          createElement('div', {
             className: 'w-2 h-2 bg-pink-300 rounded-full',
           }),
         );
@@ -248,18 +194,13 @@ export class ChatsList {
     sendRequestContainer.innerHTML = '';
 
     if (chatsSearchQuery && chatsSearchQuery.length > 0) {
-      const button = DOMUtils.createElement('button', {
-        className:
-          'mx-auto mt-4 flex text-sm items-center justify-center gap-2 hover:text-pink-300 cursor-pointer rounded-lg px-4 py-2 border hover:bg-pink-300/10 border-pink-300 transition-all',
-        events: {
-          click: () => {
-            ChatsList.sendFriendRequest(chatsSearchQuery);
-          },
-        },
+      const button = createElement('button', {
+        className: `mx-auto mt-4 flex text-sm items-center justify-center gap-2 hover:text-pink-300 cursor-pointer rounded-lg px-4 py-2 border hover:bg-pink-300/10 border-pink-300 transition-all`,
+        onclick: () => sendFriendRequest(chatsSearchQuery),
       });
 
       button.appendChild(
-        DOMUtils.createElement('p', {
+        createElement('p', {
           textContent: 'Send friend request',
           attributes: {
             type: 'text',
@@ -267,11 +208,9 @@ export class ChatsList {
         }),
       );
       button.appendChild(
-        DOMUtils.createElement('i', {
+        createElement('i', {
           className: 'w-3 h-3 -rotate-30 mb-1',
-          attributes: {
-            icon: 'paperAirplane',
-          },
+          icon: 'paperAirplane',
         }),
       );
 
@@ -283,32 +222,35 @@ export class ChatsList {
   }
 
   render() {
-    this.fetchChats();
-    const container = DOMUtils.createElement('div', {
+    const fetchChatsList = () => {
+      const {user} = this.store.getState();
+      if (user) fetchChats();
+    };
+    this.subscribeToPath('user', fetchChatsList);
+
+    const container = createElement('div', {
       className: 'flex flex-col overflow-hidden',
     });
 
     container.appendChild(this.renderSearchBar());
     container.appendChild(this.renderHeader());
 
-    const list = DOMUtils.createElement('div', {
+    const list = createElement('div', {
       className: 'flex flex-col flex-1 overflow-auto',
     });
     this.renderChats(list);
 
-    this.store.subscribeToPath('generalChat', () => this.renderChats(list));
-    this.store.subscribeToPath('directChats', () => this.renderChats(list));
-    this.store.subscribeToPath('chatsSearchQuery', () =>
-      this.renderChats(list),
-    );
+    this.subscribeToPath('generalChat', () => this.renderChats(list));
+    this.subscribeToPath('directChats', () => this.renderChats(list));
+    this.subscribeToPath('chatsSearchQuery', () => this.renderChats(list));
 
     container.appendChild(list);
 
-    const sendRequestContainer = DOMUtils.createElement('div');
+    const sendRequestContainer = createElement('div');
     container.appendChild(
       this.renderSendFriendRequestButton(sendRequestContainer),
     );
-    this.store.subscribeToPath('chatsSearchQuery', () =>
+    this.subscribeToPath('chatsSearchQuery', () =>
       this.renderSendFriendRequestButton(sendRequestContainer),
     );
 

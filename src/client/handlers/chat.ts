@@ -1,8 +1,8 @@
-import {Chat} from '../containers/chat/Chat';
-import {DOMUtils} from '../utils/dom';
-import {FriendRequests} from '../containers/chat/friendRequests';
+import {acceptFriendRequest, closeRequest} from '../api/relationships';
 import {Store} from '../services/store';
 import {Toastify} from '../utils/toastify';
+import {createElement} from '../utils/dom';
+import {markMessagesAsRead} from '../api/chats';
 import {socket} from '../utils/websocket';
 
 const toastMessageNotification = (
@@ -14,12 +14,12 @@ const toastMessageNotification = (
   message: string,
   isGeneralMessage?: boolean,
 ) => {
-  const container = DOMUtils.createElement('div', {
+  const container = createElement('div', {
     className: 'flex items-center gap-4',
   });
 
   container.appendChild(
-    DOMUtils.createElement('img', {
+    createElement('img', {
       className: 'w-10 h-10 rounded-full',
       attributes: {
         src: user.avatar,
@@ -27,15 +27,15 @@ const toastMessageNotification = (
     }),
   );
 
-  const userInfo = DOMUtils.createElement('div');
+  const userInfo = createElement('div');
   userInfo.appendChild(
-    DOMUtils.createElement('p', {
+    createElement('p', {
       className: 'font-bold -mb-1',
       textContent: user.username,
     }),
   );
   userInfo.appendChild(
-    DOMUtils.createElement('p', {
+    createElement('p', {
       textContent: `General: ${message}`,
     }),
   );
@@ -64,34 +64,28 @@ const toastFriendRequestNotification = (
   },
   relationshipID: number,
 ) => {
-  const acceptButton = DOMUtils.createElement('button', {
-    className:
-      'cursor-pointer border rounded flex items-center justify-center w-6 h-6',
+  const acceptButton = createElement('button', {
+    className: `cursor-pointer border rounded flex items-center justify-center w-6 h-6`,
     textContent: '✓',
   });
   acceptButton.onclick = async () => {
     Toastify.dismissAll();
-    await FriendRequests.acceptFriendRequest(
-      user.username,
-      user.id,
-      relationshipID,
-    );
+    await acceptFriendRequest(user.username, user.id, relationshipID);
   };
-  const refuseButton = DOMUtils.createElement('button', {
-    className:
-      'cursor-pointer border rounded flex items-center justify-center w-6 h-6',
+  const refuseButton = createElement('button', {
+    className: `cursor-pointer border rounded flex items-center justify-center w-6 h-6`,
     textContent: '✗',
   });
   refuseButton.onclick = async () => {
     Toastify.dismissAll();
-    await FriendRequests.closeRequest(user.username, relationshipID);
+    await closeRequest(user.username, relationshipID);
   };
 
-  const content = DOMUtils.createElement('div', {
+  const content = createElement('div', {
     className: 'flex items-center gap-4',
   });
   content.appendChild(
-    DOMUtils.createElement('img', {
+    createElement('img', {
       className: 'w-10 h-10 rounded-full',
       attributes: {
         src: user.avatar,
@@ -99,7 +93,7 @@ const toastFriendRequestNotification = (
     }),
   );
 
-  const userInfos = DOMUtils.createElement('div', {
+  const userInfos = createElement('div', {
     className: 'max-w-30 leading-tight',
   });
   userInfos.innerHTML = `<strong>${user.username}</strong> wants to be your friend!`;
@@ -144,7 +138,7 @@ const handleDirectMessage = (data: {
       },
     });
 
-    Chat.markMessagesAsRead(data.sender.id);
+    markMessagesAsRead(data.sender.id);
   } else {
     // In the chats list
     store.setState({

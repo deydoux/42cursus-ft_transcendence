@@ -1,8 +1,11 @@
 import {Popup, createPopupContainer} from '../../components/Popup';
-import {ChatsList} from './chatsList';
-import {DOMUtils} from '../../utils/dom';
-import {Discussion} from './discussion';
+import {
+  blockUser,
+  sendFriendRequest,
+  unfriendUser,
+} from '../../api/relationships';
 import {Store} from '../../services/store';
+import {createElement} from '../../utils/dom';
 
 let contextMenu: Popup | null = null;
 
@@ -17,37 +20,30 @@ export const renderUserContextMenu = (
     contextMenu.destroy();
   }
 
-  const friendButton = DOMUtils.createElement('div', {
-    className:
-      'block cursor-pointer w-full text-left px-2 py-1 rounded hover:bg-white/10',
+  const friendButton = createElement('div', {
+    className: `block cursor-pointer w-full text-left px-2 py-1 rounded hover:bg-white/10`,
     textContent: `Send friend request`,
-    events: {
-      click: async () => {
-        await ChatsList.sendFriendRequest(user.username);
-        if (contextMenu) contextMenu.destroy();
-      },
+    onclick: async () => {
+      await sendFriendRequest(user.username);
+      if (contextMenu) contextMenu.destroy();
     },
   });
 
-  const unfriendButton = DOMUtils.createElement('div', {
-    className:
-      'block cursor-pointer w-full text-left px-2 py-1 rounded hover:bg-white/10',
+  const unfriendButton = createElement('div', {
+    className: `block cursor-pointer w-full text-left px-2 py-1 rounded hover:bg-white/10`,
     textContent: `Unfriend`,
-    events: {
-      click: async () => {
-        const {directChats} = store.getState();
-        const relationshipID = directChats.find(
-          chat => chat.user.id === user.id,
-        )?.relationshipID;
-        await Discussion.unfriendUser(relationshipID ?? 0, user.username);
-        if (contextMenu) contextMenu.destroy();
-      },
+    onclick: async () => {
+      const {directChats} = store.getState();
+      const relationshipID = directChats.find(
+        chat => chat.user.id === user.id,
+      )?.relationshipID;
+      await unfriendUser(relationshipID ?? 0, user.username);
+      if (contextMenu) contextMenu.destroy();
     },
   });
 
-  const inviteButton = DOMUtils.createElement('div', {
-    className:
-      'block cursor-pointer w-full text-left px-2 py-1 rounded hover:bg-white/10',
+  const inviteButton = createElement('div', {
+    className: `block cursor-pointer w-full text-left px-2 py-1 rounded hover:bg-white/10`,
     textContent: `Play pong`,
     events: {
       click: () => {
@@ -56,19 +52,16 @@ export const renderUserContextMenu = (
     },
   });
 
-  const blockButton = DOMUtils.createElement('div', {
-    className:
-      'block cursor-pointer w-full text-left px-2 py-1 rounded hover:bg-red-500/10 hover:text-red-500',
+  const blockButton = createElement('div', {
+    className: `block cursor-pointer w-full text-left px-2 py-1 rounded hover:bg-red-500/10 hover:text-red-500`,
     textContent: `Block user`,
-    events: {
-      click: async () => {
-        await Discussion.blockUser(user.id, user.username);
-        if (contextMenu) contextMenu.destroy();
-      },
+    onclick: async () => {
+      await blockUser(user.id, user.username);
+      if (contextMenu) contextMenu.destroy();
     },
   });
 
-  const buttons = DOMUtils.createElement('div');
+  const buttons = createElement('div');
   if (includeButtons.includes('friend')) buttons.appendChild(friendButton);
   else if (includeButtons.includes('unfriend'))
     buttons.appendChild(unfriendButton);
@@ -81,8 +74,7 @@ export const renderUserContextMenu = (
   contextMenu = createPopupContainer({
     x: origin[0],
     y: origin[1],
-    className:
-      'absolute min-w-40 bg-background/40 backdrop-blur-md rounded-lg shadow-xl border p-1 border-white/30 text-sm z-50',
+    className: `absolute min-w-40 bg-background/40 backdrop-blur-md rounded-lg shadow-xl border p-1 border-white/30 text-sm z-50`,
     content: buttons,
     onClose: () => {
       contextMenu = null;

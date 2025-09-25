@@ -1,7 +1,8 @@
-import {Homepage} from './containers/Homepage';
-import {LandingPage} from './containers/LandingPage';
-import {Lobby} from './containers/Lobby';
-import {PageNotFound} from './containers/PageNotFound';
+import {Chat} from './containers/chat/Chat';
+import {Homepage} from './pages/Homepage';
+import {LandingPage} from './pages/LandingPage';
+import {Lobby} from './pages/Lobby';
+import {PageNotFound} from './pages/PageNotFound';
 import {PongGame} from './pages/PongGame';
 import {RacecarGame} from './pages/RacecarGame';
 import {Router} from './services/router';
@@ -66,12 +67,14 @@ class App {
   }
 
   private setupRoutes(): void {
-    this.router.addPublicRoute('/', () => new LandingPage());
-    this.router.addPublicRoute('*', () => new PageNotFound(this.router));
+    const chat = new Chat().render();
 
-    this.router.addPrivateRoute('/homepage', () => new Homepage());
-    this.router.addPrivateRoute('/settings', () => new Settings());
-    this.router.addPrivateRoute('/lobby', () => new Lobby());
+    this.router.addPublicRoute('/', () => new LandingPage());
+    this.router.addPublicRoute('*', () => new PageNotFound());
+
+    this.router.addPrivateRoute('/homepage', () => new Homepage(chat));
+    this.router.addPrivateRoute('/settings', () => new Settings(chat));
+    this.router.addPrivateRoute('/lobby', () => new Lobby(chat));
     this.router.addPrivateRoute('/pong', () => new PongGame());
     this.router.addPrivateRoute('/racecar', () => new RacecarGame());
     this.router.addPrivateRoute('/statistics', () => new Statistics());

@@ -1,241 +1,65 @@
-import {DOMUtils} from '../../utils/dom';
-import {Store} from '../../services/store';
+import {removeAvatar, updateAvatar, updateUsername} from '../../api/account';
+import {BaseComponent} from '../../components/BaseComponent';
 import {Toastify} from '../../utils/toastify';
-import {api} from '../../utils/Api';
+import {createElement} from '../../utils/dom';
 
-export class UserProfile {
+export class UserProfile extends BaseComponent {
   avatarAcceptedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
   avatarMaxSize = 5; // Mb
 
-  constructor(
-    private store: Store,
-    private fetchAccount: () => void,
-  ) {}
-
-  private async removeAvatar() {
-    try {
-      const response = await api.delete('account/avatar', {});
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message);
-      }
-
-      this.fetchAccount();
-      Toastify.success('Avatar removed successfully');
-    } catch (error) {
-      Toastify.error('An error occurred while removing the avatar');
-      console.error(error);
-    }
-  }
-
-  private async updateAvatar(file: File) {
-    try {
-      const formData = new FormData();
-      formData.append('avatar', file, file.name);
-      const response = await api.customFetch('/api/account/avatar', {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message);
-      }
-
-      this.fetchAccount();
-      Toastify.success('Avatar updated successfully');
-    } catch (error) {
-      Toastify.error('An error occurred while uploading the avatar');
-      console.error(error);
-    }
-  }
-
-  private async updateUsername(newUsername: string) {
-    const response = await api.patch('account', {
-      username: newUsername,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message);
-    }
-
-    await this.fetchAccount();
-    Toastify.success('Username updated successfully');
-  }
-
-  private renderUsername(usernameSection: HTMLFormElement) {
+  private renderEditAvatar(form: HTMLFormElement) {
     const {user} = this.store.getState();
+    if (!user) return;
 
-    const headerContainer = DOMUtils.createElement('div', {
-      className: 'w-full mb-1 flex justify-between items-end',
-    });
-    headerContainer.appendChild(
-      DOMUtils.createElement('label', {
-        className: 'text-sm font-bold',
-        textContent: 'Username',
-      }),
-    );
-    const errorField = DOMUtils.createElement('p', {
-      className: 'text-sm font-light flex-1 text-red-500 text-right',
-      attributes: {
-        id: 'username-error-message',
-      },
-    });
-    headerContainer.appendChild(errorField);
+    form.innerHTML = '';
+    form.className = 'py-4 flex items-center gap-2';
 
-    usernameSection.innerHTML = '';
-    usernameSection.className = 'flex flex-col';
-    usernameSection.onsubmit = evt => {
-      evt.preventDefault();
-
-      const formData = new FormData(evt.target as HTMLFormElement);
-      this.updateUsername(formData.get('username')?.toString() ?? '')
-        .then(() => renderField())
-        .catch(error => {
-          errorField.textContent = error.toString().replace('Error: ', '');
-        });
-    };
-
-    usernameSection.appendChild(headerContainer);
-
-    const wrapper = DOMUtils.createElement('div', {
-      className: 'w-full flex gap-2 h-10 justify-between items-center',
-    });
-
-    const renderEdit = () => {
-      wrapper.innerHTML = '';
-      const input = DOMUtils.createElement('input', {
-        className:
-          'bg-background border border-pink-300/50 focus:border-white rounded-lg flex-1 px-4 h-full focus:outline-none',
-        attributes: {
-          name: 'username',
-          value: user?.username ?? '',
-          autofocus: 'true',
-          onfocus:
-            "var temp_value=this.value; this.value=''; this.value=temp_value",
-          placeholder: 'Username',
-        },
-      });
-
-      const cancelButton = DOMUtils.createElement('button', {
-        className:
-          'border border-white/20 rounded-lg text-sm px-4 h-full cursor-pointer',
-        textContent: 'Cancel',
-        attributes: {
-          type: 'button',
-        },
-        events: {
-          click: evt => {
-            evt.preventDefault();
-            renderField();
-          },
-        },
-      });
-
-      const submitButton = DOMUtils.createElement('button', {
-        className:
-          'bg-pink-300/20 border border-pink-300 rounded-lg text-sm px-4 h-full cursor-pointer',
-        textContent: 'Save',
-        attributes: {
-          type: 'submit',
-        },
-      });
-
-      wrapper.appendChild(input);
-      wrapper.appendChild(cancelButton);
-      wrapper.appendChild(submitButton);
-    };
-
-    const renderField = () => {
-      wrapper.innerHTML = '';
-      const username = DOMUtils.createElement('p', {
-        className:
-          'bg-background px-4 h-full flex items-center border border-white/20 flex-1 rounded-lg',
-        textContent: user?.username ?? '',
-      });
-
-      const button = DOMUtils.createElement('button', {
-        className:
-          'bg-background flex-none border border-pink-300 text-sm rounded-lg h-full px-4 hover:bg-pink-300/20 duration-200 cursor-pointer',
-        textContent: 'Change username',
-        events: {
-          click: evt => {
-            evt.preventDefault();
-            renderEdit();
-          },
-        },
-      });
-
-      wrapper.appendChild(username);
-      wrapper.appendChild(button);
-    };
-
-    renderField();
-    usernameSection.appendChild(wrapper);
-  }
-
-  private renderAvatar(avatarSection: HTMLFormElement) {
-    const {user} = this.store.getState();
-
-    const fileInput = DOMUtils.createElement('input', {
+    const fileInput = createElement('input', {
       className: 'hidden file-input',
       attributes: {
         type: 'file',
-        accept: 'image/jpeg,image/png,image/gif,image/webp',
         name: 'file',
-      },
-      events: {
-        change: evt => {
-          const target = evt.target as HTMLInputElement;
-          const file = target.files?.[0];
-
-          if (!file) return;
-
-          if (!this.avatarAcceptedTypes.includes(file.type)) {
-            Toastify.error(
-              `Please select a valid image file (${this.avatarAcceptedTypes.join(', ')})`,
-            );
-            return;
-          }
-
-          if (file.size > this.avatarMaxSize * 1024 * 1024) {
-            Toastify.error(
-              `File size must be less than ${this.avatarMaxSize}MB`,
-            );
-            return;
-          }
-
-          this.updateAvatar(file);
-          target.value = '';
-        },
+        accept: 'image/jpeg,image/png,image/gif,image/webp',
       },
     });
+    fileInput.onchange = async evt => {
+      const target = evt.target as HTMLInputElement;
+      const file = target.files?.[0];
+      if (!file) return;
 
-    avatarSection.innerHTML = '';
-    avatarSection.className = 'py-4 flex items-center gap-2';
-    avatarSection.onsubmit = evt => {
+      if (!this.avatarAcceptedTypes.includes(file.type)) {
+        const types = this.avatarAcceptedTypes.join(', ');
+        Toastify.error(`Please select a valid image file (${types})`);
+        return;
+      }
+
+      if (file.size > this.avatarMaxSize * 1024 * 1024) {
+        Toastify.error(`File size must be less than ${this.avatarMaxSize}MB`);
+        return;
+      }
+
+      await updateAvatar(file);
+      target.value = '';
+    };
+
+    form.appendChild(fileInput);
+    form.onsubmit = evt => {
       evt.preventDefault();
       fileInput.click();
     };
 
-    avatarSection.appendChild(
-      DOMUtils.createElement('img', {
+    form.appendChild(
+      createElement('img', {
         className: 'w-20 h-20 rounded-full',
         attributes: {
-          src: user?.avatar ?? '',
+          src: user.avatar ?? '',
         },
       }),
     );
 
-    avatarSection.appendChild(
-      DOMUtils.createElement('button', {
-        className:
-          'ml-4 flex-none bg-background border border-pink-300 text-sm rounded-lg h-full px-4 py-2 hover:bg-pink-300/20 duration-200 cursor-pointer',
+    form.appendChild(
+      createElement('button', {
+        className: `ml-4 flex-none bg-background border border-pink-300 text-sm rounded-lg h-full px-4 py-2 hover:bg-pink-300/20 duration-200 cursor-pointer`,
         textContent: 'Change',
         attributes: {
           type: 'submit',
@@ -243,48 +67,138 @@ export class UserProfile {
       }),
     );
 
-    if (user?.hasAvatar) {
-      avatarSection.appendChild(
-        DOMUtils.createElement('button', {
-          className:
-            'border border-white/20 rounded-lg text-sm px-4 py-2 cursor-pointer',
+    if (user.hasAvatar) {
+      form.appendChild(
+        createElement('button', {
+          className: `border border-white/20 rounded-lg text-sm px-4 py-2 cursor-pointer`,
           textContent: 'Remove',
           attributes: {
             type: 'button',
           },
-          events: {
-            click: evt => {
-              evt.preventDefault();
-              this.removeAvatar();
-            },
-          },
+          onclick: removeAvatar,
         }),
       );
     }
 
-    avatarSection.appendChild(fileInput);
+    return form;
   }
 
-  render() {
-    const container = DOMUtils.createElement('div');
+  private renderEditUsername(form: HTMLFormElement) {
+    const {user} = this.store.getState();
+    if (!user) return;
+
+    form.innerHTML = '';
+    form.className = 'flex flex-col';
+
+    const errorField = createElement('p', {
+      className: 'text-sm font-light flex-1 text-red-500 text-right',
+    });
+
+    form.onsubmit = async evt => {
+      evt.preventDefault();
+
+      const formData = new FormData(evt.target as HTMLFormElement);
+      const newUsername = formData.get('username')?.toString() ?? '';
+
+      const result = await updateUsername(newUsername);
+      if (result.success) errorField.textContent = '';
+      else errorField.textContent = result.error;
+    };
+
+    const label = createElement('div', {
+      className: 'w-full mb-1 flex justify-between items-end',
+    });
+    label.appendChild(
+      createElement('label', {
+        className: 'text-sm font-bold',
+        textContent: 'Username',
+      }),
+    );
+
+    label.appendChild(errorField);
+    form.appendChild(label);
+
+    const container = createElement('div', {
+      className: 'w-full flex gap-2 h-10 justify-between items-center',
+    });
+
+    const renderFieldMode = () => {
+      container.innerHTML = '';
+      const username = createElement('p', {
+        className: `bg-background px-4 h-full flex items-center border border-white/20 flex-1 rounded-lg`,
+        textContent: user.username,
+      });
+
+      const button = createElement('button', {
+        className: `bg-background flex-none border border-pink-300 text-sm rounded-lg h-full px-4 hover:bg-pink-300/20 duration-200 cursor-pointer`,
+        textContent: 'Change username',
+        onclick: renderEditMode,
+        attributes: {
+          type: 'button',
+        },
+      });
+
+      container.appendChild(username);
+      container.appendChild(button);
+    };
+
+    const renderEditMode = () => {
+      container.innerHTML = '';
+      const input = createElement('input', {
+        className: `bg-background border border-pink-300/50 focus:border-white rounded-lg flex-1 px-4 h-full focus:outline-none`,
+        attributes: {
+          name: 'username',
+          value: user.username,
+          autofocus: 'true',
+          onfocus: `var temp_value=this.value; this.value=''; this.value=temp_value`,
+          placeholder: 'Username',
+        },
+      });
+
+      const cancelButton = createElement('button', {
+        className: `border border-white/20 rounded-lg text-sm px-4 h-full cursor-pointer`,
+        textContent: 'Cancel',
+        onclick: renderFieldMode,
+        attributes: {
+          type: 'button',
+        },
+      });
+
+      const submitButton = createElement('button', {
+        className: `bg-pink-300/20 border border-pink-300 rounded-lg text-sm px-4 h-full cursor-pointer`,
+        textContent: 'Save',
+        attributes: {
+          type: 'submit',
+        },
+      });
+
+      container.appendChild(input);
+      container.appendChild(cancelButton);
+      container.appendChild(submitButton);
+    };
+
+    renderFieldMode();
+    form.appendChild(container);
+  }
+
+  render(): HTMLElement {
+    const container = createElement('div');
 
     // Edit the avatar
-    const avatarSection = DOMUtils.createElement('form');
-    container.appendChild(avatarSection);
+    const avatar = createElement('form');
+    container.appendChild(avatar);
 
-    this.renderAvatar(avatarSection);
-    this.store.subscribeToPath('user.avatar', () =>
-      this.renderAvatar(avatarSection),
-    );
+    this.renderEditAvatar(avatar);
+    this.subscribeToPath('user.avatar', () => this.renderEditAvatar(avatar));
 
     // Edit the username
-    const usernameSection = DOMUtils.createElement('form');
-    container.appendChild(usernameSection);
+    const username = createElement('form');
+    container.appendChild(username);
 
-    this.renderUsername(usernameSection);
-    this.store.subscribeToPath('user.username', () =>
-      this.renderUsername(usernameSection),
-    );
+    this.renderEditUsername(username);
+    this.subscribeToPath('user.username', () => {
+      this.renderEditUsername(username);
+    });
 
     return container;
   }
