@@ -31,6 +31,18 @@ export default class Round {
     return [this];
   }
 
+  public get(): unknown {
+    return {
+      id: this._id,
+      participants: this._participants.map(participant => ({
+        id: participant.userID,
+        username: participant.username,
+        avatar: participant.avatar,
+      })),
+      rounds: this.rounds.map(round => round.get()),
+    };
+  }
+
   public get id() {
     return this._id;
   }

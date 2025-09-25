@@ -108,5 +108,6 @@ type ServerTunnelMessage =
     }
   | {
       type: 'tournamentStarted';
-      firstRounds: unknown;
+      rounds: unknown;
+      // firstRounds: unknown;
     };

@@ -134,7 +134,7 @@ export class Tournament {
       this.send({
         type: 'participantLeft',
         userID: participant.userID,
-        ownerID: this.participants[0].userID,
+        ownerID: this.participants[0]?.userID,
       });
     }
 
@@ -192,14 +192,7 @@ export class Tournament {
 
     this.send({
       type: 'tournamentStarted',
-      firstRounds: firstRounds.map(round => ({
-        id: round.id,
-        participants: round.participants.map(participant => ({
-          id: participant.userID,
-          username: participant.username,
-          avatar: participant.avatar,
-        })),
-      })),
+      rounds: this.round.get(),
     });
 
     const result = await this.round.start();
