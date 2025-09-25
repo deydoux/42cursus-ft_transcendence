@@ -231,7 +231,9 @@ Received when a match is starting
     "username": "user456",
     "avatar": "/static/default_avatar.webp",
     "elo": 1000
-  }]
+  }],
+  "dx": -0.52,
+  "dy": 0.85
 }
 ```
 
