@@ -68,22 +68,13 @@ export default class Round {
       type: 'tournamentMatchEnd',
       roundID: this.id,
       nextRoundID: this.nextRoundID,
-      winner: winner
-        ? {
-            id: winner.userID,
-            username: winner.username,
-            avatar: winner.avatar,
-            score: winner.score,
-          }
-        : undefined,
-      losers: this._participants
-        .filter(participant => participant.userID !== winner?.userID)
-        .map(participant => ({
-          id: participant.userID,
-          username: participant.username,
-          avatar: participant.avatar,
-          score: participant.score,
-        })),
+      winnerID: winner?.userID,
+      participants: this._participants.map(participant => ({
+        id: participant.userID,
+        username: participant.username,
+        avatar: participant.avatar,
+        score: participant.score,
+      })),
       result: result,
     });
   }
