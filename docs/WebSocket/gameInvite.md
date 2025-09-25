@@ -6,19 +6,19 @@ sequenceDiagram
   participant s as Server
   actor q as Quentin (ID 2)
 
-  m ->> s: joinMatchmaking
+  m ->>+ s: joinMatchmaking
   Note right of m: {game: 'pong', mode: 'casual', targetID: 2}
   s -->> m: success
   Note left of s: {origin: 'joinMatchmaking'}
-  s ->> q: gameInvite
+  s ->>- q: gameInvite
   Note right of s: {game: 'pong', user: {id: 1, ...}}
 
-  q ->> s: joinMatchmaking
+  q ->>+ s: joinMatchmaking
   Note left of q: {game: 'pong', mode: 'casual', targetID: 1}
   s -->> q: success
   Note right of s: {origin: 'joinMatchmaking'}
 
   s ->> m: matchStart
-  s ->> q: matchStart
+  s ->>- q: matchStart
   Note over s: {game: 'pong', ranked: false, block: false, players: [...], dx: -0.19, dy: 0.98}<br><br> players:<br>{id: 1, username: 'mapale', avatar: '/api/users/1/avatar?v=1'}<br>{id: 2, username: 'quteriss', avatar: '/api/users/2/avatar?v=1'}
 ```

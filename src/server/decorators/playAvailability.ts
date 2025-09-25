@@ -22,7 +22,7 @@ const plugin: FastifyPluginAsync = async server => {
     for (const queue of Object.values(game.queues)) {
       if (
         queue.casual?.userID === client.userID ||
-        queue.invites.some(invite => invite.client.userID === client.userID) ||
+        queue.invites.some(invite => invite.player.userID === client.userID) ||
         queue.ranked.some(rankedClient => rankedClient.userID === client.userID)
       )
         throw Clients.sendClient(client, {

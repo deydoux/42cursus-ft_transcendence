@@ -22,9 +22,6 @@ $(NAME): $(SECRETS)
 	@$(MKDIR) $(@D)
 	$(OPENSSL) req -x509 -newkey rsa:4096 -keyout $(@D)/key.pem -out $(@D)/cert.pem -sha256 -days 397 -nodes -subj "/CN=localhost"
 
-dist: node_modules FORCE
-	$(NPM) run build:client
-
 node_modules: package.json package-lock.json
 	$(NPM) install
 

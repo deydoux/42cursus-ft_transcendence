@@ -25,7 +25,7 @@ export default class RaceMatch extends Match {
       this.winner = this.players[0];
     } else
       this.winner =
-        (this.players[0].score || 0) > (this.players[1].score || 0)
+        this.players[0].score > this.players[1].score
           ? this.players[0]
           : this.players[1];
 

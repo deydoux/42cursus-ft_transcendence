@@ -7,7 +7,6 @@ import createTournament from '#tunnel/createTournament';
 import joinMatchmaking from '#tunnel/joinMatchmaking';
 import joinTournament from '#tunnel/joinTournament';
 import leaveMatchmaking from '#tunnel/leaveMatchmaking';
-import leaveTournament from '#tunnel/leaveTournament';
 
 export default class Clients {
   private clients: Client[] = [];
@@ -58,9 +57,6 @@ export default class Clients {
           break;
         case 'leaveMatchmaking':
           leaveMatchmaking(this.server, client, message);
-          break;
-        case 'leaveTournament':
-          leaveTournament(this.server, client, message);
           break;
       }
     }

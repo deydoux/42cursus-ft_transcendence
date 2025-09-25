@@ -37,7 +37,7 @@ const plugin: FastifyPluginAsync = async server => {
         WHERE expires_at <= unixepoch()
       `);
     } catch (error) {
-      server.log.error('Error during database cleaning:', error);
+      server.log.error(error);
     }
   };
 

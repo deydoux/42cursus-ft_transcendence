@@ -5,7 +5,7 @@ const plugin: FastifyPluginAsync = async server => {
     for (const [game, queue] of Object.entries(server.game.queues))
       if (
         queue.invites.some(
-          invite => invite.client.userID === other && invite.other === user,
+          invite => invite.player.userID === other && invite.other === user,
         )
       )
         return game;
