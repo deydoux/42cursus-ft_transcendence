@@ -2,6 +2,7 @@ import {Participant, Tournament} from '#lib/Tournament';
 import {FastifyInstance} from 'fastify';
 import PongMatch from '#lib/PongMatch';
 
+const DELAY = 5000; // 5s
 let id = 0;
 
 export default class Round {
@@ -100,6 +101,8 @@ export default class Round {
         avatar: participant.avatar,
       })),
     });
+
+    await new Promise(resolve => setTimeout(resolve, DELAY));
 
     const result = await match.start();
     this.sendTournamentMatchEnd(result.winner, result.result);
