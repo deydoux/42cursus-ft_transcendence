@@ -50,6 +50,7 @@ export class Tournament {
           message: 'Tournament is full',
         });
 
+      // TODO: tournamentJoined with participants
       Clients.sendClient(participant, {
         type: 'success',
         origin: 'joinTournament',
