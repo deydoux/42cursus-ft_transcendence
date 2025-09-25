@@ -73,8 +73,17 @@ export default class Round {
             id: winner.userID,
             username: winner.username,
             avatar: winner.avatar,
+            score: winner.score,
           }
         : undefined,
+      losers: this._participants
+        .filter(participant => participant.userID !== winner?.userID)
+        .map(participant => ({
+          id: participant.userID,
+          username: participant.username,
+          avatar: participant.avatar,
+          score: participant.score,
+        })),
       result: result,
     });
   }
@@ -113,8 +122,16 @@ export default class Round {
 
     await new Promise(resolve => setTimeout(resolve, DELAY));
 
-    const result = await match.start();
-    this.sendTournamentMatchEnd(result.winner, result.result);
-    return result;
+    try {
+      const result = await match.start();
+      this.sendTournamentMatchEnd(result.winner, result.result);
+
+      return result;
+    } catch {
+      match.error();
+      this.sendTournamentMatchEnd(undefined, 'cancel');
+
+      return {winner: undefined, result: 'cancel'};
+    }
   }
 }

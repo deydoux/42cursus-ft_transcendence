@@ -330,11 +330,20 @@ Received when a tournament match ends
   "winner": {
     "id": 1,
     "username": "user123",
-    "avatar": "/static/default_avatar.webp"
+    "avatar": "/static/default_avatar.webp",
+    "score": 3
   },
+  "losers": [{
+    "id": 2,
+    "username": "user456",
+    "avatar": "/static/default_avatar.webp",
+    "score": 1
+  }],
   "result": "forfeit"
 }
 ```
+
+**Note:** if `nextRoundID` is `undefined`, the tournament is over. `winner` is the tournament winner.
 
 ### `tournamentStarted`
 Received when a tournament starts
@@ -343,7 +352,7 @@ Received when a tournament starts
 ```json
 {
   "type": "tournamentStarted",
-  "rounds": {
+  "final": {
     "id": 1,
     "participants": [],
     "rounds": [{

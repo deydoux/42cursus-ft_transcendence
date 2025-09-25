@@ -109,9 +109,10 @@ type ServerTunnelMessage =
       roundID: number;
       nextRoundID?: number;
       winner?: unknown;
+      losers;
       result?: 'cancel' | 'empty' | 'forfeit' | 'tie';
     }
   | {
       type: 'tournamentStarted';
-      rounds: unknown;
+      final: unknown;
     };
