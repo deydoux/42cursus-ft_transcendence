@@ -151,6 +151,7 @@ export class PongGame extends BaseComponent {
     pongCanvas.displayStartMessage();
 
     this.handleInput(pong);
+    PongCanvas.getInstance().startGame();
   }
 
   render(): HTMLElement | undefined {
