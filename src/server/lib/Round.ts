@@ -130,7 +130,7 @@ export default class Round {
     } catch {
       match.error();
       this.sendTournamentMatchEnd(undefined, 'cancel');
-      return {result: 'cancel'};
+      return {winner: undefined, result: 'cancel'};
     }
   }
 }
