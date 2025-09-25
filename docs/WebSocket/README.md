@@ -284,6 +284,20 @@ Received when a round starts in a match
 }
 ```
 
+### `tournamentJoined`
+Received when a user joins a tournament
+
+*Example:*
+```json
+{
+  "type": "tournamentJoined",
+  "participants": [
+    {"id": 1, "username": "user123", "avatar": "/static/default_avatar.webp"},
+    {"id": 2, "username": "user456", "avatar": "/static/default_avatar.webp"}
+  ]
+}
+```
+
 ### `tournamentMatchStart`
 Received when a tournament match starts
 

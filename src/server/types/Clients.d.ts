@@ -96,6 +96,10 @@ type ServerTunnelMessage =
       origin: string;
     }
   | {
+      type: 'tournamentJoined';
+      participants: unknown[];
+    }
+  | {
       type: 'tournamentMatchStart';
       roundID: number;
       participants: unknown[];

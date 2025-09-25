@@ -50,10 +50,13 @@ export class Tournament {
           message: 'Tournament is full',
         });
 
-      // TODO: tournamentJoined with participants
       Clients.sendClient(participant, {
-        type: 'success',
-        origin: 'joinTournament',
+        type: 'tournamentJoined',
+        participants: this.participants.map(participant => ({
+          id: participant.userID,
+          username: participant.username,
+          avatar: participant.avatar,
+        })),
       });
 
       const user = await this.server.db.get(SQL`
