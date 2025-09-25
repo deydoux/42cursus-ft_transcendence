@@ -1,3 +1,4 @@
+import {Api} from './utils/Api';
 import {Chat} from './containers/chat/Chat';
 import {Homepage} from './pages/Homepage';
 import {LandingPage} from './pages/LandingPage';
@@ -9,7 +10,6 @@ import {Router} from './services/router';
 import {Settings} from './pages/Settings';
 import {Statistics} from './pages/Statistics';
 import {Store} from './services/store';
-import {api} from './utils/Api';
 import {loadIcons} from './utils/icons';
 import {socket} from './utils/websocket';
 
@@ -39,7 +39,7 @@ class App {
       if (user?.id) return true;
 
       try {
-        const response = await api.get('account', {
+        const response = await Api.getInstance().get('account', {
           headers: {Authorization: `Bearer ${token}`},
         });
 

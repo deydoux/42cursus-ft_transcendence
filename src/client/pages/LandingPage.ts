@@ -2,7 +2,6 @@ import '../styles/main.css';
 import {register, verifyTOTP} from '../api/authentication';
 import {BaseComponent} from '../components/BaseComponent';
 import {Toastify} from '../utils/toastify';
-import {api} from '../utils/Api';
 import {createDialog} from '../components/Dialog';
 import {createElement} from '../utils/dom';
 import {createOTPInput} from '../components/OTPInput';
@@ -11,6 +10,8 @@ import img from '../assets/kittypong.png';
 import {loadIcons} from '../utils/icons';
 import {socket} from '../utils/websocket';
 import sticker from '../assets/sticker.png';
+
+declare const __GOOGLE_ID__: string;
 
 export class LandingPage extends BaseComponent {
   private gdprDialogOpened = false;
@@ -186,7 +187,7 @@ export class LandingPage extends BaseComponent {
 
       let token: string;
       try {
-        const verifyResponse = await api.post('auth/google/verify', {
+        const verifyResponse = await this.api.post('auth/google/verify', {
           token: response.credential,
         });
 
@@ -233,7 +234,7 @@ export class LandingPage extends BaseComponent {
         errorMessage.textContent = '';
         const formData = new FormData(evt.target as HTMLFormElement);
         try {
-          const signupResponse = await api.post('auth/google/signup', {
+          const signupResponse = await this.api.post('auth/google/signup', {
             token: response.credential,
             username: formData.get('username'),
           });
@@ -300,7 +301,7 @@ export class LandingPage extends BaseComponent {
     googleSignin.innerHTML = `
       <div
         id="g_id_onload"
-        data-client_id="470216312957-f6qqrlbk391pb3h0q8gil23vrgg9e7bg.apps.googleusercontent.com"
+        data-client_id="${__GOOGLE_ID__}"
         data-context="${mode === 'signup' ? 'signup' : 'signin'}"
         data-ux_mode="popup"
         data-callback="googleSignup"
@@ -565,7 +566,7 @@ export class LandingPage extends BaseComponent {
         onclick: async () => {
           try {
             // Check if the user have a valid access token and therefore doesn't need to put his credentials
-            const response = await api.get('account');
+            const response = await this.api.get('account');
 
             if (!response.ok) {
               throw response;
