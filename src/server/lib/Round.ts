@@ -73,8 +73,17 @@ export default class Round {
             id: winner.userID,
             username: winner.username,
             avatar: winner.avatar,
+            score: winner.score,
           }
         : undefined,
+      losers: this._participants
+        .filter(participant => participant.userID !== winner?.userID)
+        .map(participant => ({
+          id: participant.userID,
+          username: participant.username,
+          avatar: participant.avatar,
+          score: participant.score,
+        })),
       result: result,
     });
   }

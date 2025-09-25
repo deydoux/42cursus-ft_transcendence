@@ -330,8 +330,15 @@ Received when a tournament match ends
   "winner": {
     "id": 1,
     "username": "user123",
-    "avatar": "/static/default_avatar.webp"
+    "avatar": "/static/default_avatar.webp",
+    "score": 3
   },
+  "losers": [{
+    "id": 2,
+    "username": "user456",
+    "avatar": "/static/default_avatar.webp",
+    "score": 1
+  }],
   "result": "forfeit"
 }
 ```
