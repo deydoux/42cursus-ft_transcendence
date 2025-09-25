@@ -72,7 +72,7 @@ sequenceDiagram
   s ->> q: tournamentMatchEnd
   s ->> m: tournamentMatchEnd
   s ->> d: tournamentMatchEnd
-  Note left of s: {roundID: 3, nextRoundID: 1, winner: {id: 3, ...}, result: 'empty'}
+  Note left of s: {roundID: 3, nextRoundID: 1, winnerID: 3, participants: [...], result: 'empty'}
   s ->> s: *5sec*
   s ->> d: matchStart
   s ->>- m: matchStart
@@ -85,7 +85,7 @@ sequenceDiagram
   s ->> q: tournamentMatchEnd
   s ->> m: tournamentMatchEnd
   s ->> d: tournamentMatchEnd
-  Note left of s: {roundID: 2, nextRoundID: 1, winner: 2}
+  Note left of s: {roundID: 2, nextRoundID: 1, winnerID: 2, participants: [...]}
 
   s ->> q: tournamentMatchStart
   s ->> m: tournamentMatchStart
@@ -103,5 +103,5 @@ sequenceDiagram
   s ->> q: tournamentMatchEnd
   s ->> m: tournamentMatchEnd
   s ->> d: tournamentMatchEnd
-  Note left of s: {roundID: 1, winner: 2}
+  Note left of s: {roundID: 1, winnerID: 2, participants: [...]}
 ```

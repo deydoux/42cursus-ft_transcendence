@@ -327,13 +327,13 @@ Received when a tournament match ends
   "type": "tournamentMatchEnd",
   "roundID": 1,
   "nextRoundID": 2,
-  "winner": {
+  "winnerID": 1,
+  "participants": [{
     "id": 1,
     "username": "user123",
     "avatar": "/static/default_avatar.webp",
     "score": 3
-  },
-  "losers": [{
+  }, {
     "id": 2,
     "username": "user456",
     "avatar": "/static/default_avatar.webp",
