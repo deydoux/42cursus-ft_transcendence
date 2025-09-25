@@ -199,7 +199,7 @@ export class Tournament {
     });
 
     const result = await this.round.start();
-    console.log('result:', result);
+    // TODO: handle result
 
     for (const participant of this.participants)
       this.removeParticipant(participant, true);
