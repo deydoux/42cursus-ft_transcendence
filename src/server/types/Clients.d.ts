@@ -65,7 +65,7 @@ type ServerTunnelMessage =
   | {
       type: 'matchEnd';
       winner: number;
-      result?: 'forfeit' | 'tie';
+      result?: 'cancel' | 'forfeit' | 'tie';
       eloChange?: number;
     }
   | {
@@ -83,7 +83,7 @@ type ServerTunnelMessage =
     }
   | {
       type: 'participantLeft';
-      user: unknown;
+      userID: number;
       ownerID: number;
     }
   | {
@@ -94,4 +94,24 @@ type ServerTunnelMessage =
   | {
       type: 'success';
       origin: string;
+    }
+  | {
+      type: 'tournamentJoined';
+      participants: unknown[];
+    }
+  | {
+      type: 'tournamentMatchStart';
+      roundID: number;
+      participants: unknown[];
+    }
+  | {
+      type: 'tournamentMatchEnd';
+      roundID: number;
+      nextRoundID?: number;
+      winner?: unknown;
+      result?: 'cancel' | 'empty' | 'forfeit' | 'tie';
+    }
+  | {
+      type: 'tournamentStarted';
+      rounds: unknown;
     };

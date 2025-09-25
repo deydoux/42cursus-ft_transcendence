@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {inspect} from 'node:util';
 import repl from 'node:repl';
 
 const scheme = 'ws';
@@ -24,7 +25,10 @@ const connect = token => {
   socket = new WebSocket(url, protocol);
 
   socket.addEventListener('message', event => {
-    console.log('\r<', JSON.parse(event.data));
+    console.log(
+      '\r<',
+      inspect(JSON.parse(event.data), {colors: true, depth: null}),
+    );
     process.stdout.write(prompt);
   });
 
@@ -34,7 +38,7 @@ const connect = token => {
   });
 
   socket.addEventListener('close', event => {
-    console.error('\r</ ', event);
+    console.error('\r</', event);
     process.stdout.write(prompt);
   });
 };
@@ -43,25 +47,41 @@ connect();
 const send = data => socket.send(JSON.stringify(data));
 const setToken = token => (protocol = token);
 
+const createTournament = name => send({type: 'createTournament', name});
 const joinMatchmaking = (game = 'pong', mode = 'casual') =>
   send({type: 'joinMatchmaking', game, mode});
-
+const joinTournament = tournamentID =>
+  send({type: 'joinTournament', tournamentID});
 const leaveMatchmaking = () => send({type: 'leaveMatchmaking'});
+const leaveTournament = () => send({type: 'leaveTournament'});
 const move = direction => send({type: 'move', direction});
 const score = scorerID => send({type: 'score', scorerID});
+const startTournament = () => send({type: 'startTournament'});
 
 socket.addEventListener('open', () => {
   console.log();
   const r = repl.start(prompt);
 
-  r.context.connect = connect;
-  r.context.ft = 42;
-  r.context.joinMatchmaking = joinMatchmaking;
-  r.context.leaveMatchmaking = leaveMatchmaking;
-  r.context.move = move;
-  r.context.score = score;
-  r.context.send = send;
-  r.context.setToken = setToken;
+  const ft = 42;
+
+  const context = {
+    ft,
+
+    connect,
+    send,
+    setToken,
+
+    createTournament,
+    joinMatchmaking,
+    joinTournament,
+    leaveMatchmaking,
+    leaveTournament,
+    move,
+    score,
+    startTournament,
+  };
+
+  Object.entries(context).forEach(([key, value]) => (r.context[key] = value));
 
   r.on('exit', () => socket?.close());
 });

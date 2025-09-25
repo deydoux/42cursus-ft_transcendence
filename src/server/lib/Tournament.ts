@@ -1,14 +1,18 @@
 import {Client, ServerTunnelMessage} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
+import {Player} from '#lib/Match';
 import {RawData} from 'ws';
+import Round from '#lib/Round';
 import SQL from 'sql-template-strings';
-import serializeUserAvatar from './serializeUserAvatar';
+import serializeUserAvatar from '#lib/serializeUserAvatar';
 
-interface Participant extends Client {
+export interface Participant extends Player {
   onSocketMessage?: (data: RawData) => void;
   onSocketClose?: () => void;
 }
+
+const MAX_PARTICIPANTS = 8;
 
 export class Tournament {
   public readonly game = 'tournament';
@@ -18,13 +22,13 @@ export class Tournament {
   private readonly server: FastifyInstance;
 
   private participants: Participant[] = [];
-  private started = false;
+  private round?: Round;
 
   constructor(
     server: FastifyInstance,
     id: number,
     name: string,
-    owner: Client,
+    owner: Player,
   ) {
     this.server = server;
     this.id = id;
@@ -40,9 +44,19 @@ export class Tournament {
         return;
       }
 
+      if (this.participants.length >= MAX_PARTICIPANTS)
+        return Clients.sendClient(participant, {
+          type: 'error',
+          message: 'Tournament is full',
+        });
+
       Clients.sendClient(participant, {
-        type: 'success',
-        origin: 'joinTournament',
+        type: 'tournamentJoined',
+        participants: this.participants.map(participant => ({
+          id: participant.userID,
+          username: participant.username,
+          avatar: participant.avatar,
+        })),
       });
 
       const user = await this.server.db.get(SQL`
@@ -89,7 +103,7 @@ export class Tournament {
       }
     };
 
-  get owner() {
+  public get owner() {
     return this.participants[0];
   }
 
@@ -100,7 +114,7 @@ export class Tournament {
     if (participant) this.removeParticipant(participant);
   }
 
-  private async removeParticipant(participant: Participant) {
+  private async removeParticipant(participant: Participant, silent = false) {
     this.participants = this.participants.filter(p => p !== participant);
 
     if (participant.onSocketMessage)
@@ -110,29 +124,27 @@ export class Tournament {
       participant.socket.off('error', participant.onSocketClose);
     }
 
-    Clients.sendClient(participant, {
-      type: 'success',
-      origin: 'leaveTournament',
-    });
+    delete this.server.game.players[participant.userID];
 
-    if (this.participants.length === 0)
-      return this.server.tournaments.delete(this.id);
+    if (this.round) return;
 
-    const user = await this.server.db.get(SQL`
-      SELECT id, username, has_avatar, avatar_version
-      FROM users
-      WHERE id = ${participant.userID}
-    `);
-    serializeUserAvatar(user);
+    if (!silent) {
+      Clients.sendClient(participant, {
+        type: 'success',
+        origin: 'leaveTournament',
+      });
 
-    this.send({
-      type: 'participantLeft',
-      user,
-      ownerID: this.participants[0].userID,
-    });
+      this.send({
+        type: 'participantLeft',
+        userID: participant.userID,
+        ownerID: this.participants[0]?.userID,
+      });
+    }
+
+    if (this.participants.length === 0) this.server.tournaments.delete(this.id);
   }
 
-  private send(message: ServerTunnelMessage) {
+  public send(message: ServerTunnelMessage) {
     for (const participant of this.participants) {
       Clients.sendClient(participant, message);
     }
@@ -142,8 +154,8 @@ export class Tournament {
     return this.participants.length;
   }
 
-  private start(participant: Participant) {
-    if (this.started)
+  private async start(participant: Participant) {
+    if (this.round)
       return Clients.sendClient(participant, {
         type: 'error',
         message: 'Tournament already started',
@@ -161,14 +173,35 @@ export class Tournament {
         message: 'Not enough participants to start the tournament',
       });
 
-    //TODO
-    // this.send({
-    //   type: 'tournamentStarted',
-    // });
+    const size = 2 ** Math.floor(Math.log2(this.participants.length - 1) + 1);
+    this.round = new Round(this.server, this, size);
 
-    this.started = true;
-    this.server.tournaments.delete(this.id);
+    const {firstRounds} = this.round;
+    const seed = this.participants.sort(() => Math.random() - 0.5);
 
-    //TODO: implement tournament logic
+    for (let i = 0; i < seed.length; i++) {
+      let idx = 0;
+      let n = i % firstRounds.length;
+      let div = 2;
+
+      while (n) {
+        idx += (n & 1) * (firstRounds.length / div);
+        n >>= 1;
+        div *= 2;
+      }
+
+      firstRounds[idx].addParticipant(seed[i]);
+    }
+
+    this.send({
+      type: 'tournamentStarted',
+      rounds: this.round.get(),
+    });
+
+    const result = await this.round.start();
+    // TODO: handle result
+
+    for (const participant of this.participants)
+      this.removeParticipant(participant, true);
   }
 }
