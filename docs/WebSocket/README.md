@@ -343,6 +343,8 @@ Received when a tournament match ends
 }
 ```
 
+**Note:** if `nextRoundID` is `undefined`, the tournament is over. `winner` is the tournament winner.
+
 ### `tournamentStarted`
 Received when a tournament starts
 
