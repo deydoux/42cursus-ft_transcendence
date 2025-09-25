@@ -10,7 +10,7 @@ export default class Round {
   private tournament;
   private nextRoundID;
   private _id = ++id;
-  private rounds: Round[] = [];
+  private rounds?: Round[];
   private _participants: Participant[] = [];
 
   constructor(
@@ -24,9 +24,11 @@ export default class Round {
     this.nextRoundID = nextRoundID;
 
     const half = size / 2;
-    if (half > 1)
+    if (half > 1) {
+      this.rounds = [];
       for (let i = 0; i < 2; i++)
         this.rounds.push(new Round(server, tournament, half, this._id));
+    }
   }
 
   public addParticipant(participant: Participant) {
@@ -34,8 +36,7 @@ export default class Round {
   }
 
   public get firstRounds(): Round[] {
-    if (this.rounds.length)
-      return this.rounds.map(round => round.firstRounds).flat();
+    if (this.rounds) return this.rounds.map(round => round.firstRounds).flat();
     return [this];
   }
 
@@ -47,7 +48,7 @@ export default class Round {
         username: participant.username,
         avatar: participant.avatar,
       })),
-      rounds: this.rounds.map(round => round.get()),
+      rounds: this.rounds?.map(round => round.get()),
     };
   }
 
