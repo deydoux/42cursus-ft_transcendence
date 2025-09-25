@@ -1,17 +1,28 @@
-import {PongGame} from '../utils/content';
+import {IPongGame} from '../types/game';
 import {asciiArt} from '../utils/content';
 import {displayCountdownMessage} from '../utils/content';
+import {socket} from '../utils/websocket';
 
 export class PongCanvas {
+  private static instance: PongCanvas | null = null;
   private ctx: CanvasRenderingContext2D;
-  private pong: PongGame;
+  private pong: IPongGame;
   private raf: number | null;
   private color = 'rgb(0, 0, 0)';
 
-  constructor(pong: PongGame) {
+  private constructor(pong: IPongGame) {
     this.ctx = pong.ctx;
     this.pong = pong;
     this.raf = null;
+  }
+
+  static getInstance(pong?: IPongGame): PongCanvas {
+    if (!PongCanvas.instance) {
+      if (!pong)
+        throw new Error('PongGame is needed to initialize the Pong Canvas');
+      PongCanvas.instance = new PongCanvas(pong);
+    }
+    return PongCanvas.instance;
   }
 
   public startGame() {
@@ -31,15 +42,15 @@ export class PongCanvas {
     const countdownMessage = this.pong.timer.getCountdownMessage();
 
     this.updateScore();
-    this.pong.leftPaddle.draw();
-    this.pong.rightPaddle.draw();
+    this.pong.player.paddle?.draw();
+    this.pong.opponent.paddle?.draw();
     if (!isCountdownActive) {
       this.handlePaddleMovement();
       this.pong.ball.draw();
       this.pong.ball.update(this.pong);
     }
 
-    if (this.pong.leftPlayerScore === 10 || this.pong.rightPlayerScore === 10) {
+    if (this.pong.player.score === 5 || this.pong.opponent.score === 5) {
       if (this.raf) {
         window.cancelAnimationFrame(this.raf);
         this.pong.gameStarted = false;
@@ -60,12 +71,9 @@ export class PongCanvas {
    * Updates the score display
    */
   private updateScore(): void {
-    if (this.pong.leftPlayerScoreElement && this.pong.rightPlayerScoreElement) {
-      this.pong.leftPlayerScoreElement.innerText =
-        this.pong.leftPlayerScore.toString();
-      this.pong.rightPlayerScoreElement.innerText =
-        this.pong.rightPlayerScore.toString();
-    }
+    this.pong.player.scoreElement.innerText = this.pong.player.score.toString();
+    this.pong.opponent.scoreElement.innerText =
+      this.pong.opponent.score.toString();
   }
   public displayStartMessage() {
     this.updateScore();
@@ -110,14 +118,79 @@ export class PongCanvas {
 
   public handlePaddleMovement() {
     if (this.pong.isScoring) return;
-
     const paddleSpeed = this.ctx.canvas.height * 0.01;
-    if (this.pong.keys.w) this.pong.leftPaddle.move(-paddleSpeed);
-    if (this.pong.keys.s) this.pong.leftPaddle.move(paddleSpeed);
-    if (this.pong.keys.ArrowUp) this.pong.rightPaddle.move(-paddleSpeed);
-    if (this.pong.keys.ArrowDown) this.pong.rightPaddle.move(paddleSpeed);
+
+    let moved = false;
+    let direction = 0;
+
+    if (this.pong.player.side == 'right') {
+      if (this.pong.keys.ArrowUp) {
+        this.pong.player.paddle?.move(-paddleSpeed);
+        direction = -1;
+        moved = true;
+      }
+      if (this.pong.keys.ArrowDown) {
+        this.pong.player.paddle?.move(paddleSpeed);
+        direction = 1;
+        moved = true;
+      }
+    }
+    if (this.pong.player.side == 'left') {
+      if (this.pong.keys.w) {
+        this.pong.player.paddle?.move(-paddleSpeed);
+        direction = -1;
+        moved = true;
+      }
+      if (this.pong.keys.s) {
+        this.pong.player.paddle?.move(paddleSpeed);
+        direction = 1;
+        moved = true;
+      }
+    }
+    if (moved && this.pong.isLocal)
+      this.sendPaddleMovement(
+        this.pong.player.side,
+        direction,
+        this.pong.player.paddle?.y || 0,
+      );
   }
 
+  private sendPaddleMovement(
+    side: string,
+    direction: number,
+    yPosition: number,
+  ) {
+    socket.send(
+      JSON.stringify({
+        type: 'move',
+        side,
+        direction,
+        yPosition,
+        timestamp: Date.now(),
+      }),
+    );
+  }
+
+  public handleOpponentPaddleMovement(data: {
+    side: string;
+    direction: number;
+    yPosition: number;
+    timestamp: number;
+  }) {
+    // Apply opponent's movement to their paddle
+    const opponentPlayer =
+      this.pong.player.side === 'left' ? this.pong.opponent : this.pong.player;
+
+    if (data.side !== this.pong.player.side && opponentPlayer.paddle) {
+      // Use the exact position for better sync
+      opponentPlayer.paddle.y = data.yPosition;
+
+      // Optional: Add interpolation for smoother movement
+      opponentPlayer.paddle.move(
+        data.direction * (this.ctx.canvas.height * 0.01),
+      );
+    }
+  }
   private drawGameOverScreen(): void {
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
@@ -126,13 +199,13 @@ export class PongCanvas {
 
     // Determine winner
     const winner =
-      this.pong.leftPlayerScore === 10
-        ? this.pong.leftPlayer.innerText
-        : this.pong.rightPlayer.innerText;
+      this.pong.player.score === 10
+        ? this.pong.player.username
+        : this.pong.opponent.username;
     const loser =
-      this.pong.leftPlayerScore === 10
-        ? this.pong.rightPlayer.innerText
-        : this.pong.leftPlayer.innerText;
+      this.pong.opponent.score === 10
+        ? this.pong.opponent.username
+        : this.pong.player.username;
     const winnerScore =
       this.pong.leftPlayerScore === 10
         ? this.pong.leftPlayerScore

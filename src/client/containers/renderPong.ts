@@ -7,13 +7,13 @@ export const renderPong = () =>
       <div
         class="box w-[calc(100%-100px)] rounded-t-[20px] border-6 border-b-0 border-pink-300 bg-linear-to-br from-pink-200 to-pink-300 bg-clip-text px-8 pt-1 pb-0"
       >
-        <img id="p1_pic" src="${profilePic}" class="mt-1 h-10 w-10" />
-        <h1 id="p1_name"></h1>
-        <h1 id="p1_score"></h1>
+        <img id="left_pic" src="${profilePic}" class="mt-1 h-10 w-10" />
+        <h1 id="left_name"></h1>
+        <h1 id="left_score"></h1>
         🎀
-        <h1 id="p2_score"></h1>
-        <h1 id="p2_name"></h1>
-        <img id="p2_pic" src="${profilePic}" class="mt-1 h-10 w-10" />
+        <h1 id="right_score"></h1>
+        <h1 id="right_name"></h1>
+        <img id="right_pic" src="${profilePic}" class="mt-1 h-10 w-10" />
       </div>
       <canvas
         id="pong"

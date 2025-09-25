@@ -111,7 +111,13 @@ export interface AppState {
       updatedAt: string;
     }[];
   };
-  block: boolean;
+  players: {
+    id: number;
+    username: string;
+    avatar: string;
+    elo: number;
+  }[];
+  isOpponentBlocked: boolean;
 }
 
 export interface Component {

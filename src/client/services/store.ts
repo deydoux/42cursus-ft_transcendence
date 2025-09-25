@@ -13,7 +13,7 @@ const defaultValues = {
   friendRequests: [],
   sentFriendRequests: [],
   countFriendRequests: 0,
-  block: false,
+  isOpponentBlocked: false,
 };
 
 export class Store {
