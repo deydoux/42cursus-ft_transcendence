@@ -1,30 +1,31 @@
 import {BaseComponent} from '../components/BaseComponent';
-import {Chat} from './chat/Chat';
-import {DOMUtils} from '../utils/dom';
+import {createElement} from '../utils/dom';
 import {socket} from '../utils/websocket';
 
 export class Homepage extends BaseComponent {
+  constructor(private chat: HTMLElement) {
+    super();
+  }
+
   renderMenuButton = (darkMode = false, label?: string) => {
-    const button = DOMUtils.createElement('div', {
+    const button = createElement('div', {
       className: 'flex-1 min-w-1/3',
-      events: {
-        click: () => {
-          if (label) {
-            this.router.navigate(`/${label.toLowerCase()}`);
-          } else {
-            socket.send(
-              JSON.stringify({
-                type: 'joinMatchmaking',
-                game: 'pong',
-                mode: 'casual',
-              }),
-            );
-          }
-        },
+      onclick: () => {
+        if (label) {
+          this.router.navigate(`/${label.toLowerCase()}`);
+        } else {
+          socket.send(
+            JSON.stringify({
+              type: 'joinMatchmaking',
+              game: 'pong',
+              mode: 'casual',
+            }),
+          );
+        }
       },
     });
     button.appendChild(
-      DOMUtils.createElement('button', {
+      createElement('button', {
         className: `w-full h-full bg-linear-to-br ${darkMode ? 'from-pink-200 to-pink-300 text-background' : 'from-gray-500/20 to-gray-800/20 text-pink-300'} text-background font-bold uppercase rounded-xl`,
         textContent: label ? label : 'Play pong',
       }),
@@ -34,10 +35,11 @@ export class Homepage extends BaseComponent {
   };
 
   render(): HTMLElement {
-    const container = DOMUtils.createElement('div', {
-      className: 'w-screen h-screen flex items-center gap-10 py-16',
+    const container = createElement('div', {
+      className: 'flex h-full w-full gap-10',
     });
-    const gameMenu = DOMUtils.createElement('div', {
+
+    const gameMenu = createElement('div', {
       className: 'h-full flex-1 flex flex-wrap gap-10',
     });
 
@@ -47,9 +49,7 @@ export class Homepage extends BaseComponent {
     gameMenu.appendChild(this.renderMenuButton(false, 'Settings'));
 
     container.appendChild(gameMenu);
-
-    const chat = new Chat().render();
-    if (chat) container.appendChild(chat);
+    if (this.chat) container.appendChild(this.chat);
     return container;
   }
 }

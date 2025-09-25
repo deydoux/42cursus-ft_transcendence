@@ -1,4 +1,5 @@
 import {Router} from '../services/router';
+import {Store} from '../services/store';
 import {Toastify} from './toastify';
 
 const publicEndpoints = [
@@ -7,8 +8,16 @@ const publicEndpoints = [
   '/api/auth/verify',
 ];
 
-class Api {
+export class Api {
   private unauthorizedRedirect = '/';
+  private static instance: Api;
+
+  public store = Store.getInstance();
+
+  static getInstance(): Api {
+    if (!Api.instance) Api.instance = new Api();
+    return Api.instance;
+  }
 
   public setAccessToken(token: string) {
     localStorage.setItem('accessToken', token);
@@ -144,5 +153,3 @@ class Api {
     });
   }
 }
-
-export const api = new Api();

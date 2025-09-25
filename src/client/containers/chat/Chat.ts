@@ -1,89 +1,141 @@
 import {BaseComponent} from '../../components/BaseComponent';
 import {ChatsList} from './chatsList';
-import {DOMUtils} from '../../utils/dom';
 import {Discussion} from './discussion';
 import {FriendRequests} from './friendRequests';
-import {Toastify} from '../../utils/toastify';
-import {UserCard} from './userCard';
-import {api} from '../../utils/Api';
+import {createElement} from '../../utils/dom';
 import {loadIcons} from '../../utils/icons';
-import {renderGDPR} from './gdpr';
 
 export class Chat extends BaseComponent {
-  private chatsList: ChatsList;
-  private friendRequests: FriendRequests;
-  private discussion: Discussion;
-  private userCard: UserCard;
+  private chatClass: BaseComponent | undefined;
 
-  constructor() {
-    super();
-    this.chatsList = new ChatsList(this.store);
-    this.friendRequests = new FriendRequests(this.store);
-    this.discussion = new Discussion(this.store);
-    this.userCard = new UserCard(this.store, this.router);
-  }
+  renderUserCard(container: HTMLDivElement) {
+    const {user} = this.store.getState();
+    if (!user) return createElement('div');
+    container.innerHTML = '';
 
-  static async markMessagesAsRead(userID: number) {
-    try {
-      const response = await api.patch(`chats/direct/${userID}`, {});
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message);
-      }
-    } catch (error) {
-      Toastify.error('An error occured while smarking messages as read');
-      console.error(error);
-    }
-  }
-
-  render(): HTMLElement | undefined {
-    const container = DOMUtils.createElement('div', {
-      className:
-        'w-[400px] max-h-[100%] h-full overflow-hidden flex-none flex flex-col gap-4',
+    const leftPart = createElement('div', {
+      className: 'flex items-center gap-4',
     });
 
-    const userCard = DOMUtils.createElement('div', {
-      className:
-        'flex-none flex items-center justify-between bg-linear-to-bl from-pink-300/5 to-pink-400/10 p-3 rounded-lg border border-pink-300/10',
-    });
-    const renderUserCard = () => {
-      userCard.innerHTML = '';
-      this.userCard.render(userCard);
-    };
+    leftPart.appendChild(
+      createElement('img', {
+        className: 'h-15 w-15 rounded-full',
+        attributes: {
+          src: user.avatar,
+        },
+      }),
+    );
 
-    renderUserCard();
-    this.store.subscribeToPath('user', renderUserCard);
-    container.appendChild(userCard);
-
-    const view = DOMUtils.createElement('div');
-    const renderView = () => {
-      const {chatView, user} = this.store.getState();
+    const userInfos = createElement('div');
+    const renderUserInfos = () => {
+      const {user, directChats} = this.store.getState();
       if (!user) return;
-      view.innerHTML = '';
 
-      switch (chatView.label) {
-        case 'friendRequests':
-          view.appendChild(this.friendRequests.render());
-          break;
-        case 'chatsList':
-          view.appendChild(this.chatsList.render());
-          break;
-        default:
-          view.appendChild(this.discussion.render());
-      }
+      userInfos.innerHTML = '';
+      userInfos.appendChild(
+        createElement('p', {
+          className: 'font-bold',
+          textContent: user.username,
+        }),
+      );
 
-      view.className =
-        'flex-1 overflow-hidden border border-pink-300 rounded-xl flex flex-col';
+      const userStats = createElement('div', {
+        className: '-mt-1 text-sm flex items-center text-white/60',
+      });
+      userStats.appendChild(
+        createElement('span', {
+          textContent: `${directChats.length} friend${directChats.length > 1 ? 's' : ''} • ${user.elo ?? 300} `,
+        }),
+      );
+      userStats.appendChild(
+        createElement('i', {
+          className: 'w-3 h-3 ml-0.5',
+          icon: 'sparkles',
+        }),
+      );
+
+      userInfos.appendChild(userStats);
     };
 
-    renderView();
+    leftPart.appendChild(userInfos);
+    renderUserInfos();
+    this.subscribeToPath('directChats', renderUserInfos);
+
+    const rightPart = createElement('div', {
+      className: 'flex items-center gap-4',
+    });
+
+    const isPlaying = ['/racecar', '/pong'].includes(location.pathname);
+
+    const homepageButton = createElement('button', {
+      className: `rounded-full flex items-center p-2 justify-center border border-pink-300/10 ${isPlaying ? 'text-white/30' : 'hover:text-pink-300 hover:bg-pink-300/10 cursor-pointer'}  transition-all `,
+      onclick: () => this.router.navigate('/homepage'),
+    });
+    homepageButton.disabled = isPlaying;
+    homepageButton.appendChild(
+      createElement('i', {
+        icon: 'home',
+      }),
+    );
+    rightPart.appendChild(homepageButton);
+
+    const settingsButton = createElement('button', {
+      className: `rounded-full flex items-center p-2 justify-center border border-pink-300/10 ${isPlaying ? 'text-white/30' : 'hover:text-pink-300 hover:bg-pink-300/10 cursor-pointer'}  transition-all `,
+      onclick: () => this.router.navigate('/settings'),
+    });
+    settingsButton.disabled = isPlaying;
+    settingsButton.appendChild(
+      createElement('i', {
+        icon: 'cog',
+      }),
+    );
+    rightPart.appendChild(settingsButton);
+
+    container.appendChild(leftPart);
+    container.appendChild(rightPart);
+    return container;
+  }
+
+  render(): HTMLElement {
+    const container = createElement('div', {
+      className: `flex-none w-[400px] max-h-[100%] h-full overflow-hidden flex-none flex flex-col gap-4`,
+    });
+
+    // User card
+    const usercard = createElement('div', {
+      className: `flex-none flex items-center justify-between bg-linear-to-bl from-pink-300/5 to-pink-400/10 p-3 rounded-lg border border-pink-300/10`,
+    });
+    this.renderUserCard(usercard);
+    this.subscribeToPath('user', () => this.renderUserCard(usercard));
+    container.appendChild(usercard);
+
+    // Chat view
+    const view = createElement('div', {
+      className: `flex-1 overflow-hidden border border-pink-300 rounded-xl flex flex-col`,
+    });
     container.appendChild(view);
-    this.store.subscribeToPath('chatView', renderView);
+    const renderChatview = () => {
+      const {chatView} = this.store.getState();
 
-    container.appendChild(renderGDPR());
+      view.innerHTML = '';
+      if (this.chatClass) {
+        this.chatClass.destroy();
+        this.removeChild(this.chatClass);
+      }
 
-    this.store.subscribe(loadIcons);
+      if (chatView.label === 'friendRequests')
+        this.chatClass = this.createChild(FriendRequests);
+      else if (chatView.label === 'chatsList')
+        this.chatClass = this.createChild(ChatsList);
+      else this.chatClass = this.createChild(Discussion);
+
+      view.appendChild(this.chatClass.render());
+    };
+
+    renderChatview();
+    this.subscribeToPath('chatView', renderChatview);
+
+    this.subscribe(loadIcons);
     return container;
   }
 }

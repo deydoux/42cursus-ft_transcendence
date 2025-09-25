@@ -192,9 +192,7 @@ export class Toastify {
         attributes: {
           'aria-label': 'Close notification',
         },
-        events: {
-          click: () => this.hide(toastId),
-        },
+        onclick: () => this.hide(toastId),
       });
 
       toast.appendChild(closeButton);

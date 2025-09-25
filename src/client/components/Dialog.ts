@@ -1,6 +1,6 @@
 import {DOMUtils} from '../utils/dom';
 
-export const createDialog = (id: string) => {
+export const createDialog = (id: string, onClose?: () => void) => {
   const dialog = DOMUtils.createElement('dialog', {
     className:
       'max-w-[100vw] max-h-[100vh] w-screen h-screen bg-black/10 backdrop-blur-sm',
@@ -11,19 +11,18 @@ export const createDialog = (id: string) => {
 
   document.getElementById('root')?.appendChild(dialog);
   const showModal = () => dialog.showModal();
-  const close = () => dialog.close();
+  const close = () => {
+    dialog.close();
+    onClose?.();
+  };
 
   const dialogWrapper = DOMUtils.createElement('div', {
     className: 'w-full h-full flex items-center justify-center',
-    events: {
-      click: () => close(),
-    },
+    onclick: close,
   });
 
   const dialogContent = DOMUtils.createElement('div', {
-    events: {
-      click: evt => evt.stopPropagation(),
-    },
+    onclick: evt => evt.stopPropagation(),
   });
 
   dialogWrapper.appendChild(dialogContent);
