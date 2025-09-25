@@ -11,8 +11,8 @@ const plugin: FastifyPluginAsync = async server => {
              totp_enabled AS totp, has_avatar, avatar_version, value AS elo
       FROM users u
       JOIN elo e
-      ON u.id = e.user_id
-      WHERE u.id = ${id} AND game = 'pong'
+      ON u.id = e.user_id AND game = 'pong'
+      WHERE u.id = ${id}
       ORDER BY e.id DESC
       LIMIT 1
     `);
