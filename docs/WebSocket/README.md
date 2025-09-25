@@ -343,7 +343,7 @@ Received when a tournament starts
 ```json
 {
   "type": "tournamentStarted",
-  "rounds": {
+  "final": {
     "id": 1,
     "participants": [],
     "rounds": [{

@@ -195,7 +195,7 @@ export class Tournament {
 
     this.send({
       type: 'tournamentStarted',
-      rounds: this.round.get(),
+      final: this.round.get(),
     });
 
     const result = await this.round.start();

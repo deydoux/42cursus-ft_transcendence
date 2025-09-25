@@ -113,5 +113,5 @@ type ServerTunnelMessage =
     }
   | {
       type: 'tournamentStarted';
-      rounds: unknown;
+      final: unknown;
     };

@@ -59,3 +59,49 @@ sequenceDiagram
   d ->>+ s: startTournament
   s --x- d: error
   Note left of s: {message: 'Not owner'}
+
+  m ->>+ s: startTournament
+  s ->> q: tournamentStarted
+  s ->> m: tournamentStarted
+  s ->> d: tournamentStarted
+  Note left of s: {final: {id: 1, ...}}
+  s ->> q: tournamentMatchStart
+  s ->> m: tournamentMatchStart
+  s ->> d: tournamentMatchStart
+  Note left of s: {roundID: 2, participants: [...]}<br><br>participants:<br>{id: 1, ...}<br>{id: 2, ...}
+  s ->> q: tournamentMatchEnd
+  s ->> m: tournamentMatchEnd
+  s ->> d: tournamentMatchEnd
+  Note left of s: {roundID: 3, nextRoundID: 1, winner: {id: 3, ...}, result: 'empty'}
+  s ->> s: *5sec*
+  s ->> d: matchStart
+  s ->>- m: matchStart
+  Note left of s: *Match proceeding*
+
+  s ->> d: matchEnd
+  s ->> m: matchEnd
+  Note left of s: {winner: 2}
+
+  s ->> q: tournamentMatchEnd
+  s ->> m: tournamentMatchEnd
+  s ->> d: tournamentMatchEnd
+  Note left of s: {roundID: 2, nextRoundID: 1, winner: 2}
+
+  s ->> q: tournamentMatchStart
+  s ->> m: tournamentMatchStart
+  s ->> d: tournamentMatchStart
+  Note left of s: {roundID: 1, participants: [...]}<br><br>participants:<br>{id: 3, ...}<br>{id: 2, ...}
+  s ->> s: *5sec*
+  s ->> m: matchStart
+  s ->> q: matchStart
+  Note left of s: *Match proceeding*
+
+  s ->> d: matchEnd
+  s ->> m: matchEnd
+  Note left of s: {winner: 2}
+
+  s ->> q: tournamentMatchEnd
+  s ->> m: tournamentMatchEnd
+  s ->> d: tournamentMatchEnd
+  Note left of s: {roundID: 1, winner: 2}
+```
