@@ -113,8 +113,15 @@ export default class Round {
 
     await new Promise(resolve => setTimeout(resolve, DELAY));
 
-    const result = await match.start();
-    this.sendTournamentMatchEnd(result.winner, result.result);
-    return result;
+    try {
+      const result = await match.start();
+      this.sendTournamentMatchEnd(result.winner, result.result);
+
+      return result;
+    } catch {
+      match.error();
+      this.sendTournamentMatchEnd(undefined, 'cancel');
+      return {result: 'cancel'};
+    }
   }
 }
