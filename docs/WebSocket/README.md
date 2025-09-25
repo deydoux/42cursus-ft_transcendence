@@ -287,6 +287,9 @@ Received when a round starts in a match
 ### `tournamentJoined`
 Received when a user joins a tournament
 
+
+**Note:** the first participant is the tournament owner.
+
 *Example:*
 ```json
 {
