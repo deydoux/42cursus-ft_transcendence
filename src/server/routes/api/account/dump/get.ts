@@ -1,5 +1,7 @@
+import {access, constants, readFile} from 'node:fs/promises';
 import {FastifyPluginAsync} from 'fastify';
 import SQL from 'sql-template-strings';
+import {join} from 'node:path';
 
 const plugin: FastifyPluginAsync = async server => {
   server.get('/', async (request, reply) => {
@@ -51,6 +53,18 @@ const plugin: FastifyPluginAsync = async server => {
       FROM elo
       WHERE user_id = ${id}
     `);
+
+    if (user.has_avatar) {
+      const avatarPath = join(server.paths.avatars, `${id}.webp`);
+
+      try {
+        await access(avatarPath, constants.R_OK);
+        const file = await readFile(avatarPath);
+        user.avatar = `data:image/webp;base64,${file.toString('base64')}`;
+      } catch {
+        void 0;
+      }
+    }
 
     return reply
       .header(
