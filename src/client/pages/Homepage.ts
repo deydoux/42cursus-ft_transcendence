@@ -10,20 +10,18 @@ export class Homepage extends BaseComponent {
   renderMenuButton = (darkMode = false, label?: string) => {
     const button = createElement('div', {
       className: 'flex-1 min-w-1/3',
-      events: {
-        click: () => {
-          if (label) {
-            this.router.navigate(`/${label.toLowerCase()}`);
-          } else {
-            socket.send(
-              JSON.stringify({
-                type: 'joinMatchmaking',
-                game: 'pong',
-                mode: 'casual',
-              }),
-            );
-          }
-        },
+      onclick: () => {
+        if (label) {
+          this.router.navigate(`/${label.toLowerCase()}`);
+        } else {
+          socket.send(
+            JSON.stringify({
+              type: 'joinMatchmaking',
+              game: 'pong',
+              mode: 'casual',
+            }),
+          );
+        }
       },
     });
     button.appendChild(

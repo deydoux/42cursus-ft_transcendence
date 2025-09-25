@@ -51,14 +51,9 @@ export class PasswordManager extends BaseComponent {
       const allFilled = [
         ...document.querySelectorAll('input.change-password'),
       ].every(i => (i as HTMLInputElement).value);
-      console.log(
-        'allFiled',
-        document.querySelectorAll('input.change-password'),
-      );
       const saveButton = document.querySelector(
         'button#change-password',
       ) as HTMLButtonElement;
-      console.log('saveButton', saveButton);
       if (saveButton) saveButton.disabled = !allFilled;
     };
 

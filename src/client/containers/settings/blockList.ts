@@ -43,9 +43,7 @@ export class BlockList extends BaseComponent {
         createElement('button', {
           className: `px-4 py-2 rounded-lg border border-white/20 text-white/80 text-sm hover:bg-white/10 duration-200 cursor-pointer`,
           textContent: 'Unblock',
-          events: {
-            click: () => unblockUser(relationship.relationshipID),
-          },
+          onclick: () => unblockUser(relationship.relationshipID),
         }),
       );
 

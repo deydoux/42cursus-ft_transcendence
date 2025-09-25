@@ -18,15 +18,11 @@ export const createDialog = (id: string, onClose?: () => void) => {
 
   const dialogWrapper = DOMUtils.createElement('div', {
     className: 'w-full h-full flex items-center justify-center',
-    events: {
-      click: () => close(),
-    },
+    onclick: close,
   });
 
   const dialogContent = DOMUtils.createElement('div', {
-    events: {
-      click: evt => evt.stopPropagation(),
-    },
+    onclick: evt => evt.stopPropagation(),
   });
 
   dialogWrapper.appendChild(dialogContent);

@@ -20,11 +20,9 @@ export class PageNotFound extends BaseComponent {
       attributes: {
         href: '/',
       },
-      events: {
-        click: e => {
-          e.preventDefault();
-          this.router.navigate('/homepage');
-        },
+      onclick: e => {
+        e.preventDefault();
+        this.router.navigate('/homepage');
       },
     });
 

@@ -407,62 +407,57 @@ export class LandingPage extends BaseComponent {
 
       const gdprConfirmation = createElement('p', {
         className: 'text-sm max-w-2/3 mx-auto text-white/50 text-center',
-        textContent:
-          "By creating an account, you confirm that you have read Kitty Pong's ",
+        textContent: `By creating an account, you confirm that you have read Kitty Pong's`,
       });
       gdprConfirmation.appendChild(
         createElement('span', {
           className: 'font-bold cursor-pointer underline',
           textContent: 'privacy policy',
-          events: {
-            click: () => {
-              if (this.gdprDialogOpened) return;
-              this.gdprDialogOpened = true;
+          onclick: () => {
+            if (this.gdprDialogOpened) return;
+            this.gdprDialogOpened = true;
 
-              const gdprContainer = createElement('div', {
-                className:
-                  'text-white bg-background border border-white rounded-3xl max-h-[700px] overflow-hidden p-10 w-100 flex flex-col',
-              });
-              const gdprHeader = createElement('div', {
-                className: 'flex mb-6 items-center justify-between',
-              });
-              gdprHeader.appendChild(
-                createElement('h1', {
-                  textContent: 'Privacy Policy',
-                  className: 'font-bold text-2xl flex-none',
-                }),
-              );
-              const closeButton = createElement('button', {
-                className:
-                  'rounded-lg text-white/20 border border-white/20 hover:text-white hover:border-white cursor-pointer p-1',
-                events: {
-                  click: () => {
-                    this.authDialogContent.removeChild(gdprContainer);
-                    this.gdprDialogOpened = false;
-                  },
+            const gdprContainer = createElement('div', {
+              className:
+                'text-white bg-background border border-white rounded-3xl max-h-[700px] overflow-hidden p-10 w-100 flex flex-col',
+            });
+            const gdprHeader = createElement('div', {
+              className: 'flex mb-6 items-center justify-between',
+            });
+            gdprHeader.appendChild(
+              createElement('h1', {
+                textContent: 'Privacy Policy',
+                className: 'font-bold text-2xl flex-none',
+              }),
+            );
+            const closeButton = createElement('button', {
+              className:
+                'rounded-lg text-white/20 border border-white/20 hover:text-white hover:border-white cursor-pointer p-1',
+              onclick: () => {
+                this.authDialogContent.removeChild(gdprContainer);
+                this.gdprDialogOpened = false;
+              },
+            });
+            closeButton.appendChild(
+              createElement('i', {
+                className: 'w-4 h-4',
+                attributes: {
+                  icon: 'x',
                 },
-              });
-              closeButton.appendChild(
-                createElement('i', {
-                  className: 'w-4 h-4',
-                  attributes: {
-                    icon: 'x',
-                  },
-                }),
-              );
-              gdprHeader.appendChild(closeButton);
-              gdprContainer.appendChild(gdprHeader);
+              }),
+            );
+            gdprHeader.appendChild(closeButton);
+            gdprContainer.appendChild(gdprHeader);
 
-              gdprContainer.appendChild(
-                createElement('p', {
-                  className: 'flex-1 overflow-auto',
-                  textContent: gdpr,
-                }),
-              );
+            gdprContainer.appendChild(
+              createElement('p', {
+                className: 'flex-1 overflow-auto',
+                textContent: gdpr,
+              }),
+            );
 
-              this.authDialogContent.appendChild(gdprContainer);
-              loadIcons();
-            },
+            this.authDialogContent.appendChild(gdprContainer);
+            loadIcons();
           },
         }),
       );
@@ -496,9 +491,7 @@ export class LandingPage extends BaseComponent {
         className:
           'text-pink-300 font-bold ml-1 cursor-pointer hover:underline',
         textContent: signin ? 'Sign up' : 'Log in',
-        events: {
-          click: () => this.renderRegistrationForm(signin ? 'signup' : 'login'),
-        },
+        click: () => this.renderRegistrationForm(signin ? 'signup' : 'login'),
       }),
     );
 
@@ -569,25 +562,23 @@ export class LandingPage extends BaseComponent {
         textContent: 'Log in',
         className:
           'rounded-full cursor-pointer w-50 uppercase font-bold h-full bg-linear-to-br from-pink-200 to-pink-300 text-black shadow-lg shadow-pink-300/20 hover:brightness-95 hover:shadow-pink-300/40 hover:-translate-y-1 transition-all',
-        events: {
-          click: async () => {
-            try {
-              // Check if the user have a valid access token and therefore doesn't need to put his credentials
-              const response = await api.get('account');
+        onclick: async () => {
+          try {
+            // Check if the user have a valid access token and therefore doesn't need to put his credentials
+            const response = await api.get('account');
 
-              if (!response.ok) {
-                throw response;
-              }
-
-              const data = await response.json();
-              this.store.setState({user: data});
-
-              this.router.navigate('/homepage');
-            } catch {
-              this.renderRegistrationForm('login');
-              showAuthDialog();
+            if (!response.ok) {
+              throw response;
             }
-          },
+
+            const data = await response.json();
+            this.store.setState({user: data});
+
+            this.router.navigate('/homepage');
+          } catch {
+            this.renderRegistrationForm('login');
+            showAuthDialog();
+          }
         },
       }),
     );
@@ -596,11 +587,9 @@ export class LandingPage extends BaseComponent {
         textContent: 'Sign up',
         className:
           'rounded-full cursor-pointer w-50 uppercase font-bold h-full bg-gray-500/20 text-pink-300 shadow-lg hover:brightness-95 hover:-translate-y-1 transition-all',
-        events: {
-          click: () => {
-            this.renderRegistrationForm('signup');
-            showAuthDialog();
-          },
+        onclick: () => {
+          this.renderRegistrationForm('signup');
+          showAuthDialog();
         },
       }),
     );

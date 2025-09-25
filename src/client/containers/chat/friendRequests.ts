@@ -18,14 +18,12 @@ export class FriendRequests extends BaseComponent {
 
     const backButton = createElement('button', {
       className: `border border-pink-300 rounded-full w-6 h-6 p-1 flex items-center justify-center cursor-pointer`,
-      events: {
-        click: () => {
-          this.store.setState({
-            chatView: {
-              label: 'chatsList',
-            },
-          });
-        },
+      onclick: () => {
+        this.store.setState({
+          chatView: {
+            label: 'chatsList',
+          },
+        });
       },
     });
     backButton.appendChild(

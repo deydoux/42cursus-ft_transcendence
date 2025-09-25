@@ -45,10 +45,8 @@ export const renderUserContextMenu = (
   const inviteButton = createElement('div', {
     className: `block cursor-pointer w-full text-left px-2 py-1 rounded hover:bg-white/10`,
     textContent: `Play pong`,
-    events: {
-      click: () => {
-        // TODO: Invite in a pong game
-      },
+    onclick: () => {
+      // TODO: Invite in a pong game
     },
   });
 
