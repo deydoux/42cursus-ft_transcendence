@@ -8,18 +8,25 @@ let id = 0;
 export default class Round {
   private server;
   private tournament;
+  private nextRoundID;
   private _id = ++id;
   private rounds: Round[] = [];
   private _participants: Participant[] = [];
 
-  constructor(server: FastifyInstance, tournament: Tournament, size: number) {
+  constructor(
+    server: FastifyInstance,
+    tournament: Tournament,
+    size: number,
+    nextRoundID?: number,
+  ) {
     this.server = server;
     this.tournament = tournament;
+    this.nextRoundID = nextRoundID;
 
     const half = size / 2;
     if (half > 1)
       for (let i = 0; i < 2; i++)
-        this.rounds.push(new Round(server, tournament, half));
+        this.rounds.push(new Round(server, tournament, half, this._id));
   }
 
   public addParticipant(participant: Participant) {
@@ -58,7 +65,8 @@ export default class Round {
   ) {
     this.tournament.send({
       type: 'tournamentMatchEnd',
-      id: this.id,
+      roundID: this.id,
+      nextRoundID: this.nextRoundID,
       winner: winner
         ? {
             id: winner.userID,
@@ -94,7 +102,7 @@ export default class Round {
 
     this.tournament.send({
       type: 'tournamentMatchStart',
-      id: this.id,
+      roundID: this.id,
       participants: this._participants.map(participant => ({
         id: participant.userID,
         username: participant.username,

@@ -291,7 +291,7 @@ Received when a tournament match starts
 ```json
 {
   "type": "tournamentMatchStart",
-  "id": 1,
+  "roundID": 1,
   "participants": [
     {"id": 1, "username": "user123", "avatar": "/static/default_avatar.webp"},
     {"id": 2, "username": "user456", "avatar": "/static/default_avatar.webp"}
@@ -306,7 +306,8 @@ Received when a tournament match ends
 ```json
 {
   "type": "tournamentMatchEnd",
-  "id": 1,
+  "roundID": 1,
+  "nextRoundID": 2,
   "winner": {
     "id": 1,
     "username": "user123",
