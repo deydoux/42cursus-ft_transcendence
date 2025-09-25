@@ -112,7 +112,6 @@ export class Tournament {
   }
 
   private async removeParticipant(participant: Participant, silent = false) {
-    // TODO: forfeit if started
     this.participants = this.participants.filter(p => p !== participant);
 
     if (participant.onSocketMessage)

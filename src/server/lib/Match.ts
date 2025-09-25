@@ -181,6 +181,7 @@ export default abstract class Match {
 
       switch (message?.type) {
         case 'leaveMatchmaking':
+        case 'leaveTournament':
           this.forfeits(opponent);
           break;
         case 'move':
