@@ -3,13 +3,11 @@ import Clients from '#lib/Clients';
 import {Data} from 'ws';
 import {FastifyInstance} from 'fastify';
 import SQL from 'sql-template-strings';
-import {WebSocket} from '@fastify/websocket';
-import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 export interface Player extends Client {
-  score?: number;
-  username?: string;
-  avatar?: string;
+  username: string;
+  avatar: string;
+  score: number;
   elo?: number;
 }
 
@@ -21,9 +19,10 @@ export default abstract class Match {
   private server;
   private _game;
   private ranked;
+  private tournament;
 
   private block = false;
-  private score?: {
+  private scoring?: {
     fromPlayerID: number;
     scorerID: number;
     timeout: NodeJS.Timeout;
@@ -33,7 +32,7 @@ export default abstract class Match {
   private readonly lock;
 
   protected players;
-  protected result?: 'forfeit' | 'tie';
+  protected result?: 'cancel' | 'forfeit' | 'tie';
   protected unlock = () => undefined;
   protected winner?: Player;
 
@@ -46,6 +45,10 @@ export default abstract class Match {
     this.players = players;
     this._game = game;
     this.ranked = players.every(player => player.elo);
+    this.tournament = players.every(
+      player =>
+        this.server.game.players[player.userID]?.match?.game === 'tournament',
+    );
 
     this.lock = new Promise(resolve => {
       this.unlock = () => void resolve(undefined);
@@ -67,21 +70,24 @@ export default abstract class Match {
         player.socket.off('message', onSocketMessage);
       });
 
-      server.game.players[player.userID] = {
-        match: this,
-        opponent: opponent.userID,
-      };
+      if (!this.tournament)
+        server.game.players[player.userID] = {
+          match: this,
+          opponent: opponent.userID,
+        };
     });
   }
 
   private cancel(cause?: string) {
     this.send({type: 'matchCancel', cause});
+    this.result = 'cancel';
     this.unlock();
   }
 
   protected async destroy(winner?: Player) {
-    if (this.score) clearTimeout(this.score.timeout);
-    this.execute(player => delete this.server.game.players[player.userID]);
+    if (this.scoring) clearTimeout(this.scoring.timeout);
+    if (!this.tournament)
+      this.execute(player => delete this.server.game.players[player.userID]);
 
     if (!winner) return;
 
@@ -147,7 +153,7 @@ export default abstract class Match {
     }
   }
 
-  get game() {
+  public get game() {
     return this._game;
   }
 
@@ -175,10 +181,11 @@ export default abstract class Match {
 
       switch (message?.type) {
         case 'leaveMatchmaking':
+        case 'leaveTournament':
           this.forfeits(opponent);
           break;
         case 'move':
-          this.sendSocket(opponent.socket, message as ServerTunnelMessage);
+          Clients.sendClient(opponent, message as ServerTunnelMessage);
           break;
         case 'score':
           this.handleScore(
@@ -196,13 +203,13 @@ export default abstract class Match {
     message: ClientTunnelMessage & {type: 'score'},
   ) {
     if (!this.players.some(player => player.userID === message.scorerID))
-      return this.sendSocket(player.socket, {
+      return Clients.sendClient(player, {
         type: 'error',
         message: 'Invalid scorer ID',
       });
 
-    if (!this.score) {
-      this.score = {
+    if (!this.scoring) {
+      this.scoring = {
         fromPlayerID: player.userID,
         scorerID: message.scorerID,
         timeout: this.scoreTimeout(),
@@ -212,24 +219,35 @@ export default abstract class Match {
     }
 
     if (
-      this.score.fromPlayerID === player.userID ||
-      this.score.scorerID !== message.scorerID
+      this.scoring.fromPlayerID === player.userID ||
+      this.scoring.scorerID !== message.scorerID
     )
       return this.cancel('Clients synchronization lost');
 
     const scorer = this.players.find(
-      player => player.userID === this.score?.scorerID,
+      player => player.userID === this.scoring?.scorerID,
     ) as Player;
 
-    clearTimeout(this.score.timeout);
-    this.score = undefined;
+    clearTimeout(this.scoring.timeout);
+    this.scoring = undefined;
 
-    scorer.score = (scorer.score || 0) + 1;
+    scorer.score++;
 
     this.handleRound(scorer);
   }
 
-  public async init() {
+  private scoreTimeout() {
+    return setTimeout(
+      () => this.cancel('Clients synchronization lost'),
+      SCORE_TIMEOUT,
+    );
+  }
+
+  protected send(message: ServerTunnelMessage) {
+    return this.players.forEach(player => Clients.sendClient(player, message));
+  }
+
+  public async start() {
     const userIDs = this.players.map(player => player.userID);
     const relationship = await this.server.db.get(SQL`
       SELECT NULL
@@ -242,39 +260,6 @@ export default abstract class Match {
 
     if (relationship) this.block = true;
 
-    for (const player of this.players) {
-      const user = await this.server.db.get(SQL`
-        SELECT id, username, has_avatar, avatar_version
-        FROM users
-        WHERE id = ${player.userID}
-      `);
-
-      serializeUserAvatar(user);
-      player.username = user.username;
-      player.avatar = user.avatar;
-
-      if (!this.ranked) delete player.elo;
-    }
-  }
-
-  private scoreTimeout() {
-    return setTimeout(
-      () => this.cancel('Clients synchronization lost'),
-      SCORE_TIMEOUT,
-    );
-  }
-
-  protected send(message: ServerTunnelMessage) {
-    return this.players.forEach(player =>
-      player.socket.send(Clients.message(message)),
-    );
-  }
-
-  private sendSocket(socket: WebSocket, message: ServerTunnelMessage) {
-    return socket.send(Clients.message(message));
-  }
-
-  public async start() {
     const angle = Match.generateAngle();
 
     this.send({
@@ -295,6 +280,6 @@ export default abstract class Match {
     await this.lock;
     await this.destroy(this.winner);
 
-    return this.winner;
+    return {winner: this.winner, result: this.result};
   }
 }

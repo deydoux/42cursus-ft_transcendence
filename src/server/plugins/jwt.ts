@@ -2,6 +2,7 @@ import {FastifyPluginAsync} from 'fastify';
 import SQL from 'sql-template-strings';
 import {randomBytes} from 'node:crypto';
 
+const {JWT_EXPIRES_IN} = process.env;
 let {JWT_SECRET} = process.env;
 
 const plugin: FastifyPluginAsync = async server => {
@@ -23,7 +24,7 @@ const plugin: FastifyPluginAsync = async server => {
       signed: false,
     },
     sign: {
-      expiresIn: '10m',
+      expiresIn: JWT_EXPIRES_IN && server.dev ? JWT_EXPIRES_IN : '15m',
     },
     async trusted(request, decodedToken) {
       const {id: userID, type} = decodedToken;

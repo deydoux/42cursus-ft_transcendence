@@ -3,7 +3,7 @@ import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
 import PongMatch from '#lib/PongMatch';
 import RaceMatch from '#lib/RaceMatch';
-import {RankedClient} from '#types/fastify';
+import {RankedPlayer} from '#types/fastify';
 import SQL from 'sql-template-strings';
 import {kFactor} from '#lib/Match';
 import {randomInt} from 'node:crypto';
@@ -24,28 +24,28 @@ export default async function joinMatchmaking(
     MatchConstructor = RaceMatch;
     queue = game.queues.race;
   } else
-    return client.socket.send(
-      Clients.message({type: 'error', message: 'Invalid game'}),
-    );
+    return Clients.sendClient(client, {type: 'error', message: 'Invalid game'});
 
   try {
     server.playAvailability(client);
-  } catch (e) {
+  } catch {
     return;
   }
 
   let match = null;
 
+  const player = await server.playerify(client);
+
   switch (message.mode) {
     case 'casual': {
       if (message.targetID) {
         const inviter = game.queues[message.game].invites.find(
-          invite => invite.client.userID === message.targetID,
+          invite => invite.player.userID === message.targetID,
         );
 
         if (!inviter) {
           queue.invites.push({
-            client,
+            player,
             other: message.targetID,
           });
 
@@ -78,21 +78,21 @@ export default async function joinMatchmaking(
           break;
         }
 
-        server.leaveMatchmaking(inviter.client.socket);
-        match = new MatchConstructor(server, [inviter.client, client]);
+        server.leaveMatchmaking(inviter.player.socket);
+        match = new MatchConstructor(server, [inviter.player, player]);
 
         break;
       }
 
       const queued = game.queues[message.game].casual;
       if (!queued) {
-        game.queues[message.game].casual = client;
+        game.queues[message.game].casual = player;
         break;
       }
 
       game.queues[message.game].casual = null;
 
-      match = new MatchConstructor(server, [queued, client]);
+      match = new MatchConstructor(server, [queued, player]);
       break;
     }
     case 'ranked': {
@@ -104,14 +104,14 @@ export default async function joinMatchmaking(
         LIMIT 1
       `);
 
-      const rankedClient: RankedClient = {
-        ...client,
+      const rankedPlayer: RankedPlayer = {
+        ...player,
         elo: elo.value,
         lowerElo: elo.value,
         upperElo: elo.value,
       };
 
-      rankedClient.timeout = setInterval(
+      rankedPlayer.timeout = setInterval(
         async rankedClient => {
           rankedClient.lowerElo -= kFactor;
           rankedClient.upperElo += kFactor;
@@ -132,7 +132,6 @@ export default async function joinMatchmaking(
           match = new MatchConstructor(server, [queued, rankedClient]);
 
           try {
-            await match.init();
             await match.start();
           } catch (error) {
             match.error();
@@ -140,31 +139,26 @@ export default async function joinMatchmaking(
           }
         },
         1000,
-        rankedClient,
+        rankedPlayer,
       );
 
-      queue.ranked.push(rankedClient);
+      queue.ranked.push(rankedPlayer);
       break;
     }
     default:
-      return client.socket.send(
-        Clients.message({
-          type: 'error',
-          message: 'Invalid mode',
-        }),
-      );
+      return Clients.sendClient(client, {
+        type: 'error',
+        message: 'Invalid mode',
+      });
   }
 
-  client.socket.send(
-    Clients.message({
-      type: 'success',
-      origin: 'joinMatchmaking',
-    }),
-  );
+  Clients.sendClient(client, {
+    type: 'success',
+    origin: 'joinMatchmaking',
+  });
 
   if (match)
     try {
-      await match.init();
       await match.start();
     } catch (error) {
       match.error();

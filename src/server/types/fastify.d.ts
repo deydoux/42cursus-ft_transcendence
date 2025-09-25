@@ -1,12 +1,13 @@
+import Match, {Player} from '#lib/Match';
 import {Client} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {Database} from 'sqlite';
-import Match from '#lib/Match';
 import {SharpInput} from 'sharp';
 import {Tournament} from '#lib/Tournament';
+import {Tournaments} from '#lib/Tournaments';
 import {WebSocket} from '@fastify/websocket';
 
-interface RankedClient extends Client {
+interface RankedPlayer extends Player {
   elo: number;
   lowerElo: number;
   upperElo: number;
@@ -14,9 +15,9 @@ interface RankedClient extends Client {
 }
 
 interface Queue {
-  casual: Client | null;
-  invites: {client: Client; other: number}[];
-  ranked: RankedClient[];
+  casual: Player | null;
+  invites: {player: Player; other: number}[];
+  ranked: RankedPlayer[];
 }
 
 declare module 'fastify' {
@@ -62,9 +63,11 @@ declare module 'fastify' {
       static: string;
     };
     playAvailability: (client: Client) => void;
+    playerify: (client: Client) => Promise<Player>;
     prod: boolean;
     removeAvatar: (id: number) => Promise<void>;
     storeAvatar: (id: number, avatar: SharpInput) => Promise<void>;
+    tournaments: Tournaments;
     validateTOTP: (secret: string, token: string) => void;
     validateUsernameAvailability: (
       username: string,

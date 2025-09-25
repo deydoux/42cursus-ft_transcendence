@@ -11,6 +11,10 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     reply.redirect('/static/default_avatar.webp', 302),
   );
 
+  server.setErrorHandler((_, _request, reply) =>
+    reply.redirect('/static/default_avatar.webp', 302),
+  );
+
   server.get('/', {schema}, async (request, reply) => {
     const {id} = request.params;
     return reply.sendFile(`${id}.webp`, server.paths.avatars);

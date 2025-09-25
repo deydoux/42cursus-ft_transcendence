@@ -8,6 +8,10 @@ interface Client {
 
 type ClientTunnelMessage =
   | {
+      type: 'createTournament';
+      name: string;
+    }
+  | {
       type: 'joinMatchmaking';
       game: string;
       mode: string;
@@ -61,7 +65,7 @@ type ServerTunnelMessage =
   | {
       type: 'matchEnd';
       winner: number;
-      result?: 'forfeit' | 'tie';
+      result?: 'cancel' | 'forfeit' | 'tie';
       eloChange?: number;
     }
   | {
@@ -74,6 +78,15 @@ type ServerTunnelMessage =
       dy: number;
     }
   | {
+      type: 'participantJoin';
+      user: unknown;
+    }
+  | {
+      type: 'participantLeft';
+      userID: number;
+      ownerID: number;
+    }
+  | {
       type: 'round';
       dx: number;
       dy: number;
@@ -81,4 +94,25 @@ type ServerTunnelMessage =
   | {
       type: 'success';
       origin: string;
+    }
+  | {
+      type: 'tournamentJoined';
+      participants: unknown[];
+    }
+  | {
+      type: 'tournamentMatchStart';
+      roundID: number;
+      participants: unknown[];
+    }
+  | {
+      type: 'tournamentMatchEnd';
+      roundID: number;
+      nextRoundID?: number;
+      winnerID?: number;
+      participants: unknown[];
+      result?: 'cancel' | 'empty' | 'forfeit' | 'tie';
+    }
+  | {
+      type: 'tournamentStarted';
+      final: unknown;
     };

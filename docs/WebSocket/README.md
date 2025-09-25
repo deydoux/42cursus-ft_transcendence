@@ -3,6 +3,19 @@ This WebSocket API handles real-time communication and time-sensitive events. To
 
 ## Client Messages
 
+### `createTournament`
+Sent to create a new tournament
+
+*Example:*
+```json
+{
+  "type": "createTournament",
+  "name": "Kittournament"
+}
+```
+
+**Note:** the `name` field must be `.trim()`, at least **3** and not exceed **64** characters in length.
+
 ### `joinMatchmaking`
 Sent to join the matchmaking queue
 
@@ -218,7 +231,9 @@ Received when a match is starting
     "username": "user456",
     "avatar": "/static/default_avatar.webp",
     "elo": 1000
-  }]
+  }],
+  "dx": -0.52,
+  "dy": 0.85
 }
 ```
 
@@ -233,6 +248,34 @@ Received when opponent makes a move in a match
 }
 ```
 
+
+### `participantJoin`
+Received when a participant joins a tournament
+
+*Example:*
+```json
+{
+  "type": "participantJoin",
+  "user": {
+    "id": 1,
+    "username": "user123",
+    "avatar": "/static/default_avatar.webp"
+  }
+}
+```
+
+### `participantLeft`
+Received when a participant leaves a tournament
+
+*Example:*
+```json
+{
+  "type": "participantLeft",
+  "userID":1,
+  "ownerID": 2
+}
+```
+
 ### `round`
 Received when a round starts in a match
 
@@ -242,3 +285,92 @@ Received when a round starts in a match
   "type": "round"
 }
 ```
+
+### `tournamentJoined`
+Received when a user joins a tournament
+
+
+**Note:** the first participant is the tournament owner.
+
+*Example:*
+```json
+{
+  "type": "tournamentJoined",
+  "participants": [
+    {"id": 1, "username": "user123", "avatar": "/static/default_avatar.webp"},
+    {"id": 2, "username": "user456", "avatar": "/static/default_avatar.webp"}
+  ]
+}
+```
+
+### `tournamentMatchStart`
+Received when a tournament match starts
+
+*Example:*
+```json
+{
+  "type": "tournamentMatchStart",
+  "roundID": 1,
+  "participants": [
+    {"id": 1, "username": "user123", "avatar": "/static/default_avatar.webp"},
+    {"id": 2, "username": "user456", "avatar": "/static/default_avatar.webp"}
+  ]
+}
+```
+
+### `tournamentMatchEnd`
+Received when a tournament match ends
+
+*Example:*
+```json
+{
+  "type": "tournamentMatchEnd",
+  "roundID": 1,
+  "nextRoundID": 2,
+  "winnerID": 1,
+  "participants": [{
+    "id": 1,
+    "username": "user123",
+    "avatar": "/static/default_avatar.webp",
+    "score": 3
+  }, {
+    "id": 2,
+    "username": "user456",
+    "avatar": "/static/default_avatar.webp",
+    "score": 1
+  }],
+  "result": "forfeit"
+}
+```
+
+**Note:** if `nextRoundID` is `undefined`, the tournament is over. `winner` is the tournament winner.
+
+### `tournamentStarted`
+Received when a tournament starts
+
+*Example:*
+```json
+{
+  "type": "tournamentStarted",
+  "final": {
+    "id": 1,
+    "participants": [],
+    "rounds": [{
+      "id": 2,
+      "participants": [
+        {"id": 3, "username": "3doux", "avatar": "/static/default_avatar.webp"},
+        {"id": 1, "username": "1doux", "avatar": "/static/default_avatar.webp"}
+      ],
+      "rounds": []
+    }, {
+      "id": 3,
+      "participants": [
+        {"id": 2, "username": "2doux", "avatar": "/static/default_avatar.webp"}
+      ],
+      "rounds": []
+    }]
+  }
+}
+
+```
+

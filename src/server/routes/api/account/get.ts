@@ -7,18 +7,23 @@ const plugin: FastifyPluginAsync = async server => {
     const {id} = request.user;
 
     const user = await server.db.get(SQL`
-      SELECT id, username, password_edited_at AS passwordEditedAt,
-             totp_enabled AS totp, has_avatar, avatar_version
-      FROM users
-      WHERE id = ${id}
+      SELECT u.id, username, password, password_edited_at AS passwordEditedAt,
+             totp_enabled AS totp, has_avatar, avatar_version, value AS elo
+      FROM users u
+      JOIN elo e
+      ON u.id = e.user_id AND game = 'pong'
+      WHERE u.id = ${id}
+      ORDER BY e.id DESC
+      LIMIT 1
     `);
 
     if (!user) return reply.notFound('Account not found');
 
     user.hasAvatar = Boolean(user.has_avatar);
     user.totp = Boolean(user.totp);
-    if (user.passwordEditedAt)
-      user.passwordEditedAt = new Date(user.passwordEditedAt * 1000);
+    if (!user.password) user.passwordEditedAt = null;
+    else user.passwordEditedAt = new Date(user.passwordEditedAt * 1000);
+    delete user.password;
     serializeUserAvatar(user);
 
     return reply.send(user);
