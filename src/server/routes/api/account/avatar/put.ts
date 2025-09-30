@@ -25,12 +25,7 @@ const plugin: FastifyPluginAsync = async server => {
     const {id} = request.user;
     const buffer = await data.toBuffer();
 
-    try {
-      await server.storeAvatar(id, buffer);
-    } catch (error) {
-      server.log.error(error);
-      return reply.internalServerError('Failed to store avatar');
-    }
+    await server.storeAvatar(id, buffer);
 
     return reply.code(204).send();
   });
