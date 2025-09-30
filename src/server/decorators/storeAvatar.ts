@@ -30,11 +30,16 @@ const plugin: FastifyPluginAsync = async server => {
     const cacheFile = join(server.paths.cache, `avatar_${++it}.webp`);
     const avatarFile = join(server.paths.avatars, `${id}.webp`);
 
-    server.log.trace(`Writing avatar to ${cacheFile}`);
-    await avatar.toFile(cacheFile);
+    try {
+      server.log.trace(`Writing avatar to ${cacheFile}`);
+      await avatar.toFile(cacheFile);
 
-    server.log.trace(`Renaming avatar to ${avatarFile}`);
-    await rename(cacheFile, avatarFile);
+      server.log.trace(`Renaming avatar to ${avatarFile}`);
+      await rename(cacheFile, avatarFile);
+    } catch (error) {
+      server.log.error(error);
+      throw server.httpErrors.internalServerError('Failed to store avatar');
+    }
 
     await server.db.run(SQL`
       UPDATE users
