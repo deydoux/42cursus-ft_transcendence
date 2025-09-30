@@ -10,6 +10,9 @@ ENV NODE_ENV=production
 COPY tsconfig.json vite.config.mts ./
 COPY src src
 
+ARG GOOGLE_ID
+ENV GOOGLE_ID=${GOOGLE_ID}
+
 RUN npm run build
 
 # ------------------------------
