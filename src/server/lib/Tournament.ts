@@ -118,10 +118,6 @@ export class Tournament {
       }
     };
 
-  // public get owner() {
-  //   return this.participants[0];
-  // }
-
   public removeClient(client: Client) {
     const participant = this.participants.find(
       participant => participant.socket === client.socket,
@@ -164,10 +160,6 @@ export class Tournament {
       Clients.sendClient(participant, message);
     }
   }
-
-  // get participantCount() {
-  //   return this.participants.length;
-  // }
 
   private async start(participant: Participant) {
     if (this.round)
