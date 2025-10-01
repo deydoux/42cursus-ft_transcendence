@@ -13,7 +13,7 @@ const defaultValues = {
   friendRequests: [],
   sentFriendRequests: [],
   countFriendRequests: 0,
-  players: [],
+  players: [undefined, undefined],
   isOpponentBlocked: false,
 };
 
