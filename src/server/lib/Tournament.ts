@@ -84,6 +84,21 @@ export class Tournament {
     this.server.game.players[participant.userID] = {match: this};
   }
 
+  public get() {
+    const owner = this.participants[0];
+
+    return {
+      id: this.id,
+      name: this.name,
+      participantCount: this.participants.length,
+      owner: {
+        id: owner.userID,
+        username: owner.username,
+        avatar: owner.avatar,
+      },
+    };
+  }
+
   private handleMessage =
     (participant: Participant) => async (data: RawData) => {
       let message;
@@ -103,9 +118,9 @@ export class Tournament {
       }
     };
 
-  public get owner() {
-    return this.participants[0];
-  }
+  // public get owner() {
+  //   return this.participants[0];
+  // }
 
   public removeClient(client: Client) {
     const participant = this.participants.find(
@@ -150,9 +165,9 @@ export class Tournament {
     }
   }
 
-  get participantCount() {
-    return this.participants.length;
-  }
+  // get participantCount() {
+  //   return this.participants.length;
+  // }
 
   private async start(participant: Participant) {
     if (this.round)

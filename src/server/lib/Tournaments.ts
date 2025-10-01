@@ -35,6 +35,8 @@ export default class Tournaments {
       type: 'success',
       origin: 'createTournament',
     });
+
+    return tournament;
   }
 
   public delete(id: number) {
@@ -42,16 +44,7 @@ export default class Tournaments {
   }
 
   public get() {
-    return Object.values(this.tournaments).map(tournament => ({
-      id: tournament.id,
-      name: tournament.name,
-      participantCount: tournament.participantCount,
-      owner: {
-        id: tournament.owner.userID,
-        username: tournament.owner.username,
-        avatar: tournament.owner.avatar,
-      },
-    }));
+    return Object.values(this.tournaments).map(tournament => tournament.get());
   }
 
   public join(id: number, participant: Player) {

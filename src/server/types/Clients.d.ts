@@ -78,6 +78,10 @@ type ServerTunnelMessage =
       dy: number;
     }
   | {
+      type: 'newTournament';
+      tournament: unknown;
+    }
+  | {
       type: 'participantJoin';
       user: unknown;
     }
