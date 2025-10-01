@@ -1,11 +1,11 @@
 meta {
-  name: Get matches list
+  name: Get all matches
   type: http
   seq: 5
 }
 
 get {
-  url: {{baseURL}}/api/account/matches?game=pong
+  url: {{baseURL}}/api/matches?game=pong
   body: none
   auth: inherit
 }
