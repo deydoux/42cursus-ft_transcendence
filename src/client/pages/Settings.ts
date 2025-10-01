@@ -1,99 +1,52 @@
+import {disconnectSession, fetchAccount} from '../api/account';
 import {BaseComponent} from '../components/BaseComponent';
 import {BlockList} from '../containers/settings/blockList';
-import {Chat} from '../containers/chat/Chat';
-import {DOMUtils} from '../utils/dom';
 import {PasswordManager} from '../containers/settings/passwordManager';
 import {RGPD} from '../containers/settings/rgpd';
 import {Sessions} from '../containers/settings/sessions';
-import {Toastify} from '../utils/toastify';
 import {TwoFactorAuthManager} from '../containers/settings/twoFactorAuthManager';
 import {UserProfile} from '../containers/settings/userProfile';
-import {api} from '../utils/Api';
-import {createDialog} from '../components/Dialog';
+import {createElement} from '../utils/dom';
+import {logout} from '../api/authentication';
 
 export class Settings extends BaseComponent {
-  private UserProfile: UserProfile;
-  private TwoFactorAuthManager: TwoFactorAuthManager;
-  private PasswordManager: PasswordManager;
-  private BlockList: BlockList;
-  private Sessions: Sessions;
-  private RGPD: RGPD;
-
-  constructor() {
+  constructor(private chat: HTMLElement) {
     super();
-    this.Sessions = new Sessions(this.store);
-    this.BlockList = new BlockList(this.store);
-    this.PasswordManager = new PasswordManager();
-    this.RGPD = new RGPD(this.router, this.store);
-    this.UserProfile = new UserProfile(this.store, this.fetchAccount);
-    this.TwoFactorAuthManager = new TwoFactorAuthManager(
-      this.store,
-      this.fetchAccount,
-    );
   }
 
-  private async fetchAccount() {
-    try {
-      const response = await api.get('account');
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message);
-      }
-
-      const data = await response.json();
-      this.store.setState({user: data});
-    } catch (error) {
-      Toastify.error('An error occurred while fetching user account');
-      console.error(error);
-    }
-  }
-
-  private renderHeader() {
-    const container = DOMUtils.createElement('div', {
-      className:
-        'mb-8 w-full h-38 bg-linear-to-br from-pink-200 to-pink-300 text-background flex items-center justify-between px-16 rounded-lg  shadow-lg shadow-pink-300/30',
+  private renderBanner() {
+    const container = createElement('div', {
+      className: `mb-8 w-full h-38 bg-linear-to-br from-pink-200 to-pink-300 text-background flex items-center justify-between px-16 rounded-lg  shadow-lg shadow-pink-300/30`,
     });
 
-    const headerTitle = DOMUtils.createElement('div');
-
-    headerTitle.appendChild(
-      DOMUtils.createElement('h1', {
+    const bannerTitle = createElement('div');
+    bannerTitle.appendChild(
+      createElement('h1', {
         className: 'text-3xl font-bold',
         textContent: 'Settings',
       }),
     );
-    headerTitle.appendChild(
-      DOMUtils.createElement('p', {
+    bannerTitle.appendChild(
+      createElement('p', {
         className: 'opacity-70',
         textContent: 'Update your personal details and account settings.',
       }),
     );
+    container.appendChild(bannerTitle);
 
-    container.appendChild(headerTitle);
-
-    const logoutButton = DOMUtils.createElement('button', {
-      className:
-        'bg-background text-pink-300 py-2 px-4 rounded-lg cursor-pointer duration-200 flex items-center gap-2',
-      events: {
-        click: async () => {
-          await api.post('auth/logout', {});
-          localStorage.removeItem('accessToken');
-          this.router.navigate('/');
-        },
-      },
+    const logoutButton = createElement('button', {
+      className: `bg-background text-pink-300 py-2 px-4 rounded-lg cursor-pointer duration-200 flex items-center gap-2`,
+      onclick: logout,
     });
 
     logoutButton.appendChild(
-      DOMUtils.createElement('i', {
+      createElement('i', {
         className: 'w-5 h-5 -mt-0.5',
-        attributes: {
-          icon: 'exit',
-        },
+        icon: 'exit',
       }),
     );
     logoutButton.appendChild(
-      DOMUtils.createElement('p', {
+      createElement('p', {
         textContent: 'Logout',
       }),
     );
@@ -102,96 +55,83 @@ export class Settings extends BaseComponent {
     return container;
   }
 
-  render(): HTMLElement | undefined {
-    this.fetchAccount();
-
-    const container = DOMUtils.createElement('div', {
-      className: 'w-screen h-screen flex items-center gap-10 py-16',
-    });
-    const settings = DOMUtils.createElement('div', {
-      className: 'h-full flex-1 overflow-y-auto -mr-4 pr-4',
+  private renderSection(label: string, actionButton?: HTMLButtonElement) {
+    const section = createElement('div', {
+      className: `flex-1 p-4 bg-white/5 border border-white/20 gap-10 rounded-lg`,
     });
 
-    // Header
-    settings.appendChild(this.renderHeader());
+    const sectionHeader = createElement('div', {
+      className: `flex items-center justify-between border-b border-white/20 pb-2`,
+    });
+    sectionHeader.appendChild(
+      createElement('h2', {
+        className: 'font-medium text-lg',
+        textContent: label,
+      }),
+    );
 
-    const renderBlock = (label: string, headerButton?: HTMLButtonElement) => {
-      const block = DOMUtils.createElement('div', {
-        className:
-          'flex-1 p-4 bg-white/5 border border-white/20 gap-10 rounded-lg',
-      });
+    if (actionButton) sectionHeader.appendChild(actionButton);
+    section.appendChild(sectionHeader);
+    return section;
+  }
 
-      const header = DOMUtils.createElement('div', {
-        className:
-          'flex items-center justify-between border-b border-white/20 pb-2',
-      });
+  render(): HTMLElement {
+    fetchAccount();
 
-      header.appendChild(
-        DOMUtils.createElement('h2', {
-          className: 'font-medium text-lg',
-          textContent: label,
-        }),
-      );
-      if (headerButton) {
-        header.appendChild(headerButton);
-      }
+    const container = createElement('div', {
+      className: 'flex h-full w-full gap-10',
+    });
 
-      block.appendChild(header);
-      return block;
-    };
+    const settings = createElement('div', {
+      className: 'h-full flex-1 overflow-y-auto -mr-4 pr-4 space-y-8',
+    });
+    settings.appendChild(this.renderBanner());
 
-    const firstRow = DOMUtils.createElement('div', {
-      className: 'flex gap-8 mb-8',
+    const row1 = createElement('div', {
+      className: 'flex gap-8',
     });
 
     // User Profile
-    const userProfile = renderBlock('Personal Information');
-    userProfile.appendChild(this.UserProfile.render());
+    const userProfile = this.renderSection('Personal Information');
+    userProfile.appendChild(this.createChild(UserProfile).render());
+    row1.appendChild(userProfile);
 
-    // Activate / Deactivate 2FA
-    const disconnectAllButton = DOMUtils.createElement('button', {
-      className:
-        'rounded-lg text-white/80 hover:text-red-500 duration-100 cursor-pointer',
+    // Sessions
+    const disconnectAllButton = createElement('button', {
+      className: `rounded-lg text-white/80 hover:text-red-500 duration-100 cursor-pointer`,
       textContent: 'Disconnect All',
+      onclick: () => disconnectSession(),
     });
-    const sessions = renderBlock('Sessions', disconnectAllButton);
-    sessions.appendChild(this.Sessions.render(disconnectAllButton));
+    const sessions = this.renderSection('Sessions', disconnectAllButton);
+    sessions.appendChild(this.createChild(Sessions).render());
+    row1.appendChild(sessions);
 
-    firstRow.appendChild(userProfile);
-    firstRow.appendChild(sessions);
-    settings.appendChild(firstRow);
+    settings.appendChild(row1);
 
     // Change Password
-    const changePassword = renderBlock('Change Password');
-    changePassword.appendChild(this.PasswordManager.render());
+    const changePassword = this.renderSection('Change Password');
+    changePassword.appendChild(this.createChild(PasswordManager).render());
     settings.appendChild(changePassword);
 
-    const thirdRow = DOMUtils.createElement('div', {
-      className: 'flex gap-8 mt-8',
+    const row2 = createElement('div', {
+      className: 'flex gap-8',
     });
 
-    // Block list
-    const blockList = renderBlock('Blocked users');
-    blockList.appendChild(this.BlockList.render());
-    settings.appendChild(blockList);
+    // Blocked users
+    const blockedUsers = this.renderSection('Blocked users');
+    blockedUsers.appendChild(this.createChild(BlockList).render());
+    row2.appendChild(blockedUsers);
 
-    // Sesssions
+    // 2 Factor Authentication
+    const preferences = this.renderSection('Account Management');
+    preferences.appendChild(this.createChild(TwoFactorAuthManager).render());
+    preferences.appendChild(this.createChild(RGPD).render());
+    row2.appendChild(preferences);
 
-    const preferences = renderBlock('Account Management');
-    const {dialogContent, showModal, close} = createDialog('2fa');
-    preferences.appendChild(
-      this.TwoFactorAuthManager.render(dialogContent, showModal, close),
-    );
-    preferences.appendChild(this.RGPD.render());
-
-    thirdRow.appendChild(blockList);
-    thirdRow.appendChild(preferences);
-    settings.appendChild(thirdRow);
+    settings.appendChild(row2);
 
     container.appendChild(settings);
-
-    const chat = new Chat().render();
-    if (chat) container.appendChild(chat);
+    if (this.chat) container.appendChild(this.chat);
     return container;
   }
 }

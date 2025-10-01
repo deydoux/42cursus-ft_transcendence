@@ -1,13 +1,13 @@
 import {BaseComponent} from '../components/BaseComponent';
-import {DOMUtils} from '../utils/dom';
 import {Toastify} from '../utils/toastify';
+import {createElement} from '../utils/dom';
 import {socket} from '../utils/websocket';
 
 export class Lobby extends BaseComponent {
   handleNavigation: () => void;
   currentPath: string;
 
-  constructor() {
+  constructor(private chat: HTMLElement) {
     super();
     this.currentPath = window.location.pathname;
 
@@ -40,22 +40,22 @@ export class Lobby extends BaseComponent {
     if (!container) return;
 
     container.innerHTML = '';
-    const text = DOMUtils.createElement('p', {
+    const text = createElement('p', {
       className: 'flex gap-1',
     });
     text.appendChild(
-      DOMUtils.createElement('span', {
+      createElement('span', {
         textContent: 'Opponent',
       }),
     );
     text.appendChild(
-      DOMUtils.createElement('span', {
+      createElement('span', {
         textContent: opponent.username,
         className: 'text-pink-300 font-bold',
       }),
     );
     text.appendChild(
-      DOMUtils.createElement('span', {
+      createElement('span', {
         textContent: 'found!',
       }),
     );
@@ -63,31 +63,34 @@ export class Lobby extends BaseComponent {
     container.appendChild(text);
   }
 
-  render() {
+  render(): HTMLElement {
     const state = this.store.getState();
     if (!state.isWaitingForMatchmaking) {
       Toastify.error(
         'You need to subscribe to the matchmaking queue before entering the lobby',
       );
       this.router.navigate('/homepage');
-      return;
+      return createElement('div');
     }
 
-    const container = DOMUtils.createElement('div', {
-      className: 'w-screen h-screen flex flex-col items-center justify-center',
+    const container = createElement('div', {
+      className: 'flex h-full w-full gap-10',
       attributes: {
         id: 'lobby',
       },
     });
 
-    container.appendChild(
-      DOMUtils.createElement('p', {
+    const lobby = createElement('div', {
+      className: 'flex flex-1 flex-col gap-4 items-center justify-center',
+    });
+
+    lobby.appendChild(
+      createElement('p', {
         textContent: 'Looking for other players...',
       }),
     );
-
-    container.appendChild(
-      DOMUtils.createElement('i', {
+    lobby.appendChild(
+      createElement('i', {
         className: 'w-20 h-20 text-pink-300 fill-pink-300 animate-spin',
         attributes: {
           icon: 'loadingSpin',
@@ -95,6 +98,8 @@ export class Lobby extends BaseComponent {
       }),
     );
 
+    container.appendChild(lobby);
+    if (this.chat) container.appendChild(this.chat);
     return container;
   }
 }
