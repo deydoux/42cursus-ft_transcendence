@@ -46,7 +46,11 @@ export default class Tournaments {
       id: tournament.id,
       name: tournament.name,
       participantCount: tournament.participantCount,
-      owner: {id: tournament.owner.userID},
+      owner: {
+        id: tournament.owner.userID,
+        username: tournament.owner.username,
+        avatar: tournament.owner.avatar,
+      },
     }));
   }
 
