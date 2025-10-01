@@ -166,19 +166,19 @@ export class PongCanvas {
 
     // Determine winner
     const winner =
-      this.pong.player.score === 10
+      this.pong.player.score === 5
         ? this.pong.player.username
         : this.pong.opponent.username;
     const loser =
-      this.pong.opponent.score === 10
+      this.pong.opponent.score === 5
         ? this.pong.opponent.username
         : this.pong.player.username;
     const winnerScore =
-      this.pong.player.score === 10
+      this.pong.player.score === 5
         ? this.pong.player.score
         : this.pong.opponent.score;
     const loserScore =
-      this.pong.player.score === 10
+      this.pong.player.score === 5
         ? this.pong.player.score
         : this.pong.opponent.score;
 

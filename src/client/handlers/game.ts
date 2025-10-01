@@ -1,4 +1,4 @@
-import {Lobby} from '../containers/Lobby';
+import {Lobby} from '../pages/Lobby';
 import {PongCanvas} from '../containers/pongCanvas';
 import {Router} from '../services/router';
 import {Store} from '../services/store';
