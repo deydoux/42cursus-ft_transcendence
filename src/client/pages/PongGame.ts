@@ -11,17 +11,21 @@ import {keys} from '../utils/keys';
 import {renderPong} from '../containers/renderPong';
 
 export class PongGame extends BaseComponent {
-  public initializeGame(ctx: CanvasRenderingContext2D): IPongGame {
+  public initializeGame(
+    ctx: CanvasRenderingContext2D,
+    isLocal: boolean, //TMP VAR
+  ): IPongGame {
     const missingElements: string[] = [];
     const getHTMLElement = (name: string) => {
       const value = document.getElementById(name) as HTMLElement;
       if (!value) missingElements.push(name);
       return value;
     };
-    const {isOpponentBlocked} = this.store.getState();
-    const {user} = this.store.getState();
+    const {isOpponentBlocked, players, user} = this.store.getState();
     if (!user) throw new Error(`User not found`);
-    const {players} = this.store.getState();
+    if (!players || players.length !== 2) {
+      throw new Error(`Players data not found or invalid`);
+    }
 
     const initializePlayers = () => {
       const playerPaddleX =
@@ -32,10 +36,11 @@ export class PongGame extends BaseComponent {
         user.id === players[0].id
           ? ctx.canvas.width - 10 - ctx.canvas.width * 0.01
           : 10;
+
       const player: IPlayer = {
         id: user.id,
         username: user.username,
-        avatar: user.hasAvatar ? user.avatar : '',
+        avatar: user.avatar ? user.avatar : '',
         score: 0,
         paddle: new Paddle(
           ctx,
@@ -53,17 +58,29 @@ export class PongGame extends BaseComponent {
             : getHTMLElement('right_score'),
         side: user.id === players[0].id ? 'left' : 'right',
       };
-      const playerAvatarElement =
-        user.id === players[0].id
-          ? getHTMLElement('left_pic')
-          : getHTMLElement('right_pic');
-      playerAvatarElement.innerHTML = player.avatar;
 
-      const op = user.id === players[0].id ? players[1] : players[0];
+      // For local games, use the same user data for opponent
+      // For remote games, use the other player's data
+      const op = isLocal
+        ? user
+        : user.id === players[0].id
+          ? players[1]
+          : players[0];
+
       const opponent: IPlayer = {
-        id: op.id,
-        username: isOpponentBlocked ? 'Unavailable' : op.username,
-        avatar: isOpponentBlocked ? '' : op.avatar,
+        id: isLocal ? user.id : op.id,
+        username: isLocal
+          ? user.username
+          : isOpponentBlocked
+            ? 'Unavailable'
+            : op.username,
+        avatar: isLocal
+          ? user.avatar
+            ? user.avatar
+            : ''
+          : isOpponentBlocked
+            ? ''
+            : op.avatar,
         score: 0,
         paddle: new Paddle(
           ctx,
@@ -81,11 +98,21 @@ export class PongGame extends BaseComponent {
             : getHTMLElement('left_score'),
         side: user.id === players[0].id ? 'right' : 'left',
       };
+
+      // Set avatars and names
+      const playerAvatarElement =
+        user.id === players[0].id
+          ? (getHTMLElement('left_pic') as HTMLImageElement)
+          : (getHTMLElement('right_pic') as HTMLImageElement);
+      playerAvatarElement.src = player.avatar;
+      player.nameElement.innerHTML = player.username;
+
       const opponentAvatarElement =
         user.id === players[0].id
-          ? getHTMLElement('right_pic')
-          : getHTMLElement('left_pic');
-      opponentAvatarElement.innerHTML = op.avatar;
+          ? (getHTMLElement('right_pic') as HTMLImageElement)
+          : (getHTMLElement('left_pic') as HTMLImageElement);
+      opponentAvatarElement.src = opponent.avatar;
+      opponent.nameElement.innerHTML = opponent.username;
 
       if (missingElements.length > 0) {
         throw new Error(
@@ -97,7 +124,6 @@ export class PongGame extends BaseComponent {
     };
 
     const ball = new Ball(ctx);
-
     const {player, opponent} = initializePlayers();
 
     return {
@@ -109,7 +135,7 @@ export class PongGame extends BaseComponent {
       gameStarted: false,
       isScoring: false,
       timer: new Timer(),
-      isLocal: false,
+      isLocal,
     };
   }
 
@@ -135,7 +161,6 @@ export class PongGame extends BaseComponent {
       console.error('Could not find canvas element');
       return;
     }
-
     const ctx = canvas.getContext('2d');
     if (!ctx) {
       console.error('Could not get canvas context');
@@ -145,13 +170,18 @@ export class PongGame extends BaseComponent {
     canvas.width = 1920;
     canvas.height = 1080;
     ctx.imageSmoothingEnabled = true;
+    const isLocal = false;
 
-    const pong = this.initializeGame(ctx);
-    const pongCanvas = PongCanvas.getInstance(pong);
-    pongCanvas.displayStartMessage();
-
+    const pong = this.initializeGame(ctx, isLocal);
     this.handleInput(pong);
-    PongCanvas.getInstance().startGame();
+    const pongCanvas = PongCanvas.getInstance(pong);
+
+    const {matchStartBallData} = this.store.getState();
+    if (matchStartBallData)
+      pong.ball.setDirection(matchStartBallData.dx, matchStartBallData.dy);
+
+    pong.gameStarted = true;
+    pongCanvas.startGame();
   }
 
   render(): HTMLElement | undefined {
@@ -162,11 +192,15 @@ export class PongGame extends BaseComponent {
       className: 'h-full flex-1 flex flex-wrap gap-10',
     });
     game.appendChild(renderPong());
-    this.renderGameCanvas();
 
     container.appendChild(game);
     const chat = new Chat().render();
     if (chat) container.appendChild(chat);
+
+    requestAnimationFrame(() => {
+      this.renderGameCanvas();
+    });
+
     return container;
   }
 }

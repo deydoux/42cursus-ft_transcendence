@@ -1,5 +1,7 @@
+import {IPongGame} from '../types/game';
 import {Paddle} from './paddle';
 import hk_ball from '../assets/hk_ball.png';
+import {socket} from '../utils/websocket';
 export class Ball {
   x: number;
   y: number;
@@ -55,7 +57,33 @@ export class Ball {
     return img;
   })();
 
-  update(pong) {
+  /**
+   * Sets the ball's velocity direction and updates its speed.
+   * @param dx - The new horizontal velocity direction (normalized).
+   * @param dy - The new vertical velocity direction (normalized).
+   */
+  public setDirection(dx: number, dy: number): void {
+    // Calculate the desired speed based on canvas size
+    const desiredSpeed =
+      Math.max(this.ctx.canvas.width, this.ctx.canvas.height) * 0.005; // Adjust this multiplier as needed
+
+    // Normalize the direction vector
+    const magnitude = Math.sqrt(dx * dx + dy * dy);
+
+    if (magnitude > 0) {
+      // Apply the desired speed to the normalized direction
+      this.vx = (dx / magnitude) * desiredSpeed;
+      this.vy = (dy / magnitude) * desiredSpeed;
+      this.speed = desiredSpeed;
+    } else {
+      // Fallback if dx and dy are both 0
+      this.vx = desiredSpeed * (Math.random() < 0.5 ? 1 : -1);
+      this.vy = desiredSpeed * (Math.random() < 0.5 ? 1 : -1);
+      this.speed = desiredSpeed;
+    }
+  }
+
+  update(pong: IPongGame) {
     if (this.isScoring) return; // Don't update if we're in scoring animation
 
     this.x += this.vx;
@@ -74,24 +102,31 @@ export class Ball {
           : this.ctx.canvas.height - this.radius;
     }
 
+    // Get left and right paddles based on player sides
+    const leftPlayer =
+      pong.player.side === 'left' ? pong.player : pong.opponent;
+    const rightPlayer =
+      pong.player.side === 'right' ? pong.player : pong.opponent;
     // Left paddle collision with corner detection
     if (
-      this.x - this.radius < pong.leftPaddle.x + pong.leftPaddle.width &&
-      this.x + this.radius > pong.leftPaddle.x &&
-      this.y + this.radius > pong.leftPaddle.y &&
-      this.y - this.radius < pong.leftPaddle.y + pong.leftPaddle.height
+      leftPlayer.paddle &&
+      this.x - this.radius < leftPlayer.paddle.x + leftPlayer.paddle.width &&
+      this.x + this.radius > leftPlayer.paddle.x &&
+      this.y + this.radius > leftPlayer.paddle.y &&
+      this.y - this.radius < leftPlayer.paddle.y + leftPlayer.paddle.height
     ) {
-      this.handlePaddleCollision(pong.leftPaddle, true);
+      this.handlePaddleCollision(leftPlayer.paddle, true);
     }
 
     // Right paddle collision with corner detection
     if (
-      this.x + this.radius > pong.rightPaddle.x &&
-      this.x - this.radius < pong.rightPaddle.x + pong.rightPaddle.width &&
-      this.y + this.radius > pong.rightPaddle.y &&
-      this.y - this.radius < pong.rightPaddle.y + pong.rightPaddle.height
+      rightPlayer.paddle &&
+      this.x + this.radius > rightPlayer.paddle.x &&
+      this.x - this.radius < rightPlayer.paddle.x + rightPlayer.paddle.width &&
+      this.y + this.radius > rightPlayer.paddle.y &&
+      this.y - this.radius < rightPlayer.paddle.y + rightPlayer.paddle.height
     ) {
-      this.handlePaddleCollision(pong.rightPaddle, false);
+      this.handlePaddleCollision(rightPlayer.paddle, false);
     }
 
     // Ball out of bounds (left or right wall)
@@ -121,23 +156,30 @@ export class Ball {
     const relativeIntersectY =
       (this.y - (paddle.y + paddle.height / 2)) / (paddle.height / 2);
 
-    // Limit the maximum angle to 60 degrees (instead of 75)
-    const maxAngle = Math.PI / 3; // 60 degrees
+    // Use a smaller angle range (45 degrees max instead of 75)
+    const maxAngle = (Math.PI / 180) * 45; // 45 degrees maximum
     const bounceAngle = relativeIntersectY * maxAngle;
-
-    // Ensure minimum horizontal velocity (e.g., 60% of total speed)
-    const minHorizontalRatio = 0.6;
+    const minHorizontalRatio = 0.8; // 80% minimum horizontal velocity
     const direction = isLeftPaddle ? 1 : -1;
 
     // Calculate velocities
     let vx = direction * this.speed * Math.cos(bounceAngle);
     let vy = this.speed * Math.sin(bounceAngle);
 
-    // If horizontal component is too small, adjust the angle
+    // If horizontal component is too small, force a more horizontal bounce
     if (Math.abs(Math.cos(bounceAngle)) < minHorizontalRatio) {
       const adjustedAngle = Math.acos(minHorizontalRatio);
       vx = direction * this.speed * minHorizontalRatio;
-      vy = this.speed * Math.sin(adjustedAngle) * Math.sign(bounceAngle);
+      // Reduce vertical component when adjusting
+      vy = this.speed * Math.sin(adjustedAngle) * Math.sign(bounceAngle) * 0.5;
+    }
+
+    // Additional check: if vertical velocity is too high, clamp it
+    const maxVerticalRatio = 0.6; // Maximum 60% of speed can be vertical
+    if (Math.abs(vy) > this.speed * maxVerticalRatio) {
+      vy = Math.sign(vy) * this.speed * maxVerticalRatio;
+      // Recalculate horizontal to maintain speed
+      vx = direction * Math.sqrt(this.speed * this.speed - vy * vy);
     }
 
     this.vx = vx;
@@ -151,7 +193,7 @@ export class Ball {
     this.increaseSpeed();
   }
 
-  handleScoring(pong, isLeftWall: boolean) {
+  handleScoring(pong: IPongGame, isLeftWall: boolean) {
     // Reset the timer
     pong.timer.reset();
     pong.timer.startCountdown();
@@ -165,16 +207,40 @@ export class Ball {
     const initialVy = this.ctx.canvas.height * 0.002;
 
     // Randomize direction but keep initial speed
-    this.vx = initialVx * (Math.random() < 0.5 ? 1 : -1);
-    this.vy = initialVy * (Math.random() < 0.5 ? 1 : -1);
+    this.vx = 0;
+    this.vy = 0;
 
     // Reset speed to initial value
     this.speed = Math.sqrt(initialVx * initialVx + initialVy * initialVy);
 
-    if (isLeftWall) {
-      pong.rightPlayerScore++;
+    if (isLeftWall && pong.player.side == 'left') {
+      socket.send(
+        JSON.stringify({
+          type: 'score',
+          scorerID: pong.opponent.id,
+        }),
+      );
+    } else if (!isLeftWall && pong.player.side == 'right') {
+      socket.send(
+        JSON.stringify({
+          type: 'score',
+          scorerID: pong.opponent.id,
+        }),
+      );
+    } else if (isLeftWall && pong.player.side == 'right') {
+      socket.send(
+        JSON.stringify({
+          type: 'score',
+          scorerID: pong.player.id,
+        }),
+      );
     } else {
-      pong.leftPlayerScore++;
+      socket.send(
+        JSON.stringify({
+          type: 'score',
+          scorerID: pong.player.id,
+        }),
+      );
     }
   }
 

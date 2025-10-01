@@ -1,12 +1,11 @@
-import {IPongGame} from '../types/game';
-import {asciiArt} from '../utils/content';
+import {IPlayer, IPongGame} from '../types/game';
 import {displayCountdownMessage} from '../utils/content';
 import {socket} from '../utils/websocket';
 
 export class PongCanvas {
   private static instance: PongCanvas | null = null;
   private ctx: CanvasRenderingContext2D;
-  private pong: IPongGame;
+  public pong: IPongGame;
   private raf: number | null;
   private color = 'rgb(0, 0, 0)';
 
@@ -33,10 +32,7 @@ export class PongCanvas {
   public gameLoop() {
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
-    if (!this.pong.gameStarted) {
-      this.displayStartMessage();
-      return;
-    }
+    if (!this.pong.gameStarted) return;
     // Check if countdown is active
     const isCountdownActive = this.pong.timer.isCountdownActive();
     const countdownMessage = this.pong.timer.getCountdownMessage();
@@ -71,49 +67,9 @@ export class PongCanvas {
    * Updates the score display
    */
   private updateScore(): void {
-    this.pong.player.scoreElement.innerText = this.pong.player.score.toString();
-    this.pong.opponent.scoreElement.innerText =
+    this.pong.player.scoreElement.innerHTML = this.pong.player.score.toString();
+    this.pong.opponent.scoreElement.innerHTML =
       this.pong.opponent.score.toString();
-  }
-  public displayStartMessage() {
-    this.updateScore();
-
-    this.ctx.save();
-
-    const width = this.ctx.canvas.width;
-    const height = this.ctx.canvas.height;
-    const baseFontSize = Math.max(width, height) * 0.025;
-    const smallFontSize = baseFontSize * 0.5;
-    const lineHeight = smallFontSize * 1.25;
-
-    // Calculate total height of the block (title + ascii art)
-    const titleHeight = baseFontSize;
-    const asciiArtHeight = asciiArt.length * lineHeight;
-    const totalBlockHeight = titleHeight + asciiArtHeight + lineHeight; // extra lineHeight for spacing
-
-    // Center of ctx.canvas
-    const centerX = width / 2;
-    const centerY = height / 2;
-
-    // Start drawing so that the block is vertically centered
-    let currentY = centerY - totalBlockHeight / 2 + titleHeight / 2;
-
-    this.ctx.font = `bold ${baseFontSize}px monospace`;
-    this.ctx.fillStyle = this.color;
-    this.ctx.textAlign = 'center';
-    this.ctx.textBaseline = 'middle';
-    this.ctx.shadowBlur = 15;
-    this.ctx.shadowColor = 'rgba(227, 11, 92, 0.781)';
-    this.ctx.fillText('Press SPACE to start the game!', centerX, currentY);
-
-    // Draw ASCII art below the title
-    this.ctx.font = `${smallFontSize}px monospace`;
-    currentY += titleHeight / 2 + lineHeight / 2; // space between title and art
-    for (let i = 0; i < asciiArt.length; i++) {
-      this.ctx.fillText(asciiArt[i], centerX, currentY + i * lineHeight);
-    }
-
-    this.ctx.restore();
   }
 
   public handlePaddleMovement() {
@@ -134,8 +90,7 @@ export class PongCanvas {
         direction = 1;
         moved = true;
       }
-    }
-    if (this.pong.player.side == 'left') {
+    } else if (this.pong.player.side == 'left') {
       if (this.pong.keys.w) {
         this.pong.player.paddle?.move(-paddleSpeed);
         direction = -1;
@@ -147,7 +102,7 @@ export class PongCanvas {
         moved = true;
       }
     }
-    if (moved && this.pong.isLocal)
+    if (moved && !this.pong.isLocal)
       this.sendPaddleMovement(
         this.pong.player.side,
         direction,
@@ -177,20 +132,32 @@ export class PongCanvas {
     yPosition: number;
     timestamp: number;
   }) {
-    // Apply opponent's movement to their paddle
-    const opponentPlayer =
-      this.pong.player.side === 'left' ? this.pong.opponent : this.pong.player;
+    // Find the player whose side matches the incoming data
+    let targetPlayer: IPlayer | null = null;
 
-    if (data.side !== this.pong.player.side && opponentPlayer.paddle) {
+    if (this.pong.player.side === data.side) {
+      // This shouldn't happen - we received our own movement
+      return;
+    } else if (this.pong.opponent.side === data.side) {
+      // The opponent is moving
+      targetPlayer = this.pong.opponent;
+    }
+
+    if (targetPlayer && targetPlayer.paddle) {
       // Use the exact position for better sync
-      opponentPlayer.paddle.y = data.yPosition;
+      targetPlayer.paddle.y = data.yPosition;
 
       // Optional: Add interpolation for smoother movement
-      opponentPlayer.paddle.move(
-        data.direction * (this.ctx.canvas.height * 0.01),
-      );
+      // targetPlayer.paddle.move(data.direction * (this.ctx.canvas.height * 0.01));
     }
   }
+
+  public handleScoring(id: number) {
+    console.log('mais lol??');
+    if (id == this.pong.player.id) this.pong.player.score++;
+    else this.pong.opponent.score++;
+  }
+
   private drawGameOverScreen(): void {
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
@@ -207,13 +174,13 @@ export class PongCanvas {
         ? this.pong.opponent.username
         : this.pong.player.username;
     const winnerScore =
-      this.pong.leftPlayerScore === 10
-        ? this.pong.leftPlayerScore
-        : this.pong.rightPlayerScore;
+      this.pong.player.score === 10
+        ? this.pong.player.score
+        : this.pong.opponent.score;
     const loserScore =
-      this.pong.leftPlayerScore === 10
-        ? this.pong.rightPlayerScore
-        : this.pong.leftPlayerScore;
+      this.pong.player.score === 10
+        ? this.pong.player.score
+        : this.pong.opponent.score;
 
     // Catch phrase at the top
     this.ctx.fillStyle = '#FFD700'; // Gold color
@@ -363,8 +330,8 @@ export class PongCanvas {
   }
 
   private resetPongGame() {
-    this.pong.leftPlayerScore = 0;
-    this.pong.rightPlayerScore = 0;
+    this.pong.player.score = 0;
+    this.pong.opponent.score = 0;
     this.updateScore();
 
     // Reset ball position and velocity
@@ -374,9 +341,10 @@ export class PongCanvas {
     this.pong.ball.vy = this.pong.ctx.canvas.width * 0.004;
 
     // Reset paddles
-    this.pong.leftPaddle.y = 0;
-    this.pong.rightPaddle.y = 0;
-
+    if (this.pong.player.paddle && this.pong.opponent.paddle) {
+      this.pong.player.paddle.y = 0;
+      this.pong.opponent.paddle.y = 0;
+    }
     this.pong.gameStarted = false;
   }
 }

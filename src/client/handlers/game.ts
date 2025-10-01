@@ -17,11 +17,17 @@ const handleMatchStart = (data: {
   ranked: boolean;
   players: [User, User];
   block: boolean;
+  dx: number;
+  dy: number;
 }) => {
   const router = Router.getInstance();
   const store = Store.getInstance();
 
-  store.setState({isOpponentBlocked: data.block});
+  store.setState({
+    isOpponentBlocked: data.block,
+    players: data.players,
+    matchStartBallData: {dx: data.dx, dy: data.dy},
+  });
 
   setTimeout(() => {
     const {user} = store.getState();
@@ -58,9 +64,22 @@ const handleMove = (data: {
   PongCanvas.getInstance().handleOpponentPaddleMovement(data);
 };
 
+const handleScore = (data: {scorerID: number}) => {
+  PongCanvas.getInstance().handleScoring(data.scorerID);
+};
+
+const handleRound = (data: {dx: number; dy: number}) => {
+  console.log('ROUND');
+  const pongCanvas = PongCanvas.getInstance();
+  if (pongCanvas && pongCanvas.pong && pongCanvas.pong.ball) {
+    pongCanvas.pong.ball.setDirection(data.dx, data.dy);
+  }
+};
 export const setupGameHandlers = () => {
   socket.on('matchStart', handleMatchStart);
   socket.on('success', handleSuccess);
   socket.on('error', handleError);
   socket.on('move', handleMove);
+  socket.on('score', handleScore);
+  socket.on('round', handleRound);
 };

@@ -1,3 +1,5 @@
+import {User} from '../handlers/game';
+
 export interface AppState {
   currentRoute: string;
   isWaitingForMatchmaking: boolean;
@@ -111,13 +113,9 @@ export interface AppState {
       updatedAt: string;
     }[];
   };
-  players: {
-    id: number;
-    username: string;
-    avatar: string;
-    elo: number;
-  }[];
+  players: [User, User];
   isOpponentBlocked: boolean;
+  matchStartBallData: {dx: number; dy: number};
 }
 
 export interface Component {

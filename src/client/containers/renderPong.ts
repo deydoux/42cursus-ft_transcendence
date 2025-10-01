@@ -20,10 +20,4 @@ export const renderPong = () =>
         class="pong -mt-1 bg-linear-to-br from-pink-200 to-pink-300 shadow-lg shadow-pink-300/30"
       ></canvas>
     </div>
-    <button
-      id="pong-btn"
-      class="w-90% bg-linear-to-br from-[#1F2326] to-[#121619]"
-    >
-      Start Game
-    </button>
   </div>`;
