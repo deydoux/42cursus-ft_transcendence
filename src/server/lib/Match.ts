@@ -275,6 +275,7 @@ export default abstract class Match {
       })),
       dx: Math.cos(angle),
       dy: Math.sin(angle),
+      time: Date.now() + 1000,
     });
 
     await this.lock;

@@ -76,6 +76,7 @@ type ServerTunnelMessage =
       players: unknown[];
       dx: number;
       dy: number;
+      time: number;
     }
   | {
       type: 'participantJoin';
@@ -90,6 +91,7 @@ type ServerTunnelMessage =
       type: 'round';
       dx: number;
       dy: number;
+      time: number;
     }
   | {
       type: 'success';
