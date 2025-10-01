@@ -1,7 +1,7 @@
-import {IPongGame} from '../types/game';
+import {IPongGame} from '../../types/game';
 import {Paddle} from './paddle';
-import hk_ball from '../assets/hk_ball.png';
-import {socket} from '../utils/websocket';
+import hk_ball from '../../assets/hk_ball.png';
+import {socket} from '../../utils/websocket';
 export class Ball {
   x: number;
   y: number;
@@ -214,6 +214,7 @@ export class Ball {
     this.speed = Math.sqrt(initialVx * initialVx + initialVy * initialVy);
 
     if (isLeftWall && pong.player.side == 'left') {
+      pong.opponent.score++;
       socket.send(
         JSON.stringify({
           type: 'score',
@@ -221,6 +222,7 @@ export class Ball {
         }),
       );
     } else if (!isLeftWall && pong.player.side == 'right') {
+      pong.opponent.score++;
       socket.send(
         JSON.stringify({
           type: 'score',
@@ -228,6 +230,7 @@ export class Ball {
         }),
       );
     } else if (isLeftWall && pong.player.side == 'right') {
+      pong.player.score++;
       socket.send(
         JSON.stringify({
           type: 'score',
@@ -235,6 +238,7 @@ export class Ball {
         }),
       );
     } else {
+      pong.player.score++;
       socket.send(
         JSON.stringify({
           type: 'score',

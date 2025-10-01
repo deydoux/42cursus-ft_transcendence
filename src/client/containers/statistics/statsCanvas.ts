@@ -1,6 +1,6 @@
-import {Ball} from './ball';
-import {Paddle} from './paddle';
-import race_bd from '../assets/race_track.png';
+import {Ball} from '../pong/ball';
+import {Paddle} from '../pong/paddle';
+import race_bd from '../../assets/race_track.png';
 
 export class StatsCanvas {
   private ctx_race: CanvasRenderingContext2D;

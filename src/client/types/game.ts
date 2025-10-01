@@ -1,7 +1,7 @@
-import {Ball} from '../containers/ball';
-import {Car} from '../containers/car';
+import {Ball} from '../containers/pong/ball';
+import {Car} from '../containers/race/car';
 import {Keys} from '../utils/keys';
-import {Paddle} from '../containers/paddle';
+import {Paddle} from '../containers/pong/paddle';
 import {Timer} from '../containers/timer';
 
 export interface IPongGame {

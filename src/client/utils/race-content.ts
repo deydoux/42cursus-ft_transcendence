@@ -1,11 +1,11 @@
 import {Keys, keys} from './keys';
-import {Car} from '../containers/car';
-import {Checkpoint} from '../containers/checkpoint';
-import {Growpoint} from '../containers/growpoint';
-import {Slowpoint} from '../containers/slowpoint';
+import {Car} from '../containers/race/car';
+import {Checkpoint} from '../containers/race/checkpoint';
+import {Growpoint} from '../containers/race/growpoint';
+import {Slowpoint} from '../containers/race/slowpoint';
 import {Timer} from '../containers/timer';
-import {Track} from '../containers/track';
-import {Wall} from '../containers/wall';
+import {Track} from '../containers/race/track';
+import {Wall} from '../containers/race/wall';
 import b_car from '../assets/bCar.png';
 import g_car from '../assets/gCar.png';
 import p_car from '../assets/pCar.png';

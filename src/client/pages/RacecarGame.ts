@@ -2,8 +2,8 @@ import {handleInput, initializeGame} from '../utils/race-content';
 import {BaseComponent} from '../components/BaseComponent';
 import {Chat} from '../containers/chat/Chat';
 import {DOMUtils} from '../utils/dom';
-import {RaceCanvas} from '../containers/raceCanvas';
-import {renderCar} from '../containers/renderRace';
+import {RaceCanvas} from '../containers/race/raceCanvas';
+import {renderCar} from '../containers/race/renderRace';
 
 export class RacecarGame extends BaseComponent {
   private renderRacecarCanvas() {

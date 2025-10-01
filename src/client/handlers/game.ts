@@ -1,5 +1,5 @@
 import {Lobby} from '../pages/Lobby';
-import {PongCanvas} from '../containers/pongCanvas';
+import {PongCanvas} from '../containers/pong/pongCanvas';
 import {Router} from '../services/router';
 import {Store} from '../services/store';
 import {Toastify} from '../utils/toastify';
@@ -64,8 +64,35 @@ const handleMove = (data: {
   PongCanvas.getInstance().handleOpponentPaddleMovement(data);
 };
 
-const handleScore = (data: {scorerID: number}) => {
-  PongCanvas.getInstance().handleScoring(data.scorerID);
+const handleMatchCancel = (data: {cause: string}) => {
+  console.log('YIPPIE u cheated ...');
+  const pongCanvas = PongCanvas.getInstance();
+  Toastify.error(data.cause);
+  pongCanvas.pong.gameStarted = false;
+};
+
+interface PongGameUIElement extends HTMLElement {
+  showGameEndModal(data: {
+    winner: number;
+    result?: string;
+    eloChange?: number;
+  }): void;
+}
+
+const handleMatchEnd = (data: {
+  winner: number;
+  result?: string;
+  eloChange?: number;
+}) => {
+  const pongCanvas = PongCanvas.getInstance();
+  pongCanvas.pong.gameStarted = false;
+
+  const gameUIElement = document.querySelector(
+    '.pong-game-ui',
+  ) as PongGameUIElement;
+  if (gameUIElement && gameUIElement.showGameEndModal) {
+    gameUIElement.showGameEndModal(data);
+  }
 };
 
 const handleRound = (data: {dx: number; dy: number}) => {
@@ -80,6 +107,7 @@ export const setupGameHandlers = () => {
   socket.on('success', handleSuccess);
   socket.on('error', handleError);
   socket.on('move', handleMove);
-  socket.on('score', handleScore);
+  socket.on('matchCancel', handleMatchCancel);
+  socket.on('matchEnd', handleMatchEnd);
   socket.on('round', handleRound);
 };

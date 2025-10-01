@@ -1,16 +1,18 @@
-import {Ball} from '../containers/ball';
+import {Ball} from '../containers/pong/ball';
 import {BaseComponent} from '../components/BaseComponent';
 import {Chat} from '../containers/chat/Chat';
 import {DOMUtils} from '../utils/dom';
 import {IPlayer} from '../types/game';
 import {IPongGame} from '../types/game';
-import {Paddle} from '../containers/paddle';
-import {PongCanvas} from '../containers/pongCanvas';
+import {Paddle} from '../containers/pong/paddle';
+import {PongCanvas} from '../containers/pong/pongCanvas';
+import {PongGameUI} from '../containers/pong/PongGameUI';
 import {Timer} from '../containers/timer';
 import {keys} from '../utils/keys';
-import {renderPong} from '../containers/renderPong';
 
 export class PongGame extends BaseComponent {
+  private pongGameUI?: PongGameUI;
+
   public initializeGame(
     ctx: CanvasRenderingContext2D,
     isLocal: boolean, //TMP VAR
@@ -98,28 +100,6 @@ export class PongGame extends BaseComponent {
             : getHTMLElement('left_score'),
         side: user.id === players[0].id ? 'right' : 'left',
       };
-
-      // Set avatars and names
-      const playerAvatarElement =
-        user.id === players[0].id
-          ? (getHTMLElement('left_pic') as HTMLImageElement)
-          : (getHTMLElement('right_pic') as HTMLImageElement);
-      playerAvatarElement.src = player.avatar;
-      player.nameElement.innerHTML = player.username;
-
-      const opponentAvatarElement =
-        user.id === players[0].id
-          ? (getHTMLElement('right_pic') as HTMLImageElement)
-          : (getHTMLElement('left_pic') as HTMLImageElement);
-      opponentAvatarElement.src = opponent.avatar;
-      opponent.nameElement.innerHTML = opponent.username;
-
-      if (missingElements.length > 0) {
-        throw new Error(
-          `Required HTML elements not found: ${missingElements.join(', ')}`,
-        );
-      }
-
       return {player, opponent};
     };
 
@@ -156,20 +136,19 @@ export class PongGame extends BaseComponent {
   }
 
   private renderGameCanvas() {
-    const canvas = document.getElementById('pong') as HTMLCanvasElement;
-    if (!canvas) {
-      console.error('Could not find canvas element');
+    if (!this.pongGameUI) {
+      console.error('PongGameUI not initialized');
       return;
     }
+
+    // Use PongGameUI to set up the canvas
+    const canvas = this.pongGameUI.initializeCanvas();
     const ctx = canvas.getContext('2d');
     if (!ctx) {
       console.error('Could not get canvas context');
       return;
     }
 
-    canvas.width = 1920;
-    canvas.height = 1080;
-    ctx.imageSmoothingEnabled = true;
     const isLocal = false;
 
     const pong = this.initializeGame(ctx, isLocal);
@@ -181,24 +160,28 @@ export class PongGame extends BaseComponent {
       pong.ball.setDirection(matchStartBallData.dx, matchStartBallData.dy);
 
     pong.gameStarted = true;
+    console.log('hello');
     pongCanvas.startGame();
   }
 
-  render(): HTMLElement | undefined {
+  render(): HTMLElement {
     const container = DOMUtils.createElement('div', {
-      className: 'w-screen h-screen flex items-center gap-10 py-16',
+      className: 'w-screen h-screen flex items-center gap-10 py-16 overflow-hidden',
     });
-    const game = DOMUtils.createElement('div', {
-      className: 'h-full flex-1 flex flex-wrap gap-10',
-    });
-    game.appendChild(renderPong());
 
-    container.appendChild(game);
+    // Use PongGameUI instead of renderPong()
+    this.pongGameUI = new PongGameUI();
+    const gameElement = this.pongGameUI.render();
+
+    container.appendChild(gameElement);
+
     const chat = new Chat().render();
     if (chat) container.appendChild(chat);
 
+    // Initialize game after render
     requestAnimationFrame(() => {
-      this.renderGameCanvas();
+      this.pongGameUI?.initializePlayerInfo(); // Initialize player info
+      this.renderGameCanvas(); // Keep your existing canvas setup
     });
 
     return container;

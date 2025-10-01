@@ -1,9 +1,9 @@
 import {Car} from './car';
 import {Checkpoint} from './checkpoint';
 import {Growpoint} from './growpoint';
-import {RaceGame} from '../utils/race-content';
+import {RaceGame} from '../../utils/race-content';
 import {Slowpoint} from './slowpoint';
-import {displayCountdownMessage} from '../utils/content';
+import {displayCountdownMessage} from '../../utils/content';
 export class RaceCanvas {
   private ctx: CanvasRenderingContext2D;
   private race: RaceGame;
