@@ -65,10 +65,11 @@ const handleMove = (data: {
 };
 
 const handleMatchCancel = (data: {cause: string}) => {
-  console.log('YIPPIE u cheated ...');
   const pongCanvas = PongCanvas.getInstance();
+  const router = Router.getInstance();
   Toastify.error(data.cause);
-  pongCanvas.pong.gameStarted = false;
+  pongCanvas.resetPongGame();
+  router.navigate('/homepage');
 };
 
 interface PongGameUIElement extends HTMLElement {
@@ -86,7 +87,15 @@ const handleMatchEnd = (data: {
 }) => {
   const pongCanvas = PongCanvas.getInstance();
   pongCanvas.pong.gameStarted = false;
-
+  // Update final scores in DOM before showing modal
+  const {players} = Store.getInstance().getState();
+  if (players) {
+    const winnerSide = data.winner === players[0].id ? 'left' : 'right';
+    const winnerScoreElement = document.getElementById(`${winnerSide}_score`);
+    if (winnerScoreElement) {
+      winnerScoreElement.textContent = '3';
+    }
+  }
   const gameUIElement = document.querySelector(
     '.pong-game-ui',
   ) as PongGameUIElement;
@@ -96,12 +105,27 @@ const handleMatchEnd = (data: {
 };
 
 const handleRound = (data: {dx: number; dy: number}) => {
-  console.log('ROUND');
   const pongCanvas = PongCanvas.getInstance();
   if (pongCanvas && pongCanvas.pong && pongCanvas.pong.ball) {
     pongCanvas.pong.ball.setDirection(data.dx, data.dy);
   }
 };
+
+const handleBallState = (data: {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  speed: number;
+  timestamp: number;
+  side: 'left' | 'right';
+}) => {
+  const pongCanvas = PongCanvas.getInstance();
+  if (pongCanvas && pongCanvas.pong) {
+    pongCanvas.pong.ball.receiveBallState(data);
+  }
+};
+
 export const setupGameHandlers = () => {
   socket.on('matchStart', handleMatchStart);
   socket.on('success', handleSuccess);
@@ -110,4 +134,5 @@ export const setupGameHandlers = () => {
   socket.on('matchCancel', handleMatchCancel);
   socket.on('matchEnd', handleMatchEnd);
   socket.on('round', handleRound);
+  socket.on('ballState', handleBallState);
 };

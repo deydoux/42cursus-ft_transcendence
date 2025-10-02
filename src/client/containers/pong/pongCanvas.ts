@@ -152,7 +152,7 @@ export class PongCanvas {
     }
   }
 
-  private resetPongGame() {
+  public resetPongGame() {
     this.pong.player.score = 0;
     this.pong.opponent.score = 0;
     this.updateScore();

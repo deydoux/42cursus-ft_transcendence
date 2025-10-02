@@ -105,7 +105,8 @@ export class PongGameUI extends BaseComponent {
     });
 
     const content = DOMUtils.createElement('div', {
-      className: 'bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4 text-center',
+      className:
+        'bg-pink-200 rounded-lg p-8 max-w-xl w-full mx-4 text-center text-shadow-lg/30',
     });
 
     // Modal content will be populated dynamically in showGameEndModal
@@ -149,7 +150,7 @@ export class PongGameUI extends BaseComponent {
           <img class="w-20 h-20 rounded-full mb-2 border-2 ${isWinner ? 'border-green-400' : 'border-red-400'}" 
                src="${user.avatar || '/default-avatar.png'}" alt="${user.username}">
           <div class="font-bold text-white">${user.username}</div>
-          <div class="text-sm text-gray-400">ELO: ${user.elo}</div>
+          <div class="text-sm text-gray-600">ELO: ${user.elo}</div>
           ${
             data.eloChange
               ? `<div class="text-sm ${isWinner ? 'text-green-400' : 'text-red-400'}">
@@ -167,21 +168,21 @@ export class PongGameUI extends BaseComponent {
           <img class="w-20 h-20 rounded-full mb-2 border-2 ${!isWinner ? 'border-green-400' : 'border-red-400'}" 
                src="${opponent?.avatar || '/default-avatar.png'}" alt="${opponent?.username || 'Opponent'}">
           <div class="font-bold text-white">${opponent?.username || 'Opponent'}</div>
-          <div class="text-sm text-gray-400">ELO: ${opponent?.elo || 'N/A'}</div>
+          <div class="text-sm text-gray-600">ELO: ${opponent?.elo || 'N/A'}</div>
         </div>
       </div>
       
       ${data.result ? `<div class="mb-6 text-gray-300">${data.result}</div>` : ''}
       
       <div class="flex gap-4 justify-center">
-        <button id="close-modal-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
+        <button id="close-modal-btn" class="bg-grey-300 hover:bg-grey-400 text-white px-6 py-2 rounded-lg transition-colors">
           Back to Lobby
         </button>
-        <button id="rematch-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors">
+        <button id="rematch-btn" class="bg-grey-300 hover:bg-grey-400 text-white px-6 py-2 rounded-lg transition-colors">
           Rematch
         </button>
       </div>
-    `;
+    `; //TODO: show rematch btn only if game local
 
     // Show modal
     this.gameEndModal.classList.remove('hidden');

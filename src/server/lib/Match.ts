@@ -184,6 +184,7 @@ export default abstract class Match {
         case 'leaveTournament':
           this.forfeits(opponent);
           break;
+        case 'ballState':
         case 'move':
           Clients.sendClient(opponent, message as ServerTunnelMessage);
           break;

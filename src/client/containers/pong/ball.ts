@@ -84,30 +84,35 @@ export class Ball {
   }
 
   update(pong: IPongGame) {
-    if (this.isScoring) return; // Don't update if we're in scoring animation
+    if (this.isScoring) return;
 
     this.x += this.vx;
     this.y += this.vy;
 
-    // Wall collision (top/bottom)
+    // Wall collision (simplified)
     if (
       this.y - this.radius < 0 ||
       this.y + this.radius > this.ctx.canvas.height
     ) {
       this.vy = -this.vy;
-      // Clamp ball position to prevent sticking
+
+      // Simple horizontal boost to prevent vertical bouncing
+      if (Math.abs(this.vx) < this.speed * 0.3) {
+        this.vx = this.vx > 0 ? this.speed * 0.3 : -this.speed * 0.3;
+      }
+
       this.y =
         this.y - this.radius < 0
           ? this.radius
           : this.ctx.canvas.height - this.radius;
     }
 
-    // Get left and right paddles based on player sides
     const leftPlayer =
       pong.player.side === 'left' ? pong.player : pong.opponent;
     const rightPlayer =
       pong.player.side === 'right' ? pong.player : pong.opponent;
-    // Left paddle collision with corner detection
+
+    // Left paddle collision - only handle if it's my paddle
     if (
       leftPlayer.paddle &&
       this.x - this.radius < leftPlayer.paddle.x + leftPlayer.paddle.width &&
@@ -115,10 +120,17 @@ export class Ball {
       this.y + this.radius > leftPlayer.paddle.y &&
       this.y - this.radius < leftPlayer.paddle.y + leftPlayer.paddle.height
     ) {
-      this.handlePaddleCollision(leftPlayer.paddle, true);
+      if (pong.player.side === 'left') {
+        // This is my paddle - handle collision and sync
+        this.handlePaddleCollision(leftPlayer.paddle, true);
+        this.sendBallState(true);
+      } else {
+        // This is opponent's paddle - only handle physics, no sync
+        this.handlePaddleCollision(leftPlayer.paddle, true);
+      }
     }
 
-    // Right paddle collision with corner detection
+    // Right paddle collision - only handle if it's my paddle
     if (
       rightPlayer.paddle &&
       this.x + this.radius > rightPlayer.paddle.x &&
@@ -126,7 +138,14 @@ export class Ball {
       this.y + this.radius > rightPlayer.paddle.y &&
       this.y - this.radius < rightPlayer.paddle.y + rightPlayer.paddle.height
     ) {
-      this.handlePaddleCollision(rightPlayer.paddle, false);
+      if (pong.player.side === 'right') {
+        // This is my paddle - handle collision and sync
+        this.handlePaddleCollision(rightPlayer.paddle, false);
+        this.sendBallState(false);
+      } else {
+        // This is opponent's paddle - only handle physics, no sync
+        this.handlePaddleCollision(rightPlayer.paddle, false);
+      }
     }
 
     // Ball out of bounds (left or right wall)
@@ -159,7 +178,7 @@ export class Ball {
     // Use a smaller angle range (45 degrees max instead of 75)
     const maxAngle = (Math.PI / 180) * 45; // 45 degrees maximum
     const bounceAngle = relativeIntersectY * maxAngle;
-    const minHorizontalRatio = 0.8; // 80% minimum horizontal velocity
+    const minHorizontalRatio = 0.5; // 50% minimum horizontal velocity
     const direction = isLeftPaddle ? 1 : -1;
 
     // Calculate velocities
@@ -191,6 +210,69 @@ export class Ball {
       : paddle.x - this.radius;
 
     this.increaseSpeed();
+
+    // FIXED: Only send ball state if this is MY paddle collision
+    // Don't send on opponent's paddle collisions to prevent sync conflicts
+  }
+
+  // Add method to handle YOUR paddle collision
+  public handleMyPaddleCollision(
+    paddle: Paddle,
+    isLeftPaddle: boolean,
+    pong: IPongGame,
+  ) {
+    // Check if this is actually my paddle
+    const isMyPaddle =
+      (isLeftPaddle && pong.player.side === 'left') ||
+      (!isLeftPaddle && pong.player.side === 'right');
+
+    if (isMyPaddle) {
+      this.handlePaddleCollision(paddle, isLeftPaddle);
+      this.sendBallState(isLeftPaddle); // Only send when I hit the ball
+    }
+  }
+
+  // NEW: Method to send ball state after collision
+  private sendBallState(isLeftPaddle: boolean) {
+    socket.send(
+      JSON.stringify({
+        type: 'ballState',
+        data: {
+          x: this.x,
+          y: this.y,
+          vx: this.vx,
+          vy: this.vy,
+          speed: this.speed,
+          timestamp: Date.now(),
+          side: isLeftPaddle ? 'left' : 'right', // Which paddle was hit
+        },
+      }),
+    );
+  }
+
+  // NEW: Method to receive and apply ball state from opponent
+  public receiveBallState(data: {
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    speed: number;
+    timestamp: number;
+    side: 'left' | 'right';
+  }): void {
+    // Only apply if this is from the opponent's paddle collision
+    // and the timestamp is recent (within reasonable network delay)
+    const timeDiff = Date.now() - data.timestamp;
+
+    if (timeDiff < 200) {
+      // 200ms tolerance for network delay
+      this.x = data.x;
+      this.y = data.y;
+      this.vx = data.vx;
+      this.vy = data.vy;
+      this.speed = data.speed;
+      console.log(`Received ball state from ${data.side} paddle`);
+    }
   }
 
   handleScoring(pong: IPongGame, isLeftWall: boolean) {
@@ -215,6 +297,7 @@ export class Ball {
 
     if (isLeftWall && pong.player.side == 'left') {
       pong.opponent.score++;
+      console.log('HELLO SCORE', pong.opponent.score);
       socket.send(
         JSON.stringify({
           type: 'score',
@@ -223,6 +306,7 @@ export class Ball {
       );
     } else if (!isLeftWall && pong.player.side == 'right') {
       pong.opponent.score++;
+      console.log('HELLO SCORE', pong.opponent.score);
       socket.send(
         JSON.stringify({
           type: 'score',
@@ -231,6 +315,7 @@ export class Ball {
       );
     } else if (isLeftWall && pong.player.side == 'right') {
       pong.player.score++;
+      console.log('HELLO SCORE', pong.player.score);
       socket.send(
         JSON.stringify({
           type: 'score',
@@ -239,6 +324,7 @@ export class Ball {
       );
     } else {
       pong.player.score++;
+      console.log('HELLO SCORE', pong.player.score);
       socket.send(
         JSON.stringify({
           type: 'score',

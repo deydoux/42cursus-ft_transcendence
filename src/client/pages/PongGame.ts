@@ -166,7 +166,8 @@ export class PongGame extends BaseComponent {
 
   render(): HTMLElement {
     const container = DOMUtils.createElement('div', {
-      className: 'w-screen h-screen flex items-center gap-10 py-16 overflow-hidden',
+      className:
+        'w-screen h-screen flex items-center gap-10 py-16 overflow-hidden',
     });
 
     // Use PongGameUI instead of renderPong()
