@@ -1,0 +1,15 @@
+meta {
+  name: Get all streaks
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseURL}}/api/statistics/streaks
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}
