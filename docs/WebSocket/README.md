@@ -233,7 +233,8 @@ Received when a match is starting
     "elo": 1000
   }],
   "dx": -0.52,
-  "dy": 0.85
+  "dy": 0.85,
+  "time": 1759316703657
 }
 ```
 
@@ -302,6 +303,9 @@ Received when a round starts in a match
 ```json
 {
   "type": "round"
+  "dx": -0.52,
+  "dy": 0.85,
+  "time": 1759316703657
 }
 ```
 

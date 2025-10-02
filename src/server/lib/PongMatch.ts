@@ -20,6 +20,7 @@ export default class PongMatch extends Match {
       type: 'round',
       dx: Math.cos(angle),
       dy: Math.sin(angle),
+      time: Date.now() + 1000,
     });
   }
 }
