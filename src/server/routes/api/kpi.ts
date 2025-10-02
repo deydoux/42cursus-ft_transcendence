@@ -2,7 +2,7 @@ import {FastifyPluginAsync} from 'fastify';
 import SQL from 'sql-template-strings';
 
 const plugin: FastifyPluginAsync = async server => {
-  server.get('/', async (request, reply) => {
+  server.get('/kpi', async (request, reply) => {
     const {totalUsers} = await server.db.get(SQL`
       SELECT COUNT(*) AS totalUsers
       FROM users
