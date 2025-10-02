@@ -248,6 +248,25 @@ Received when opponent makes a move in a match
 }
 ```
 
+### `newTournament`
+Received when a new tournament is created
+
+*Example:*
+```json
+{
+  "type": "newTournament",
+  "tournament": {
+    "id": 1,
+    "name": "Kittournament",
+    "participantCount": 1,
+    "owner": {
+      "id": 1,
+      "username": "user123",
+      "avatar": "/static/default_avatar.webp"
+    }
+  }
+}
+```
 
 ### `participantJoin`
 Received when a participant joins a tournament

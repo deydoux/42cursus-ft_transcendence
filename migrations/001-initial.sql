@@ -135,6 +135,22 @@ BEGIN
 END;
 
 
+CREATE TABLE streaks(
+  id      INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+
+  game    TEXT NOT NULL,
+  mode    TEXT NOT NULL,
+
+  current INTEGER NOT NULL DEFAULT 0,
+  best    INTEGER NOT NULL DEFAULT 0,
+
+  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CHECK(game IN ('pong', 'race')),
+  CHECK(mode IN ('casual', 'ranked'))
+);
+
+
 CREATE TABLE users(
   id                 INTEGER PRIMARY KEY AUTOINCREMENT,
   google_sub         TEXT UNIQUE,
@@ -156,11 +172,15 @@ CREATE INDEX idx_users_google_sub ON users(google_sub);
 CREATE INDEX idx_users_lower_username ON users(lower(username));
 CREATE INDEX idx_users_last_seen_desc ON users(last_seen DESC);
 
-CREATE TRIGGER insert_users_elo
+CREATE TRIGGER insert_users
 AFTER INSERT ON users
 BEGIN
   INSERT INTO elo(user_id, game) VALUES(NEW.id, 'pong');
   INSERT INTO elo(user_id, game) VALUES(NEW.id, 'race');
+  INSERT INTO streaks(user_id, game, mode) VALUES(NEW.id, 'pong', 'casual');
+  INSERT INTO streaks(user_id, game, mode) VALUES(NEW.id, 'pong', 'ranked');
+  INSERT INTO streaks(user_id, game, mode) VALUES(NEW.id, 'race', 'casual');
+  INSERT INTO streaks(user_id, game, mode) VALUES(NEW.id, 'race', 'ranked');
 END;
 
 CREATE TRIGGER update_users_password_edited_at
@@ -177,11 +197,13 @@ END;
 --------------------------------------------------------------------------------
 
 DROP TRIGGER update_users_password_edited_at;
-DROP TRIGGER insert_users_elo;
+DROP TRIGGER insert_users;
 DROP INDEX idx_users_last_seen_desc;
 DROP INDEX idx_users_lower_username;
 DROP INDEX idx_users_google_sub;
 DROP TABLE users;
+
+DROP TABLE streaks;
 
 DROP TRIGGER update_sessions_updated_at;
 DROP INDEX idx_sessions_expires_at_desc;

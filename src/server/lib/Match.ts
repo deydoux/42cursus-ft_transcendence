@@ -105,6 +105,22 @@ export default abstract class Match {
     `);
     if (!id) throw new Error('Failed to create match');
 
+    if (this.result !== 'tie') {
+      await this.server.db.run(SQL`
+        UPDATE streaks
+        SET current = current + 1, best = MAX(best, current + 1)
+        WHERE user_id = ${winner.userID} AND game = ${this._game}
+              AND mode = ${mode}
+      `);
+
+      await this.server.db.run(SQL`
+        UPDATE streaks
+        SET current = 0
+        WHERE user_id = ${loser.userID} AND game = ${this._game}
+              AND mode = ${mode}
+      `);
+    }
+
     if (this.ranked) await this.destroyRanked(id, winner, loser);
     else
       this.send({

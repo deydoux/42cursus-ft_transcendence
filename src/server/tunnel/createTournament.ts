@@ -14,5 +14,15 @@ export default async function createTournament(
     });
 
   const player = await server.playerify(client);
-  server.tournaments.create(message.name, player);
+  const tournament = server.tournaments.create(message.name, player);
+
+  if (!tournament) return;
+
+  server.clients.broadcast(
+    {
+      type: 'newTournament',
+      tournament: tournament.get(),
+    },
+    [client.userID],
+  );
 }
