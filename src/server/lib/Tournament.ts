@@ -152,7 +152,7 @@ export class Tournament {
         message: 'Participant not found',
       });
 
-    this.removeParticipant(participant);
+    this.removeParticipant(participant, false, 'kickParticipant');
   }
 
   public removeClient(client: Client) {
@@ -162,7 +162,11 @@ export class Tournament {
     if (participant) this.removeParticipant(participant);
   }
 
-  private async removeParticipant(participant: Participant, silent = false) {
+  private async removeParticipant(
+    participant: Participant,
+    silent = false,
+    origin = 'leaveTournament',
+  ) {
     this.participants = this.participants.filter(p => p !== participant);
 
     if (participant.onSocketMessage)
@@ -179,7 +183,7 @@ export class Tournament {
     if (!silent) {
       Clients.sendClient(participant, {
         type: 'success',
-        origin: 'leaveTournament',
+        origin,
       });
 
       this.send({
