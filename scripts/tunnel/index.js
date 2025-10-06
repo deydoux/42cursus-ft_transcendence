@@ -48,6 +48,8 @@ const send = data => socket.send(JSON.stringify(data));
 const setToken = token => (protocol = token);
 
 const createTournament = name => send({type: 'createTournament', name});
+const kickParticipant = participantID =>
+  send({type: 'kickParticipant', participantID});
 const joinMatchmaking = (game = 'pong', mode = 'casual') =>
   send({type: 'joinMatchmaking', game, mode});
 const joinTournament = tournamentID =>
@@ -72,6 +74,7 @@ socket.addEventListener('open', () => {
     setToken,
 
     createTournament,
+    kickParticipant,
     joinMatchmaking,
     joinTournament,
     leaveMatchmaking,

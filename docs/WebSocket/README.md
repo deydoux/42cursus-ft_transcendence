@@ -45,6 +45,26 @@ Sent to join the matchmaking queue
 }
 ```
 
+### `kickParticipant`
+Sent to kick a participant from a tournament (tournament owner only)
+
+*Example:*
+```json
+{
+  "type": "kickParticipant",
+  "participantID": 2
+}
+```
+
+*Response:* (to all client sockets)
+```json
+{
+  "type": "participantLeft",
+  "userID": 2,
+  "ownerID": 1
+}
+```
+
 ### `leaveMatchmaking`
 Sent to leave the matchmaking queue
 
@@ -185,7 +205,6 @@ Received when a general message is sent
   "mention": false
 }
 ```
-
 
 ### `matchCancel`
 Received when a match is cancelled due to an error

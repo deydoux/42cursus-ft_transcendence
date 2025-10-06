@@ -22,6 +22,10 @@ type ClientTunnelMessage =
       tournamentID: number;
     }
   | {
+      type: 'kickParticipant';
+      participantID: number;
+    }
+  | {
       type: 'leaveMatchmaking';
     }
   | {
