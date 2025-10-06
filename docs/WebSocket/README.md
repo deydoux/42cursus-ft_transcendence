@@ -56,7 +56,7 @@ Sent to kick a participant from a tournament (tournament owner only)
 }
 ```
 
-*Response: (to all client sockets)
+*Response:* (to all client sockets)
 ```json
 {
   "type": "participantLeft",
