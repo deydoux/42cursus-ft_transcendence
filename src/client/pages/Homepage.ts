@@ -45,7 +45,7 @@ export class Homepage extends BaseComponent {
 
     gameMenu.appendChild(this.renderMenuButton());
     gameMenu.appendChild(this.renderMenuButton(true));
-    gameMenu.appendChild(this.renderMenuButton(true));
+    gameMenu.appendChild(this.renderMenuButton(true, 'Tournament'));
     gameMenu.appendChild(this.renderMenuButton(false, 'Settings'));
 
     container.appendChild(gameMenu);

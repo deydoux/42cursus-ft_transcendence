@@ -35,6 +35,9 @@ const handleSuccess = (data: {origin: string}) => {
   if (data.origin === 'joinMatchmaking') {
     store.setState({isWaitingForMatchmaking: true});
     router.navigate('/lobby');
+  } else if (data.origin === 'createTournament') {
+    Toastify.success('Tournament created successfully!');
+    store.setState({tournamentView: 'lobby'});
   }
 };
 

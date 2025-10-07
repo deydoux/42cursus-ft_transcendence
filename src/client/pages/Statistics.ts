@@ -39,7 +39,7 @@ export class Statistics extends BaseComponent {
     statsCanvas.loop();
   }
 
-  render(): HTMLElement | undefined {
+  render(): HTMLElement {
     const container = DOMUtils.createElement('div', {
       className: 'w-screen h-screen flex items-center gap-10 py-16',
     });

@@ -14,6 +14,8 @@ const defaultValues = {
   friendRequests: [],
   sentFriendRequests: [],
   countFriendRequests: 0,
+  tournamentView: 'tournaments',
+  tournaments: [],
 };
 
 export class Store {

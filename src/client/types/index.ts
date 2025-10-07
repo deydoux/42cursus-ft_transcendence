@@ -1,3 +1,16 @@
+export interface user {
+  id: number;
+  username: string;
+  avatar: string;
+}
+
+export interface round {
+  id: number;
+  participants: (user & {score?: number})[];
+  rounds: round[];
+  winnerID?: number;
+}
+
 export interface AppState {
   currentRoute: string;
   isWaitingForMatchmaking: boolean;
@@ -24,21 +37,13 @@ export interface AppState {
     updatedAt: string;
     content: string;
     unread?: number;
-    user: {
-      id: number;
-      username: string;
-      avatar: string;
-    };
+    user: user;
     invite?: string;
   }[];
   generalChat?: {
     content: string;
     createdAt: string;
-    user: {
-      id: number;
-      username: string;
-      avatar: string;
-    };
+    user: user;
   };
   countFriendRequests: number;
   chatsSearchQuery: string;
@@ -59,14 +64,7 @@ export interface AppState {
     next: string;
   };
   generalDiscussion?: {
-    users: Record<
-      string,
-      {
-        id: number;
-        username: string;
-        avatar: string;
-      }
-    >;
+    users: Record<string, user>;
     messages: {
       id: number;
       userID: number;
@@ -111,6 +109,22 @@ export interface AppState {
       createdAt: string;
       updatedAt: string;
     }[];
+  };
+
+  tournamentView: 'tournaments' | 'lobby';
+  tournaments: {
+    id: number;
+    name: string;
+    participantCount: number;
+    owner: user;
+  }[];
+  joinedTournament?: {
+    id?: number;
+    name: string;
+    participantCount: number;
+    owner: user;
+    participants: user[];
+    rounds?: round;
   };
 }
 

@@ -10,6 +10,7 @@ import {Router} from './services/router';
 import {Settings} from './pages/Settings';
 import {Statistics} from './pages/Statistics';
 import {Store} from './services/store';
+import {Tournament} from './pages/Tournament';
 import {loadIcons} from './utils/icons';
 import {socket} from './utils/websocket';
 
@@ -78,6 +79,7 @@ class App {
     this.router.addPrivateRoute('/pong', () => new PongGame());
     this.router.addPrivateRoute('/racecar', () => new RacecarGame());
     this.router.addPrivateRoute('/statistics', () => new Statistics());
+    this.router.addPrivateRoute('/tournament', () => new Tournament(chat));
   }
 }
 

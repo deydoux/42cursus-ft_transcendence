@@ -6,6 +6,7 @@ import {
 } from '../types/websocket';
 import {setupChatHandlers} from '../handlers/chat';
 import {setupGameHandlers} from '../handlers/game';
+import {setupTournamentHandlers} from '../handlers/tournament';
 
 class WebSocketUtility {
   private ws: WebSocket | null = null;
@@ -312,3 +313,4 @@ export const socket = new WebSocketUtility({
 
 setupGameHandlers();
 setupChatHandlers();
+setupTournamentHandlers();
