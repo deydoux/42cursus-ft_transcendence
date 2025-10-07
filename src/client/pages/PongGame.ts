@@ -149,9 +149,9 @@ export class PongGame extends BaseComponent {
       return;
     }
 
-    const isLocal = false;
+    const {isGameLocal} = this.store.getState();
 
-    const pong = this.initializeGame(ctx, isLocal);
+    const pong = this.initializeGame(ctx, isGameLocal);
     this.handleInput(pong);
     const pongCanvas = PongCanvas.getInstance(pong);
 
@@ -160,7 +160,6 @@ export class PongGame extends BaseComponent {
       pong.ball.setDirection(matchStartBallData.dx, matchStartBallData.dy);
 
     pong.gameStarted = true;
-    console.log('hello');
     pongCanvas.startGame();
   }
 

@@ -117,6 +117,8 @@ export interface AppState {
   players: [User, User];
   isOpponentBlocked: boolean;
   matchStartBallData: {dx: number; dy: number};
+
+  isGameLocal: boolean;
 }
 
 export interface Component {
