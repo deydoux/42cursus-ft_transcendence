@@ -85,8 +85,7 @@ export class Ball {
 
   update(pong: IPongGame) {
     if (this.isScoring) return;
-
-    this.x += this.vx;
+    console.log('in');
     this.y += this.vy;
 
     // Wall collision (simplified)

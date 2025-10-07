@@ -23,7 +23,6 @@ export interface IPlayer {
   score: number;
   paddle: Paddle | null;
   car: Car | null;
-  nameElement: HTMLElement;
   scoreElement: HTMLElement;
   side: string;
   /* wins: number;

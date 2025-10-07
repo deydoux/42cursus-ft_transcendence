@@ -1,9 +1,10 @@
 import {BaseComponent} from '../../components/BaseComponent';
 import {DOMUtils} from '../../utils/dom';
+import {IPlayer} from '../../types/game';
+import {PongCanvas} from './pongCanvas';
 import {Router} from '../../services/router';
 import {User} from '../../handlers/game';
-import {PongCanvas} from './pongCanvas';
-import { IPlayer } from '../../types/game';
+import unknow_avatar from '../../assets/unknown-avatar.jpeg';
 
 interface PongGameUIElement extends HTMLElement {
   showGameEndModal(data: {
@@ -41,8 +42,9 @@ export class PongGameUI extends BaseComponent {
 
   private renderGameHeader(): HTMLElement {
     const header = DOMUtils.createElement('div', {
+      attributes: {id: 'game-header'},
       className:
-        'flex justify-between items-center px-8 py-4 bg-gray-600 rounded-lg',
+        'flex justify-between items-center px-8 py-4 bg-gray-600 rounded-lg mx-auto',
     });
 
     // Left player info
@@ -86,13 +88,13 @@ export class PongGameUI extends BaseComponent {
 
   private renderGameArea(): HTMLElement {
     const gameArea = DOMUtils.createElement('div', {
-      className:
-        'flex-1 flex justify-center items-center bg-black rounded-lg overflow-hidden bg-linear-to-br from-pink-200 to-pink-300 shadow-lg shadow-pink-300/30',
+      className: 'flex-1 flex justify-center items-center overflow-hidden ',
     });
 
     const canvas = DOMUtils.createElement('canvas', {
       attributes: {id: 'pong'},
-      className: 'max-w-full max-h-full',
+      className:
+        'w-full h-auto bg-linear-to-br from-pink-200 to-pink-300 shadow-lg shadow-pink-300/30 rounded-lg',
     }) as HTMLCanvasElement;
 
     gameArea.appendChild(canvas);
@@ -150,7 +152,7 @@ export class PongGameUI extends BaseComponent {
       <div class="flex justify-between items-center mb-6">
         <div class="flex flex-col items-center">
           <img class="w-20 h-20 rounded-full mb-2 border-2 ${isWinner ? 'border-green-400' : 'border-red-400'}" 
-               src="${user.avatar || '/default-avatar.png'}" alt="${user.username}">
+               src="${user.avatar || unknow_avatar}" alt="${user.username}">
           <div class="font-bold text-white">${user.username}</div>
           <div class="text-sm text-gray-600">ELO: ${user.elo}</div>
           ${
@@ -168,7 +170,7 @@ export class PongGameUI extends BaseComponent {
         
         <div class="flex flex-col items-center">
           <img class="w-20 h-20 rounded-full mb-2 border-2 ${!isWinner ? 'border-green-400' : 'border-red-400'}" 
-               src="${opponent?.avatar || '/default-avatar.png'}" alt="${opponent?.username || 'Opponent'}">
+               src="${opponent?.avatar || unknow_avatar}" alt="${opponent?.username || 'Opponent'}">
           <div class="font-bold text-white">${opponent?.username || 'Opponent'}</div>
           <div class="text-sm text-gray-600">ELO: ${opponent?.elo || 'N/A'}</div>
         </div>
@@ -268,7 +270,7 @@ export class PongGameUI extends BaseComponent {
     ) as HTMLImageElement;
 
     if (nameElement) nameElement.textContent = player.username;
-    if (picElement) picElement.src = player.avatar || '/default-avatar.png';
+    if (picElement) picElement.src = player.avatar || unknow_avatar;
   }
 
   public initializeCanvas(): HTMLCanvasElement {
@@ -279,6 +281,29 @@ export class PongGameUI extends BaseComponent {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
       throw new Error('Could not get canvas context');
+    }
+
+    // Get container dimensions
+    const container = canvas.parentElement;
+    if (!container) throw new Error('container not found');
+    const containerRect = container.getBoundingClientRect();
+
+    // Calculate scale to fit container while maintaining aspect ratio
+    const scaleX = containerRect.width / 1920;
+    const scaleY = containerRect.height / 1080;
+    const scale = Math.min(scaleX, scaleY);
+
+    const canvasWidth = 1920 * scale;
+    const canvasHeight = 1080 * scale;
+
+    // Set canvas display size
+    canvas.style.width = `${canvasWidth}px`;
+    canvas.style.height = `${canvasHeight}px`;
+
+    // Set header width to match canvas
+    const header = document.getElementById('game-header');
+    if (header) {
+      header.style.width = `${canvasWidth}px`;
     }
 
     canvas.width = 1920;

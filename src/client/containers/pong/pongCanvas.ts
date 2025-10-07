@@ -55,16 +55,11 @@ export class PongCanvas {
       return;
     }
 
-    if (countdownMessage) {
-      console.log(countdownMessage);
+    if (countdownMessage)
       displayCountdownMessage(this.ctx, this.color, countdownMessage);
-    }
     this.raf = window.requestAnimationFrame(this.gameLoop.bind(this));
   }
 
-  /**
-   * Updates the score display
-   */
   private updateScore(): void {
     this.pong.player.scoreElement.innerHTML = this.pong.player.score.toString();
     this.pong.opponent.scoreElement.innerHTML =
@@ -101,6 +96,19 @@ export class PongCanvas {
         moved = true;
       }
     }
+    if (this.pong.isLocal) {
+      if (this.pong.keys.ArrowUp) {
+        this.pong.opponent.paddle?.move(-paddleSpeed);
+        direction = -1;
+        moved = true;
+      }
+      if (this.pong.keys.ArrowDown) {
+        this.pong.opponent.paddle?.move(paddleSpeed);
+        direction = 1;
+        moved = true;
+      }
+    }
+
     if (moved && !this.pong.isLocal)
       this.sendPaddleMovement(
         this.pong.player.side,

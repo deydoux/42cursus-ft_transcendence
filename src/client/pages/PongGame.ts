@@ -9,13 +9,12 @@ import {PongCanvas} from '../containers/pong/pongCanvas';
 import {PongGameUI} from '../containers/pong/PongGameUI';
 import {Timer} from '../containers/timer';
 import {keys} from '../utils/keys';
-
 export class PongGame extends BaseComponent {
   private pongGameUI?: PongGameUI;
 
   public initializeGame(
     ctx: CanvasRenderingContext2D,
-    isLocal: boolean, //TMP VAR
+    isLocal: boolean,
   ): IPongGame {
     const missingElements: string[] = [];
     const getHTMLElement = (name: string) => {
@@ -25,18 +24,17 @@ export class PongGame extends BaseComponent {
     };
     const {isOpponentBlocked, players, user} = this.store.getState();
     if (!user) throw new Error(`User not found`);
-    if (!players || players.length !== 2) {
-      throw new Error(`Players data not found or invalid`);
-    }
 
     const initializePlayers = () => {
-      const playerPaddleX =
-        user.id === players[0].id
+      const playerPaddleX = isLocal
+        ? 10
+        : user.id === players[0]?.id
           ? 10
           : ctx.canvas.width - 10 - ctx.canvas.width * 0.015;
-      const opponentPaddleX =
-        user.id === players[0].id
-          ? ctx.canvas.width - 10 - ctx.canvas.width * 0.01
+      const opponentPaddleX = isLocal
+        ? ctx.canvas.width - 10 - ctx.canvas.width * 0.015
+        : user.id === players[0]?.id
+          ? ctx.canvas.width - 10 - ctx.canvas.width * 0.015
           : 10;
 
       const player: IPlayer = {
@@ -50,39 +48,23 @@ export class PongGame extends BaseComponent {
           (ctx.canvas.height - ctx.canvas.height * 0.25) / 2,
         ),
         car: null,
-        nameElement:
-          user.id === players[0].id
-            ? getHTMLElement('left_name')
-            : getHTMLElement('right_name'),
-        scoreElement:
-          user.id === players[0].id
+        scoreElement: isLocal
+          ? getHTMLElement('left_score')
+          : user.id === players[0]?.id
             ? getHTMLElement('left_score')
             : getHTMLElement('right_score'),
-        side: user.id === players[0].id ? 'left' : 'right',
+        side: isLocal ? 'left' : user.id === players[0]?.id ? 'left' : 'right',
       };
-
-      // For local games, use the same user data for opponent
-      // For remote games, use the other player's data
       const op = isLocal
-        ? user
-        : user.id === players[0].id
+        ? {id: 0, username: 'Unknown', avatar: ''}
+        : user.id === players[0]?.id
           ? players[1]
           : players[0];
 
       const opponent: IPlayer = {
-        id: isLocal ? user.id : op.id,
-        username: isLocal
-          ? user.username
-          : isOpponentBlocked
-            ? 'Unavailable'
-            : op.username,
-        avatar: isLocal
-          ? user.avatar
-            ? user.avatar
-            : ''
-          : isOpponentBlocked
-            ? ''
-            : op.avatar,
+        id: op.id,
+        username: isOpponentBlocked ? 'Unknown' : op.username,
+        avatar: isOpponentBlocked ? '' : op.avatar,
         score: 0,
         paddle: new Paddle(
           ctx,
@@ -90,16 +72,14 @@ export class PongGame extends BaseComponent {
           (ctx.canvas.height - ctx.canvas.height * 0.25) / 2,
         ),
         car: null,
-        nameElement:
-          user.id === players[0].id
-            ? getHTMLElement('right_name')
-            : getHTMLElement('left_name'),
-        scoreElement:
-          user.id === players[0].id
+        scoreElement: isLocal
+          ? getHTMLElement('right_score')
+          : user.id === players[0]?.id
             ? getHTMLElement('right_score')
             : getHTMLElement('left_score'),
-        side: user.id === players[0].id ? 'right' : 'left',
+        side: isLocal ? 'right' : user.id === players[0]?.id ? 'right' : 'left',
       };
+      console.log('INIT RESULT', player, opponent);
       return {player, opponent};
     };
 
@@ -152,8 +132,10 @@ export class PongGame extends BaseComponent {
     const {isGameLocal} = this.store.getState();
 
     const pong = this.initializeGame(ctx, isGameLocal);
-    this.handleInput(pong);
     const pongCanvas = PongCanvas.getInstance(pong);
+    this.handleInput(pong);
+
+    this.pongGameUI?.initializePlayerInfo();
 
     const {matchStartBallData} = this.store.getState();
     if (matchStartBallData)
@@ -172,7 +154,6 @@ export class PongGame extends BaseComponent {
     // Use PongGameUI instead of renderPong()
     this.pongGameUI = new PongGameUI();
     const gameElement = this.pongGameUI.render();
-
     container.appendChild(gameElement);
 
     const chat = new Chat().render();
@@ -180,7 +161,6 @@ export class PongGame extends BaseComponent {
 
     // Initialize game after render
     requestAnimationFrame(() => {
-      this.pongGameUI?.initializePlayerInfo(); // Initialize player info
       this.renderGameCanvas(); // Keep your existing canvas setup
     });
 
