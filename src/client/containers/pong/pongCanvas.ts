@@ -51,7 +51,6 @@ export class PongCanvas {
         window.cancelAnimationFrame(this.raf);
         this.pong.gameStarted = false;
       }
-      // this.drawGameOverScreen();
       this.resetPongGame();
       return;
     }
@@ -146,7 +145,6 @@ export class PongCanvas {
     if (targetPlayer && targetPlayer.paddle) {
       // Use the exact position for better sync
       targetPlayer.paddle.y = data.yPosition;
-
       // Optional: Add interpolation for smoother movement
       // targetPlayer.paddle.move(data.direction * (this.ctx.canvas.height * 0.01));
     }

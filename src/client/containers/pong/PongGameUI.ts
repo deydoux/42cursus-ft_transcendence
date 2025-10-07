@@ -2,6 +2,8 @@ import {BaseComponent} from '../../components/BaseComponent';
 import {DOMUtils} from '../../utils/dom';
 import {Router} from '../../services/router';
 import {User} from '../../handlers/game';
+import {PongCanvas} from './pongCanvas';
+import { IPlayer } from '../../types/game';
 
 interface PongGameUIElement extends HTMLElement {
   showGameEndModal(data: {
@@ -106,7 +108,7 @@ export class PongGameUI extends BaseComponent {
 
     const content = DOMUtils.createElement('div', {
       className:
-        'bg-pink-200 rounded-lg p-8 max-w-xl w-full mx-4 text-center text-shadow-lg/30',
+        'bg-pink-300 rounded-lg p-8 max-w-xl w-full mx-4 text-center text-shadow-lg/30',
     });
 
     // Modal content will be populated dynamically in showGameEndModal
@@ -175,14 +177,14 @@ export class PongGameUI extends BaseComponent {
       ${data.result ? `<div class="mb-6 text-gray-300">${data.result}</div>` : ''}
       
       <div class="flex gap-4 justify-center">
-        <button id="close-modal-btn" class="bg-grey-300 hover:bg-grey-400 text-white px-6 py-2 rounded-lg transition-colors">
-          Back to Lobby
+        <button id="close-modal-btn" class="bg-gray-400 hover:bg-grey-500 text-white px-6 py-2 rounded-lg transition-colors">
+          Home
         </button>
-        <button id="rematch-btn" class="bg-grey-300 hover:bg-grey-400 text-white px-6 py-2 rounded-lg transition-colors">
+        <button id="rematch-btn" class="bg-gray-400 hover:bg-grey-500 text-white px-6 py-2 rounded-lg transition-colors">
           Rematch
         </button>
       </div>
-    `; //TODO: show rematch btn only if game local
+    `;
 
     // Show modal
     this.gameEndModal.classList.remove('hidden');
@@ -194,21 +196,26 @@ export class PongGameUI extends BaseComponent {
   private setupModalEventListeners(): void {
     if (!this.gameEndModal) return;
 
+    const pongCanvas = PongCanvas.getInstance();
     const closeBtn = this.gameEndModal.querySelector('#close-modal-btn');
     const rematchBtn = this.gameEndModal.querySelector('#rematch-btn');
 
     if (closeBtn) {
       closeBtn.addEventListener('click', () => {
         this.closeModal();
-        this.router.navigate('/lobby');
+        pongCanvas.resetPongGame();
+        this.router.navigate('/homepage');
       });
     }
 
+    if (!pongCanvas.pong.isLocal)
+      (rematchBtn as HTMLElement).style.display = 'none';
+
     if (rematchBtn) {
       rematchBtn.addEventListener('click', () => {
-        // Handle rematch logic here
         this.closeModal();
-        // You could emit a rematch request to the server
+        pongCanvas.resetPongGame();
+        pongCanvas.startGame();
       });
     }
 
@@ -216,7 +223,7 @@ export class PongGameUI extends BaseComponent {
     this.gameEndModal.addEventListener('click', e => {
       if (e.target === this.gameEndModal) {
         this.closeModal();
-        this.router.navigate('/lobby');
+        this.router.navigate('/homepage');
       }
     });
   }
@@ -232,9 +239,17 @@ export class PongGameUI extends BaseComponent {
   }
 
   public initializePlayerInfo(): void {
-    const {players, user} = this.store.getState();
-    if (!players || !user) return;
+    const pongCanvas = PongCanvas.getInstance();
+    const {user} = this.store.getState();
+    if (!user) throw new Error('user not found');
 
+    let players;
+    if (!pongCanvas.pong.isLocal) {
+      players = this.store.getState().players;
+    } else {
+      players = [pongCanvas.pong.player, pongCanvas.pong.opponent];
+    }
+    if (!players) return;
     const opponent = players.find(p => p.id !== user.id);
     const isUserLeft = user.id === players[0].id;
 
@@ -246,7 +261,7 @@ export class PongGameUI extends BaseComponent {
     if (opponent) this.setPlayerInfo(opponentSide, opponent);
   }
 
-  private setPlayerInfo(side: 'left' | 'right', player: User): void {
+  private setPlayerInfo(side: 'left' | 'right', player: User | IPlayer): void {
     const nameElement = document.getElementById(`${side}_name`);
     const picElement = document.getElementById(
       `${side}_pic`,
