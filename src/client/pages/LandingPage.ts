@@ -408,7 +408,7 @@ export class LandingPage extends BaseComponent {
 
       const gdprConfirmation = createElement('p', {
         className: 'text-sm max-w-2/3 mx-auto text-white/50 text-center',
-        textContent: `By creating an account, you confirm that you have read Kitty Pong's`,
+        textContent: `By creating an account, you confirm that you have read Kitty Pong's `,
       });
       gdprConfirmation.appendChild(
         createElement('span', {
@@ -492,7 +492,7 @@ export class LandingPage extends BaseComponent {
         className:
           'text-pink-300 font-bold ml-1 cursor-pointer hover:underline',
         textContent: signin ? 'Sign up' : 'Log in',
-        click: () => this.renderRegistrationForm(signin ? 'signup' : 'login'),
+        onclick: () => this.renderRegistrationForm(signin ? 'signup' : 'login'),
       }),
     );
 

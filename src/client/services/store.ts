@@ -1,4 +1,5 @@
 import {AppState} from '../types';
+import {loadIcons} from '../utils/icons';
 
 const defaultValues = {
   totpCode: undefined,
@@ -37,6 +38,8 @@ export class Store {
       if (currentValue !== previousValue) {
         listeners.forEach(listener => listener(currentValue, previousValue));
       }
+
+      loadIcons();
     });
   }
 

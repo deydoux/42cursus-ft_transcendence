@@ -3,7 +3,6 @@ import {ChatsList} from './chatsList';
 import {Discussion} from './discussion';
 import {FriendRequests} from './friendRequests';
 import {createElement} from '../../utils/dom';
-import {loadIcons} from '../../utils/icons';
 
 export class Chat extends BaseComponent {
   private chatClass: BaseComponent | undefined;
@@ -134,8 +133,6 @@ export class Chat extends BaseComponent {
 
     renderChatview();
     this.subscribeToPath('chatView', renderChatview);
-
-    this.subscribe(loadIcons);
     return container;
   }
 }
