@@ -14,14 +14,13 @@ export class Car {
   public speed: number;
   public acceleration: number;
   public color: string;
-  public carImage: HTMLImageElement;
-  public name: string;
-  public carWidth: number;
-  public carHeight: number;
+  public carImage: HTMLImageElement | undefined;
+  public carWidth: number | undefined;
+  public carHeight: number | undefined;
   public isSlowed: boolean;
   public isBigger: boolean;
   public slowdownEndTime: number;
-  public growthEndTime: number;
+  public growthEndTime: number | undefined;
   public score: number;
   public ratioGrowth: number;
   public isStopped: boolean;
@@ -37,7 +36,6 @@ export class Car {
   private readonly growthFactor: number = 0.02; // 30% of normal speed
 
   constructor(
-    name: string,
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
@@ -47,7 +45,6 @@ export class Car {
     this.isSlowed = false;
     this.isBigger = false;
     this.slowdownEndTime = 0;
-    this.name = name;
     this.color = color;
     this.ctx = ctx;
     this.x = x;
@@ -284,9 +281,6 @@ export class Car {
 
     // Special case for stuck cars - allow escaping regardless of walls
     if (isStuck) {
-      console.warn(
-        `Car ${this.name} is stuck in walls at (${this.x}, ${this.y})`,
-      );
       // Apply "emergency" movement in reverse direction of current angle
       const escapeSpeed = -1.5; // Force backward movement
       this.x += Math.cos(this.angle) * escapeSpeed;

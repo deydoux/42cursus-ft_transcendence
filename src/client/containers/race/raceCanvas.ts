@@ -1,19 +1,29 @@
 import {Car} from './car';
 import {Checkpoint} from './checkpoint';
 import {Growpoint} from './growpoint';
-import {RaceGame} from '../../utils/race-content';
+import {IRaceGame} from '../../types/game';
 import {Slowpoint} from './slowpoint';
 import {displayCountdownMessage} from '../../utils/content';
 export class RaceCanvas {
+  private static instance: RaceCanvas | null = null;
   private ctx: CanvasRenderingContext2D;
-  private race: RaceGame;
-  private raf: number | null;
+  public race: IRaceGame;
+  public raf: number | null;
   private color = 'rgb(255, 255, 255)';
 
-  constructor(race: RaceGame) {
+  private constructor(race: IRaceGame) {
     this.raf = null;
     this.race = race;
     this.ctx = race.ctx;
+  }
+
+  static getInstance(race?: IRaceGame): RaceCanvas {
+    if (!RaceCanvas.instance) {
+      if (!race)
+        throw new Error('RaceGame is needed to initialize the Race Canvas');
+      RaceCanvas.instance = new RaceCanvas(race);
+    }
+    return RaceCanvas.instance;
   }
 
   /**

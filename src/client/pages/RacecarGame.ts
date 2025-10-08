@@ -1,11 +1,126 @@
-import {handleInput, initializeGame} from '../utils/race-content';
+import {IPlayer, IRaceGame} from '../types/game';
 import {BaseComponent} from '../components/BaseComponent';
+import {Car} from '../containers/race/car';
 import {Chat} from '../containers/chat/Chat';
+import {Checkpoint} from '../containers/race/checkpoint';
 import {DOMUtils} from '../utils/dom';
 import {RaceCanvas} from '../containers/race/raceCanvas';
+import {Timer} from '../containers/timer';
+import {Track} from '../containers/race/track';
+import {Wall} from '../containers/race/wall';
+import {carSprites} from '../utils/content';
+import {keys} from '../utils/keys';
 import {renderCar} from '../containers/race/renderRace';
 
 export class RacecarGame extends BaseComponent {
+  /**
+   * Initializes the game state with the provided canvas context.
+   * Sets up the track, cars, walls, checkpoints, and other game elements.
+   * @param ctx The canvas rendering context
+   * @returns The initialized RaceGame object
+   */
+  private initializeGame(ctx: CanvasRenderingContext2D): IRaceGame {
+    const missingElements: string[] = [];
+    const getHTMLElement = (name: string) => {
+      const value = document.getElementById(name) as HTMLElement;
+      if (!value) missingElements.push(name);
+      return value;
+    };
+    const walls = new Wall(ctx);
+    walls.generateRandomWalls(20);
+    const checkpoints = [Checkpoint.createRandomCheckpoint(ctx, walls, [])];
+
+    const {user} = this.store.getState();
+    if (!user) throw new Error(`User not found`);
+    const player: IPlayer = {
+      id: user?.id,
+      username: user.username,
+      avatar: user.avatar ? user.avatar : '',
+      score: 0,
+      paddle: null,
+      car: new Car(
+        ctx,
+        ctx.canvas.width * 0.1,
+        ctx.canvas.height * 0.1,
+        '#ff0000',
+        carSprites.r_car,
+      ),
+      scoreElement: getHTMLElement('left_score'),
+      side: 'left',
+    };
+    const opponent: IPlayer = {
+      id: 0,
+      username: 'unknown',
+      avatar: '',
+      score: 0,
+      paddle: null,
+      car: new Car(
+        ctx,
+        ctx.canvas.width * 0.9,
+        ctx.canvas.height * 0.9,
+        '#ffff00',
+        carSprites.y_car,
+      ),
+      scoreElement: getHTMLElement('right_score'),
+      side: 'right',
+    };
+    const timerDisplay = getHTMLElement('race_timer');
+    return {
+      player,
+      opponent,
+      track: new Track(ctx),
+      timer: new Timer(),
+      walls,
+      gameStarted: false,
+      keys: keys,
+      ctx: ctx,
+      timerDisplay,
+      checkpoints,
+      lastCheckpointTime: null,
+      currentGrowpoint: null,
+      lastGrowpointTime: null,
+      currentSlowpoint: null,
+      lastSlowpointTime: null,
+    };
+  }
+
+  /**
+   * Handles user input for starting the game and controlling the cars.
+   * Binds click events to the keyboard events for car controls.
+   * @param race The RaceGame instance to control
+   * @param onStart Callback function to start the game loop
+   */
+  private handleInput(race: IRaceGame): void {
+    // Handle keyboard input
+    document.addEventListener('keydown', (e: KeyboardEvent) => {
+      // Car 1 controls (WASD)
+      if (e.key === 'w' || e.key === 'W') race.keys.w = true;
+      if (e.key === 'a' || e.key === 'A') race.keys.a = true;
+      if (e.key === 's' || e.key === 'S') race.keys.s = true;
+      if (e.key === 'd' || e.key === 'D') race.keys.d = true;
+
+      // Car 2 controls (Arrow Keys)
+      if (e.key === 'ArrowUp') race.keys.ArrowUp = true;
+      if (e.key === 'ArrowLeft') race.keys.ArrowLeft = true;
+      if (e.key === 'ArrowDown') race.keys.ArrowDown = true;
+      if (e.key === 'ArrowRight') race.keys.ArrowRight = true;
+    });
+
+    document.addEventListener('keyup', (e: KeyboardEvent) => {
+      // Car 1 controls (WASD)
+      if (e.key === 'w' || e.key === 'W') race.keys.w = false;
+      if (e.key === 'a' || e.key === 'A') race.keys.a = false;
+      if (e.key === 's' || e.key === 'S') race.keys.s = false;
+      if (e.key === 'd' || e.key === 'D') race.keys.d = false;
+
+      // Car 2 controls (Arrow Keys)
+      if (e.key === 'ArrowUp') race.keys.ArrowUp = false;
+      if (e.key === 'ArrowLeft') race.keys.ArrowLeft = false;
+      if (e.key === 'ArrowDown') race.keys.ArrowDown = false;
+      if (e.key === 'ArrowRight') race.keys.ArrowRight = false;
+    });
+  }
+
   private renderRacecarCanvas() {
     const canvas = document.getElementById('race') as HTMLCanvasElement;
     if (!canvas) {
@@ -23,20 +138,20 @@ export class RacecarGame extends BaseComponent {
     ctx.imageSmoothingEnabled = true;
 
     // Initialize game state
-    const race = initializeGame(ctx);
-
+    const race = this.initializeGame(ctx);
     // Create canvas controller
-    const raceCanvas = new RaceCanvas(race);
+    const raceCanvas = RaceCanvas.getInstance();
+    //Binds click events to the keyboard events for car controls
+    this.handleInput(race);
 
     // Show start message
     raceCanvas.displayStartMessage();
 
-    handleInput(race, () => {
-      raceCanvas.startGame();
-    });
+    race.gameStarted = true;
+    raceCanvas.startGame();
   }
 
-  render(): HTMLElement | undefined {
+  render(): HTMLElement {
     const container = DOMUtils.createElement('div', {
       className: 'w-screen h-screen flex items-center gap-10 py-16',
     });
@@ -50,6 +165,12 @@ export class RacecarGame extends BaseComponent {
     container.appendChild(game);
     const chat = new Chat().render();
     if (chat) container.appendChild(chat);
+
+    // Initialize game after render
+    requestAnimationFrame(() => {
+      this.renderRacecarCanvas();
+    });
+
     return container;
   }
 }

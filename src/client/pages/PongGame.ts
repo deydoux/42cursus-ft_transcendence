@@ -79,7 +79,6 @@ export class PongGame extends BaseComponent {
             : getHTMLElement('left_score'),
         side: isLocal ? 'right' : user.id === players[0]?.id ? 'right' : 'left',
       };
-      console.log('INIT RESULT', player, opponent);
       return {player, opponent};
     };
 
@@ -161,7 +160,7 @@ export class PongGame extends BaseComponent {
 
     // Initialize game after render
     requestAnimationFrame(() => {
-      this.renderGameCanvas(); // Keep your existing canvas setup
+      this.renderGameCanvas();
     });
 
     return container;

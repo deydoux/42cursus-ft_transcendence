@@ -1,3 +1,9 @@
+import b_car from '../assets/bCar.png';
+import g_car from '../assets/gCar.png';
+import p_car from '../assets/pCar.png';
+import r_car from '../assets/rCar.png';
+import y_car from '../assets/yCar.png';
+
 export const welcomeEmojis = [
   '👋',
   '🤌',
@@ -68,3 +74,14 @@ export function displayCountdownMessage(
 
   ctx.restore();
 }
+
+/**
+ * Car sprites for the game
+ */
+export const carSprites = {
+  r_car: r_car,
+  y_car: y_car,
+  b_car: b_car,
+  p_car: p_car,
+  g_car: g_car,
+};
