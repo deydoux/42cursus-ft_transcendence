@@ -1,8 +1,8 @@
 import {Car} from './car';
 import {Wall} from './wall';
-import fuel from '../assets/fuel.png';
+import slow from '../../assets/slow.png';
 
-export class Growpoint {
+export class Slowpoint {
   private readonly ctx: CanvasRenderingContext2D;
   private readonly canvas: HTMLCanvasElement;
   public x: number;
@@ -13,10 +13,10 @@ export class Growpoint {
   private imageWidth: number;
   private imageHeight: number;
 
-  static fuelImg: HTMLImageElement = (() => {
+  static slowImg: HTMLImageElement = (() => {
     const img = new window.Image();
-    img.src = fuel;
-    img.onerror = () => console.error('Failed to load fuel image!');
+    img.src = slow;
+    img.onerror = () => console.error('Failed to load slow image!');
     return img;
   })();
 
@@ -31,26 +31,26 @@ export class Growpoint {
     // Calculate image dimensions - maintaining aspect ratio
     const desiredWidth = this.canvas.width * 0.04;
     const aspectRatio =
-      Growpoint.fuelImg.naturalWidth / Growpoint.fuelImg.naturalHeight || 1;
+      Slowpoint.slowImg.naturalWidth / Slowpoint.slowImg.naturalHeight || 1;
 
     this.imageWidth = desiredWidth;
     this.imageHeight = desiredWidth / aspectRatio;
 
     // Ensure image is loaded
-    if (Growpoint.fuelImg.complete) {
+    if (Slowpoint.slowImg.complete) {
       this.imageLoaded = true;
     } else {
-      Growpoint.fuelImg.onload = () => {
+      Slowpoint.slowImg.onload = () => {
         this.imageLoaded = true;
       };
     }
   }
 
-  public static createRandomGrowpoint(
+  // Static method to create a new Slowpoint at valid position
+  public static createRandomSlowpoint(
     ctx: CanvasRenderingContext2D,
     walls: Wall,
-  ): Growpoint {
-    // Same positioning logic
+  ): Slowpoint {
     const padding = 30;
     const canvas = ctx.canvas;
     let newX: number;
@@ -64,21 +64,20 @@ export class Growpoint {
       attempts++;
     } while (walls.isColliding(newX, newY, padding) && attempts < maxAttempts);
 
-    return new Growpoint(ctx, newX, newY);
+    return new Slowpoint(ctx, newX, newY);
   }
 
   public draw(): void {
     this.ctx.save();
-
-    if (this.imageLoaded && Growpoint.fuelImg.complete) {
+    if (this.imageLoaded && Slowpoint.slowImg.complete) {
       // Make image larger - increase size by 50%
       const scaleFactor = 2;
       const scaledWidth = this.imageWidth * scaleFactor;
       const scaledHeight = this.imageHeight * scaleFactor;
 
-      // Draw the fuel image centered at the growpoint position
+      // Draw the image centered at the Slowpoint position
       this.ctx.drawImage(
-        Growpoint.fuelImg,
+        Slowpoint.slowImg,
         this.x - scaledWidth / 2,
         this.y - scaledHeight / 2,
         scaledWidth,
@@ -94,7 +93,6 @@ export class Growpoint {
       this.ctx.lineWidth = 2;
       this.ctx.stroke();
     }
-
     this.ctx.restore();
   }
 
@@ -102,8 +100,6 @@ export class Growpoint {
     const distance = Math.sqrt(
       Math.pow(this.x - car.x, 2) + Math.pow(this.y - car.y, 2),
     );
-    // Use same collision detection as Checkpoint
-    const scaledWidth = this.imageWidth * 2;
-    return distance < scaledWidth / 2 + 15;
+    return distance < this.size + car.carWidth / 2;
   }
 }

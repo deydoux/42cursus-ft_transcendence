@@ -200,6 +200,7 @@ export default abstract class Match {
         case 'leaveTournament':
           this.forfeits(opponent);
           break;
+        case 'ballState':
         case 'move':
           Clients.sendClient(opponent, message as ServerTunnelMessage);
           break;
@@ -291,6 +292,7 @@ export default abstract class Match {
       })),
       dx: Math.cos(angle),
       dy: Math.sin(angle),
+      time: Date.now() + 1000,
     });
 
     await this.lock;

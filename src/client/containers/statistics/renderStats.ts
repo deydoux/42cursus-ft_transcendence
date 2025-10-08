@@ -1,4 +1,4 @@
-import {html} from '../utils/html';
+import {html} from '../../utils/html';
 
 export const renderStats = () =>
   html`<div class="w-full">

@@ -13,6 +13,9 @@ const defaultValues = {
   friendRequests: [],
   sentFriendRequests: [],
   countFriendRequests: 0,
+  players: [undefined, undefined],
+  isOpponentBlocked: false,
+  isGameLocal: false,
 };
 
 export class Store {

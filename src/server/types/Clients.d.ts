@@ -80,6 +80,7 @@ type ServerTunnelMessage =
       players: unknown[];
       dx: number;
       dy: number;
+      time: number;
     }
   | {
       type: 'newTournament';
@@ -98,6 +99,7 @@ type ServerTunnelMessage =
       type: 'round';
       dx: number;
       dy: number;
+      time: number;
     }
   | {
       type: 'success';
