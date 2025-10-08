@@ -30,3 +30,11 @@ export interface IPlayer {
     max_winstreak: number;
     losses: number; */
 }
+
+export interface PongGameUIElement extends HTMLElement {
+  showGameEndModal(data: {
+    winner: number;
+    result?: string;
+    eloChange?: number;
+  }): void;
+}

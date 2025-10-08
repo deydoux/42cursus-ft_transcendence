@@ -2,6 +2,8 @@ import {IPongGame} from '../../types/game';
 import {Paddle} from './paddle';
 import hk_ball from '../../assets/hk_ball.png';
 import {socket} from '../../utils/websocket';
+import {PongCanvas} from './pongCanvas';
+
 export class Ball {
   x: number;
   y: number;
@@ -85,8 +87,9 @@ export class Ball {
 
   update(pong: IPongGame) {
     if (this.isScoring) return;
-    console.log('in');
+
     this.y += this.vy;
+    this.x += this.vx;
 
     // Wall collision (simplified)
     if (
@@ -97,7 +100,7 @@ export class Ball {
 
       // Simple horizontal boost to prevent vertical bouncing
       if (Math.abs(this.vx) < this.speed * 0.3) {
-        this.vx = this.vx > 0 ? this.speed * 0.3 : -this.speed * 0.3;
+        this.vx = this.vx > 0 ? this.speed * 0.5 : -this.speed * 0.5;
       }
 
       this.y =
@@ -122,7 +125,7 @@ export class Ball {
       if (pong.player.side === 'left') {
         // This is my paddle - handle collision and sync
         this.handlePaddleCollision(leftPlayer.paddle, true);
-        this.sendBallState(true);
+        if (!pong.isLocal) this.sendBallState(true);
       } else {
         // This is opponent's paddle - only handle physics, no sync
         this.handlePaddleCollision(leftPlayer.paddle, true);
@@ -140,7 +143,7 @@ export class Ball {
       if (pong.player.side === 'right') {
         // This is my paddle - handle collision and sync
         this.handlePaddleCollision(rightPlayer.paddle, false);
-        this.sendBallState(false);
+        if (!pong.isLocal) this.sendBallState(false);
       } else {
         // This is opponent's paddle - only handle physics, no sync
         this.handlePaddleCollision(rightPlayer.paddle, false);
@@ -227,7 +230,7 @@ export class Ball {
 
     if (isMyPaddle) {
       this.handlePaddleCollision(paddle, isLeftPaddle);
-      this.sendBallState(isLeftPaddle); // Only send when I hit the ball
+      if (!pong.isLocal) this.sendBallState(isLeftPaddle); // Only send when I hit the ball && game in remote
     }
   }
 
@@ -275,6 +278,44 @@ export class Ball {
   }
 
   handleScoring(pong: IPongGame, isLeftWall: boolean) {
+    if (isLeftWall && pong.player.side == 'left') {
+      pong.opponent.score++;
+      if (!pong.isLocal)
+        socket.send(
+          JSON.stringify({
+            type: 'score',
+            scorerID: pong.opponent.id,
+          }),
+        );
+    } else if (!isLeftWall && pong.player.side == 'right') {
+      pong.opponent.score++;
+      if (!pong.isLocal)
+        socket.send(
+          JSON.stringify({
+            type: 'score',
+            scorerID: pong.opponent.id,
+          }),
+        );
+    } else if (isLeftWall && pong.player.side == 'right') {
+      pong.player.score++;
+      if (!pong.isLocal)
+        socket.send(
+          JSON.stringify({
+            type: 'score',
+            scorerID: pong.player.id,
+          }),
+        );
+    } else {
+      pong.player.score++;
+      if (!pong.isLocal)
+        socket.send(
+          JSON.stringify({
+            type: 'score',
+            scorerID: pong.player.id,
+          }),
+        );
+    }
+
     // Reset the timer
     pong.timer.reset();
     pong.timer.startCountdown();
@@ -283,53 +324,23 @@ export class Ball {
     this.x = this.ctx.canvas.width / 2;
     this.y = this.ctx.canvas.height / 2;
 
-    // Reset to initial speed
-    const initialVx = this.ctx.canvas.width * 0.003;
-    const initialVy = this.ctx.canvas.height * 0.002;
+    // Only set initial direction for local games
+    if (pong.isLocal) {
+      // Reset to initial speed with random direction for local games
+      const initialVx = this.ctx.canvas.width * 0.003;
+      const initialVy = this.ctx.canvas.height * 0.002;
 
-    // Randomize direction but keep initial speed
-    this.vx = 0;
-    this.vy = 0;
+      // Randomize direction
+      this.vx = initialVx * (Math.random() < 0.5 ? 1 : -1);
+      this.vy = initialVy * (Math.random() < 0.5 ? 1 : -1);
 
-    // Reset speed to initial value
-    this.speed = Math.sqrt(initialVx * initialVx + initialVy * initialVy);
-
-    if (isLeftWall && pong.player.side == 'left') {
-      pong.opponent.score++;
-      console.log('HELLO SCORE', pong.opponent.score);
-      socket.send(
-        JSON.stringify({
-          type: 'score',
-          scorerID: pong.opponent.id,
-        }),
-      );
-    } else if (!isLeftWall && pong.player.side == 'right') {
-      pong.opponent.score++;
-      console.log('HELLO SCORE', pong.opponent.score);
-      socket.send(
-        JSON.stringify({
-          type: 'score',
-          scorerID: pong.opponent.id,
-        }),
-      );
-    } else if (isLeftWall && pong.player.side == 'right') {
-      pong.player.score++;
-      console.log('HELLO SCORE', pong.player.score);
-      socket.send(
-        JSON.stringify({
-          type: 'score',
-          scorerID: pong.player.id,
-        }),
-      );
+      // Reset speed to initial value
+      this.speed = Math.sqrt(initialVx * initialVx + initialVy * initialVy);
     } else {
-      pong.player.score++;
-      console.log('HELLO SCORE', pong.player.score);
-      socket.send(
-        JSON.stringify({
-          type: 'score',
-          scorerID: pong.player.id,
-        }),
-      );
+      // For remote games, stop the ball and wait for server direction
+      this.vx = 0;
+      this.vy = 0;
+      this.speed = 0;
     }
   }
 

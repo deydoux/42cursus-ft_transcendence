@@ -72,35 +72,14 @@ const handleMatchCancel = (data: {cause: string}) => {
   router.navigate('/homepage');
 };
 
-interface PongGameUIElement extends HTMLElement {
-  showGameEndModal(data: {
-    winner: number;
-    result?: string;
-    eloChange?: number;
-  }): void;
-}
-
 const handleMatchEnd = (data: {
   winner: number;
   result?: string;
   eloChange?: number;
 }) => {
   const pongCanvas = PongCanvas.getInstance();
-  pongCanvas.pong.gameStarted = false;
-  // Update final scores in DOM before showing modal
-  const {players} = Store.getInstance().getState();
-  if (players) {
-    const winnerSide = data.winner === players[0].id ? 'left' : 'right';
-    const winnerScoreElement = document.getElementById(`${winnerSide}_score`);
-    if (winnerScoreElement) {
-      winnerScoreElement.textContent = '3';
-    }
-  }
-  const gameUIElement = document.querySelector(
-    '.pong-game-ui',
-  ) as PongGameUIElement;
-  if (gameUIElement && gameUIElement.showGameEndModal) {
-    gameUIElement.showGameEndModal(data);
+  if (pongCanvas && pongCanvas.pong) {
+    pongCanvas.endofAMatch(data.winner, data.result, data.eloChange, false);
   }
 };
 

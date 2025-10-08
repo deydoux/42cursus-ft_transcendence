@@ -123,8 +123,17 @@ export class PongGameUI extends BaseComponent {
     result?: string;
     eloChange?: number;
   }): void {
-    const {players, user} = this.store.getState();
-    if (!players || !user || !this.gameEndModal) return;
+    const pongCanvas = PongCanvas.getInstance();
+    const {user} = this.store.getState();
+    if (!user) throw new Error('user not found');
+
+    let players;
+    if (!pongCanvas.pong.isLocal) {
+      players = this.store.getState().players;
+    } else {
+      players = [pongCanvas.pong.player, pongCanvas.pong.opponent];
+    }
+    if (!players || !this.gameEndModal) return;
 
     // Hide canvas
     const canvas = document.getElementById('pong');
@@ -205,7 +214,6 @@ export class PongGameUI extends BaseComponent {
     if (closeBtn) {
       closeBtn.addEventListener('click', () => {
         this.closeModal();
-        pongCanvas.resetPongGame();
         this.router.navigate('/homepage');
       });
     }
@@ -216,8 +224,7 @@ export class PongGameUI extends BaseComponent {
     if (rematchBtn) {
       rematchBtn.addEventListener('click', () => {
         this.closeModal();
-        pongCanvas.resetPongGame();
-        pongCanvas.startGame();
+        this.router.navigate('/pong');
       });
     }
 
@@ -238,6 +245,9 @@ export class PongGameUI extends BaseComponent {
     // Show canvas again if needed
     const canvas = document.getElementById('pong');
     if (canvas) canvas.style.display = 'block';
+
+    // Destroy the PongCanvas instance when navigating away
+    PongCanvas.destroyInstance();
   }
 
   public initializePlayerInfo(): void {

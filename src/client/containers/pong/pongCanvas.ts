@@ -1,4 +1,5 @@
-import {IPlayer, IPongGame} from '../../types/game';
+import {IPlayer, IPongGame, PongGameUIElement} from '../../types/game';
+import {Store} from '../../services/store';
 import {displayCountdownMessage} from '../../utils/content';
 import {socket} from '../../utils/websocket';
 
@@ -30,9 +31,9 @@ export class PongCanvas {
   }
 
   public gameLoop() {
+    if (!this.pong.gameStarted) return;
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
-    if (!this.pong.gameStarted) return;
     // Check if countdown is active
     const isCountdownActive = this.pong.timer.isCountdownActive();
     const countdownMessage = this.pong.timer.getCountdownMessage();
@@ -46,14 +47,18 @@ export class PongCanvas {
       this.pong.ball.update(this.pong);
     }
 
-    if (this.pong.player.score === 5 || this.pong.opponent.score === 5) {
-      if (this.raf) {
-        window.cancelAnimationFrame(this.raf);
-        this.pong.gameStarted = false;
-      }
-      this.resetPongGame();
-      return;
-    }
+    if (
+      this.pong.isLocal &&
+      (this.pong.player.score === 3 || this.pong.opponent.score === 3)
+    )
+      PongCanvas.getInstance().endofAMatch(
+        this.pong.player.score == 3
+          ? this.pong.player.id
+          : this.pong.opponent.id,
+        undefined,
+        undefined,
+        true,
+      );
 
     if (countdownMessage)
       displayCountdownMessage(this.ctx, this.color, countdownMessage);
@@ -158,7 +163,48 @@ export class PongCanvas {
     }
   }
 
+  public endofAMatch(
+    winner: number,
+    result?: string,
+    eloChange?: number,
+    isLocal?: boolean,
+  ) {
+    const {players} = Store.getInstance().getState();
+    this.resetPongGame();
+
+    // Update final scores in DOM before showing modal
+    const winnerSide = isLocal
+      ? winner === this.pong.player.id
+        ? 'left'
+        : 'right'
+      : winner === players[0].id
+        ? 'left'
+        : 'right';
+    const winnerScoreElement = document.getElementById(`${winnerSide}_score`);
+    if (winnerScoreElement) {
+      winnerScoreElement.textContent = '3';
+    }
+
+    const gameUIElement = document.querySelector(
+      '.pong-game-ui',
+    ) as PongGameUIElement;
+    if (gameUIElement && gameUIElement.showGameEndModal) {
+      gameUIElement.showGameEndModal({winner, result, eloChange});
+    }
+  }
+
+  public static destroyInstance(): void {
+    if (PongCanvas.instance) {
+      // Cancel any running animation frame
+      if (PongCanvas.instance.raf) {
+        window.cancelAnimationFrame(PongCanvas.instance.raf);
+      }
+      PongCanvas.instance = null;
+    }
+  }
+
   public resetPongGame() {
+    this.pong.timer.reset();
     this.pong.player.score = 0;
     this.pong.opponent.score = 0;
     this.updateScore();
@@ -166,14 +212,24 @@ export class PongCanvas {
     // Reset ball position and velocity
     this.pong.ball.x = this.pong.ctx.canvas.width / 2;
     this.pong.ball.y = this.pong.ctx.canvas.height / 2;
-    this.pong.ball.vx = this.pong.ctx.canvas.height * 0.006;
-    this.pong.ball.vy = this.pong.ctx.canvas.width * 0.004;
 
-    // Reset paddles
+    // Only set initial velocity for local games
+    if (this.pong.isLocal) {
+      this.pong.ball.vx = this.pong.ctx.canvas.height * 0.006;
+      this.pong.ball.vy = this.pong.ctx.canvas.width * 0.004;
+    } else {
+      this.pong.ball.vx = 0;
+      this.pong.ball.vy = 0;
+    }
+
+    // Reset paddles to center position
     if (this.pong.player.paddle && this.pong.opponent.paddle) {
-      this.pong.player.paddle.y = 0;
-      this.pong.opponent.paddle.y = 0;
+      this.pong.player.paddle.y =
+        (this.pong.ctx.canvas.height - this.pong.player.paddle.height) / 2;
+      this.pong.opponent.paddle.y =
+        (this.pong.ctx.canvas.height - this.pong.opponent.paddle.height) / 2;
     }
     this.pong.gameStarted = false;
+    this.pong.isScoring = false;
   }
 }
