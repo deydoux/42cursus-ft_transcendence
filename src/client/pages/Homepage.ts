@@ -76,7 +76,7 @@ export class Homepage extends BaseComponent {
         textContent: 'Play racecar online',
         className: `cursor-pointer flex-1 rounded bg-gradient-to-br from-pink-200 to-pink-300 font-semibold uppercase text-background rounded-t-xl`,
         onclick: () => {
-          this.store.setState({isPongGameLocal: false});
+          this.store.setState({isRaceGameLocal: false});
           socket.send(
             JSON.stringify({
               type: 'joinMatchmaking',
@@ -92,7 +92,7 @@ export class Homepage extends BaseComponent {
         textContent: 'Play racecar local',
         className: `cursor-pointer flex-1 rounded bg-background rounded-b-xl font-semibold uppercase text-pink-300 border-3 border-pink-300`,
         onclick: () => {
-          this.store.setState({isPongGameLocal: true});
+          this.store.setState({isRaceGameLocal: true});
           this.router.navigate(`/racecar`);
         },
       }),
