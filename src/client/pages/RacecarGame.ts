@@ -188,9 +188,9 @@ export class RacecarGame extends BaseComponent {
     canvas.height = 1080;
     ctx.imageSmoothingEnabled = true;
 
-    //const {isRaceGameLocal} = this.store.getState();
+    const {isRaceGameLocal} = this.store.getState();
     // Initialize game state
-    const race = this.initializeGame(ctx, true); //use isRaceGameLocal when set
+    const race = this.initializeGame(ctx, isRaceGameLocal);
     // Create canvas controller
     const raceCanvas = RaceCanvas.getInstance();
     //Binds click events to the keyboard events for car controls

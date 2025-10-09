@@ -16,6 +16,7 @@ const defaultValues = {
   players: [undefined, undefined],
   isOpponentBlocked: false,
   isPongGameLocal: false,
+  isRaceGameLocal: false,
 };
 
 export class Store {

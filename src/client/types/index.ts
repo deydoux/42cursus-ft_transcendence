@@ -119,6 +119,7 @@ export interface AppState {
   matchStartBallData: {dx: number; dy: number};
 
   isPongGameLocal: boolean;
+  isRaceGameLocal: boolean;
 }
 
 export interface Component {
