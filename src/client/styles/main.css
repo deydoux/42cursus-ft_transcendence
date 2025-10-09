@@ -1,8 +1,6 @@
 @import "tailwindcss";
 @import "./toastify.css";
 @import "./stats-page.css";
-@import "./pong-page.css";
-@import "./race-page.css";
 
 :root {
   --background: #0e1111;

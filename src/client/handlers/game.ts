@@ -109,7 +109,7 @@ export const setupGameHandlers = () => {
   socket.on('matchStart', handleMatchStart);
   socket.on('success', handleSuccess);
   socket.on('error', handleError);
-  socket.on('move', handleMove);
+  socket.on('paddleMove', handleMove);
   socket.on('matchCancel', handleMatchCancel);
   socket.on('matchEnd', handleMatchEnd);
   socket.on('round', handleRound);

@@ -84,7 +84,11 @@ export class PongGame extends BaseComponent {
 
     const ball = new Ball(ctx);
     const {player, opponent} = initializePlayers();
-
+    if (missingElements.length > 0) {
+      const errorMessage = `Missing HTML elements: ${missingElements.join(', ')}`;
+      console.error(errorMessage);
+      throw new Error(errorMessage);
+    }
     return {
       player,
       opponent,
@@ -128,9 +132,9 @@ export class PongGame extends BaseComponent {
       return;
     }
 
-    const {isGameLocal} = this.store.getState();
+    const {isPongGameLocal} = this.store.getState();
 
-    const pong = this.initializeGame(ctx, isGameLocal);
+    const pong = this.initializeGame(ctx, isPongGameLocal);
     const pongCanvas = PongCanvas.getInstance(pong);
     this.handleInput(pong);
 
@@ -150,7 +154,6 @@ export class PongGame extends BaseComponent {
         'w-screen h-screen flex items-center gap-10 py-16 overflow-hidden',
     });
 
-    // Use PongGameUI instead of renderPong()
     this.pongGameUI = new PongGameUI();
     const gameElement = this.pongGameUI.render();
     container.appendChild(gameElement);

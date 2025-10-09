@@ -127,8 +127,12 @@ export class RaceGameUI extends BaseComponent {
     const {user} = this.store.getState();
     if (!user) throw new Error('user not found');
 
-    // Simplified - always local with fixed positions
-    const players = [raceCanvas.race.player, raceCanvas.race.opponent];
+    let players;
+    if (!raceCanvas.race.isLocal) {
+      players = this.store.getState().players;
+    } else {
+      players = [raceCanvas.race.player, raceCanvas.race.opponent];
+    }
     if (!players || !this.gameEndModal) return;
 
     // Hide canvas
@@ -136,7 +140,7 @@ export class RaceGameUI extends BaseComponent {
     if (canvas) canvas.style.display = 'none';
 
     const isWinner = data.winner === user.id;
-    const opponent = raceCanvas.race.opponent; // Direct access since it's always local
+    const opponent = players.find(p => p.id !== user.id);
 
     const content = this.gameEndModal.querySelector('div');
     if (!content) return;
@@ -197,13 +201,22 @@ export class RaceGameUI extends BaseComponent {
     const {user} = this.store.getState();
     if (!user) throw new Error('user not found');
 
-    // Simplified - always fixed positions
-    const player = raceCanvas.race.player;
-    const opponent = raceCanvas.race.opponent;
+    let players;
+    if (!raceCanvas.race.isLocal) {
+      players = this.store.getState().players;
+    } else {
+      players = [raceCanvas.race.player, raceCanvas.race.opponent];
+    }
+    if (!players) return;
+    const opponent = players.find(p => p.id !== user.id);
+    const isUserLeft = user.id === players[0].id;
 
-    // User is always on the left, opponent on the right
-    this.setPlayerInfo('left', player);
-    this.setPlayerInfo('right', opponent);
+    // Set user info
+    const userSide = isUserLeft ? 'left' : 'right';
+    const opponentSide = isUserLeft ? 'right' : 'left';
+
+    this.setPlayerInfo(userSide, user);
+    if (opponent) this.setPlayerInfo(opponentSide, opponent);
   }
 
   private setPlayerInfo(side: 'left' | 'right', player: User | IPlayer): void {
@@ -274,6 +287,7 @@ export class RaceGameUI extends BaseComponent {
   private setupModalEventListeners(): void {
     if (!this.gameEndModal) return;
 
+    const raceCanvas = RaceCanvas.getInstance();
     const closeBtn = this.gameEndModal.querySelector('#close-modal-btn');
     const rematchBtn = this.gameEndModal.querySelector('#rematch-btn');
 
@@ -284,7 +298,9 @@ export class RaceGameUI extends BaseComponent {
       });
     }
 
-    // Always show rematch button since it's always local
+    if (!raceCanvas.race.isLocal)
+      (rematchBtn as HTMLElement).style.display = 'none';
+
     if (rematchBtn) {
       rematchBtn.addEventListener('click', () => {
         this.closeModal();

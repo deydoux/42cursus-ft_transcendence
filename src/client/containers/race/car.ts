@@ -15,12 +15,12 @@ export class Car {
   public acceleration: number;
   public color: string;
   public carImage: HTMLImageElement | undefined;
-  public carWidth: number | undefined;
-  public carHeight: number | undefined;
+  public carWidth: number;
+  public carHeight: number;
   public isSlowed: boolean;
   public isBigger: boolean;
   public slowdownEndTime: number;
-  public growthEndTime: number | undefined;
+  public growthEndTime: number;
   public score: number;
   public ratioGrowth: number;
   public isStopped: boolean;
@@ -55,6 +55,9 @@ export class Car {
     this.score = 0;
     this.ratioGrowth = 0;
     this.isStopped = false;
+    this.carWidth = 0;
+    this.carHeight = 0;
+    this.growthEndTime = 0;
 
     const speedScale = Math.min(ctx.canvas.width, ctx.canvas.height) / 500;
 
@@ -394,11 +397,13 @@ export class Car {
     width: number;
     height: number;
   } {
+    const width = this.carWidth || 0;
+    const height = this.carHeight || 0;
     return {
-      x: this.x - this.carWidth / 2,
-      y: this.y - this.carHeight / 2,
-      width: this.carWidth,
-      height: this.carHeight,
+      x: this.x - width / 2,
+      y: this.y - height / 2,
+      width: width,
+      height: height,
     };
   }
 
@@ -408,7 +413,8 @@ export class Car {
    * @param otherCar The other car to check collision against
    * @returns True if the cars are colliding, false otherwise
    */
-  public isCollidingWithCar(otherCar: Car): boolean {
+  public isCollidingWithCar(otherCar: Car | null): boolean {
+    if (!otherCar) throw new Error('car not found');
     const thisBox = this.getBoundingBox();
     const otherBox = otherCar.getBoundingBox();
 

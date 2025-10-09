@@ -55,6 +55,7 @@ export interface IRaceGame {
   gameStarted: boolean;
   keys: Keys;
   ctx: CanvasRenderingContext2D;
+  isLocal: boolean;
   timerDisplay: HTMLElement;
   checkpoints: Checkpoint[];
   lastCheckpointTime: number | null;

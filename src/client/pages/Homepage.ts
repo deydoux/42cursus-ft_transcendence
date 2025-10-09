@@ -41,14 +41,14 @@ export class Homepage extends BaseComponent {
 
     gameMenu.appendChild(
       this.renderMenuButton(true, 'Play local', () => {
-        this.store.setState({isGameLocal: true});
+        this.store.setState({isPongGameLocal: true});
         this.router.navigate(`/pong`);
       }),
     );
 
     gameMenu.appendChild(
       this.renderMenuButton(true, 'Play pong', () => {
-        this.store.setState({isGameLocal: false});
+        this.store.setState({isPongGameLocal: false});
         socket.send(
           JSON.stringify({
             type: 'joinMatchmaking',

@@ -96,10 +96,11 @@ export class Slowpoint {
     this.ctx.restore();
   }
 
-  public isColliding(car: Car): boolean {
+  public isColliding(car: Car | null): boolean {
+    if (!car) throw new Error('car not found');
     const distance = Math.sqrt(
       Math.pow(this.x - car.x, 2) + Math.pow(this.y - car.y, 2),
     );
-    return distance < this.size + car.carWidth / 2;
+    return distance < this.size + (car.carWidth || 0) / 2;
   }
 }

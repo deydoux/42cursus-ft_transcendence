@@ -118,7 +118,7 @@ export interface AppState {
   isOpponentBlocked: boolean;
   matchStartBallData: {dx: number; dy: number};
 
-  isGameLocal: boolean;
+  isPongGameLocal: boolean;
 }
 
 export interface Component {

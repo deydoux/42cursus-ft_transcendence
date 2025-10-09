@@ -8,7 +8,6 @@ export class PongCanvas {
   private ctx: CanvasRenderingContext2D;
   public pong: IPongGame;
   private raf: number | null;
-  private color = 'rgb(0, 0, 0)';
 
   private constructor(pong: IPongGame) {
     this.ctx = pong.ctx;
@@ -61,13 +60,13 @@ export class PongCanvas {
       );
 
     if (countdownMessage)
-      displayCountdownMessage(this.ctx, this.color, countdownMessage);
+      displayCountdownMessage(this.ctx, 'rgb(0, 0, 0)', countdownMessage);
     this.raf = window.requestAnimationFrame(this.gameLoop.bind(this));
   }
 
   private updateScore(): void {
-    this.pong.player.scoreElement.innerHTML = this.pong.player.score.toString();
-    this.pong.opponent.scoreElement.innerHTML =
+    this.pong.player.scoreElement.innerText = this.pong.player.score.toString();
+    this.pong.opponent.scoreElement.innerText =
       this.pong.opponent.score.toString();
   }
 
@@ -129,7 +128,7 @@ export class PongCanvas {
   ) {
     socket.send(
       JSON.stringify({
-        type: 'move',
+        type: 'paddleMove',
         side,
         direction,
         yPosition,
