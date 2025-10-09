@@ -1,5 +1,6 @@
 import {Lobby} from '../pages/Lobby';
 import {PongCanvas} from '../containers/pong/pongCanvas';
+import {RaceCanvas} from '../containers/race/raceCanvas';
 import {Router} from '../services/router';
 import {Store} from '../services/store';
 import {Toastify} from '../utils/toastify';
@@ -105,6 +106,28 @@ const handleBallState = (data: {
   }
 };
 
+const handleCarMove = (data: {
+  playerId: number;
+  timestamp: number;
+  position: {
+    x: number;
+    y: number;
+  };
+  angle: number;
+  speed: number;
+}) => {
+  const now = Date.now();
+  const lag = now - data.timestamp;
+  const raceCanvas = RaceCanvas.getInstance();
+
+  if (lag < 100 && raceCanvas.race.opponent.car) {
+    raceCanvas.race.opponent.car.x = data.position.x;
+    raceCanvas.race.opponent.car.y = data.position.y;
+    raceCanvas.race.opponent.car.angle = data.angle;
+    raceCanvas.race.opponent.car.speed = data.speed;
+  }
+};
+
 export const setupGameHandlers = () => {
   socket.on('matchStart', handleMatchStart);
   socket.on('success', handleSuccess);
@@ -114,4 +137,5 @@ export const setupGameHandlers = () => {
   socket.on('matchEnd', handleMatchEnd);
   socket.on('round', handleRound);
   socket.on('ballState', handleBallState);
+  socket.on('carMove', handleCarMove);
 };

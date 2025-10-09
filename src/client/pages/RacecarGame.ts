@@ -77,7 +77,7 @@ export class RacecarGame extends BaseComponent {
       };
 
       const op = isLocal
-        ? {id: 0, username: 'Bot', avatar: ''}
+        ? {id: 0, username: 'Unknown', avatar: ''}
         : user.id === players[0]?.id
           ? players[1]
           : players[0];
@@ -192,10 +192,11 @@ export class RacecarGame extends BaseComponent {
     // Initialize game state
     const race = this.initializeGame(ctx, isRaceGameLocal);
     // Create canvas controller
-    const raceCanvas = RaceCanvas.getInstance();
+    const raceCanvas = RaceCanvas.getInstance(race);
     //Binds click events to the keyboard events for car controls
     this.handleInput(race);
 
+    this.raceGameUI?.initializePlayerInfo();
     // Show start message
     raceCanvas.displayStartMessage();
 

@@ -113,7 +113,6 @@ export class RaceCanvas {
     if (this.race.timer.isRunning && this.race.timer.isTimeUp()) {
       this.race.timer.stop();
       this.resetGame();
-      console.log('Time is up! Ending game.');
       return;
     }
 
@@ -158,67 +157,110 @@ export class RaceCanvas {
    * Moves player.car with W/S keys and opponent.car with ArrowUp/ArrowDown keys
    * Also handles left/right movement for both cars
    */
-private handleCarMovement(): void {
-  if (!this.race.gameStarted) return;
-  let moved = false;
+  private handleCarMovement(): void {
+    if (!this.race.gameStarted) return;
+    let moved = false;
 
-  if (this.race.isLocal) {
-    // Local game - control opponent car with arrow keys
-    this.race.opponent.car?.move(
-      this.race.keys.ArrowUp ? true : this.race.keys.ArrowDown ? false : null,
-      (this.race.keys.ArrowRight ? 1 : 0) -
-        (this.race.keys.ArrowLeft ? 1 : 0),
-      this.race.walls,
-    );
+    if (this.race.isLocal) {
+      // Local game - control opponent car with arrow keys
+      this.race.opponent.car?.move(
+        this.race.keys.ArrowUp ? true : this.race.keys.ArrowDown ? false : null,
+        (this.race.keys.ArrowRight ? 1 : 0) -
+          (this.race.keys.ArrowLeft ? 1 : 0),
+        this.race.walls,
+      );
+    }
+
+    // Track player car movement for sending to opponent
+    const oldPlayerPosition = {
+      x: this.race.player.car?.x || 0,
+      y: this.race.player.car?.y || 0,
+      angle: this.race.player.car?.angle || 0,
+      speed: this.race.player.car?.speed || 0,
+    };
+
+    if (this.race.player.side == 'right') {
+      this.race.player.car?.move(
+        this.race.keys.ArrowUp ? true : this.race.keys.ArrowDown ? false : null,
+        (this.race.keys.ArrowRight ? 1 : 0) -
+          (this.race.keys.ArrowLeft ? 1 : 0),
+        this.race.walls,
+      );
+    }
+
+    if (this.race.player.side == 'left') {
+      this.race.player.car?.move(
+        this.race.keys.w ? true : this.race.keys.s ? false : null,
+        (this.race.keys.d ? 1 : 0) - (this.race.keys.a ? 1 : 0),
+        this.race.walls,
+      );
+    }
+
+    // Check if player car actually moved
+    if (
+      oldPlayerPosition.x !== this.race.player.car?.x ||
+      oldPlayerPosition.y !== this.race.player.car?.y ||
+      oldPlayerPosition.angle !== this.race.player.car?.angle ||
+      oldPlayerPosition.speed !== this.race.player.car?.speed
+    ) {
+      moved = true;
+    }
+
+    if (moved && !this.race.isLocal) {
+      socket.send(
+        JSON.stringify({
+          type: 'carMove',
+          playerId: this.race.player.id,
+          timestamp: Date.now(),
+          position: {
+            x: this.race.player.car?.x || 0,
+            y: this.race.player.car?.y || 0,
+          },
+          angle: this.race.player.car?.angle || 0,
+          speed: this.race.player.car?.speed || 0,
+        }),
+      );
+    }
   }
 
-  // Track player car movement for sending to opponent
-  const oldPlayerPosition = {
-    x: this.race.player.car?.x || 0,
-    y: this.race.player.car?.y || 0,
-    angle: this.race.player.car?.angle || 0,
-    speed: this.race.player.car?.speed || 0
-  };
-
-  if (this.race.player.side == 'right') {
-    this.race.player.car?.move(
-      this.race.keys.ArrowUp ? true : this.race.keys.ArrowDown ? false : null,
-      (this.race.keys.ArrowRight ? 1 : 0) -
-        (this.race.keys.ArrowLeft ? 1 : 0),
-      this.race.walls,
-    );
+  /*
+  // Send when car size changes (growpoint collision)
+  private sendCarSizeUpdate(): void {
+    const sizeData = {
+      type: 'car_size_update',
+      playerId: this.race.player.id,
+      carWidth: this.race.player.car?.carWidth || 0,
+      carHeight: this.race.player.car?.carHeight || 0,
+      isBigger: this.race.player.car?.isBigger || false
+    };
   }
 
-  if (this.race.player.side == 'left') {
-    this.race.player.car?.move(
-      this.race.keys.w ? true : this.race.keys.s ? false : null,
-      (this.race.keys.d ? 1 : 0) - (this.race.keys.a ? 1 : 0),
-      this.race.walls,
-    );
+  // Send when car gets slowed down
+  private sendCarStatusUpdate(): void {
+    const statusData = {
+      type: 'car_status_update',
+      playerId: this.race.player.id,
+      isSlowed: this.race.player.car?.isSlowed || false,
+      isStopped: this.race.player.car?.isStopped || false
+    };
   }
 
-  // Check if player car actually moved
-  if (
-    oldPlayerPosition.x !== this.race.player.car?.x ||
-    oldPlayerPosition.y !== this.race.player.car?.y ||
-    oldPlayerPosition.angle !== this.race.player.car?.angle ||
-    oldPlayerPosition.speed !== this.race.player.car?.speed
-  ) {
-    moved = true;
+  // Send when score changes
+  private sendScoreUpdate(): void {
+    const scoreData = {
+      type: 'score_update',
+      playerId: this.race.player.id,
+      score: this.race.player.score
+    };
   }
-
-  if (moved && !this.race.isLocal) {
-    // Send movement data to opponent
-    this.sendCarMovementData();
-  }
-}
-
+   */
   /**
    * Updates the score display
    */
   private updateScore(): void {
     this.race.player.scoreElement.innerText = this.race.player.score.toString();
-    this.race.opponent.scoreElement.innerText = this.race.opponent.score.toString();
+    this.race.opponent.scoreElement.innerText =
+      this.race.opponent.score.toString();
     if (this.race.timerDisplay) {
       this.race.timerDisplay.innerText = `${this.race.timer.getRemainingTimeFormatted()}`;
     }
@@ -293,23 +335,19 @@ private handleCarMovement(): void {
    * and slows down the opposing car for slowpoint collisions.
    */
   private handlePointsCollision(): void {
-    //checkpoint collision -> increment score
+    //checkpoint collision -> increment score & remove it from the canvas
     this.race.checkpoints = this.race.checkpoints.filter(checkpoint => {
-      const playerCollision = checkpoint.isColliding(this.race.player.car);
-      const opponentCollision = checkpoint.isColliding(this.race.opponent.car);
-
-      if (playerCollision) {
+      if (checkpoint.isColliding(this.race.player.car)) {
         this.race.player.score += 2; // Add points for player.car
         this.updateScore();
+        socket.send(
+          JSON.stringify({
+            type: 'score',
+            scorerID: this.race.player.id,
+          }),
+        );
         return false; // Remove checkpoint
       }
-
-      if (opponentCollision) {
-        this.race.opponent.score += 2; // Add points for opponent.car
-        this.updateScore();
-        return false; // Remove checkpoint
-      }
-
       return true; // Keep checkpoint
     });
 
@@ -320,18 +358,16 @@ private handleCarMovement(): void {
       !this.race.player.car?.isBigger
     ) {
       this.race.currentGrowpoint = null; // Clear growpoint after collision
-      this.race.player.car?.applyCarGrowth();
-      this.race.lastGrowpointTime = Date.now() - 45000;
+      socket.send(
+        JSON.stringify({
+          type: 'carGrowth',
+          growthID: this.race.player.id,
+        }),
+      );
+      /* this.race.player.car?.applyCarGrowth();
+      this.race.lastGrowpointTime = Date.now() - 45000; */
     }
-    if (
-      this.race.currentGrowpoint &&
-      this.race.currentGrowpoint.isColliding(this.race.opponent.car) &&
-      !this.race.opponent.car?.isBigger
-    ) {
-      this.race.currentGrowpoint = null; // Clear growpoint after collision
-      this.race.opponent.car?.applyCarGrowth();
-      this.race.lastGrowpointTime = Date.now() - 45000;
-    }
+
     //slowpoint collision -> slows down opposant's car
     if (
       this.race.currentSlowpoint &&
@@ -340,15 +376,6 @@ private handleCarMovement(): void {
     ) {
       this.race.currentSlowpoint = null; // Clear slowpoint after collision
       this.race.player.car?.applySlowdown();
-      this.race.lastSlowpointTime = Date.now();
-    }
-    if (
-      this.race.currentSlowpoint &&
-      this.race.currentSlowpoint.isColliding(this.race.player.car) &&
-      !this.race.opponent.car?.isSlowed
-    ) {
-      this.race.currentSlowpoint = null; // Clear slowpoint after collision
-      this.race.opponent.car?.applySlowdown();
       this.race.lastSlowpointTime = Date.now();
     }
   }
@@ -360,13 +387,17 @@ private handleCarMovement(): void {
    */
   public handleCarCollisions(): void {
     if (!this.race.player.car || !this.race.opponent.car) return;
-    const isColliding = this.race.player.car?.isCollidingWithCar(this.race.opponent.car);
+    const isColliding = this.race.player.car?.isCollidingWithCar(
+      this.race.opponent.car,
+    );
 
     if (isColliding) {
       if (this.race.player.car?.carWidth > this.race.opponent.car?.carWidth) {
         this.race.player.car?.handleCarCollision(this.race.opponent.car);
         this.race.opponent.car?.stopFor();
-      } else if (this.race.opponent.car?.carWidth > this.race.player.car?.carWidth) {
+      } else if (
+        this.race.opponent.car?.carWidth > this.race.player.car?.carWidth
+      ) {
         this.race.opponent.car?.handleCarCollision(this.race.player.car);
         this.race.player.car?.stopFor();
       } else this.race.opponent.car?.handleCarCollision(this.race.player.car);
@@ -378,21 +409,22 @@ private handleCarMovement(): void {
    * Checks if each car is colliding with walls and resets their position if they are stuck.
    */
   private handleStuckCars(): void {
-    const player.car?Position = {
-      x: this.race.player.car?.x - this.race.player.car?.carWidth / 2,
-      y: this.race.player.car?.y - this.race.player.car?.carHeight / 2,
+    if (!this.race.player.car || !this.race.opponent.car) return;
+    const playerCarPosition = {
+      x: this.race.player.car.x - this.race.player.car.carWidth / 2,
+      y: this.race.player.car.y - this.race.player.car.carHeight / 2,
       width: this.race.player.car?.carWidth,
       height: this.race.player.car?.carHeight,
     };
 
-    const opponent.car?Position = {
-      x: this.race.opponent.car?.x - this.race.opponent.car?.carWidth / 2,
-      y: this.race.opponent.car?.y - this.race.opponent.car?.carHeight / 2,
+    const opponentCarPosition = {
+      x: this.race.opponent.car.x - this.race.opponent.car.carWidth / 2,
+      y: this.race.opponent.car.y - this.race.opponent.car.carHeight / 2,
       width: this.race.opponent.car?.carWidth,
       height: this.race.opponent.car?.carHeight,
     };
-    this.race.walls.isCarColliding(player.car.Position);
-    this.race.walls.isCarColliding(opponent.car.Position);
+    this.race.walls.isCarColliding(playerCarPosition);
+    this.race.walls.isCarColliding(opponentCarPosition);
   }
 
   public static destroyInstance(): void {

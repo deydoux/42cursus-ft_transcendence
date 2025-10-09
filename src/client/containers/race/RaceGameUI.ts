@@ -54,16 +54,14 @@ export class RaceGameUI extends BaseComponent {
       <img id="left_pic" class="w-16 h-16 rounded-full border-2 border-blue-500" src="" alt="Player">
       <div>
         <div id="left_name" class="text-xl font-bold text-white"></div>
-        <div id="left_position" class="text-sm text-blue-400">Position: 1</div>
         <div id="left_score" class="text-lg font-bold text-white">0</div>
       </div>
     `;
 
-    // Race info display (timer and lap in center)
-    const raceDisplay = DOMUtils.createElement('div', {
+    const timeDisplay = DOMUtils.createElement('div', {
       className: 'flex flex-col items-center gap-2 text-white',
     });
-    raceDisplay.innerHTML = `
+    timeDisplay.innerHTML = `
       <div id="race_timer" class="text-3xl font-bold">00:00</div>
     `;
 
@@ -75,13 +73,12 @@ export class RaceGameUI extends BaseComponent {
       <img id="right_pic" class="w-16 h-16 rounded-full border-2 border-red-500" src="" alt="Player">
       <div class="text-right">
         <div id="right_name" class="text-xl font-bold text-white"></div>
-        <div id="right_position" class="text-sm text-red-400">Position: 2</div>
         <div id="right_score" class="text-lg font-bold text-white">0</div>
       </div>
     `;
 
     header.appendChild(leftPlayer);
-    header.appendChild(raceDisplay);
+    header.appendChild(timeDisplay);
     header.appendChild(rightPlayer);
 
     return header;
@@ -95,7 +92,7 @@ export class RaceGameUI extends BaseComponent {
     const canvas = DOMUtils.createElement('canvas', {
       attributes: {id: 'race'},
       className:
-        'w-full h-auto bg-linear-to-br from-green-200 to-green-300 shadow-lg shadow-green-300/30 rounded-lg',
+        'w-full h-auto bg-linear-to-br from-pink-500 to-pink-600 shadow-lg shadow-pink-500/30 rounded-lg',
     }) as HTMLCanvasElement;
 
     gameArea.appendChild(canvas);
@@ -111,7 +108,7 @@ export class RaceGameUI extends BaseComponent {
 
     const content = DOMUtils.createElement('div', {
       className:
-        'bg-green-300 rounded-lg p-8 max-w-xl w-full mx-4 text-center text-shadow-lg/30',
+        'bg-pink-500 rounded-lg p-8 max-w-xl w-full mx-4 text-center text-shadow-lg/30',
     });
 
     modal.appendChild(content);
