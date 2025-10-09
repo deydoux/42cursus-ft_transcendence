@@ -1,6 +1,6 @@
+import {round, user} from '../types';
 import {Store} from '../services/store';
 import {Toastify} from '../utils/toastify';
-import {round} from '../types';
 import {socket} from '../utils/websocket';
 
 const handleNewTournament = (data: {
@@ -121,10 +121,22 @@ const handleTournamentStarted = (data: {final: round}) => {
   });
 };
 
+const handleTournamentMatchEnd = (data: {
+  roundID: number;
+  nextRoundID: number | undefined;
+  winnerID: number;
+  participants: (user & {score: number})[];
+  result: 'cancel' | 'forfeit' | 'tie';
+}) => {
+  // pass
+  console.log(data);
+};
+
 export const setupTournamentHandlers = () => {
   socket.on('newTournament', handleNewTournament);
   socket.on('tournamentJoined', handleTournamentJoined);
   socket.on('participantJoin', handleParticipantJoin);
   socket.on('participantLeft', handleParticipantLeft);
   socket.on('tournamentStarted', handleTournamentStarted);
+  socket.on('tournamentMatchEnd', handleTournamentMatchEnd);
 };
