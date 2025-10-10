@@ -15,15 +15,6 @@ export default class PongMatch extends Match {
     );
   }
 
-  protected initialState() {
-    const angle = PongMatch.generateAngle();
-
-    return {
-      dx: Math.cos(angle),
-      dy: Math.sin(angle),
-    };
-  }
-
   protected handleRound(scorer: Player) {
     if (scorer.score >= SCORE_GOAL) {
       this.winner = scorer;
@@ -35,5 +26,14 @@ export default class PongMatch extends Match {
       time: Date.now() + 1000,
       ...this.initialState(),
     });
+  }
+
+  protected initialState() {
+    const angle = PongMatch.generateAngle();
+
+    return {
+      dx: Math.cos(angle),
+      dy: Math.sin(angle),
+    };
   }
 }
