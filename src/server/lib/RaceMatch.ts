@@ -32,6 +32,10 @@ export default class RaceMatch extends Match {
     return this.unlock();
   }
 
+  protected initialState() {
+    return {};
+  }
+
   public async start() {
     this.raceTimeout = setTimeout(() => this.handleEnd(), RACE_TIMEOUT);
     return super.start();
