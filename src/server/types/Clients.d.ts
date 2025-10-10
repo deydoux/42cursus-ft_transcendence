@@ -78,9 +78,9 @@ type ServerTunnelMessage =
       ranked: boolean;
       block: boolean;
       players: unknown[];
-      dx: number;
-      dy: number;
       time: number;
+      dx?: number;
+      dy?: number;
     }
   | {
       type: 'newTournament';
@@ -97,9 +97,9 @@ type ServerTunnelMessage =
     }
   | {
       type: 'round';
-      dx: number;
-      dy: number;
       time: number;
+      dx?: number;
+      dy?: number;
     }
   | {
       type: 'success';

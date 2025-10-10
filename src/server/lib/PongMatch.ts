@@ -8,19 +8,32 @@ export default class PongMatch extends Match {
     super(server, players, 'pong');
   }
 
+  private static generateAngle() {
+    return (
+      Math.random() * (Math.PI / 3) +
+      Math.round(Math.random() * 3) * (Math.PI / 2)
+    );
+  }
+
+  protected initialState() {
+    const angle = PongMatch.generateAngle();
+
+    return {
+      dx: Math.cos(angle),
+      dy: Math.sin(angle),
+    };
+  }
+
   protected handleRound(scorer: Player) {
     if (scorer.score >= SCORE_GOAL) {
       this.winner = scorer;
       return this.unlock();
     }
 
-    const angle = Match.generateAngle();
-
     this.send({
       type: 'round',
-      dx: Math.cos(angle),
-      dy: Math.sin(angle),
       time: Date.now() + 1000,
+      ...this.initialState(),
     });
   }
 }

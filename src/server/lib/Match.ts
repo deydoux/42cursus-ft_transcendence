@@ -169,21 +169,14 @@ export default abstract class Match {
     }
   }
 
-  public get game() {
-    return this._game;
-  }
-
-  protected static generateAngle() {
-    return (
-      Math.random() * (Math.PI / 3) +
-      Math.round(Math.random() * 3) * (Math.PI / 2)
-    );
-  }
-
   private forfeits(winner: Player) {
     this.result = 'forfeit';
     this.winner = winner;
     this.unlock();
+  }
+
+  public get game() {
+    return this._game;
   }
 
   private handleMessage =
@@ -253,6 +246,10 @@ export default abstract class Match {
     this.handleRound(scorer);
   }
 
+  protected initialState() {
+    return {};
+  }
+
   private scoreTimeout() {
     return setTimeout(
       () => this.cancel('Clients synchronization lost'),
@@ -277,8 +274,6 @@ export default abstract class Match {
 
     if (relationship) this.block = true;
 
-    const angle = Match.generateAngle();
-
     this.send({
       type: 'matchStart',
       game: this._game,
@@ -290,9 +285,8 @@ export default abstract class Match {
         avatar: player.avatar,
         elo: player.elo,
       })),
-      dx: Math.cos(angle),
-      dy: Math.sin(angle),
       time: Date.now() + 1000,
+      ...this.initialState(),
     });
 
     await this.lock;
