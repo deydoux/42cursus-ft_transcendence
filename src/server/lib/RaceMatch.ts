@@ -84,7 +84,9 @@ export default class RaceMatch extends Match {
   }
 
   protected initialState() {
-    return {};
+    return {
+      walls: this.walls,
+    };
   }
 
   public async start() {
