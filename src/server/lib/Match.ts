@@ -13,7 +13,7 @@ export interface Player extends Client {
 
 export const kFactor = 32;
 
-const SCORE_TIMEOUT = 1000;
+const SCORE_TIMEOUT = 1000; // 1 second
 
 export default abstract class Match {
   private server;

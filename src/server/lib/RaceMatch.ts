@@ -1,7 +1,7 @@
 import Match, {Player} from '#lib/Match';
 import {FastifyInstance} from 'fastify';
 
-const RACE_TIMEOUT = 10 * 1000; // 10 seconds
+const RACE_TIMEOUT = 30 * 1000; // 30 seconds
 
 export default class RaceMatch extends Match {
   private raceTimeout?: NodeJS.Timeout;
