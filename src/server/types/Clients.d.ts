@@ -78,9 +78,9 @@ type ServerTunnelMessage =
       ranked: boolean;
       block: boolean;
       players: unknown[];
-      dx: number;
-      dy: number;
       time: number;
+      dx?: number;
+      dy?: number;
     }
   | {
       type: 'newTournament';
@@ -96,10 +96,16 @@ type ServerTunnelMessage =
       ownerID: number;
     }
   | {
+      type: 'raceObject';
+      object: 'checkpoint' | 'growpoint' | 'slowpoint';
+      x: number;
+      y: number;
+    }
+  | {
       type: 'round';
-      dx: number;
-      dy: number;
       time: number;
+      dx?: number;
+      dy?: number;
     }
   | {
       type: 'success';

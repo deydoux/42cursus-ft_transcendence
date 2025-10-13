@@ -315,6 +315,19 @@ Received when a participant leaves a tournament
 }
 ```
 
+### `raceObject`
+Received when a race object is created
+
+*Example:*
+```json
+{
+  "type": "raceObject",
+  "object": "checkpoint",
+  "x": 150,
+  "y": 300
+}
+```
+
 ### `round`
 Received when a round starts in a match
 
