@@ -5,6 +5,23 @@ import {downloadResponse} from '../utils/string';
 
 const api = Api.getInstance();
 
+export const fetchPublicKPIs = async () => {
+  try {
+    const response = await api.get('kpi');
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message);
+    }
+
+    const data = await response.json();
+    api.store.setState({publicKPIs: data});
+  } catch (error) {
+    Toastify.error("Could not fetch public kpi's");
+    console.error(error);
+  }
+};
+
 export const fetchAccount = async () => {
   try {
     const response = await api.get('account');

@@ -16,6 +16,11 @@ const defaultValues = {
   countFriendRequests: 0,
   tournamentView: 'tournaments',
   tournaments: [],
+  publicKPIs: {
+    totalUsers: 0,
+    totalGames: 0,
+    bestPlayer: 'hkitty',
+  },
 };
 
 export class Store {

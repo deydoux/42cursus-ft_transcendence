@@ -128,6 +128,12 @@ export interface AppState {
     rounds?: round;
     winner?: user;
   };
+
+  publicKPIs: {
+    totalUsers: number;
+    totalGames: number;
+    bestPlayer: string;
+  };
 }
 
 export interface Component {
