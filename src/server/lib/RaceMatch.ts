@@ -6,11 +6,55 @@ const WIDTH = 1920;
 const HEIGHT = 1080;
 
 export default class RaceMatch extends Match {
+  private checkpoints: {x: number; y: number}[] = [];
   private raceTimeout?: NodeJS.Timeout;
   private walls = RaceMatch.generateWalls();
 
   constructor(server: FastifyInstance, players: [Player, Player]) {
     super(server, players, 'race');
+  }
+
+  private checkpointClose(x: number, y: number) {
+    const minDistance = 200;
+
+    return this.checkpoints.some(checkpoint => {
+      const distance = Math.sqrt(
+        Math.pow(x - checkpoint.x, 2) + Math.pow(y - checkpoint.y, 2),
+      );
+      return distance < minDistance;
+    });
+  }
+
+  private createObject(object: 'checkpoint' | 'growpoint' | 'slowpoint') {
+    const maxAttempts = 80;
+    const padding = 30;
+    let attempts = 0;
+    let x, y;
+
+    do {
+      x = Math.random() * WIDTH - padding;
+      y = Math.random() * HEIGHT - padding;
+      attempts++;
+    } while (
+      (this.isColliding(x, y, padding) ||
+        (object === 'checkpoint' && this.checkpointClose(x, y))) &&
+      attempts < maxAttempts
+    );
+
+    this.checkpoints.unshift({x, y});
+    this.checkpoints = this.checkpoints.slice(0, 3);
+
+    this.send({
+      type: 'raceObject',
+      object,
+      x,
+      y,
+    });
+  }
+
+  protected async destroy(winner?: Player) {
+    if (this.raceTimeout) clearTimeout(this.raceTimeout);
+    return super.destroy(winner);
   }
 
   private static generateWalls() {
@@ -65,11 +109,6 @@ export default class RaceMatch extends Match {
     void scorer;
   }
 
-  protected async destroy(winner?: Player) {
-    if (this.raceTimeout) clearTimeout(this.raceTimeout);
-    return super.destroy(winner);
-  }
-
   private handleEnd() {
     if (this.players[0].score === this.players[1].score) {
       this.result = 'tie';
@@ -87,6 +126,24 @@ export default class RaceMatch extends Match {
     return {
       walls: this.walls,
     };
+  }
+
+  private isColliding(x: number, y: number, radius: number) {
+    return this.walls.some(wall => {
+      // Check if point (with radius) intersects with wall rectangle
+      const distX = Math.abs(x - (wall.x + wall.width / 2));
+      const distY = Math.abs(y - (wall.y + wall.height / 2));
+
+      if (distX > wall.width / 2 + radius) return false;
+      if (distY > wall.height / 2 + radius) return false;
+      if (distX <= wall.width / 2) return true;
+      if (distY <= wall.height / 2) return true;
+
+      // Check corner collision
+      const dx = distX - wall.width / 2;
+      const dy = distY - wall.height / 2;
+      return dx * dx + dy * dy <= radius * radius;
+    });
   }
 
   public async start() {
