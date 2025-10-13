@@ -96,6 +96,12 @@ type ServerTunnelMessage =
       ownerID: number;
     }
   | {
+      type: 'raceObject';
+      object: 'checkpoint' | 'growpoint' | 'slowpoint';
+      x: number;
+      y: number;
+    }
+  | {
       type: 'round';
       time: number;
       dx?: number;
