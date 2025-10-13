@@ -2,12 +2,15 @@ import Match, {Player} from '#lib/Match';
 import {FastifyInstance} from 'fastify';
 
 const RACE_TIMEOUT = 30 * 1000; // 30 seconds
+const BONUSES: ('growpoint' | 'slowpoint')[] = ['growpoint', 'slowpoint'];
+const BONUS_INTERVAL = 15 * 1000; // 15 seconds
+const CHECKPOINT_INTERVAL = 10 * 1000; // 10 seconds
 const WIDTH = 1920;
 const HEIGHT = 1080;
 
 export default class RaceMatch extends Match {
   private checkpoints: {x: number; y: number}[] = [];
-  private raceTimeout?: NodeJS.Timeout;
+  private timeouts: NodeJS.Timeout[] = [];
   private walls = RaceMatch.generateWalls();
 
   constructor(server: FastifyInstance, players: [Player, Player]) {
@@ -53,8 +56,13 @@ export default class RaceMatch extends Match {
   }
 
   protected async destroy(winner?: Player) {
-    if (this.raceTimeout) clearTimeout(this.raceTimeout);
+    this.timeouts.forEach(timeout => clearTimeout(timeout));
     return super.destroy(winner);
+  }
+
+  private bonusIndex = Math.floor(Math.random() * BONUSES.length);
+  private generateBonuses() {
+    this.createObject(BONUSES[this.bonusIndex++ % BONUSES.length]);
   }
 
   private static generateWalls() {
@@ -147,7 +155,11 @@ export default class RaceMatch extends Match {
   }
 
   public async start() {
-    this.raceTimeout = setTimeout(() => this.handleEnd(), RACE_TIMEOUT);
+    this.timeouts.push(
+      setTimeout(() => this.handleEnd(), RACE_TIMEOUT),
+      setInterval(() => this.generateBonuses(), BONUS_INTERVAL),
+      setInterval(() => this.createObject('checkpoint'), CHECKPOINT_INTERVAL),
+    );
     return super.start();
   }
 }
