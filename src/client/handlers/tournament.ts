@@ -126,10 +126,73 @@ const handleTournamentMatchEnd = (data: {
   nextRoundID: number | undefined;
   winnerID: number;
   participants: (user & {score: number})[];
-  result: 'cancel' | 'forfeit' | 'tie';
+  result?: 'cancel' | 'forfeit' | 'tie';
 }) => {
-  // pass
-  console.log(data);
+  const store = Store.getInstance();
+  const {joinedTournament} = store.getState();
+  if (!joinedTournament || !joinedTournament.rounds) return;
+
+  const updateRoundImmutably = (
+    round: round | undefined,
+    data: {
+      roundID: number;
+      nextRoundID: number | undefined;
+      winnerID: number;
+      participants: (user & {score?: number})[];
+      result?: 'forfeit' | 'cancel' | 'tie';
+    },
+  ): round | undefined => {
+    if (!round) return round;
+
+    const winner = data.participants.find(p => p.id === data.winnerID);
+    if (!winner) return;
+
+    if (round.id === data.nextRoundID) {
+      return {
+        ...round,
+        participants: winner
+          ? [...round.participants, winner]
+          : round.participants,
+        rounds: round.rounds.map(r => updateRoundImmutably(r, data) || r),
+      };
+    }
+
+    if (round.id === data.roundID) {
+      return {
+        ...round,
+        winnerID: data.winnerID,
+        participants: data.participants,
+        ...(data.result && {result: data.result}),
+      };
+    }
+
+    if (round.rounds.length > 0) {
+      const updatedRounds = round.rounds.map(
+        r => updateRoundImmutably(r, data) || r,
+      );
+
+      if (updatedRounds.some((r, i) => r !== round.rounds[i])) {
+        return {
+          ...round,
+          rounds: updatedRounds,
+        };
+      }
+    }
+
+    return round;
+  };
+
+  const updatedTournament = {
+    ...joinedTournament,
+    rounds: updateRoundImmutably(joinedTournament.rounds, data),
+  };
+
+  const winner = data.participants.find(p => p.id === data.winnerID);
+  if (!data.nextRoundID) {
+    updatedTournament.winner = winner;
+  }
+
+  store.setState({joinedTournament: updatedTournament});
 };
 
 export const setupTournamentHandlers = () => {

@@ -10,15 +10,13 @@ const renderBracket = (round: round, isFinal = true) => {
     className: 'flex items-center  z-10',
   });
 
-  const bracketBorderColor =
-    user && round.participants.find(p => p.id === user.id)
-      ? 'border-pink-300 bg-pink-300/10'
-      : round.participants.length === 2
-        ? 'border-white'
-        : 'border-white/50';
+  let bracketBorderColor = 'border-white';
+  if (round.result) bracketBorderColor = 'border-red-500 bg-red-500/10';
+  if (user && round.participants.find(p => p.id === user.id))
+    bracketBorderColor = 'border-pink-300 bg-pink-300/10';
 
   const bracket = createElement('div', {
-    className: `border rounded-2xl min-w-50 flex flex-col p-3 gap-2 min-h-[82px] ${bracketBorderColor}`,
+    className: `border rounded-2xl min-w-50 flex flex-col p-3 gap-2 ${bracketBorderColor}`,
   });
 
   round.participants.forEach(participant => {
@@ -56,10 +54,19 @@ const renderBracket = (round: round, isFinal = true) => {
 
     const isParticipantWinner =
       round.winnerID && round.winnerID === participant.id;
-    const rightContent = createElement('p', {
-      textContent: participant.score ? participant.score.toString() : '-',
-      className: isParticipantWinner ? 'text-pink-300' : '',
-    });
+
+    let rightContent: HTMLElement;
+    if (round.result && !isParticipantWinner) {
+      rightContent = createElement('i', {
+        className: 'text-red-500 w-5 h-5',
+        icon: 'x',
+      });
+    } else {
+      rightContent = createElement('p', {
+        textContent: participant.score ? participant.score.toString() : '-',
+        className: isParticipantWinner ? 'text-pink-300' : '',
+      });
+    }
 
     row.appendChild(rightContent);
 
