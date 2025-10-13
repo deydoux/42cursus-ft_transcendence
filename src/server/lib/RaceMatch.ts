@@ -44,8 +44,10 @@ export default class RaceMatch extends Match {
       attempts < maxAttempts
     );
 
-    this.checkpoints.unshift({x, y});
-    this.checkpoints = this.checkpoints.slice(0, 3);
+    if (object === 'checkpoint') {
+      this.checkpoints.unshift({x, y});
+      this.checkpoints = this.checkpoints.slice(0, 3);
+    }
 
     this.send({
       type: 'raceObject',
