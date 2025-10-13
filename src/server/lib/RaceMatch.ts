@@ -35,8 +35,8 @@ export default class RaceMatch extends Match {
     let x, y;
 
     do {
-      x = Math.random() * WIDTH - padding;
-      y = Math.random() * HEIGHT - padding;
+      x = Math.random() * (WIDTH - padding * 2) + padding;
+      y = Math.random() * (HEIGHT - padding * 2) + padding;
       attempts++;
     } while (
       (this.isColliding(x, y, padding) ||
