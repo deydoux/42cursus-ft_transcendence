@@ -12,7 +12,7 @@ import {Wall} from '../containers/race/wall';
 import {carSprites} from '../utils/content';
 import {keys} from '../utils/keys';
 
-export class RacecarGame extends BaseComponent {
+export class RaceGame extends BaseComponent {
   private raceGameUI?: RaceGameUI;
   /**
    * Initializes the game state with the provided canvas context.

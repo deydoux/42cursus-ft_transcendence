@@ -5,7 +5,7 @@ import {LandingPage} from './pages/LandingPage';
 import {Lobby} from './pages/Lobby';
 import {PageNotFound} from './pages/PageNotFound';
 import {PongGame} from './pages/PongGame';
-import {RacecarGame} from './pages/RacecarGame';
+import {RaceGame} from './pages/RaceGame';
 import {Router} from './services/router';
 import {Settings} from './pages/Settings';
 import {Statistics} from './pages/Statistics';
@@ -76,7 +76,7 @@ class App {
     this.router.addPrivateRoute('/settings', () => new Settings(chat));
     this.router.addPrivateRoute('/lobby', () => new Lobby(chat));
     this.router.addPrivateRoute('/pong', () => new PongGame());
-    this.router.addPrivateRoute('/racecar', () => new RacecarGame());
+    this.router.addPrivateRoute('/race', () => new RaceGame());
     this.router.addPrivateRoute('/statistics', () => new Statistics());
   }
 }

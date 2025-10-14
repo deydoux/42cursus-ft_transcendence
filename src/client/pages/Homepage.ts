@@ -68,38 +68,38 @@ export class Homepage extends BaseComponent {
       }),
     );
 
-    const racecarButtons = createElement('div', {
+    const raceButtons = createElement('div', {
       className: 'flex flex-col gap-2',
     });
-    racecarButtons.append(
+    raceButtons.append(
       createElement('button', {
-        textContent: 'Play racecar online',
+        textContent: 'Play race online',
         className: `cursor-pointer flex-1 rounded bg-gradient-to-br from-pink-200 to-pink-300 font-semibold uppercase text-background rounded-t-xl`,
         onclick: () => {
           this.store.setState({isRaceGameLocal: false});
           socket.send(
             JSON.stringify({
               type: 'joinMatchmaking',
-              game: 'racecar',
+              game: 'race',
               mode: 'casual',
             }),
           );
         },
       }),
     );
-    racecarButtons.append(
+    raceButtons.append(
       createElement('button', {
-        textContent: 'Play racecar local',
+        textContent: 'Play race local',
         className: `cursor-pointer flex-1 rounded bg-background rounded-b-xl font-semibold uppercase text-pink-300 border-3 border-pink-300`,
         onclick: () => {
           this.store.setState({isRaceGameLocal: true});
-          this.router.navigate(`/racecar`);
+          this.router.navigate(`/race`);
         },
       }),
     );
 
     gameMenu.appendChild(pongButtons);
-    gameMenu.appendChild(racecarButtons);
+    gameMenu.appendChild(raceButtons);
 
     const tournamentsButton = createElement('button', {
       textContent: 'Tournaments',
