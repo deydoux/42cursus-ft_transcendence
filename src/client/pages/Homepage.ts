@@ -37,7 +37,11 @@ export class Homepage extends BaseComponent {
       className: 'h-full flex-1 flex flex-wrap gap-10',
     });
 
-    gameMenu.appendChild(this.renderMenuButton(false));
+    gameMenu.appendChild(
+      this.renderMenuButton(false, 'Tournament', () => {
+        this.router.navigate('/tournament');
+      }),
+    );
 
     gameMenu.appendChild(
       this.renderMenuButton(true, 'Play local', () => {

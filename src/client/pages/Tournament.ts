@@ -8,31 +8,16 @@ import {round} from '../types';
 import {socket} from '../utils/websocket';
 
 export class Tournament extends BaseComponent {
+  private displayCreateTournamentDialog?: () => void;
+
   constructor(private chat: HTMLElement) {
     super();
   }
 
-  private renderBanner() {
-    const container = createElement('div', {
-      className: `mb-8 w-full h-38 bg-linear-to-br from-pink-200 to-pink-300 text-background flex items-center justify-between px-16 rounded-lg  shadow-lg shadow-pink-300/30`,
-    });
-
-    const bannerTitle = createElement('div');
-    bannerTitle.appendChild(
-      createElement('h1', {
-        className: 'text-3xl font-bold',
-        textContent: 'Tournaments',
-      }),
-    );
-    bannerTitle.appendChild(
-      createElement('p', {
-        className: 'opacity-70',
-        textContent: `Join a tournament to play pong with many friends, or create your own`,
-      }),
-    );
-    container.appendChild(bannerTitle);
-
+  private renderCreateTournamentDialog() {
     const {dialogContent, showModal, close} = createDialog('create-tournament');
+    this.displayCreateTournamentDialog = showModal;
+
     const createTournament = createElement('form', {
       className: `p-10 bg-background text-white border border-white/50 rounded-xl flex flex-col`,
     });
@@ -94,10 +79,31 @@ export class Tournament extends BaseComponent {
     );
 
     dialogContent.appendChild(createTournament);
+  }
+
+  private renderBanner() {
+    const container = createElement('div', {
+      className: `mb-8 w-full h-38 bg-linear-to-br from-pink-200 to-pink-300 text-background flex items-center justify-between px-16 rounded-lg  shadow-lg shadow-pink-300/30`,
+    });
+
+    const bannerTitle = createElement('div');
+    bannerTitle.appendChild(
+      createElement('h1', {
+        className: 'text-3xl font-bold',
+        textContent: 'Tournaments',
+      }),
+    );
+    bannerTitle.appendChild(
+      createElement('p', {
+        className: 'opacity-70',
+        textContent: `Join a tournament to play pong with many friends, or create your own`,
+      }),
+    );
+    container.appendChild(bannerTitle);
 
     const createButton = createElement('button', {
       className: `bg-background text-pink-300 py-3 px-4 rounded-lg cursor-pointer duration-200 flex items-center gap-2`,
-      onclick: showModal,
+      onclick: this.displayCreateTournamentDialog,
     });
 
     createButton.appendChild(
@@ -122,21 +128,24 @@ export class Tournament extends BaseComponent {
     container.innerHTML = '';
 
     if (tournaments.length === 0) {
-      container.appendChild(
-        createElement('div', {
-          textContent:
-            'No tournament waiting to be joined right now. Create your own!',
-          className:
-            'flex-1 flex items-center justify-center text-white/50 italic',
+      const noTournamentPlaceholder = createElement('p', {
+        textContent: `No tournament waiting to be joined right now.`,
+        className: `col-span-3 flex-1 flex items-center justify-center text-white/50 italic flex flex-col`,
+      });
+      noTournamentPlaceholder.append(
+        createElement('button', {
+          className: `font-medium text-pink-300 cursor-pointer hover:underline not-italic`,
+          textContent: 'Create your own!',
+          onclick: this.displayCreateTournamentDialog,
         }),
       );
+      container.append(noTournamentPlaceholder);
       return;
     }
 
     tournaments.forEach(tournament => {
       const tournamentCard = createElement('div', {
-        className:
-          'border border-pink-300 rounded-lg h-fit overflow-hidden hover:-translate-y-1 duration-100',
+        className: `border border-pink-300 rounded-lg h-fit overflow-hidden hover:-translate-y-1 duration-100`,
       });
 
       const cardHeader = createElement('div', {
@@ -451,6 +460,8 @@ export class Tournament extends BaseComponent {
     const pageContent = createElement('div', {
       className: 'flex-1 flex flex-col justify-start h-full',
     });
+
+    this.renderCreateTournamentDialog();
 
     const renderPageContent = () => {
       const {tournamentView, joinedTournament} = this.store.getState();
