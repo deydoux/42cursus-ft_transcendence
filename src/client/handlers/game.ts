@@ -38,6 +38,7 @@ const handleMatchStart = (data: {
 
   setTimeout(() => {
     store.setState({isWaitingForMatchmaking: false});
+    sessionStorage.setItem('validRaceAccess', 'true');
     router.navigate(`/${data.game}`);
   }, 3000);
 };
@@ -135,7 +136,6 @@ const handdleCarSlowdown = (data: {slowID: number}) => {
     console.log(raceCanvas.race.opponent.car?.color, 'got slowed down');
   }
 };
-
 
 export const setupGameHandlers = () => {
   socket.on('matchStart', handleMatchStart);

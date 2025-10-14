@@ -11,6 +11,8 @@ import {Track} from '../containers/race/track';
 import {Wall} from '../containers/race/wall';
 import {carSprites} from '../utils/content';
 import {keys} from '../utils/keys';
+import { socket } from '../utils/websocket';
+import { Router } from '../services/router';
 
 export class RaceGame extends BaseComponent {
   private raceGameUI?: RaceGameUI;

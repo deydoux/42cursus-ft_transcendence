@@ -4,7 +4,6 @@ import {IPlayer} from '../../types/game';
 import {RaceCanvas} from './raceCanvas';
 import {Router} from '../../services/router';
 import {User} from '../../handlers/game';
-import {socket} from '../../utils/websocket';
 import unknow_avatar from '../../assets/unknown-avatar.jpeg';
 
 interface RaceGameUIElement extends HTMLElement {

@@ -76,7 +76,27 @@ class App {
     this.router.addPrivateRoute('/settings', () => new Settings(chat));
     this.router.addPrivateRoute('/lobby', () => new Lobby(chat));
     this.router.addPrivateRoute('/pong', () => new PongGame());
-    this.router.addPrivateRoute('/race', () => new RaceGame());
+    this.router.addPrivateRoute('/race', () => {
+      const router = Router.getInstance();
+      const validAccess = sessionStorage.getItem('validRaceAccess');
+
+      if (!validAccess) {
+        console.log(
+          'Invalid race access (no valid navigation flag), redirecting to homepage',
+        );
+
+        setTimeout(() => {
+          router.navigate('/homepage');
+        }, 0);
+
+        return new Homepage(chat);
+      }
+
+      // Clear the flag after successful access
+      sessionStorage.removeItem('validRaceAccess');
+
+      return new RaceGame();
+    });
     this.router.addPrivateRoute('/statistics', () => new Statistics());
   }
 }

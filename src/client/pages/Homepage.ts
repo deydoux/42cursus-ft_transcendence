@@ -93,6 +93,8 @@ export class Homepage extends BaseComponent {
         className: `cursor-pointer flex-1 rounded bg-background rounded-b-xl font-semibold uppercase text-pink-300 border-3 border-pink-300`,
         onclick: () => {
           this.store.setState({isRaceGameLocal: true});
+          // Set the session flag before navigating for local games
+          sessionStorage.setItem('validRaceAccess', 'true');
           this.router.navigate(`/race`);
         },
       }),

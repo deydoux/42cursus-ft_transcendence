@@ -1,6 +1,7 @@
 import {GameUIElement, IRaceGame} from '../../types/game';
 import {Checkpoint} from './checkpoint';
 import {Growpoint} from './growpoint';
+import {Router} from '../../services/router';
 import {Slowpoint} from './slowpoint';
 import {displayCountdownMessage} from '../../utils/content';
 import {socket} from '../../utils/websocket';
@@ -10,6 +11,7 @@ export class RaceCanvas {
   public race: IRaceGame;
   public raf: number | null;
   private color = 'rgb(255, 255, 255)';
+  protected router = Router.getInstance();
 
   private constructor(race: IRaceGame) {
     this.raf = null;
