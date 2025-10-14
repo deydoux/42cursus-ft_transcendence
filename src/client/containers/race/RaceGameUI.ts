@@ -4,6 +4,7 @@ import {IPlayer} from '../../types/game';
 import {RaceCanvas} from './raceCanvas';
 import {Router} from '../../services/router';
 import {User} from '../../handlers/game';
+import {socket} from '../../utils/websocket';
 import unknow_avatar from '../../assets/unknown-avatar.jpeg';
 
 interface RaceGameUIElement extends HTMLElement {
@@ -43,7 +44,7 @@ export class RaceGameUI extends BaseComponent {
     const header = DOMUtils.createElement('div', {
       attributes: {id: 'game-header'},
       className:
-        'flex justify-between items-center px-8 py-4 bg-gray-600 rounded-lg mx-auto',
+        'flex justify-between items-center px-8 py-4 bg-gray-600 rounded-lg mx-auto w-full',
     });
 
     // Left player info

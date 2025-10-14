@@ -1,4 +1,4 @@
-import {IPlayer, IPongGame, PongGameUIElement} from '../../types/game';
+import {GameUIElement, IPlayer, IPongGame} from '../../types/game';
 import {Store} from '../../services/store';
 import {displayCountdownMessage} from '../../utils/content';
 import {socket} from '../../utils/websocket';
@@ -50,7 +50,7 @@ export class PongCanvas {
       this.pong.isLocal &&
       (this.pong.player.score === 3 || this.pong.opponent.score === 3)
     )
-      PongCanvas.getInstance().endofAMatch(
+      this.endofAMatch(
         this.pong.player.score == 3
           ? this.pong.player.id
           : this.pong.opponent.id,
@@ -186,7 +186,7 @@ export class PongCanvas {
 
     const gameUIElement = document.querySelector(
       '.pong-game-ui',
-    ) as PongGameUIElement;
+    ) as GameUIElement;
     if (gameUIElement && gameUIElement.showGameEndModal) {
       gameUIElement.showGameEndModal({winner, result, eloChange});
     }

@@ -24,6 +24,14 @@ export interface IPlayer {
     losses: number; */
 }
 
+export interface GameUIElement extends HTMLElement {
+  showGameEndModal(data: {
+    winner: number;
+    result?: string;
+    eloChange?: number;
+  }): void;
+}
+
 /*PONG GAME*/
 export interface IPongGame {
   player: IPlayer;
@@ -35,14 +43,6 @@ export interface IPongGame {
   isScoring: boolean;
   timer: Timer;
   isLocal: boolean;
-}
-
-export interface PongGameUIElement extends HTMLElement {
-  showGameEndModal(data: {
-    winner: number;
-    result?: string;
-    eloChange?: number;
-  }): void;
 }
 
 /*RACE GAME*/
@@ -64,3 +64,4 @@ export interface IRaceGame {
   currentSlowpoint: Slowpoint | null;
   lastSlowpointTime: number | null;
 }
+

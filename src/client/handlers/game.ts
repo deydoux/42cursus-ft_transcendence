@@ -128,6 +128,15 @@ const handleCarMove = (data: {
   }
 };
 
+const handdleCarSlowdown = (data: {slowID: number}) => {
+  const raceCanvas = RaceCanvas.getInstance();
+  if (data.slowID === raceCanvas.race.opponent.id) {
+    raceCanvas.race.opponent.car?.applySlowdown();
+    console.log(raceCanvas.race.opponent.car?.color, 'got slowed down');
+  }
+};
+
+
 export const setupGameHandlers = () => {
   socket.on('matchStart', handleMatchStart);
   socket.on('success', handleSuccess);
@@ -138,4 +147,5 @@ export const setupGameHandlers = () => {
   socket.on('round', handleRound);
   socket.on('ballState', handleBallState);
   socket.on('carMove', handleCarMove);
+  socket.on('carSlowdown', handdleCarSlowdown);
 };

@@ -1,8 +1,9 @@
+import {GameUIElement, IRaceGame} from '../../types/game';
 import {Checkpoint} from './checkpoint';
 import {Growpoint} from './growpoint';
-import {IRaceGame} from '../../types/game';
 import {Slowpoint} from './slowpoint';
 import {displayCountdownMessage} from '../../utils/content';
+import {socket} from '../../utils/websocket';
 export class RaceCanvas {
   private static instance: RaceCanvas | null = null;
   private ctx: CanvasRenderingContext2D;
@@ -110,15 +111,24 @@ export class RaceCanvas {
     }
 
     // Check if time is up (only if timer has started)
-    if (this.race.timer.isRunning && this.race.timer.isTimeUp()) {
-      this.race.timer.stop();
-      this.resetGame();
+    if (
+      this.race.isLocal &&
+      this.race.timer.isRunning &&
+      this.race.timer.isTimeUp()
+    ) {
+      this.endofAMatch(
+        this.race.player.score > this.race.opponent.score
+          ? this.race.player.id
+          : this.race.opponent.id,
+        undefined,
+        undefined,
+      );
       return;
     }
 
     // handle game logic
     if (!isCountdownActive) {
-      this.handlePointsSpawning();
+      if (this.race.isLocal) this.handlePointsSpawning();
       this.handleStuckCars();
       this.handlePointsCollision();
       this.handleCarMovement();
@@ -223,37 +233,6 @@ export class RaceCanvas {
     }
   }
 
-  /*
-  // Send when car size changes (growpoint collision)
-  private sendCarSizeUpdate(): void {
-    const sizeData = {
-      type: 'car_size_update',
-      playerId: this.race.player.id,
-      carWidth: this.race.player.car?.carWidth || 0,
-      carHeight: this.race.player.car?.carHeight || 0,
-      isBigger: this.race.player.car?.isBigger || false
-    };
-  }
-
-  // Send when car gets slowed down
-  private sendCarStatusUpdate(): void {
-    const statusData = {
-      type: 'car_status_update',
-      playerId: this.race.player.id,
-      isSlowed: this.race.player.car?.isSlowed || false,
-      isStopped: this.race.player.car?.isStopped || false
-    };
-  }
-
-  // Send when score changes
-  private sendScoreUpdate(): void {
-    const scoreData = {
-      type: 'score_update',
-      playerId: this.race.player.id,
-      score: this.race.player.score
-    };
-  }
-   */
   /**
    * Updates the score display
    */
@@ -270,6 +249,7 @@ export class RaceCanvas {
    * Handles the spawning and management of checkpoints, growpoints, and slowpoints.
    * Checkpoints are updated every 10 seconds, growpoints every 50 seconds,
    * and slowpoints are created randomly.
+   * this funciton is only called if the game is local as the server handles it in a remote game
    */
   private handlePointsSpawning(): void {
     const currentTime = Date.now();
@@ -337,17 +317,31 @@ export class RaceCanvas {
   private handlePointsCollision(): void {
     //checkpoint collision -> increment score & remove it from the canvas
     this.race.checkpoints = this.race.checkpoints.filter(checkpoint => {
-      if (checkpoint.isColliding(this.race.player.car)) {
-        this.race.player.score += 2; // Add points for player.car
+      const playerCollision = checkpoint.isColliding(this.race.player.car);
+      const opponentCollision =
+        this.race.isLocal && checkpoint.isColliding(this.race.opponent.car);
+
+      if (playerCollision) {
+        this.race.player.score += 2;
         this.updateScore();
-        socket.send(
-          JSON.stringify({
-            type: 'score',
-            scorerID: this.race.player.id,
-          }),
-        );
+
+        if (!this.race.isLocal) {
+          socket.send(
+            JSON.stringify({
+              type: 'score',
+              scorerID: this.race.player.id,
+            }),
+          );
+        }
         return false; // Remove checkpoint
       }
+
+      if (opponentCollision) {
+        this.race.opponent.score += 2;
+        this.updateScore();
+        return false; // Remove checkpoint
+      }
+
       return true; // Keep checkpoint
     });
 
@@ -357,26 +351,59 @@ export class RaceCanvas {
       this.race.currentGrowpoint.isColliding(this.race.player.car) &&
       !this.race.player.car?.isBigger
     ) {
-      this.race.currentGrowpoint = null; // Clear growpoint after collision
-      socket.send(
-        JSON.stringify({
-          type: 'carGrowth',
-          growthID: this.race.player.id,
-        }),
-      );
-      /* this.race.player.car?.applyCarGrowth();
-      this.race.lastGrowpointTime = Date.now() - 45000; */
+      if (!this.race.isLocal) {
+        this.race.currentGrowpoint = null; // Clear growpoint after collision
+        socket.send(
+          JSON.stringify({
+            type: 'carGrowth',
+            growthID: this.race.player.id,
+          }),
+        );
+      } else {
+        this.race.player.car?.applyCarGrowth();
+        this.race.lastGrowpointTime = Date.now() - 45000;
+      }
     }
 
     //slowpoint collision -> slows down opposant's car
     if (
       this.race.currentSlowpoint &&
-      this.race.currentSlowpoint.isColliding(this.race.opponent.car) &&
-      !this.race.player.car?.isSlowed
+      this.race.currentSlowpoint.isColliding(this.race.player.car) &&
+      !this.race.opponent.car?.isSlowed
     ) {
       this.race.currentSlowpoint = null; // Clear slowpoint after collision
-      this.race.player.car?.applySlowdown();
-      this.race.lastSlowpointTime = Date.now();
+      if (!this.race.isLocal) {
+        socket.send(
+          JSON.stringify({
+            type: 'carSlowdown',
+            slowID: this.race.opponent.id,
+          }),
+        );
+      } else {
+        this.race.opponent.car?.applySlowdown();
+        this.race.lastSlowpointTime = Date.now();
+      }
+    }
+
+    if (this.race.isLocal) {
+      if (
+        this.race.currentSlowpoint &&
+        this.race.currentSlowpoint.isColliding(this.race.opponent.car) &&
+        !this.race.player.car?.isSlowed
+      ) {
+        this.race.currentSlowpoint = null; // Clear slowpoint after collision
+        this.race.player.car?.applySlowdown();
+        this.race.lastSlowpointTime = Date.now();
+      }
+      if (
+        this.race.currentGrowpoint &&
+        this.race.currentGrowpoint.isColliding(this.race.opponent.car) &&
+        !this.race.opponent.car?.isBigger
+      ) {
+        this.race.currentGrowpoint = null; // Clear slowpoint after collision
+        this.race.opponent.car?.applyCarGrowth();
+        this.race.lastGrowpointTime = Date.now() - 45000;
+      }
     }
   }
 
@@ -416,15 +443,29 @@ export class RaceCanvas {
       width: this.race.player.car?.carWidth,
       height: this.race.player.car?.carHeight,
     };
-
-    const opponentCarPosition = {
-      x: this.race.opponent.car.x - this.race.opponent.car.carWidth / 2,
-      y: this.race.opponent.car.y - this.race.opponent.car.carHeight / 2,
-      width: this.race.opponent.car?.carWidth,
-      height: this.race.opponent.car?.carHeight,
-    };
     this.race.walls.isCarColliding(playerCarPosition);
-    this.race.walls.isCarColliding(opponentCarPosition);
+
+    if (this.race.isLocal) {
+      const opponentCarPosition = {
+        x: this.race.opponent.car.x - this.race.opponent.car.carWidth / 2,
+        y: this.race.opponent.car.y - this.race.opponent.car.carHeight / 2,
+        width: this.race.opponent.car?.carWidth,
+        height: this.race.opponent.car?.carHeight,
+      };
+      this.race.walls.isCarColliding(opponentCarPosition);
+    }
+  }
+
+  public endofAMatch(winner: number, result?: string, eloChange?: number) {
+    this.race.timer.stop();
+    this.resetCarGame();
+
+    const gameUIElement = document.querySelector(
+      '.race-game-ui',
+    ) as GameUIElement;
+    if (gameUIElement && gameUIElement.showGameEndModal) {
+      gameUIElement.showGameEndModal({winner, result, eloChange});
+    }
   }
 
   public static destroyInstance(): void {
@@ -441,9 +482,9 @@ export class RaceCanvas {
    * Ends the game by stopping the timer and setting gameStarted to false.
    * This method is called when the time is up.
    */
-  private resetGame(): void {
+  private resetCarGame(): void {
     this.race.player.score = 0;
-    this.race.opponent.score = 0;
+    if (this.race.isLocal) this.race.opponent.score = 0;
     this.updateScore();
     this.race.timer.reset();
     this.race.gameStarted = false;
