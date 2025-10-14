@@ -45,6 +45,26 @@ Sent to join the matchmaking queue
 }
 ```
 
+### `kickParticipant`
+Sent to kick a participant from a tournament (tournament owner only)
+
+*Example:*
+```json
+{
+  "type": "kickParticipant",
+  "participantID": 2
+}
+```
+
+*Response:* (to all client sockets)
+```json
+{
+  "type": "participantLeft",
+  "userID": 2,
+  "ownerID": 1
+}
+```
+
 ### `leaveMatchmaking`
 Sent to leave the matchmaking queue
 
@@ -186,7 +206,6 @@ Received when a general message is sent
 }
 ```
 
-
 ### `matchCancel`
 Received when a match is cancelled due to an error
 
@@ -233,7 +252,8 @@ Received when a match is starting
     "elo": 1000
   }],
   "dx": -0.52,
-  "dy": 0.85
+  "dy": 0.85,
+  "time": 1759316703657
 }
 ```
 
@@ -295,6 +315,19 @@ Received when a participant leaves a tournament
 }
 ```
 
+### `raceObject`
+Received when a race object is created
+
+*Example:*
+```json
+{
+  "type": "raceObject",
+  "object": "checkpoint",
+  "x": 150,
+  "y": 300
+}
+```
+
 ### `round`
 Received when a round starts in a match
 
@@ -302,6 +335,9 @@ Received when a round starts in a match
 ```json
 {
   "type": "round"
+  "dx": -0.52,
+  "dy": 0.85,
+  "time": 1759316703657
 }
 ```
 

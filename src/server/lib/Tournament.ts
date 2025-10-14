@@ -1,4 +1,4 @@
-import {Client, ServerTunnelMessage} from '#types/Clients';
+import {Client, ClientTunnelMessage, ServerTunnelMessage} from '#types/Clients';
 import Clients from '#lib/Clients';
 import {FastifyInstance} from 'fastify';
 import {Player} from '#lib/Match';
@@ -109,6 +109,9 @@ export class Tournament {
       }
 
       switch (message?.type) {
+        case 'kickParticipant':
+          this.kickParticipant(message, participant);
+          break;
         case 'leaveTournament':
           this.removeParticipant(participant);
           break;
@@ -118,6 +121,40 @@ export class Tournament {
       }
     };
 
+  private kickParticipant(
+    message: ClientTunnelMessage & {type: 'kickParticipant'},
+    by: Participant,
+  ) {
+    if (by.userID !== this.participants[0].userID)
+      return Clients.sendClient(by, {
+        type: 'error',
+        message: 'Only the tournament owner can kick participants',
+      });
+
+    if (typeof message.participantID !== 'number')
+      return Clients.sendClient(by, {
+        type: 'error',
+        message: 'Invalid participant ID',
+      });
+
+    if (by.userID === message.participantID)
+      return Clients.sendClient(by, {
+        type: 'error',
+        message: 'You cannot kick yourself, use leaveTournament instead',
+      });
+
+    const participant = this.participants.find(
+      p => p.userID === message.participantID,
+    );
+    if (!participant)
+      return Clients.sendClient(by, {
+        type: 'error',
+        message: 'Participant not found',
+      });
+
+    this.removeParticipant(participant, false, 'kickParticipant');
+  }
+
   public removeClient(client: Client) {
     const participant = this.participants.find(
       participant => participant.socket === client.socket,
@@ -125,7 +162,11 @@ export class Tournament {
     if (participant) this.removeParticipant(participant);
   }
 
-  private async removeParticipant(participant: Participant, silent = false) {
+  private async removeParticipant(
+    participant: Participant,
+    silent = false,
+    origin = 'leaveTournament',
+  ) {
     this.participants = this.participants.filter(p => p !== participant);
 
     if (participant.onSocketMessage)
@@ -140,7 +181,7 @@ export class Tournament {
     if (!silent) {
       Clients.sendClient(participant, {
         type: 'success',
-        origin: 'leaveTournament',
+        origin,
       });
 
       this.send({

@@ -7,21 +7,15 @@ export class Homepage extends BaseComponent {
     super();
   }
 
-  renderMenuButton = (darkMode = false, label?: string) => {
+  renderMenuButton = (
+    darkMode = false,
+    label?: string,
+    callback?: () => void,
+  ) => {
     const button = createElement('div', {
       className: 'flex-1 min-w-1/3',
       onclick: () => {
-        if (label) {
-          this.router.navigate(`/${label.toLowerCase()}`);
-        } else {
-          socket.send(
-            JSON.stringify({
-              type: 'joinMatchmaking',
-              game: 'pong',
-              mode: 'casual',
-            }),
-          );
-        }
+        if (callback) callback();
       },
     });
     button.appendChild(
@@ -43,10 +37,33 @@ export class Homepage extends BaseComponent {
       className: 'h-full flex-1 flex flex-wrap gap-10',
     });
 
-    gameMenu.appendChild(this.renderMenuButton());
-    gameMenu.appendChild(this.renderMenuButton(true));
-    gameMenu.appendChild(this.renderMenuButton(true, 'Tournament'));
-    gameMenu.appendChild(this.renderMenuButton(false, 'Settings'));
+    gameMenu.appendChild(this.renderMenuButton(false));
+
+    gameMenu.appendChild(
+      this.renderMenuButton(true, 'Play local', () => {
+        this.store.setState({isGameLocal: true});
+        this.router.navigate(`/pong`);
+      }),
+    );
+
+    gameMenu.appendChild(
+      this.renderMenuButton(true, 'Play pong', () => {
+        this.store.setState({isGameLocal: false});
+        socket.send(
+          JSON.stringify({
+            type: 'joinMatchmaking',
+            game: 'pong',
+            mode: 'casual',
+          }),
+        );
+      }),
+    );
+
+    gameMenu.appendChild(
+      this.renderMenuButton(false, 'Settings', () =>
+        this.router.navigate(`/settings`),
+      ),
+    );
 
     container.appendChild(gameMenu);
     if (this.chat) container.appendChild(this.chat);

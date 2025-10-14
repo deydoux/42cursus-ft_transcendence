@@ -37,7 +37,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
 
     if (query.game) dbQuery.append(SQL` AND game = ${query.game}`);
     dbQuery.append(SQL`
-      ORDER BY id DESC
+      ORDER BY m.id DESC
     `);
 
     const matches = await server.db.all(dbQuery);

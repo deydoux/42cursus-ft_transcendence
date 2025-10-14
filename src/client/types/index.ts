@@ -1,3 +1,4 @@
+import {User} from '../handlers/game';
 export interface user {
   id: number;
   username: string;
@@ -134,6 +135,11 @@ export interface AppState {
     totalGames: number;
     bestPlayer: string;
   };
+  players: [User, User];
+  isOpponentBlocked: boolean;
+  matchStartBallData: {dx: number; dy: number};
+
+  isGameLocal: boolean;
 }
 
 export interface Component {

@@ -39,39 +39,3 @@
   flex: 1 1 auto;
    position: relative;
 }
-
-#pong-btn {
-  --glow-color: rgb(253, 165, 213);
- border: .05em solid var(--glow-color);
- font-family: sans-serif;
- padding: 1em 3em;
- color: #fda5d5;
- width: 70%;
- margin: 0.5em auto;
- display: block;
- font-size: 24px;
- font-weight: bold;
- background-color: var(--btn-color);
- border-radius: 1em;
- outline: none;
- box-shadow: 0 0 0.1em .01em var(--glow-color),
-        inset 0 0 .05em .01em var(--glow-color);
- text-shadow: 0 0 .5em var(--glow-color);
- position: relative;
- transition: all 0.3s;
-}
-
-
-#pong-btn:hover {
- color: var(--btn-color);
- background-color: var(--glow-color);
- box-shadow: 0 0 1em .25em var(--glow-color),
-        0 0 2em 0.5em var(--glow-spread-color),
-        inset 0 0 .75em .25em var(--glow-color);
-}
-
-#pong-btn:active {
- box-shadow: 0 0 0.6em .25em var(--glow-color),
-        0 0 2em 0.5em var(--glow-spread-color),
-        inset 0 0 .5em .25em var(--glow-color);
-}

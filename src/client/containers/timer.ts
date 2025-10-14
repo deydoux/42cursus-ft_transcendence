@@ -60,7 +60,6 @@ export class Timer {
     return this.duration > 0 && this.getElapsedTime() >= this.duration;
   }
 
-  // NEW: Game Start Countdown methods
   public startCountdown(): void {
     this.countdownStart = Date.now();
     this.isCountingDown = true;

@@ -1,6 +1,6 @@
 import {Car} from './car';
 import {Wall} from './wall';
-import coin from '../assets/coin.png';
+import coin from '../../assets/coin.png';
 
 /**
  * Represents a checkpoint in the game.

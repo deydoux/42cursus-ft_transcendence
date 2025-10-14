@@ -21,6 +21,9 @@ const defaultValues = {
     totalGames: 0,
     bestPlayer: 'hkitty',
   },
+  players: [undefined, undefined],
+  isOpponentBlocked: false,
+  isGameLocal: false,
 };
 
 export class Store {
