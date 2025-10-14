@@ -64,6 +64,8 @@ export class Tournament extends BaseComponent {
         attributes: {
           placeholder: 'Tournament name...',
           name: 'name',
+          minLength: '3',
+          maxLength: '64',
         },
       }),
     );
