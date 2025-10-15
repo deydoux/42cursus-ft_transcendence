@@ -26,7 +26,7 @@ const handleMatchStart = (data: {
 
   store.setState({
     isOpponentBlocked: data.block,
-    players: data.players,
+    game: {name: data.game, isLocal: false, players: data.players},
     matchStartBallData: {dx: data.dx, dy: data.dy},
   });
 
@@ -38,7 +38,7 @@ const handleMatchStart = (data: {
 
   setTimeout(() => {
     store.setState({isWaitingForMatchmaking: false});
-    sessionStorage.setItem('validRaceAccess', 'true');
+    sessionStorage.setItem('validGameAccess', 'true');
     router.navigate(`/${data.game}`);
   }, 3000);
 };
@@ -67,10 +67,18 @@ const handleMove = (data: {
 };
 
 const handleMatchCancel = (data: {cause: string}) => {
-  const pongCanvas = PongCanvas.getInstance();
   const router = Router.getInstance();
+  const {game} = Store.getInstance().getState();
+  if (!game) throw new Error('failed to fetch game state');
+
+  if (game.name == 'pong') {
+    const pongCanvas = PongCanvas.getInstance();
+    pongCanvas.resetPongGame();
+  } else if (game.name == 'race') {
+    const raceCanvas = RaceCanvas.getInstance();
+    raceCanvas.resetCarGame();
+  }
   Toastify.error(data.cause);
-  pongCanvas.resetPongGame();
   router.navigate('/homepage');
 };
 
@@ -79,9 +87,19 @@ const handleMatchEnd = (data: {
   result?: string;
   eloChange?: number;
 }) => {
-  const pongCanvas = PongCanvas.getInstance();
-  if (pongCanvas && pongCanvas.pong) {
-    pongCanvas.endofAMatch(data.winner, data.result, data.eloChange, false);
+  const {game} = Store.getInstance().getState();
+  if (!game) throw new Error('failed to fetch game state');
+  if (game.name == 'pong') {
+    const pongCanvas = PongCanvas.getInstance();
+    if (pongCanvas && pongCanvas.pong) {
+      pongCanvas.endofAMatch(data.winner, data.result, data.eloChange, false);
+    }
+  }
+  if (game.name == 'race') {
+    const raceCanvas = RaceCanvas.getInstance();
+    if (raceCanvas && raceCanvas.race) {
+      raceCanvas.endofAMatch(data.winner, data.result, data.eloChange);
+    }
   }
 };
 

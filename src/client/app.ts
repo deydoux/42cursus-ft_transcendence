@@ -75,14 +75,30 @@ class App {
     this.router.addPrivateRoute('/homepage', () => new Homepage(chat));
     this.router.addPrivateRoute('/settings', () => new Settings(chat));
     this.router.addPrivateRoute('/lobby', () => new Lobby(chat));
-    this.router.addPrivateRoute('/pong', () => new PongGame());
-    this.router.addPrivateRoute('/race', () => {
+    this.router.addPrivateRoute(
+      '/pong',
+      this.protectedGameRoute('pong', () => new PongGame(), chat),
+    );
+    this.router.addPrivateRoute(
+      '/race',
+      this.protectedGameRoute('race', () => new RaceGame(), chat),
+    );
+
+    this.router.addPrivateRoute('/statistics', () => new Statistics());
+  }
+
+  private protectedGameRoute(
+    gameName: string,
+    gameFactory: () => PongGame | RaceGame,
+    chat: HTMLElement,
+  ) {
+    return () => {
       const router = Router.getInstance();
-      const validAccess = sessionStorage.getItem('validRaceAccess');
+      const validAccess = sessionStorage.getItem('validGameAccess');
 
       if (!validAccess) {
-        console.log(
-          'Invalid race access (no valid navigation flag), redirecting to homepage',
+        console.error(
+          `Invalid ${gameName} game access (no valid navigation flag), redirecting to homepage`,
         );
 
         setTimeout(() => {
@@ -93,11 +109,10 @@ class App {
       }
 
       // Clear the flag after successful access
-      sessionStorage.removeItem('validRaceAccess');
+      sessionStorage.removeItem('validGameAccess');
 
-      return new RaceGame();
-    });
-    this.router.addPrivateRoute('/statistics', () => new Statistics());
+      return gameFactory();
+    };
   }
 }
 

@@ -1,6 +1,6 @@
 import {BaseComponent} from '../components/BaseComponent';
-import {createElement} from '../utils/dom';
 import {Toastify} from '../utils/toastify';
+import {createElement} from '../utils/dom';
 import {socket} from '../utils/websocket';
 
 export class Homepage extends BaseComponent {
@@ -46,7 +46,9 @@ export class Homepage extends BaseComponent {
         textContent: 'Play pong online',
         className: `cursor-pointer flex-1 rounded bg-gradient-to-br from-pink-200 to-pink-300 font-semibold uppercase text-background rounded-t-xl`,
         onclick: () => {
-          this.store.setState({isPongGameLocal: false});
+          this.store.setState({
+            game: {...this.store.getState().game, isLocal: false},
+          });
           socket.send(
             JSON.stringify({
               type: 'joinMatchmaking',
@@ -62,7 +64,11 @@ export class Homepage extends BaseComponent {
         textContent: 'Play pong local',
         className: `cursor-pointer flex-1 rounded bg-background rounded-b-xl font-semibold uppercase text-pink-300 border-3 border-pink-300`,
         onclick: () => {
-          this.store.setState({isPongGameLocal: true});
+          this.store.setState({
+            game: {...this.store.getState().game, isLocal: true},
+          });
+          // Set the session flag before navigating for local games
+          sessionStorage.setItem('validGameAccess', 'true');
           this.router.navigate(`/pong`);
         },
       }),
@@ -76,7 +82,9 @@ export class Homepage extends BaseComponent {
         textContent: 'Play race online',
         className: `cursor-pointer flex-1 rounded bg-gradient-to-br from-pink-200 to-pink-300 font-semibold uppercase text-background rounded-t-xl`,
         onclick: () => {
-          this.store.setState({isRaceGameLocal: false});
+          this.store.setState({
+            game: {...this.store.getState().game, isLocal: false},
+          });
           socket.send(
             JSON.stringify({
               type: 'joinMatchmaking',
@@ -92,9 +100,11 @@ export class Homepage extends BaseComponent {
         textContent: 'Play race local',
         className: `cursor-pointer flex-1 rounded bg-background rounded-b-xl font-semibold uppercase text-pink-300 border-3 border-pink-300`,
         onclick: () => {
-          this.store.setState({isRaceGameLocal: true});
+          this.store.setState({
+            game: {...this.store.getState().game, isLocal: true},
+          });
           // Set the session flag before navigating for local games
-          sessionStorage.setItem('validRaceAccess', 'true');
+          sessionStorage.setItem('validGameAccess', 'true');
           this.router.navigate(`/race`);
         },
       }),

@@ -126,7 +126,7 @@ export class RaceGameUI extends BaseComponent {
 
     let players;
     if (!raceCanvas.race.isLocal) {
-      players = this.store.getState().players;
+      players = this.store.getState().game.players;
     } else {
       players = [raceCanvas.race.player, raceCanvas.race.opponent];
     }
@@ -200,7 +200,7 @@ export class RaceGameUI extends BaseComponent {
 
     let players;
     if (!raceCanvas.race.isLocal) {
-      players = this.store.getState().players;
+      players = this.store.getState().game.players;
     } else {
       players = [raceCanvas.race.player, raceCanvas.race.opponent];
     }

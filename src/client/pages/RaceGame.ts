@@ -33,8 +33,9 @@ export class RaceGame extends BaseComponent {
       return value;
     };
 
-    const {isOpponentBlocked, players, user} = this.store.getState();
+    const {isOpponentBlocked, game, user} = this.store.getState();
     if (!user) throw new Error(`User not found`);
+    const players = game.players;
 
     const walls = new Wall(ctx);
     walls.generateRandomWalls(20);
@@ -190,9 +191,9 @@ export class RaceGame extends BaseComponent {
     canvas.height = 1080;
     ctx.imageSmoothingEnabled = true;
 
-    const {isRaceGameLocal} = this.store.getState();
+    const isLocal = this.store.getState().game.isLocal;
     // Initialize game state
-    const race = this.initializeGame(ctx, isRaceGameLocal);
+    const race = this.initializeGame(ctx, isLocal);
     // Create canvas controller
     const raceCanvas = RaceCanvas.getInstance(race);
     //Binds click events to the keyboard events for car controls

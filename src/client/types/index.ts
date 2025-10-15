@@ -114,12 +114,13 @@ export interface AppState {
       updatedAt: string;
     }[];
   };
-  players: [User, User];
   isOpponentBlocked: boolean;
   matchStartBallData: {dx: number; dy: number};
-
-  isPongGameLocal: boolean;
-  isRaceGameLocal: boolean;
+  game: {
+    name: string;
+    isLocal: boolean;
+    players: [User, User];
+  };
 }
 
 export interface Component {

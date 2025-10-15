@@ -459,7 +459,6 @@ export class RaceCanvas {
   }
 
   public endofAMatch(winner: number, result?: string, eloChange?: number) {
-    this.race.timer.stop();
     this.resetCarGame();
 
     const gameUIElement = document.querySelector(
@@ -484,7 +483,8 @@ export class RaceCanvas {
    * Ends the game by stopping the timer and setting gameStarted to false.
    * This method is called when the time is up.
    */
-  private resetCarGame(): void {
+  public resetCarGame(): void {
+    this.race.timer.stop();
     this.race.player.score = 0;
     if (this.race.isLocal) this.race.opponent.score = 0;
     this.updateScore();

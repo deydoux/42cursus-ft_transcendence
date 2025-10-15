@@ -22,8 +22,9 @@ export class PongGame extends BaseComponent {
       if (!value) missingElements.push(name);
       return value;
     };
-    const {isOpponentBlocked, players, user} = this.store.getState();
+    const {isOpponentBlocked, game, user} = this.store.getState();
     if (!user) throw new Error(`User not found`);
+    const players = game.players;
 
     const initializePlayers = () => {
       const playerPaddleX = isLocal
@@ -132,9 +133,9 @@ export class PongGame extends BaseComponent {
       return;
     }
 
-    const {isPongGameLocal} = this.store.getState();
+    const isLocal = this.store.getState().game.isLocal;
 
-    const pong = this.initializeGame(ctx, isPongGameLocal);
+    const pong = this.initializeGame(ctx, isLocal);
     const pongCanvas = PongCanvas.getInstance(pong);
     this.handleInput(pong);
 

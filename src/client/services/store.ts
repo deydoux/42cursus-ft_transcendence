@@ -13,10 +13,12 @@ const defaultValues = {
   friendRequests: [],
   sentFriendRequests: [],
   countFriendRequests: 0,
-  players: [undefined, undefined],
   isOpponentBlocked: false,
-  isPongGameLocal: false,
-  isRaceGameLocal: false,
+  game: {
+    name: '',
+    isLocal: false,
+    players: [undefined, undefined],
+  },
 };
 
 export class Store {

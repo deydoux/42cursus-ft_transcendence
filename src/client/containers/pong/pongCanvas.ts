@@ -168,7 +168,7 @@ export class PongCanvas {
     eloChange?: number,
     isLocal?: boolean,
   ) {
-    const {players} = Store.getInstance().getState();
+    const {game} = Store.getInstance().getState();
     this.resetPongGame();
 
     // Update final scores in DOM before showing modal
@@ -176,7 +176,7 @@ export class PongCanvas {
       ? winner === this.pong.player.id
         ? 'left'
         : 'right'
-      : winner === players[0].id
+      : winner === game.players[0].id
         ? 'left'
         : 'right';
     const winnerScoreElement = document.getElementById(`${winnerSide}_score`);

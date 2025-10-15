@@ -129,7 +129,7 @@ export class PongGameUI extends BaseComponent {
 
     let players;
     if (!pongCanvas.pong.isLocal) {
-      players = this.store.getState().players;
+      players = this.store.getState().game.players;
     } else {
       players = [pongCanvas.pong.player, pongCanvas.pong.opponent];
     }
@@ -257,7 +257,7 @@ export class PongGameUI extends BaseComponent {
 
     let players;
     if (!pongCanvas.pong.isLocal) {
-      players = this.store.getState().players;
+      players = this.store.getState().game.players;
     } else {
       players = [pongCanvas.pong.player, pongCanvas.pong.opponent];
     }
