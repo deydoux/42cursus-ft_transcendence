@@ -66,6 +66,14 @@ export class TournamentLobby extends BaseComponent {
           const rightContent = createElement('button', {
             className: `text-white/50 hover:text-red-500 cursor-pointer text-sm mr-2 flex items-center justify-center`,
           });
+          rightContent.onclick = () => {
+            socket.send(
+              JSON.stringify({
+                type: 'kickParticipant',
+                participantID: participant.id,
+              }),
+            );
+          };
           rightContent.appendChild(
             createElement('i', {
               className: 'w-6 h-6',

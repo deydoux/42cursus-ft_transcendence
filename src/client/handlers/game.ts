@@ -51,6 +51,12 @@ const handleSuccess = (data: {origin: string}) => {
   } else if (data.origin === 'createTournament') {
     Toastify.success('Tournament created successfully!');
     store.setState({tournamentView: 'lobby'});
+  } else if (data.origin === 'kickParticipant') {
+    Toastify.error('You were kicked from tournament');
+    store.setState({
+      tournamentView: 'tournaments',
+      joinedTournament: undefined,
+    });
   }
 };
 
