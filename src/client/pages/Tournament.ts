@@ -1,5 +1,6 @@
 import {BaseComponent} from '../components/BaseComponent';
 import {Toastify} from '../utils/toastify';
+import {TournamentLobby} from '../containers/tournaments/tournamentLobby';
 import {createDialog} from '../components/Dialog';
 import {createElement} from '../utils/dom';
 import {fetchTournaments} from '../api/tournaments';
@@ -9,6 +10,7 @@ import {socket} from '../utils/websocket';
 
 export class Tournament extends BaseComponent {
   private displayCreateTournamentDialog?: () => void;
+  private view?: BaseComponent;
 
   constructor(private chat: HTMLElement) {
     super();
@@ -246,139 +248,7 @@ export class Tournament extends BaseComponent {
     );
   }
 
-  private renderTournamentLobby(container: HTMLDivElement) {
-    container.innerHTML = '';
-
-    const wrapper = createElement('div', {
-      className: `flex flex-col items-center justify-center gap-8 w-full h-full`,
-    });
-
-    const participantsList = createElement('div', {
-      className: 'border rounded-lg flex flex-col w-60',
-    });
-    const renderParticipantsList = () => {
-      participantsList.innerHTML = '';
-      const {joinedTournament, user} = this.store.getState();
-      if (!user || !joinedTournament) {
-        Toastify.error('Unable to find joined tournament or user');
-        return;
-      }
-
-      const participants = [...joinedTournament.participants, user];
-
-      participants.forEach(participant => {
-        const isOwner = participant.id === joinedTournament.owner.id;
-        const row = createElement('div', {
-          className: `relative flex items-center justify-between border-b px-3 py-3 last:border-none ${isOwner ? 'bg-pink-300/10' : 'hover:bg-white/5'} `,
-        });
-
-        const leftContent = createElement('div', {
-          className: 'flex items-center',
-        });
-
-        if (isOwner) {
-          leftContent.appendChild(
-            createElement('i', {
-              className: 'absolute text-pink-300 top-1 left-1',
-              icon: 'star',
-            }),
-          );
-        }
-
-        leftContent.appendChild(
-          createElement('img', {
-            className: 'w-8 h-8 rounded-full mr-3',
-            attributes: {
-              src: participant.avatar,
-            },
-          }),
-        );
-        leftContent.appendChild(
-          createElement('p', {
-            textContent: participant.username,
-          }),
-        );
-
-        if (participant.id === user.id) {
-          leftContent.appendChild(
-            createElement('p', {
-              className: 'text-white/50 italic ml-2 text-sm',
-              textContent: '(you)',
-            }),
-          );
-        }
-
-        row.appendChild(leftContent);
-
-        if (
-          user.id === joinedTournament.owner.id &&
-          participant.id !== user.id
-        ) {
-          const rightContent = createElement('button', {
-            className: `text-white/50 hover:text-red-500 cursor-pointer text-sm mr-2 flex items-center justify-center`,
-          });
-          rightContent.appendChild(
-            createElement('i', {
-              className: 'w-6 h-6',
-              icon: 'x',
-            }),
-          );
-          row.appendChild(rightContent);
-        }
-
-        participantsList.appendChild(row);
-      });
-    };
-
-    renderParticipantsList();
-    wrapper.appendChild(participantsList);
-    this.subscribeToPath(
-      'joinedTournament.participants',
-      renderParticipantsList,
-    );
-
-    const statusText = createElement('p', {
-      className: `py-2 px-4 bg-pink-300/10 rounded-lg text-pink-300 border border-pink-300/20`,
-    });
-    const startButton = createElement('button', {
-      className: `border border-pink-300 py-2 px-4 rounded-lg text-white cursor-pointer disabled:border-white/30 disabled:text-white/20 hover:bg-pink-300/20 duration-100 disabled:bg-background`,
-      textContent: 'Start the tournament',
-      onclick: () => {
-        socket.send({
-          type: 'startTournament',
-        });
-      },
-    });
-
-    const renderStatusText = () => {
-      const {joinedTournament, user} = this.store.getState();
-      if (!joinedTournament || !user) {
-        Toastify.error('Could no find joined tournament or user');
-        return;
-      }
-
-      if (joinedTournament.participantCount <= 1) {
-        statusText.textContent = `Waiting for other players to join the tournament ...`;
-        startButton.disabled = true;
-      } else {
-        statusText.innerHTML = `Waiting for ${
-          user.id === joinedTournament.owner.id
-            ? 'you'
-            : `<span class="text-white">${joinedTournament.owner.username}</span>`
-        } to start the tournament`;
-        startButton.disabled = user.id !== joinedTournament.owner.id;
-      }
-    };
-
-    wrapper.appendChild(statusText);
-    wrapper.appendChild(startButton);
-    this.subscribeToPath('joinedTournament.participantCount', renderStatusText);
-    renderStatusText();
-
-    container.appendChild(wrapper);
-  }
-
-  private renderTournamentBrackets = (container: HTMLDivElement) => {
+  private renderTournamentBrackets(container: HTMLDivElement) {
     container.innerHTML = '';
 
     const {joinedTournament} = this.store.getState();
@@ -435,25 +305,30 @@ export class Tournament extends BaseComponent {
       closestMatch.round.winnerID !== user.id
     ) {
       statusText.textContent = `Unfortunately, you lost this tournament :(`;
-      container.appendChild(
-        createElement('button', {
-          textContent: 'Quit tournament',
-          className: `mt-4 border hover:border-red-500 text-white py-2 px-4 rounded-lg hover:text-red-500 hover:bg-red-500/20 cursor-pointer duration-100`,
-          onclick: () => {
-            socket.send(
-              JSON.stringify({
-                type: 'leaveTournament',
-              }),
-            );
-          },
-        }),
-      );
     } else if (opponent) {
       statusText.innerHTML = `Your match with <span className="text-white">${opponent.username}</span> will start in a few`;
     } else if (waitingForRound) {
       statusText.innerHTML = `Waiting for <span class="text-white">${waitingForRound.participants.map(p => p.username).join('</span> and <span class="text-white">')}</span> to finish their match`;
     }
-  };
+
+    container.appendChild(
+      createElement('button', {
+        textContent: 'Quit tournament',
+        className: `mt-4 border hover:border-red-500 text-white py-2 px-4 rounded-lg hover:text-red-500 hover:bg-red-500/20 cursor-pointer duration-100`,
+        onclick: () => {
+          socket.send(
+            JSON.stringify({
+              type: 'leaveTournament',
+            }),
+          );
+          this.store.setState({
+            tournamentView: 'tournaments',
+            joinedTournament: undefined,
+          });
+        },
+      }),
+    );
+  }
 
   render(): HTMLElement {
     const container = createElement('div', {
@@ -468,6 +343,11 @@ export class Tournament extends BaseComponent {
     const renderPageContent = () => {
       const {tournamentView, joinedTournament} = this.store.getState();
       pageContent.innerHTML = '';
+      if (this.view) {
+        this.view.destroy();
+        this.removeChild(this.view);
+        this.view = undefined;
+      }
 
       if (tournamentView === 'tournaments') {
         this.renderTournamentsPage(pageContent);
@@ -491,7 +371,8 @@ export class Tournament extends BaseComponent {
         if (tournamentView === 'lobby' && joinedTournament.rounds) {
           this.renderTournamentBrackets(wrapper);
         } else {
-          this.renderTournamentLobby(wrapper);
+          this.view = this.createChild(TournamentLobby);
+          wrapper.appendChild(this.view.render());
         }
         pageContent.appendChild(wrapper);
       }
@@ -499,7 +380,6 @@ export class Tournament extends BaseComponent {
 
     renderPageContent();
     this.subscribeToPath('tournamentView', renderPageContent);
-    this.subscribeToPath('joinedTournament.isActive', renderPageContent);
 
     container.appendChild(pageContent);
     if (this.chat) container.appendChild(this.chat);
