@@ -50,7 +50,7 @@ export interface IRaceGame {
   player: IPlayer;
   opponent: IPlayer;
   track: Track;
-  walls: Wall;
+  wall: Wall;
   timer: Timer;
   gameStarted: boolean;
   keys: Keys;
@@ -64,4 +64,3 @@ export interface IRaceGame {
   currentSlowpoint: Slowpoint | null;
   lastSlowpointTime: number | null;
 }
-

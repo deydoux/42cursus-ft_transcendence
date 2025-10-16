@@ -9,13 +9,13 @@ import {RaceGameUI} from '../containers/race/RaceGameUI';
 import {Timer} from '../containers/timer';
 import {Track} from '../containers/race/track';
 import {Wall} from '../containers/race/wall';
-import {carSprites} from '../utils/content';
+import carOpponent from '../assets/car_opponent.svg';
+import carPlayer from '../assets/car_player.svg';
 import {keys} from '../utils/keys';
-import { socket } from '../utils/websocket';
-import { Router } from '../services/router';
 
 export class RaceGame extends BaseComponent {
   private raceGameUI?: RaceGameUI;
+
   /**
    * Initializes the game state with the provided canvas context.
    * Sets up the track, cars, walls, checkpoints, and other game elements.
@@ -37,9 +37,15 @@ export class RaceGame extends BaseComponent {
     if (!user) throw new Error(`User not found`);
     const players = game.players;
 
-    const walls = new Wall(ctx);
-    walls.generateRandomWalls(20);
-    const checkpoints = [Checkpoint.createRandomCheckpoint(ctx, walls, [])];
+    const wall = new Wall(ctx);
+    if (game.isLocal) wall.generateRandomWalls(20);
+    else wall.walls = this.store.getState().raceWalls;
+
+    const checkpoints: Checkpoint[] = [];
+    if (game.isLocal)
+      checkpoints.push(
+        Checkpoint.createRandomCheckpoint(ctx, wall, checkpoints),
+      );
 
     const initializePlayers = () => {
       const playerCarX = isLocal
@@ -70,7 +76,7 @@ export class RaceGame extends BaseComponent {
         avatar: user.avatar ? user.avatar : '',
         score: 0,
         paddle: null,
-        car: new Car(ctx, playerCarX, playerCarY, '#ff0000', carSprites.r_car),
+        car: new Car(ctx, playerCarX, playerCarY, '#ff0000', carPlayer),
         scoreElement: isLocal
           ? getHTMLElement('left_score')
           : user.id === players[0]?.id
@@ -91,13 +97,7 @@ export class RaceGame extends BaseComponent {
         avatar: isOpponentBlocked ? '' : op.avatar,
         score: 0,
         paddle: null,
-        car: new Car(
-          ctx,
-          opponentCarX,
-          opponentCarY,
-          '#ffff00',
-          carSprites.y_car,
-        ),
+        car: new Car(ctx, opponentCarX, opponentCarY, '#ffff00', carOpponent),
         scoreElement: isLocal
           ? getHTMLElement('right_score')
           : user.id === players[0]?.id
@@ -123,7 +123,7 @@ export class RaceGame extends BaseComponent {
       opponent,
       track: new Track(ctx),
       timer: new Timer(),
-      walls,
+      wall,
       gameStarted: false,
       keys: keys,
       ctx: ctx,
@@ -139,13 +139,12 @@ export class RaceGame extends BaseComponent {
   }
 
   /**
-   * Handles user input for starting the game and controlling the cars.
+   * Handles user input to control the cars.
    * Binds click events to the keyboard events for car controls.
    * @param race The RaceGame instance to control
    * @param onStart Callback function to start the game loop
    */
   private handleInput(race: IRaceGame): void {
-    // Handle keyboard input
     document.addEventListener('keydown', (e: KeyboardEvent) => {
       // Car 1 controls (WASD)
       if (e.key === 'w' || e.key === 'W') race.keys.w = true;
@@ -192,19 +191,27 @@ export class RaceGame extends BaseComponent {
     ctx.imageSmoothingEnabled = true;
 
     const isLocal = this.store.getState().game.isLocal;
-    // Initialize game state
-    const race = this.initializeGame(ctx, isLocal);
-    // Create canvas controller
-    const raceCanvas = RaceCanvas.getInstance(race);
-    //Binds click events to the keyboard events for car controls
-    this.handleInput(race);
+
+    const race = this.initializeGame(ctx, isLocal); // Initialize game state
+    const raceCanvas = RaceCanvas.getInstance(race); // Create canvas controller
+    this.handleInput(race); //Binds click events to the keyboard events for car controls
 
     this.raceGameUI?.initializePlayerInfo();
-    // Show start message
-    raceCanvas.displayStartMessage();
 
+    const {game} = this.store.getState();
     race.gameStarted = true;
-    raceCanvas.startGame();
+    if (!game.isLocal) {
+      const gameStartTime = game.startTime;
+      const currentTime = Date.now();
+      if (currentTime >= gameStartTime) {
+        raceCanvas.startGame();
+      } else {
+        const delay = gameStartTime - currentTime;
+        setTimeout(() => {
+          raceCanvas.startGame();
+        }, delay);
+      }
+    } else raceCanvas.startGame();
   }
 
   render(): HTMLElement {
@@ -219,10 +226,9 @@ export class RaceGame extends BaseComponent {
     const chat = new Chat().render();
     if (chat) container.appendChild(chat);
 
-    // Initialize game after render
     requestAnimationFrame(() => {
       this.renderRacecarCanvas();
-    });
+    }); // Initialize game after render
 
     return container;
   }

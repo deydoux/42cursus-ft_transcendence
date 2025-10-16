@@ -117,10 +117,17 @@ export interface AppState {
   isOpponentBlocked: boolean;
   matchStartBallData: {dx: number; dy: number};
   game: {
+    startTime: number;
     name: string;
     isLocal: boolean;
     players: [User, User];
   };
+  raceWalls: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }[];
 }
 
 export interface Component {

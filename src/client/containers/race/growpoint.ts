@@ -103,7 +103,6 @@ export class Growpoint {
     const distance = Math.sqrt(
       Math.pow(this.x - car.x, 2) + Math.pow(this.y - car.y, 2),
     );
-    // Use same collision detection as Checkpoint
     const scaledWidth = this.imageWidth * 2;
     return distance < scaledWidth / 2 + 15;
   }

@@ -1,7 +1,10 @@
+import {Checkpoint} from '../containers/race/checkpoint';
+import {Growpoint} from '../containers/race/growpoint';
 import {Lobby} from '../pages/Lobby';
 import {PongCanvas} from '../containers/pong/pongCanvas';
 import {RaceCanvas} from '../containers/race/raceCanvas';
 import {Router} from '../services/router';
+import {Slowpoint} from '../containers/race/slowpoint';
 import {Store} from '../services/store';
 import {Toastify} from '../utils/toastify';
 import {socket} from '../utils/websocket';
@@ -20,14 +23,22 @@ const handleMatchStart = (data: {
   block: boolean;
   dx: number;
   dy: number;
+  time: number;
+  walls: [];
 }) => {
   const router = Router.getInstance();
   const store = Store.getInstance();
 
   store.setState({
     isOpponentBlocked: data.block,
-    game: {name: data.game, isLocal: false, players: data.players},
+    game: {
+      startTime: data.time,
+      name: data.game,
+      isLocal: false,
+      players: data.players,
+    },
     matchStartBallData: {dx: data.dx, dy: data.dy},
+    raceWalls: data.walls,
   });
 
   setTimeout(() => {
@@ -57,13 +68,22 @@ const handleError = (data: {message: string}) => {
   if (data.message) Toastify.error(data.message);
 };
 
-const handleMove = (data: {
+const handlePaddleMove = (data: {
   side: 'left' | 'right';
   direction: number;
   yPosition: number;
   timestamp: number;
 }) => {
-  PongCanvas.getInstance().handleOpponentPaddleMovement(data);
+  const pongCanvas = PongCanvas.getInstance();
+
+  if (pongCanvas.pong.player.side === data.side) {
+    // pongCanvas shouldn't happen - we received our own movement
+    return;
+  } else if (pongCanvas.pong.opponent && pongCanvas.pong.opponent.paddle) {
+    pongCanvas.pong.opponent.paddle.y = data.yPosition;
+    // Optional: Add interpolation for smoother movement
+    // targetPlayer.paddle.move(data.direction * (this.ctx.canvas.height * 0.01));
+  }
 };
 
 const handleMatchCancel = (data: {cause: string}) => {
@@ -135,9 +155,10 @@ const handleCarMove = (data: {
   angle: number;
   speed: number;
 }) => {
+  const raceCanvas = RaceCanvas.getInstance();
+  if (data.playerId === raceCanvas.race.player.id) return;
   const now = Date.now();
   const lag = now - data.timestamp;
-  const raceCanvas = RaceCanvas.getInstance();
 
   if (lag < 100 && raceCanvas.race.opponent.car) {
     raceCanvas.race.opponent.car.x = data.position.x;
@@ -147,23 +168,53 @@ const handleCarMove = (data: {
   }
 };
 
-const handdleCarSlowdown = (data: {slowID: number}) => {
+const handleCarSlowdown = (data: {slowID: number}) => {
   const raceCanvas = RaceCanvas.getInstance();
   if (data.slowID === raceCanvas.race.opponent.id) {
     raceCanvas.race.opponent.car?.applySlowdown();
-    console.log(raceCanvas.race.opponent.car?.color, 'got slowed down');
+    console.log(raceCanvas.race.opponent.username, ' got slowed down');
   }
+};
+
+const handlecarGrowth = (data: {growthID: number}) => {
+  const raceCanvas = RaceCanvas.getInstance();
+  if (data.growthID === raceCanvas.race.player.id) {
+    raceCanvas.race.player.car?.applyCarGrowth();
+    console.log(raceCanvas.race.player.username, ' got slowed down');
+  }
+};
+
+const handleRaceObject = (data: {object: string; x: number; y: number}) => {
+  const raceCanvas = RaceCanvas.getInstance();
+  if (data.object === 'checkpoint')
+    raceCanvas.race.checkpoints.push(
+      new Checkpoint(raceCanvas.race.ctx, data.x, data.y),
+    );
+  if (data.object === 'slowpoint')
+    raceCanvas.race.currentSlowpoint = new Slowpoint(
+      raceCanvas.race.ctx,
+      data.x,
+      data.y,
+    );
+  if (data.object === 'growpoint')
+    raceCanvas.race.currentGrowpoint = new Growpoint(
+      raceCanvas.race.ctx,
+      data.x,
+      data.y,
+    );
 };
 
 export const setupGameHandlers = () => {
   socket.on('matchStart', handleMatchStart);
   socket.on('success', handleSuccess);
   socket.on('error', handleError);
-  socket.on('paddleMove', handleMove);
+  socket.on('paddleMove', handlePaddleMove);
   socket.on('matchCancel', handleMatchCancel);
   socket.on('matchEnd', handleMatchEnd);
   socket.on('round', handleRound);
   socket.on('ballState', handleBallState);
   socket.on('carMove', handleCarMove);
-  socket.on('carSlowdown', handdleCarSlowdown);
+  socket.on('carSlowdown', handleCarSlowdown);
+  socket.on('carGrowth', handlecarGrowth);
+  socket.on('raceObject', handleRaceObject);
 };

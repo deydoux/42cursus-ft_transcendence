@@ -15,10 +15,12 @@ const defaultValues = {
   countFriendRequests: 0,
   isOpponentBlocked: false,
   game: {
+    startTime: 0,
     name: '',
     isLocal: false,
     players: [undefined, undefined],
   },
+  raceWalls: [],
 };
 
 export class Store {

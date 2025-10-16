@@ -198,8 +198,12 @@ export default abstract class Match {
           Clients.sendClient(opponent, message as ServerTunnelMessage);
           break;
         case 'carMove':
+          Clients.sendClient(opponent, message as ServerTunnelMessage);
+          break;
         case 'carGrowth':
         case 'carSlowdown':
+          Clients.sendClient(opponent, message as ServerTunnelMessage);
+          break;
         case 'score':
           this.handleScore(
             player,
