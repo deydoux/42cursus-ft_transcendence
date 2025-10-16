@@ -1,7 +1,6 @@
 import {GameUIElement, IRaceGame} from '../../types/game';
 import {Checkpoint} from './checkpoint';
 import {Growpoint} from './growpoint';
-import {Router} from '../../services/router';
 import {Slowpoint} from './slowpoint';
 import {displayCountdownMessage} from '../../utils/content';
 import {socket} from '../../utils/websocket';
@@ -11,7 +10,6 @@ export class RaceCanvas {
   public race: IRaceGame;
   public raf: number | null;
   private color = 'rgb(255, 255, 255)';
-  protected router = Router.getInstance();
 
   private constructor(race: IRaceGame) {
     this.raf = null;
@@ -37,46 +35,6 @@ export class RaceCanvas {
   }
 
   /**
-   * Displays a start message on the canvas
-   */
-  public displayStartMessage(): void {
-    this.updateScore();
-
-    this.ctx.save();
-
-    const width = this.ctx.canvas.width;
-    const height = this.ctx.canvas.height;
-    const baseFontSize = Math.max(width, height) * 0.025;
-    const smallFontSize = baseFontSize * 0.5;
-    const lineHeight = smallFontSize * 1.25;
-
-    // Calculate total height of the block (title + ascii art)
-    const titleHeight = baseFontSize;
-    const totalBlockHeight = titleHeight + lineHeight; // extra lineHeight for spacing
-
-    // Center of canvas
-    const centerX = width / 2;
-    const centerY = height / 2;
-
-    // Start drawing so that the block is vertically centered
-    const currentY = centerY - totalBlockHeight / 2 + titleHeight / 2;
-
-    this.ctx.font = `bold ${baseFontSize}px monospace`;
-    this.ctx.fillStyle = this.color;
-    this.ctx.textAlign = 'center';
-    this.ctx.textBaseline = 'middle';
-    this.ctx.shadowBlur = 15;
-    this.ctx.shadowColor = 'rgba(40, 60, 189, 0.78)';
-    this.ctx.fillText(
-      'Click on the button to start the game!',
-      centerX,
-      currentY,
-    );
-
-    this.ctx.restore();
-  }
-
-  /**
    * Main game loop that updates the canvas
    * Handles game logic, rendering, and animations.
    * It also handles the countdown and game start logic.
@@ -91,10 +49,7 @@ export class RaceCanvas {
   private gameLoop(): void {
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
-    if (!this.race.gameStarted) {
-      this.displayStartMessage();
-      return;
-    }
+    if (!this.race.gameStarted) return;
 
     this.race.timerDisplay.innerHTML = this.race.timer.formatTime(
       this.race.timer.getRemainingTime(),
@@ -140,18 +95,14 @@ export class RaceCanvas {
 
     // Draw game elements
     this.race.track.draw();
-    this.race.walls.draw();
+    this.race.wall.draw();
 
     if (!isCountdownActive) {
       this.race.checkpoints.forEach(checkpoint => {
         checkpoint.draw();
       });
-      if (this.race.currentGrowpoint) {
-        this.race.currentGrowpoint.draw();
-      }
-      if (this.race.currentSlowpoint) {
-        this.race.currentSlowpoint.draw();
-      }
+      this.race.currentGrowpoint?.draw();
+      this.race.currentSlowpoint?.draw();
     }
 
     this.race.player.car?.draw();
@@ -179,7 +130,7 @@ export class RaceCanvas {
         this.race.keys.ArrowUp ? true : this.race.keys.ArrowDown ? false : null,
         (this.race.keys.ArrowRight ? 1 : 0) -
           (this.race.keys.ArrowLeft ? 1 : 0),
-        this.race.walls,
+        this.race.wall,
       );
     }
 
@@ -196,7 +147,7 @@ export class RaceCanvas {
         this.race.keys.ArrowUp ? true : this.race.keys.ArrowDown ? false : null,
         (this.race.keys.ArrowRight ? 1 : 0) -
           (this.race.keys.ArrowLeft ? 1 : 0),
-        this.race.walls,
+        this.race.wall,
       );
     }
 
@@ -204,7 +155,7 @@ export class RaceCanvas {
       this.race.player.car?.move(
         this.race.keys.w ? true : this.race.keys.s ? false : null,
         (this.race.keys.d ? 1 : 0) - (this.race.keys.a ? 1 : 0),
-        this.race.walls,
+        this.race.wall,
       );
     }
 
@@ -263,7 +214,7 @@ export class RaceCanvas {
     ) {
       const newCheckpoint = Checkpoint.createRandomCheckpoint(
         this.ctx,
-        this.race.walls,
+        this.race.wall,
         this.race.checkpoints, // Pass existing checkpoints to avoid overlap
       );
       this.race.checkpoints.push(newCheckpoint);
@@ -277,7 +228,7 @@ export class RaceCanvas {
     ) {
       this.race.currentGrowpoint = Growpoint.createRandomGrowpoint(
         this.ctx,
-        this.race.walls,
+        this.race.wall,
       );
       this.race.lastGrowpointTime = currentTime;
     }
@@ -297,7 +248,7 @@ export class RaceCanvas {
     ) {
       this.race.currentSlowpoint = Slowpoint.createRandomSlowpoint(
         this.ctx,
-        this.race.walls,
+        this.race.wall,
       );
       this.race.lastSlowpointTime = currentTime;
     }
@@ -318,34 +269,36 @@ export class RaceCanvas {
    */
   private handlePointsCollision(): void {
     //checkpoint collision -> increment score & remove it from the canvas
-    this.race.checkpoints = this.race.checkpoints.filter(checkpoint => {
-      const playerCollision = checkpoint.isColliding(this.race.player.car);
-      const opponentCollision =
-        this.race.isLocal && checkpoint.isColliding(this.race.opponent.car);
+    if (this.race.checkpoints) {
+      this.race.checkpoints = this.race.checkpoints?.filter(checkpoint => {
+        const playerCollision = checkpoint.isColliding(this.race.player.car);
+        const opponentCollision =
+          this.race.isLocal && checkpoint.isColliding(this.race.opponent.car);
 
-      if (playerCollision) {
-        this.race.player.score += 2;
-        this.updateScore();
+        if (playerCollision) {
+          this.race.player.score += 2;
+          this.updateScore();
 
-        if (!this.race.isLocal) {
-          socket.send(
-            JSON.stringify({
-              type: 'score',
-              scorerID: this.race.player.id,
-            }),
-          );
+          if (!this.race.isLocal) {
+            socket.send(
+              JSON.stringify({
+                type: 'score',
+                scorerID: this.race.player.id,
+              }),
+            );
+          }
+          return false; // Remove checkpoint
         }
-        return false; // Remove checkpoint
-      }
 
-      if (opponentCollision) {
-        this.race.opponent.score += 2;
-        this.updateScore();
-        return false; // Remove checkpoint
-      }
+        if (opponentCollision) {
+          this.race.opponent.score += 2;
+          this.updateScore();
+          return false; // Remove checkpoint
+        }
 
-      return true; // Keep checkpoint
-    });
+        return true; // Keep checkpoint
+      });
+    }
 
     //growpoint collision -> increases car size
     if (
@@ -445,7 +398,7 @@ export class RaceCanvas {
       width: this.race.player.car?.carWidth,
       height: this.race.player.car?.carHeight,
     };
-    this.race.walls.isCarColliding(playerCarPosition);
+    this.race.wall.isCarColliding(playerCarPosition);
 
     if (this.race.isLocal) {
       const opponentCarPosition = {
@@ -454,7 +407,7 @@ export class RaceCanvas {
         width: this.race.opponent.car?.carWidth,
         height: this.race.opponent.car?.carHeight,
       };
-      this.race.walls.isCarColliding(opponentCarPosition);
+      this.race.wall.isCarColliding(opponentCarPosition);
     }
   }
 

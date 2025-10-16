@@ -177,10 +177,10 @@ export class RaceGameUI extends BaseComponent {
       ${data.result ? `<div class="mb-6 text-gray-300">${data.result}</div>` : ''}
       
       <div class="flex gap-4 justify-center">
-        <button id="close-modal-btn" class="bg-gray-400 hover:bg-grey-500 text-white px-6 py-2 rounded-lg transition-colors">
+        <button id="close-modal-btn" class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg transition-colors">
           Home
         </button>
-        <button id="rematch-btn" class="bg-gray-400 hover:bg-grey-500 text-white px-6 py-2 rounded-lg transition-colors">
+        <button id="rematch-btn" class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg transition-colors">
           Rematch
         </button>
       </div>

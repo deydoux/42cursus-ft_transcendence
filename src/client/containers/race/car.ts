@@ -188,7 +188,7 @@ export class Car {
   public draw(): void {
     this.ctx.save();
     this.ctx.translate(this.x, this.y);
-    this.ctx.rotate(this.angle);
+    this.ctx.rotate(this.angle + Math.PI / 2);
 
     if (this.carImage && this.imageLoaded) {
       // Draw car sprite
@@ -213,7 +213,7 @@ export class Car {
     }
 
     if (this.isSlowed) {
-      this.ctx.fillStyle = '#0f6b23'; // Red color
+      this.ctx.fillStyle = '#2713ddff';
       this.ctx.beginPath();
       this.ctx.arc(
         0, // Center horizontally on the car
@@ -226,7 +226,7 @@ export class Car {
     }
 
     if (this.isStopped) {
-      this.ctx.fillStyle = '#cb1aeb'; // Red color
+      this.ctx.fillStyle = '#ddeb1aff';
       this.ctx.beginPath();
       this.ctx.arc(
         0, // Center horizontally on the car

@@ -21,7 +21,7 @@ export class Track {
     const gridSpacing = height / 9; // Adjust divisor to control grid density
 
     // Set up neon blue styling
-    this.ctx.strokeStyle = '#F433FF'; // Bright neon blue
+    this.ctx.strokeStyle = '#f533ff88'; // Bright neon blue
     this.ctx.lineWidth = 4;
     this.ctx.shadowColor = '#e18be6ff'; // Glow color
     this.ctx.shadowBlur = 10; // Glow intensity

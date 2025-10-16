@@ -3,7 +3,7 @@ export class Wall {
   private readonly canvas: HTMLCanvasElement;
   private gridSpacing = 100; // Default grid spacing
   private readonly wallThickness: number = 8;
-  private walls: {x: number; y: number; width: number; height: number}[] = [];
+  public walls: {x: number; y: number; width: number; height: number}[] = [];
 
   constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
