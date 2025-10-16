@@ -1,4 +1,4 @@
-import {GameUIElement, IPlayer, IPongGame} from '../../types/game';
+import {GameUIElement, IPongGame} from '../../types/game';
 import {Store} from '../../services/store';
 import {displayCountdownMessage} from '../../utils/content';
 import {socket} from '../../utils/websocket';
@@ -114,52 +114,15 @@ export class PongCanvas {
     }
 
     if (moved && !this.pong.isLocal)
-      this.sendPaddleMovement(
-        this.pong.player.side,
-        direction,
-        this.pong.player.paddle?.y || 0,
+      socket.send(
+        JSON.stringify({
+          type: 'paddleMove',
+          side: this.pong.player.side,
+          direction,
+          yPosition: this.pong.player.paddle?.y || 0,
+          timestamp: Date.now(),
+        }),
       );
-  }
-
-  private sendPaddleMovement(
-    side: string,
-    direction: number,
-    yPosition: number,
-  ) {
-    socket.send(
-      JSON.stringify({
-        type: 'paddleMove',
-        side,
-        direction,
-        yPosition,
-        timestamp: Date.now(),
-      }),
-    );
-  }
-
-  public handleOpponentPaddleMovement(data: {
-    side: string;
-    direction: number;
-    yPosition: number;
-    timestamp: number;
-  }) {
-    // Find the player whose side matches the incoming data
-    let targetPlayer: IPlayer | null = null;
-
-    if (this.pong.player.side === data.side) {
-      // This shouldn't happen - we received our own movement
-      return;
-    } else if (this.pong.opponent.side === data.side) {
-      // The opponent is moving
-      targetPlayer = this.pong.opponent;
-    }
-
-    if (targetPlayer && targetPlayer.paddle) {
-      // Use the exact position for better sync
-      targetPlayer.paddle.y = data.yPosition;
-      // Optional: Add interpolation for smoother movement
-      // targetPlayer.paddle.move(data.direction * (this.ctx.canvas.height * 0.01));
-    }
   }
 
   public endofAMatch(
