@@ -79,7 +79,8 @@ const renderBracket = (round: round, isFinal = true) => {
     });
   };
 
-  if (round.rounds.length > 0) container.appendChild(createLink());
+  if (round.rounds && round.rounds.length > 0)
+    container.appendChild(createLink());
   container.appendChild(bracket);
   if (!isFinal) container.appendChild(createLink());
 
@@ -94,9 +95,10 @@ export const renderBrackets = (round: round, isFirst = true) => {
   const nextRounds = createElement('div', {
     className: 'relative flex flex-col gap-3',
   });
-  round.rounds.forEach(round => {
-    nextRounds.appendChild(renderBrackets(round, false));
-  });
+  if (round.rounds)
+    round.rounds.forEach(round => {
+      nextRounds.appendChild(renderBrackets(round, false));
+    });
 
   const overlay = createElement('div', {
     className: `absolute w-full h-full flex flex-col justify-center z-0`,

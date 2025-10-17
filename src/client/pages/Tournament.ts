@@ -1,5 +1,4 @@
 import {BaseComponent} from '../components/BaseComponent';
-import {Toastify} from '../utils/toastify';
 import {TournamentLobby} from '../containers/tournaments/tournamentLobby';
 import {createDialog} from '../components/Dialog';
 import {createElement} from '../utils/dom';
@@ -296,9 +295,9 @@ export class Tournament extends BaseComponent {
     const opponent = closestMatch.round.participants.find(
       participant => participant.id !== user.id,
     );
-    const waitingForRound = closestMatch.round.rounds.find(
-      round => !isUserInRound(round, user.id),
-    );
+    const waitingForRound =
+      closestMatch.round.rounds &&
+      closestMatch.round.rounds.find(round => !isUserInRound(round, user.id));
 
     if (
       closestMatch.round.winnerID &&
@@ -380,6 +379,7 @@ export class Tournament extends BaseComponent {
 
     renderPageContent();
     this.subscribeToPath('tournamentView', renderPageContent);
+    this.subscribeToPath('joinedTournament.rounds', renderPageContent);
 
     container.appendChild(pageContent);
     if (this.chat) container.appendChild(this.chat);
