@@ -11,6 +11,7 @@ const publicEndpoints = [
 export class Api {
   private unauthorizedRedirect = '/';
   private static instance: Api;
+  private refreshPromise: Promise<string> | null = null;
 
   public store = Store.getInstance();
 
@@ -25,6 +26,37 @@ export class Api {
 
   private getAccessToken() {
     return localStorage.getItem('accessToken');
+  }
+
+  private async refreshAccessToken(): Promise<string> {
+    if (this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    this.refreshPromise = (async () => {
+      try {
+        const refreshResponse = await fetch('/api/auth/refresh', {
+          method: 'POST',
+        });
+
+        if (!refreshResponse.ok) {
+          if (location.pathname !== this.unauthorizedRedirect) {
+            Router.getInstance().navigate(this.unauthorizedRedirect);
+            Toastify.dismissAll();
+            Toastify.error("You've been disconnected");
+          }
+          throw new Error('Refresh failed');
+        }
+
+        const body = await refreshResponse.json();
+        this.setAccessToken(body.accessToken);
+        return body.accessToken;
+      } finally {
+        this.refreshPromise = null;
+      }
+    })();
+
+    return this.refreshPromise;
   }
 
   async customFetch(
@@ -50,27 +82,13 @@ export class Api {
         response.status === 401 &&
         !publicEndpoints.includes(input.toString())
       ) {
-        const refreshResponse = await fetch('/api/auth/refresh', {
-          method: 'POST',
-        });
-
-        if (!refreshResponse.ok) {
-          if (location.pathname !== this.unauthorizedRedirect) {
-            Router.getInstance().navigate(this.unauthorizedRedirect);
-            Toastify.dismissAll();
-            Toastify.error("You've been disconnected");
-          }
-          throw refreshResponse;
-        }
-
-        const body = await refreshResponse.json();
-        this.setAccessToken(body.accessToken);
+        const newAccessToken = await this.refreshAccessToken();
 
         return fetch(input, {
           ...init,
           headers: {
             ...init?.headers,
-            authorization: `Bearer ${body.accessToken}`,
+            authorization: `Bearer ${newAccessToken}`,
           },
         });
       }
