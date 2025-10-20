@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.51.0",
-    "@eslint/js": "^9.36.0",
+    "@eslint/js": "^9.38.0",
     "@tailwindcss/vite": "^4.1.13",
     "@types/bcrypt": "^6.0.0",
     "@types/ms": "^2.1.0",
