@@ -32,7 +32,7 @@
     "@tailwindcss/vite": "^4.1.13",
     "@types/bcrypt": "^6.0.0",
     "@types/ms": "^2.1.0",
-    "@types/node": "^24.5.2",
+    "@types/node": "^24.8.1",
     "@types/qrcode": "^1.5.5",
     "@types/sqlite3": "^5.1.0",
     "@types/ws": "^8.18.1",
