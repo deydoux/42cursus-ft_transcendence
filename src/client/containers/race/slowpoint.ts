@@ -1,6 +1,6 @@
 import {Car} from './car';
 import {Wall} from './wall';
-import slow from '../../assets/slow.png';
+import slow from '../../assets/slowpoint.svg';
 
 export class Slowpoint {
   private readonly ctx: CanvasRenderingContext2D;

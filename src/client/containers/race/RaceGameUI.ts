@@ -86,7 +86,8 @@ export class RaceGameUI extends BaseComponent {
 
   private renderGameArea(): HTMLElement {
     const gameArea = DOMUtils.createElement('div', {
-      className: 'flex-1 flex justify-center items-center overflow-hidden',
+      className:
+        'flex-1 flex justify-center items-center overflow-hidden border-4 border-pink-300 rounded-md',
     });
 
     const canvas = DOMUtils.createElement('canvas', {

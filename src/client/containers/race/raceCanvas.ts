@@ -4,6 +4,7 @@ import {Growpoint} from './growpoint';
 import {Slowpoint} from './slowpoint';
 import {displayCountdownMessage} from '../../utils/content';
 import {socket} from '../../utils/websocket';
+import {Store} from '../../services/store';
 export class RaceCanvas {
   private static instance: RaceCanvas | null = null;
   private ctx: CanvasRenderingContext2D;
@@ -271,14 +272,9 @@ export class RaceCanvas {
     //checkpoint collision -> increment score & remove it from the canvas
     if (this.race.checkpoints) {
       this.race.checkpoints = this.race.checkpoints?.filter(checkpoint => {
-        const playerCollision = checkpoint.isColliding(this.race.player.car);
-        const opponentCollision =
-          this.race.isLocal && checkpoint.isColliding(this.race.opponent.car);
-
-        if (playerCollision) {
+        if (checkpoint.isColliding(this.race.player.car)) {
           this.race.player.score += 2;
           this.updateScore();
-
           if (!this.race.isLocal) {
             socket.send(
               JSON.stringify({
@@ -290,9 +286,17 @@ export class RaceCanvas {
           return false; // Remove checkpoint
         }
 
-        if (opponentCollision) {
+        if (checkpoint.isColliding(this.race.opponent.car)) {
           this.race.opponent.score += 2;
           this.updateScore();
+          if (!this.race.isLocal) {
+            socket.send(
+              JSON.stringify({
+                type: 'score',
+                scorerID: this.race.opponent.id,
+              }),
+            );
+          }
           return false; // Remove checkpoint
         }
 
@@ -306,8 +310,9 @@ export class RaceCanvas {
       this.race.currentGrowpoint.isColliding(this.race.player.car) &&
       !this.race.player.car?.isBigger
     ) {
+      this.race.currentGrowpoint = null; // Clear growpoint after collision
+      this.race.player.car?.applyCarGrowth();
       if (!this.race.isLocal) {
-        this.race.currentGrowpoint = null; // Clear growpoint after collision
         socket.send(
           JSON.stringify({
             type: 'carGrowth',
@@ -315,7 +320,6 @@ export class RaceCanvas {
           }),
         );
       } else {
-        this.race.player.car?.applyCarGrowth();
         this.race.lastGrowpointTime = Date.now() - 45000;
       }
     }
@@ -326,7 +330,8 @@ export class RaceCanvas {
       this.race.currentSlowpoint.isColliding(this.race.player.car) &&
       !this.race.opponent.car?.isSlowed
     ) {
-      this.race.currentSlowpoint = null; // Clear slowpoint after collision
+      this.race.currentSlowpoint = null;
+      this.race.opponent.car?.applySlowdown();
       if (!this.race.isLocal) {
         socket.send(
           JSON.stringify({
@@ -335,7 +340,6 @@ export class RaceCanvas {
           }),
         );
       } else {
-        this.race.opponent.car?.applySlowdown();
         this.race.lastSlowpointTime = Date.now();
       }
     }

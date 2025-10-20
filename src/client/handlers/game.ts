@@ -174,14 +174,16 @@ const handleCarSlowdown = (data: {slowID: number}) => {
     raceCanvas.race.opponent.car?.applySlowdown();
     console.log(raceCanvas.race.opponent.username, ' got slowed down');
   }
+  raceCanvas.race.currentSlowpoint = null;
 };
 
 const handlecarGrowth = (data: {growthID: number}) => {
   const raceCanvas = RaceCanvas.getInstance();
-  if (data.growthID === raceCanvas.race.player.id) {
-    raceCanvas.race.player.car?.applyCarGrowth();
-    console.log(raceCanvas.race.player.username, ' got slowed down');
+  if (data.growthID === raceCanvas.race.opponent.id) {
+    raceCanvas.race.opponent.car?.applyCarGrowth();
+    console.log(raceCanvas.race.opponent.username, ' got growth boost');
   }
+  raceCanvas.race.currentGrowpoint = null;
 };
 
 const handleRaceObject = (data: {object: string; x: number; y: number}) => {

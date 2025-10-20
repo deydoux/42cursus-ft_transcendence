@@ -61,9 +61,9 @@ export class Car {
 
     const speedScale = Math.min(ctx.canvas.width, ctx.canvas.height) / 500;
 
-    this.maxSpeed = 5 * speedScale;
+    this.maxSpeed = 3.5 * speedScale;
     this.minSpeedForTurn = 0.2 * speedScale;
-    this.reverseSpeed = -4 * speedScale;
+    this.reverseSpeed = -2 * speedScale;
 
     if (sprite) {
       this.carImage = Car.createCarImage(sprite);

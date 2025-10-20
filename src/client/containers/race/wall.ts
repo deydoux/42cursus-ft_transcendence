@@ -27,8 +27,8 @@ export class Wall {
     height: number,
   ): void {
     // Set up neon styling for walls
-    this.ctx.fillStyle = '#FF3131'; // Bright cyan-blue
-    this.ctx.shadowColor = '#FF3131';
+    this.ctx.fillStyle = '#ffea31ff'; // Bright cyan-blue
+    this.ctx.shadowColor = '#ffea31ff';
     this.ctx.shadowBlur = 15;
     this.ctx.globalCompositeOperation = 'screen';
 
@@ -36,7 +36,7 @@ export class Wall {
     this.ctx.fillRect(x, y, width, height);
 
     // Add brighter core
-    this.ctx.fillStyle = '#de2929';
+    this.ctx.fillStyle = '#fae84aff';
     this.ctx.shadowBlur = 8;
     this.ctx.fillRect(x + 1, y + 1, width - 2, height - 2);
 
