@@ -4,7 +4,7 @@ import {Growpoint} from './growpoint';
 import {Slowpoint} from './slowpoint';
 import {displayCountdownMessage} from '../../utils/content';
 import {socket} from '../../utils/websocket';
-import {Store} from '../../services/store';
+
 export class RaceCanvas {
   private static instance: RaceCanvas | null = null;
   private ctx: CanvasRenderingContext2D;
@@ -201,8 +201,6 @@ export class RaceCanvas {
 
   /**
    * Handles the spawning and management of checkpoints, growpoints, and slowpoints.
-   * Checkpoints are updated every 10 seconds, growpoints every 50 seconds,
-   * and slowpoints are created randomly.
    * this funciton is only called if the game is local as the server handles it in a remote game
    */
   private handlePointsSpawning(): void {
@@ -225,7 +223,7 @@ export class RaceCanvas {
     // Handle growpoint spawning every 30 seconds
     if (
       this.race.lastGrowpointTime &&
-      currentTime - this.race.lastGrowpointTime > 30000
+      currentTime - this.race.lastGrowpointTime > 25000
     ) {
       this.race.currentGrowpoint = Growpoint.createRandomGrowpoint(
         this.ctx,
@@ -310,7 +308,7 @@ export class RaceCanvas {
       this.race.currentGrowpoint.isColliding(this.race.player.car) &&
       !this.race.player.car?.isBigger
     ) {
-      this.race.currentGrowpoint = null; // Clear growpoint after collision
+      this.race.currentGrowpoint = null;
       this.race.player.car?.applyCarGrowth();
       if (!this.race.isLocal) {
         socket.send(
@@ -319,8 +317,6 @@ export class RaceCanvas {
             growthID: this.race.player.id,
           }),
         );
-      } else {
-        this.race.lastGrowpointTime = Date.now() - 45000;
       }
     }
 
@@ -339,8 +335,6 @@ export class RaceCanvas {
             slowID: this.race.opponent.id,
           }),
         );
-      } else {
-        this.race.lastSlowpointTime = Date.now();
       }
     }
 
@@ -352,7 +346,7 @@ export class RaceCanvas {
       ) {
         this.race.currentSlowpoint = null; // Clear slowpoint after collision
         this.race.player.car?.applySlowdown();
-        this.race.lastSlowpointTime = Date.now();
+        // this.race.lastSlowpointTime = Date.now();
       }
       if (
         this.race.currentGrowpoint &&
@@ -361,7 +355,7 @@ export class RaceCanvas {
       ) {
         this.race.currentGrowpoint = null; // Clear slowpoint after collision
         this.race.opponent.car?.applyCarGrowth();
-        this.race.lastGrowpointTime = Date.now() - 45000;
+        // this.race.lastGrowpointTime = Date.now() - 45000;
       }
     }
   }
@@ -381,11 +375,23 @@ export class RaceCanvas {
       if (this.race.player.car?.carWidth > this.race.opponent.car?.carWidth) {
         this.race.player.car?.handleCarCollision(this.race.opponent.car);
         this.race.opponent.car?.stopFor();
+        socket.send(
+          JSON.stringify({
+            type: 'carstopped',
+            stoppedID: this.race.opponent.id,
+          }),
+        );
       } else if (
         this.race.opponent.car?.carWidth > this.race.player.car?.carWidth
       ) {
         this.race.opponent.car?.handleCarCollision(this.race.player.car);
         this.race.player.car?.stopFor();
+        socket.send(
+          JSON.stringify({
+            type: 'carstopped',
+            stoppedID: this.race.opponent.id,
+          }),
+        );
       } else this.race.opponent.car?.handleCarCollision(this.race.player.car);
     }
   }
@@ -416,14 +422,13 @@ export class RaceCanvas {
   }
 
   public endofAMatch(winner: number, result?: string, eloChange?: number) {
-    this.resetCarGame();
-
     const gameUIElement = document.querySelector(
       '.race-game-ui',
     ) as GameUIElement;
     if (gameUIElement && gameUIElement.showGameEndModal) {
       gameUIElement.showGameEndModal({winner, result, eloChange});
     }
+    this.resetCarGame();
   }
 
   public static destroyInstance(): void {

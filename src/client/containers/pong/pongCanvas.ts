@@ -132,8 +132,6 @@ export class PongCanvas {
     isLocal?: boolean,
   ) {
     const {game} = Store.getInstance().getState();
-    this.resetPongGame();
-
     // Update final scores in DOM before showing modal
     const winnerSide = isLocal
       ? winner === this.pong.player.id
@@ -153,6 +151,7 @@ export class PongCanvas {
     if (gameUIElement && gameUIElement.showGameEndModal) {
       gameUIElement.showGameEndModal({winner, result, eloChange});
     }
+    this.resetPongGame();
   }
 
   public static destroyInstance(): void {

@@ -1,6 +1,6 @@
 import {Car} from './car';
 import {Wall} from './wall';
-import slow from '../../assets/slowpoint.svg';
+import slow from '../../assets/slowpoint.png';
 
 export class Slowpoint {
   private readonly ctx: CanvasRenderingContext2D;
@@ -71,7 +71,7 @@ export class Slowpoint {
     this.ctx.save();
     if (this.imageLoaded && Slowpoint.slowImg.complete) {
       // Make image larger - increase size by 50%
-      const scaleFactor = 2;
+      const scaleFactor = 1.5;
       const scaledWidth = this.imageWidth * scaleFactor;
       const scaledHeight = this.imageHeight * scaleFactor;
 

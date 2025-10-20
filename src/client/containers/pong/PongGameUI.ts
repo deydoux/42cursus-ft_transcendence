@@ -4,6 +4,7 @@ import {IPlayer} from '../../types/game';
 import {PongCanvas} from './pongCanvas';
 import {Router} from '../../services/router';
 import {User} from '../../handlers/game';
+import {startWinnerCelebration} from '../../utils/content';
 import unknow_avatar from '../../assets/unknown-avatar.jpeg';
 
 interface PongGameUIElement extends HTMLElement {
@@ -141,6 +142,7 @@ export class PongGameUI extends BaseComponent {
 
     const isWinner = data.winner === user.id;
     const opponent = players.find(p => p.id !== user.id);
+
     const userScore =
       document.getElementById(
         user.id === players[0].id ? 'left_score' : 'right_score',
@@ -163,14 +165,14 @@ export class PongGameUI extends BaseComponent {
           <img class="w-20 h-20 rounded-full mb-2 border-2 ${isWinner ? 'border-green-400' : 'border-red-400'}" 
                src="${user.avatar || unknow_avatar}" alt="${user.username}">
           <div class="font-bold text-white">${user.username}</div>
-          <div class="text-sm text-gray-600">ELO: ${user.elo}</div>
-          ${
-            data.eloChange
-              ? `<div class="text-sm ${isWinner ? 'text-green-400' : 'text-red-400'}">
-            ${isWinner ? '+' : ''}${data.eloChange}
+          ${!pongCanvas.pong.isLocal ? `<div class="text-sm text-black mb-2">ELO: ${user.elo}</div>` : ''}
+      ${
+        data.eloChange && !pongCanvas.pong.isLocal
+          ? `<div class="text-sm ${isWinner ? 'text-green-400' : 'text-red-400'} font-bold">
+        ${isWinner ? '+' : ''}${data.eloChange}
           </div>`
-              : ''
-          }
+          : ''
+      }
         </div>
         
         <div class="text-4xl font-bold text-white">
@@ -181,24 +183,34 @@ export class PongGameUI extends BaseComponent {
           <img class="w-20 h-20 rounded-full mb-2 border-2 ${!isWinner ? 'border-green-400' : 'border-red-400'}" 
                src="${opponent?.avatar || unknow_avatar}" alt="${opponent?.username || 'Opponent'}">
           <div class="font-bold text-white">${opponent?.username || 'Opponent'}</div>
-          <div class="text-sm text-gray-600">ELO: ${opponent?.elo || 'N/A'}</div>
+      ${!pongCanvas.pong.isLocal ? `<div class="text-sm text-black mb-2">ELO: ${opponent?.elo || 'N/A'}</div>` : ''}
         </div>
       </div>
       
       ${data.result ? `<div class="mb-6 text-gray-300">${data.result}</div>` : ''}
       
       <div class="flex gap-4 justify-center">
-        <button id="close-modal-btn" class="bg-gray-400 hover:bg-grey-500 text-white px-6 py-2 rounded-lg transition-colors">
-          Home
-        </button>
-        <button id="rematch-btn" class="bg-gray-400 hover:bg-grey-500 text-white px-6 py-2 rounded-lg transition-colors">
-          Rematch
+        <button id="close-modal-btn" class="cursor-pointer bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2">
+          <svg class="w-5 h-5" fill="#fda5d5" viewBox="0 0 495.398 495.398">
+          <path d="M487.083,225.514l-75.08-75.08V63.704c0-15.682-12.708-28.391-28.413-28.391c-15.669,0-28.377,12.709-28.377,28.391 v29.941L299.31,37.74c-27.639-27.624-75.694-27.575-103.27,0.05L8.312,225.514c-11.082,11.104-11.082,29.071,0,40.158 c11.087,11.101,29.089,11.101,40.172,0l187.71-187.729c6.115-6.083,16.893-6.083,22.976-0.018l187.742,187.747 c5.567,5.551,12.825,8.312,20.081,8.312c7.271,0,14.541-2.764,20.091-8.312C498.17,254.586,498.17,236.619,487.083,225.514z"/>
+          <path d="M257.561,131.836c-5.454-5.451-14.285-5.451-19.723,0L72.712,296.913c-2.607,2.606-4.085,6.164-4.085,9.877v120.401 c0,28.253,22.908,51.16,51.16,51.16h81.754v-126.61h92.299v126.61h81.755c28.251,0,51.159-22.907,51.159-51.159V306.79 c0-3.713-1.465-7.271-4.085-9.877L257.561,131.836z"/>
+        </svg>
+      Home
+      </button>
+      <button id="rematch-btn" class="cursor-pointer bg-gray-500 hover:bg-grey-600 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2">
+        <svg class="w-5 h-5" version="1.1" id="Icons" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32" xml:space="preserve" fill="#fda5d5"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <style type="text/css"> .st0{fill:none;stroke:#fda5d5;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;} </style> 
+        <path class="st0" d="M27,6.5v7c0,0.8-0.7,1.5-1.5,1.5h0c-0.8,0-1.5-0.7-1.5-1.5v-7C24,5.7,24.7,5,25.5,5h0C26.3,5,27,5.7,27,6.5z"></path> 
+        <path class="st0" d="M8,18.5v7C8,26.3,7.3,27,6.5,27h0C5.7,27,5,26.3,5,25.5v-7C5,17.7,5.7,17,6.5,17h0C7.3,17,8,17.7,8,18.5z"></path> <circle class="st0" cx="15" cy="18" r="2"></circle> <path class="st0" d="M26,30H6c-2.2,0-4-1.8-4-4V6c0-2.2,1.8-4,4-4h20c2.2,0,4,1.8,4,4v20C30,28.2,28.2,30,26,30z"></path> <line class="st0" x1="16" y1="16" x2="16" y2="2"></line> <line class="st0" x1="16" y1="30" x2="16" y2="20"></line> </g>
+        </svg>  
+        Rematch
         </button>
       </div>
     `;
 
     // Show modal
     this.gameEndModal.classList.remove('hidden');
+
+    if (isWinner) startWinnerCelebration();
 
     // Add event listeners
     this.setupModalEventListeners();

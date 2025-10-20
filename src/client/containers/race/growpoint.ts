@@ -1,6 +1,6 @@
 import {Car} from './car';
 import {Wall} from './wall';
-import fuel from '../../assets/fuel.png';
+import growpoint from '../../assets/growpoint.png';
 
 export class Growpoint {
   private readonly ctx: CanvasRenderingContext2D;
@@ -13,10 +13,10 @@ export class Growpoint {
   private imageWidth: number;
   private imageHeight: number;
 
-  static fuelImg: HTMLImageElement = (() => {
+  static growpointImg: HTMLImageElement = (() => {
     const img = new window.Image();
-    img.src = fuel;
-    img.onerror = () => console.error('Failed to load fuel image!');
+    img.src = growpoint;
+    img.onerror = () => console.error('Failed to load growpoint image!');
     return img;
   })();
 
@@ -29,18 +29,19 @@ export class Growpoint {
     this.y = y;
 
     // Calculate image dimensions - maintaining aspect ratio
-    const desiredWidth = this.canvas.width * 0.04;
+    const desiredWidth = this.canvas.width * 0.03;
     const aspectRatio =
-      Growpoint.fuelImg.naturalWidth / Growpoint.fuelImg.naturalHeight || 1;
+      Growpoint.growpointImg.naturalWidth /
+        Growpoint.growpointImg.naturalHeight || 1;
 
     this.imageWidth = desiredWidth;
     this.imageHeight = desiredWidth / aspectRatio;
 
     // Ensure image is loaded
-    if (Growpoint.fuelImg.complete) {
+    if (Growpoint.growpointImg.complete) {
       this.imageLoaded = true;
     } else {
-      Growpoint.fuelImg.onload = () => {
+      Growpoint.growpointImg.onload = () => {
         this.imageLoaded = true;
       };
     }
@@ -70,15 +71,15 @@ export class Growpoint {
   public draw(): void {
     this.ctx.save();
 
-    if (this.imageLoaded && Growpoint.fuelImg.complete) {
+    if (this.imageLoaded && Growpoint.growpointImg.complete) {
       // Make image larger - increase size by 50%
-      const scaleFactor = 2;
+      const scaleFactor = 1.25;
       const scaledWidth = this.imageWidth * scaleFactor;
       const scaledHeight = this.imageHeight * scaleFactor;
 
-      // Draw the fuel image centered at the growpoint position
+      // Draw the growpoint image centered at the growpoint position
       this.ctx.drawImage(
-        Growpoint.fuelImg,
+        Growpoint.growpointImg,
         this.x - scaledWidth / 2,
         this.y - scaledHeight / 2,
         scaledWidth,

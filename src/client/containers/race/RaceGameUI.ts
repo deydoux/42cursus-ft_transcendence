@@ -5,6 +5,7 @@ import {RaceCanvas} from './raceCanvas';
 import {Router} from '../../services/router';
 import {User} from '../../handlers/game';
 import unknow_avatar from '../../assets/unknown-avatar.jpeg';
+import { startWinnerCelebration } from '../../utils/content';
 
 interface RaceGameUIElement extends HTMLElement {
   showGameEndModal(data: {
@@ -87,7 +88,7 @@ export class RaceGameUI extends BaseComponent {
   private renderGameArea(): HTMLElement {
     const gameArea = DOMUtils.createElement('div', {
       className:
-        'flex-1 flex justify-center items-center overflow-hidden border-4 border-pink-300 rounded-md',
+        'flex justify-center items-center border-4 border-pink-300 rounded-md',
     });
 
     const canvas = DOMUtils.createElement('canvas', {
@@ -109,7 +110,7 @@ export class RaceGameUI extends BaseComponent {
 
     const content = DOMUtils.createElement('div', {
       className:
-        'bg-pink-500 rounded-lg p-8 max-w-xl w-full mx-4 text-center text-shadow-lg/30',
+        'bg-pink-300 rounded-lg p-8 max-w-xl w-full mx-4 text-center text-shadow-lg/30',
     });
 
     modal.appendChild(content);
@@ -140,55 +141,81 @@ export class RaceGameUI extends BaseComponent {
     const isWinner = data.winner === user.id;
     const opponent = players.find(p => p.id !== user.id);
 
+    const userScore =
+      document.getElementById(
+        user.id === players[0].id ? 'left_score' : 'right_score',
+      )?.textContent || '0';
+    const opponentScore =
+      document.getElementById(
+        user.id === players[0].id ? 'right_score' : 'left_score',
+      )?.textContent || '0';
+
     const content = this.gameEndModal.querySelector('div');
     if (!content) return;
 
     content.innerHTML = `
-      <h2 class="text-3xl font-bold mb-6 ${isWinner ? 'text-green-400' : 'text-red-400'}">
-        ${isWinner ? 'Victory!' : 'Defeat!'}
-      </h2>
-      
-      <div class="flex justify-between items-center mb-6">
-        <div class="flex flex-col items-center">
-          <img class="w-20 h-20 rounded-full mb-2 border-2 ${isWinner ? 'border-green-400' : 'border-red-400'}" 
-               src="${user.avatar || unknow_avatar}" alt="${user.username}">
-          <div class="font-bold text-white">${user.username}</div>
-          <div class="text-sm text-gray-600">ELO: ${user.elo}</div>
-          ${
-            data.eloChange
-              ? `<div class="text-sm ${isWinner ? 'text-green-400' : 'text-red-400'}">
-            ${isWinner ? '+' : ''}${data.eloChange}
-          </div>`
-              : ''
-          }
-        </div>
-        
-        <div class="text-4xl font-bold text-white">
-          ${isWinner ? '1st' : '2nd'} Place
-        </div>
-        
-        <div class="flex flex-col items-center">
-          <img class="w-20 h-20 rounded-full mb-2 border-2 ${!isWinner ? 'border-green-400' : 'border-red-400'}" 
-               src="${opponent?.avatar || unknow_avatar}" alt="${opponent?.username || 'Opponent'}">
-          <div class="font-bold text-white">${opponent?.username || 'Opponent'}</div>
-          <div class="text-sm text-gray-600">ELO: ${opponent?.elo || 'N/A'}</div>
-        </div>
+  <!-- Victory/Defeat message centered at top -->
+  <h2 class="text-4xl font-bold mb-8 text-center ${isWinner ? 'text-green-400' : 'text-red-400'}">
+    ${isWinner ? 'Victory!' : 'Defeat!'}
+  </h2>
+  
+  <!-- Player info with scores in the middle -->
+  <div class="flex justify-between items-center mb-8">
+    <div class="flex flex-col items-center">
+      <img class="w-20 h-20 rounded-full mb-3 border-2 ${isWinner ? 'border-green-400' : 'border-red-400'}" 
+           src="${user.avatar || unknow_avatar}" alt="${user.username}">
+      <div class="font-bold text-white text-lg">${user.username}</div>
+      ${!raceCanvas.race.isLocal ? `<div class="text-sm text-black mb-2">ELO: ${user.elo}</div>` : ''}
+      ${
+        data.eloChange && !raceCanvas.race.isLocal
+          ? `<div class="text-sm ${isWinner ? 'text-green-400' : 'text-red-400'} font-bold">
+        ${isWinner ? '+' : ''}${data.eloChange}
+      </div>`
+          : ''
+      }
+    </div>
+    
+    <!-- Scores in the center -->
+    <div class="flex flex-col items-center">
+      <div class="text-6xl font-bold text-white mb-2">
+        ${userScore} - ${opponentScore}
       </div>
-      
-      ${data.result ? `<div class="mb-6 text-gray-300">${data.result}</div>` : ''}
-      
-      <div class="flex gap-4 justify-center">
-        <button id="close-modal-btn" class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg transition-colors">
-          Home
-        </button>
-        <button id="rematch-btn" class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg transition-colors">
-          Rematch
-        </button>
-      </div>
-    `;
+    </div>
+    
+    <div class="flex flex-col items-center">
+      <img class="w-20 h-20 rounded-full mb-3 border-2 ${!isWinner ? 'border-green-400' : 'border-red-400'}" 
+           src="${opponent?.avatar || unknow_avatar}" alt="${opponent?.username || 'Opponent'}">
+      <div class="font-bold text-white text-lg">${opponent?.username || 'Opponent'}</div>
+      ${!raceCanvas.race.isLocal ? `<div class="text-sm text-black mb-2">ELO: ${opponent?.elo || 'N/A'}</div>` : ''}
+    </div>
+  </div>
+  
+  ${data.result ? `<div class="mb-6 text-gray-300 text-center">${data.result}</div>` : ''}
+  
+  <div class="flex gap-4 justify-center">
+    <button id="close-modal-btn" class="cursor-pointer bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2">
+      <svg class="w-5 h-5" fill="#fda5d5" viewBox="0 0 495.398 495.398">
+        <path d="M487.083,225.514l-75.08-75.08V63.704c0-15.682-12.708-28.391-28.413-28.391c-15.669,0-28.377,12.709-28.377,28.391 v29.941L299.31,37.74c-27.639-27.624-75.694-27.575-103.27,0.05L8.312,225.514c-11.082,11.104-11.082,29.071,0,40.158 c11.087,11.101,29.089,11.101,40.172,0l187.71-187.729c6.115-6.083,16.893-6.083,22.976-0.018l187.742,187.747 c5.567,5.551,12.825,8.312,20.081,8.312c7.271,0,14.541-2.764,20.091-8.312C498.17,254.586,498.17,236.619,487.083,225.514z"/>
+        <path d="M257.561,131.836c-5.454-5.451-14.285-5.451-19.723,0L72.712,296.913c-2.607,2.606-4.085,6.164-4.085,9.877v120.401 c0,28.253,22.908,51.16,51.16,51.16h81.754v-126.61h92.299v126.61h81.755c28.251,0,51.159-22.907,51.159-51.159V306.79 c0-3.713-1.465-7.271-4.085-9.877L257.561,131.836z"/>
+      </svg>
+      Home
+    </button>
+    <button id="rematch-btn" class="cursor-pointer bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2">
+      <svg height="200px" width="200px" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <style type="text/css"> .st0{fill:#fda5d5;} </style> <g> 
+      <path class="st0" d="M65.417,237.509c-28.796,0-52.142,23.346-52.142,52.149c0,28.804,23.346,52.149,52.142,52.149 c28.804,0,52.149-23.346,52.149-52.149C117.566,260.856,94.221,237.509,65.417,237.509z M65.417,317.156 c-15.176,0-27.49-12.298-27.49-27.498c0-15.191,12.314-27.49,27.49-27.49c15.2,0,27.498,12.299,27.498,27.49 C92.915,304.858,80.617,317.156,65.417,317.156z"></path> 
+      <path class="st0" d="M65.417,281.121c-4.707,0-8.522,3.831-8.522,8.538c0,4.715,3.815,8.538,8.522,8.538 c4.715,0,8.546-3.823,8.546-8.538C73.963,284.952,70.132,281.121,65.417,281.121z"></path> <path class="st0" d="M393.738,229.965c-38.874-5.817-78.622-9.453-110.967-11.72c-2.291,10.148-9.75,19.264-19.186,19.264 c-11.376,0-51.203,0-51.203,0v-22.751v-44.566c-61.97,6.756-101.288,39.296-124.165,64.268 c21.658,8.976,36.942,30.336,36.942,55.198c0,5.583-0.79,10.977-2.228,16.122h214.946c-1.439-5.145-2.228-10.539-2.228-16.122 C335.647,257.275,361.557,230.84,393.738,229.965z"></path> <path class="st0" d="M65.417,229.926c1.9,0,3.768,0.102,5.614,0.266l10.508-14.496v-33.173H0v83.439l8.741,4.902 C16.646,247.111,39.061,229.926,65.417,229.926z"></path> 
+      <path class="st0" d="M470.281,286.813v-9.476l18.021-9.476c0,0,3.331-11.04,3.331-18.624c-21.219-7.005-49.57-11.102-75.738-15.684 c22.862,8.397,39.217,30.375,39.217,56.105c0,5.583-0.79,10.977-2.236,16.122H512v-18.967H470.281z"></path> <path class="st0" d="M395.38,237.509c-28.796,0-52.15,23.346-52.15,52.149c0,28.804,23.354,52.149,52.15,52.149 c28.804,0,52.149-23.346,52.149-52.149C447.529,260.856,424.184,237.509,395.38,237.509z M395.38,317.156 c-15.192,0-27.498-12.298-27.498-27.498c0-15.191,12.306-27.49,27.498-27.49c15.184,0,27.498,12.299,27.498,27.49 C422.878,304.858,410.564,317.156,395.38,317.156z"></path> <path class="st0" d="M395.38,281.121c-4.715,0-8.538,3.831-8.538,8.538c0,4.715,3.823,8.538,8.538,8.538 c4.715,0,8.53-3.823,8.53-8.538C403.91,284.952,400.095,281.121,395.38,281.121z"></path> </g> </g>
+      </svg>
+      Rematch
+    </button>
+  </div>
+`;
 
     // Show modal
     this.gameEndModal.classList.remove('hidden');
+
+    // Start celebration only if user is the winner
+    if (isWinner) startWinnerCelebration();
 
     // Add event listeners
     this.setupModalEventListeners();
