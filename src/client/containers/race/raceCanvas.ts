@@ -125,6 +125,12 @@ export class RaceCanvas {
     if (!this.race.gameStarted) return;
     let moved = false;
 
+    // Always update status for both cars first
+    this.race.player.car?.updateSlowdownStatus();
+    this.race.player.car?.updateGrowthStatus();
+    this.race.opponent.car?.updateSlowdownStatus();
+    this.race.opponent.car?.updateGrowthStatus();
+
     if (this.race.isLocal) {
       // Local game - control opponent car with arrow keys
       this.race.opponent.car?.move(
@@ -346,7 +352,6 @@ export class RaceCanvas {
       ) {
         this.race.currentSlowpoint = null; // Clear slowpoint after collision
         this.race.player.car?.applySlowdown();
-        // this.race.lastSlowpointTime = Date.now();
       }
       if (
         this.race.currentGrowpoint &&
@@ -355,7 +360,6 @@ export class RaceCanvas {
       ) {
         this.race.currentGrowpoint = null; // Clear slowpoint after collision
         this.race.opponent.car?.applyCarGrowth();
-        // this.race.lastGrowpointTime = Date.now() - 45000;
       }
     }
   }
@@ -372,26 +376,25 @@ export class RaceCanvas {
     );
 
     if (isColliding) {
-      if (this.race.player.car?.carWidth > this.race.opponent.car?.carWidth) {
+      if (
+        this.race.isLocal &&
+        this.race.player.car?.carWidth > this.race.opponent.car?.carWidth
+      ) {
         this.race.player.car?.handleCarCollision(this.race.opponent.car);
         this.race.opponent.car?.stopFor();
-        socket.send(
-          JSON.stringify({
-            type: 'carstopped',
-            stoppedID: this.race.opponent.id,
-          }),
-        );
       } else if (
         this.race.opponent.car?.carWidth > this.race.player.car?.carWidth
       ) {
         this.race.opponent.car?.handleCarCollision(this.race.player.car);
         this.race.player.car?.stopFor();
-        socket.send(
-          JSON.stringify({
-            type: 'carstopped',
-            stoppedID: this.race.opponent.id,
-          }),
-        );
+        if (!this.race.isLocal) {
+          socket.send(
+            JSON.stringify({
+              type: 'carStopped',
+              stoppedID: this.race.player.id,
+            }),
+          );
+        }
       } else this.race.opponent.car?.handleCarCollision(this.race.player.car);
     }
   }
