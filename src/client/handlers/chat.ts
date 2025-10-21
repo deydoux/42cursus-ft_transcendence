@@ -1,9 +1,9 @@
 import {acceptFriendRequest, closeRequest} from '../api/relationships';
+import {Socket} from '../services/websocket';
 import {Store} from '../services/store';
 import {Toastify} from '../utils/toastify';
 import {createElement} from '../utils/dom';
 import {markMessagesAsRead} from '../api/chats';
-import {socket} from '../utils/websocket';
 
 const toastMessageNotification = (
   user: {
@@ -256,8 +256,9 @@ const handleFriendRequestAccepted = (data: {
 };
 
 export const setupChatHandlers = () => {
-  socket.on('directMessage', handleDirectMessage);
-  socket.on('generalMessage', handleGeneralMessage);
-  socket.on('friendRequest', handleFriendRequest);
-  socket.on('friendRequestAccepted', handleFriendRequestAccepted);
+  const websocket = Socket.getInstance();
+  websocket.on('directMessage', handleDirectMessage);
+  websocket.on('generalMessage', handleGeneralMessage);
+  websocket.on('friendRequest', handleFriendRequest);
+  websocket.on('friendRequestAccepted', handleFriendRequestAccepted);
 };

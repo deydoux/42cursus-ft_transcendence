@@ -1,6 +1,5 @@
 import {BaseComponent} from '../components/BaseComponent';
 import {createElement} from '../utils/dom';
-import {socket} from '../utils/websocket';
 
 export class Homepage extends BaseComponent {
   constructor(private chat: HTMLElement) {
@@ -53,13 +52,11 @@ export class Homepage extends BaseComponent {
     gameMenu.appendChild(
       this.renderMenuButton(true, 'Play pong', () => {
         this.store.setState({isGameLocal: false});
-        socket.send(
-          JSON.stringify({
-            type: 'joinMatchmaking',
-            game: 'pong',
-            mode: 'casual',
-          }),
-        );
+        this.websocket.send({
+          type: 'joinMatchmaking',
+          game: 'pong',
+          mode: 'casual',
+        });
       }),
     );
 

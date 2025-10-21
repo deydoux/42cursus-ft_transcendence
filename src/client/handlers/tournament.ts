@@ -1,7 +1,8 @@
 import {round, user} from '../types';
+import {Router} from '../services/router';
+import {Socket} from '../services/websocket';
 import {Store} from '../services/store';
 import {Toastify} from '../utils/toastify';
-import {socket} from '../utils/websocket';
 
 const handleNewTournament = (data: {
   tournament: {
@@ -129,8 +130,12 @@ const handleTournamentMatchEnd = (data: {
   result?: 'cancel' | 'forfeit' | 'tie';
 }) => {
   const store = Store.getInstance();
+  const router = Router.getInstance();
   const {joinedTournament} = store.getState();
   if (!joinedTournament || !joinedTournament.rounds) return;
+
+  router.navigate('/tournament');
+  store.setState({tournamentView: 'lobby'});
 
   const updateRoundImmutably = (
     round: round | undefined,
@@ -196,10 +201,11 @@ const handleTournamentMatchEnd = (data: {
 };
 
 export const setupTournamentHandlers = () => {
-  socket.on('newTournament', handleNewTournament);
-  socket.on('tournamentJoined', handleTournamentJoined);
-  socket.on('participantJoin', handleParticipantJoin);
-  socket.on('participantLeft', handleParticipantLeft);
-  socket.on('tournamentStarted', handleTournamentStarted);
-  socket.on('tournamentMatchEnd', handleTournamentMatchEnd);
+  const websocket = Socket.getInstance();
+  websocket.on('newTournament', handleNewTournament);
+  websocket.on('tournamentJoined', handleTournamentJoined);
+  websocket.on('participantJoin', handleParticipantJoin);
+  websocket.on('participantLeft', handleParticipantLeft);
+  websocket.on('tournamentStarted', handleTournamentStarted);
+  websocket.on('tournamentMatchEnd', handleTournamentMatchEnd);
 };

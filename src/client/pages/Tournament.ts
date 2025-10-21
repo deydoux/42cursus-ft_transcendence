@@ -5,7 +5,6 @@ import {createElement} from '../utils/dom';
 import {fetchTournaments} from '../api/tournaments';
 import {renderBrackets} from '../components/Brackets';
 import {round} from '../types';
-import {socket} from '../utils/websocket';
 
 export class Tournament extends BaseComponent {
   private displayCreateTournamentDialog?: () => void;
@@ -37,12 +36,10 @@ export class Tournament extends BaseComponent {
         },
       });
 
-      socket.send(
-        JSON.stringify({
-          type: 'createTournament',
-          name: formdata.get('name'),
-        }),
-      );
+      this.websocket.send({
+        type: 'createTournament',
+        name: formdata.get('name'),
+      });
       close();
     };
 
@@ -216,12 +213,10 @@ export class Tournament extends BaseComponent {
                 participants: [],
               },
             });
-            socket.send(
-              JSON.stringify({
-                type: 'joinTournament',
-                tournamentID: tournament.id,
-              }),
-            );
+            this.websocket.send({
+              type: 'joinTournament',
+              tournamentID: tournament.id,
+            });
           },
         }),
       );
@@ -299,12 +294,14 @@ export class Tournament extends BaseComponent {
       closestMatch.round.rounds &&
       closestMatch.round.rounds.find(round => !isUserInRound(round, user.id));
 
-    if (
+    if (joinedTournament.winner && joinedTournament.winner.id === user.id) {
+      statusText.textContent = `You won this tournament! Well done!`;
+    } else if (
       closestMatch.round.winnerID &&
       closestMatch.round.winnerID !== user.id
     ) {
       statusText.textContent = `Unfortunately, you lost this tournament :(`;
-    } else if (opponent) {
+    } else if (opponent && !opponent.score) {
       statusText.innerHTML = `Your match with <span className="text-white">${opponent.username}</span> will start in a few`;
     } else if (waitingForRound) {
       statusText.innerHTML = `Waiting for <span class="text-white">${waitingForRound.participants.map(p => p.username).join('</span> and <span class="text-white">')}</span> to finish their match`;
@@ -315,11 +312,9 @@ export class Tournament extends BaseComponent {
         textContent: 'Quit tournament',
         className: `mt-4 border hover:border-red-500 text-white py-2 px-4 rounded-lg hover:text-red-500 hover:bg-red-500/20 cursor-pointer duration-100`,
         onclick: () => {
-          socket.send(
-            JSON.stringify({
-              type: 'leaveTournament',
-            }),
-          );
+          this.websocket.send({
+            type: 'leaveTournament',
+          });
           this.store.setState({
             tournamentView: 'tournaments',
             joinedTournament: undefined,

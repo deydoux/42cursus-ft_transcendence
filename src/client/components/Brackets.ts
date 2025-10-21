@@ -63,7 +63,8 @@ const renderBracket = (round: round, isFinal = true) => {
       });
     } else {
       rightContent = createElement('p', {
-        textContent: participant.score ? participant.score.toString() : '-',
+        textContent:
+          participant.score === undefined ? '-' : participant.score.toString(),
         className: isParticipantWinner ? 'text-pink-300' : '',
       });
     }

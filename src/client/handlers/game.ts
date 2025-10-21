@@ -1,9 +1,9 @@
-import {Lobby} from '../pages/Lobby';
+// import {Lobby} from '../pages/Lobby';
 import {PongCanvas} from '../containers/pong/pongCanvas';
 import {Router} from '../services/router';
+import {Socket} from '../services/websocket';
 import {Store} from '../services/store';
 import {Toastify} from '../utils/toastify';
-import {socket} from '../utils/websocket';
 
 export interface User {
   id: number;
@@ -29,11 +29,11 @@ const handleMatchStart = (data: {
     matchStartBallData: {dx: data.dx, dy: data.dy},
   });
 
-  setTimeout(() => {
-    const {user} = store.getState();
-    const opponent = user && data.players.find(player => player.id !== user.id);
-    if (opponent) Lobby.renderFoundOpponent(opponent);
-  }, 50);
+  // setTimeout(() => {
+  //   const {user} = store.getState();
+  //   const opponent = user && data.players.find(player => player.id !== user.id);
+  //   if (opponent) Lobby.renderFoundOpponent(opponent);
+  // }, 50);
 
   setTimeout(() => {
     store.setState({isWaitingForMatchmaking: false});
@@ -115,12 +115,13 @@ const handleBallState = (data: {
 };
 
 export const setupGameHandlers = () => {
-  socket.on('matchStart', handleMatchStart);
-  socket.on('success', handleSuccess);
-  socket.on('error', handleError);
-  socket.on('move', handleMove);
-  socket.on('matchCancel', handleMatchCancel);
-  socket.on('matchEnd', handleMatchEnd);
-  socket.on('round', handleRound);
-  socket.on('ballState', handleBallState);
+  const websocket = Socket.getInstance();
+  websocket.on('matchStart', handleMatchStart);
+  websocket.on('success', handleSuccess);
+  websocket.on('error', handleError);
+  websocket.on('move', handleMove);
+  websocket.on('matchCancel', handleMatchCancel);
+  websocket.on('matchEnd', handleMatchEnd);
+  websocket.on('round', handleRound);
+  websocket.on('ballState', handleBallState);
 };

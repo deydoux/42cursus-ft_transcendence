@@ -9,7 +9,6 @@ import {fetchPublicKPIs} from '../api/account';
 import {gdpr} from '../containers/chat/gdpr';
 import img from '../assets/kittypong.png';
 import {loadIcons} from '../utils/icons';
-import {socket} from '../utils/websocket';
 import sticker from '../assets/sticker.png';
 
 declare const __GOOGLE_ID__: string;
@@ -204,10 +203,7 @@ export class LandingPage extends BaseComponent {
         }
 
         localStorage.setItem('accessToken', token);
-        socket.updateConfig({
-          protocols: [localStorage.getItem('accessToken') ?? ''],
-        });
-        await socket.connect();
+        await this.websocket.connect();
 
         this.router.navigate('/homepage');
         return;
@@ -251,10 +247,7 @@ export class LandingPage extends BaseComponent {
           }
 
           localStorage.setItem('accessToken', data.accessToken);
-          socket.updateConfig({
-            protocols: [localStorage.getItem('accessToken') ?? ''],
-          });
-          await socket.connect();
+          await this.websocket.connect();
 
           this.router.navigate('/homepage');
           return;

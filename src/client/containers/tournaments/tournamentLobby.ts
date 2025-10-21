@@ -1,7 +1,6 @@
 import {BaseComponent} from '../../components/BaseComponent';
 import {Toastify} from '../../utils/toastify';
 import {createElement} from '../../utils/dom';
-import {socket} from '../../utils/websocket';
 
 export class TournamentLobby extends BaseComponent {
   private renderParticipantsList(container: HTMLDivElement) {
@@ -67,12 +66,10 @@ export class TournamentLobby extends BaseComponent {
             className: `text-white/50 hover:text-red-500 cursor-pointer text-sm mr-2 flex items-center justify-center`,
           });
           rightContent.onclick = () => {
-            socket.send(
-              JSON.stringify({
-                type: 'kickParticipant',
-                participantID: participant.id,
-              }),
-            );
+            this.websocket.send({
+              type: 'kickParticipant',
+              participantID: participant.id,
+            });
           };
           rightContent.appendChild(
             createElement('i', {
@@ -116,7 +113,7 @@ export class TournamentLobby extends BaseComponent {
       className: `border border-pink-300 py-2 px-4 rounded-lg text-white cursor-pointer disabled:border-white/30 disabled:text-white/20 hover:bg-pink-300/20 duration-100 disabled:bg-background`,
       textContent: 'Start the tournament',
       onclick: () => {
-        socket.send({
+        this.websocket.send({
           type: 'startTournament',
         });
       },
@@ -125,11 +122,9 @@ export class TournamentLobby extends BaseComponent {
       textContent: 'Quit tournament',
       className: `border border-red-500/80 bg-red-500/10 text-red-500/80 hover:border-red-500 py-2 px-4 rounded-lg hover:text-red-500 hover:bg-red-500/20 cursor-pointer duration-100`,
       onclick: () => {
-        socket.send(
-          JSON.stringify({
-            type: 'leaveTournament',
-          }),
-        );
+        this.websocket.send({
+          type: 'leaveTournament',
+        });
         this.store.setState({
           tournamentView: 'tournaments',
           joinedTournament: undefined,

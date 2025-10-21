@@ -1,7 +1,7 @@
 import {IPlayer, IPongGame, PongGameUIElement} from '../../types/game';
+import {Socket} from '../../services/websocket';
 import {Store} from '../../services/store';
 import {displayCountdownMessage} from '../../utils/content';
-import {socket} from '../../utils/websocket';
 
 export class PongCanvas {
   private static instance: PongCanvas | null = null;
@@ -9,8 +9,10 @@ export class PongCanvas {
   public pong: IPongGame;
   private raf: number | null;
   private color = 'rgb(0, 0, 0)';
+  private websocket: Socket;
 
   private constructor(pong: IPongGame) {
+    this.websocket = Socket.getInstance();
     this.ctx = pong.ctx;
     this.pong = pong;
     this.raf = null;
@@ -127,15 +129,13 @@ export class PongCanvas {
     direction: number,
     yPosition: number,
   ) {
-    socket.send(
-      JSON.stringify({
-        type: 'move',
-        side,
-        direction,
-        yPosition,
-        timestamp: Date.now(),
-      }),
-    );
+    this.websocket.send({
+      type: 'move',
+      side,
+      direction,
+      yPosition,
+      timestamp: Date.now(),
+    });
   }
 
   public handleOpponentPaddleMovement(data: {

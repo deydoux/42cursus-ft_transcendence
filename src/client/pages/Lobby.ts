@@ -1,7 +1,6 @@
 import {BaseComponent} from '../components/BaseComponent';
 import {Toastify} from '../utils/toastify';
 import {createElement} from '../utils/dom';
-import {socket} from '../utils/websocket';
 
 export class Lobby extends BaseComponent {
   handleNavigation: () => void;
@@ -21,7 +20,7 @@ export class Lobby extends BaseComponent {
         playingLocations.includes(this.currentPath) &&
         !playingLocations.includes(this.currentPath)
       ) {
-        socket.send({
+        this.websocket.send({
           type: 'leaveMatchmaking',
         });
       }

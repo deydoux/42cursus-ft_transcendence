@@ -110,7 +110,7 @@ export class Chat extends BaseComponent {
 
     // Chat view
     const view = createElement('div', {
-      className: `flex-1 overflow-hidden border border-pink-300 rounded-xl flex flex-col`,
+      className: `flex-1 overflow-hidden border border-pink-300/50 rounded-xl flex flex-col`,
     });
     container.appendChild(view);
     const renderChatview = () => {
