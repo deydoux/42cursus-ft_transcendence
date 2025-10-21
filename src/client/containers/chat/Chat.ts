@@ -65,13 +65,10 @@ export class Chat extends BaseComponent {
       className: 'flex items-center gap-4',
     });
 
-    const isPlaying = ['/racecar', '/pong'].includes(location.pathname);
-
     const homepageButton = createElement('button', {
-      className: `rounded-full flex items-center p-2 justify-center border border-pink-300/10 ${isPlaying ? 'text-white/30' : 'hover:text-pink-300 hover:bg-pink-300/10 cursor-pointer'}  transition-all `,
+      className: `rounded-full flex items-center p-2 justify-center border border-pink-300/10 disabled:text-white/30 hover:text-pink-300 hover:bg-pink-300/10 cursor-pointer  transition-all `,
       onclick: () => this.router.navigate('/homepage'),
     });
-    homepageButton.disabled = isPlaying;
     homepageButton.appendChild(
       createElement('i', {
         icon: 'home',
@@ -80,10 +77,9 @@ export class Chat extends BaseComponent {
     rightPart.appendChild(homepageButton);
 
     const settingsButton = createElement('button', {
-      className: `rounded-full flex items-center p-2 justify-center border border-pink-300/10 ${isPlaying ? 'text-white/30' : 'hover:text-pink-300 hover:bg-pink-300/10 cursor-pointer'}  transition-all `,
+      className: `rounded-full flex items-center p-2 justify-center border border-pink-300/10 disabled:text-white/30  hover:text-pink-300 hover:bg-pink-300/10 cursor-pointer  transition-all `,
       onclick: () => this.router.navigate('/settings'),
     });
-    settingsButton.disabled = isPlaying;
     settingsButton.appendChild(
       createElement('i', {
         icon: 'cog',

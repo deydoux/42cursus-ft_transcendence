@@ -2,7 +2,6 @@ import {IPongGame} from '../../types/game';
 import {Paddle} from './paddle';
 import hk_ball from '../../assets/hk_ball.png';
 import {socket} from '../../utils/websocket';
-import {PongCanvas} from './pongCanvas';
 
 export class Ball {
   x: number;

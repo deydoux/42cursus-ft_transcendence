@@ -14,8 +14,7 @@ export class Car {
   public speed: number;
   public acceleration: number;
   public color: string;
-  public carImage: HTMLImageElement;
-  public name: string;
+  public carImage: HTMLImageElement | undefined;
   public carWidth: number;
   public carHeight: number;
   public isSlowed: boolean;
@@ -37,7 +36,6 @@ export class Car {
   private readonly growthFactor: number = 0.02; // 30% of normal speed
 
   constructor(
-    name: string,
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
@@ -47,7 +45,6 @@ export class Car {
     this.isSlowed = false;
     this.isBigger = false;
     this.slowdownEndTime = 0;
-    this.name = name;
     this.color = color;
     this.ctx = ctx;
     this.x = x;
@@ -58,12 +55,15 @@ export class Car {
     this.score = 0;
     this.ratioGrowth = 0;
     this.isStopped = false;
+    this.carWidth = 0;
+    this.carHeight = 0;
+    this.growthEndTime = 0;
 
     const speedScale = Math.min(ctx.canvas.width, ctx.canvas.height) / 500;
 
-    this.maxSpeed = 5 * speedScale;
+    this.maxSpeed = 3.75 * speedScale;
     this.minSpeedForTurn = 0.2 * speedScale;
-    this.reverseSpeed = -4 * speedScale;
+    this.reverseSpeed = -3 * speedScale;
 
     if (sprite) {
       this.carImage = Car.createCarImage(sprite);
@@ -188,7 +188,7 @@ export class Car {
   public draw(): void {
     this.ctx.save();
     this.ctx.translate(this.x, this.y);
-    this.ctx.rotate(this.angle);
+    this.ctx.rotate(this.angle + Math.PI / 2);
 
     if (this.carImage && this.imageLoaded) {
       // Draw car sprite
@@ -213,7 +213,7 @@ export class Car {
     }
 
     if (this.isSlowed) {
-      this.ctx.fillStyle = '#0f6b23'; // Red color
+      this.ctx.fillStyle = '#2713ddff';
       this.ctx.beginPath();
       this.ctx.arc(
         0, // Center horizontally on the car
@@ -226,7 +226,7 @@ export class Car {
     }
 
     if (this.isStopped) {
-      this.ctx.fillStyle = '#cb1aeb'; // Red color
+      this.ctx.fillStyle = '#ddeb1aff';
       this.ctx.beginPath();
       this.ctx.arc(
         0, // Center horizontally on the car
@@ -284,9 +284,6 @@ export class Car {
 
     // Special case for stuck cars - allow escaping regardless of walls
     if (isStuck) {
-      console.warn(
-        `Car ${this.name} is stuck in walls at (${this.x}, ${this.y})`,
-      );
       // Apply "emergency" movement in reverse direction of current angle
       const escapeSpeed = -1.5; // Force backward movement
       this.x += Math.cos(this.angle) * escapeSpeed;
@@ -400,11 +397,13 @@ export class Car {
     width: number;
     height: number;
   } {
+    const width = this.carWidth || 0;
+    const height = this.carHeight || 0;
     return {
-      x: this.x - this.carWidth / 2,
-      y: this.y - this.carHeight / 2,
-      width: this.carWidth,
-      height: this.carHeight,
+      x: this.x - width / 2,
+      y: this.y - height / 2,
+      width: width,
+      height: height,
     };
   }
 
@@ -414,7 +413,8 @@ export class Car {
    * @param otherCar The other car to check collision against
    * @returns True if the cars are colliding, false otherwise
    */
-  public isCollidingWithCar(otherCar: Car): boolean {
+  public isCollidingWithCar(otherCar: Car | null): boolean {
+    if (!otherCar) throw new Error('car not found');
     const thisBox = this.getBoundingBox();
     const otherBox = otherCar.getBoundingBox();
 

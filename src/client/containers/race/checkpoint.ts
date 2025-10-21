@@ -158,7 +158,8 @@ export class Checkpoint {
    * Checks if the checkpoint is colliding with a car.
    * Use the image dimensions for collision detection
    */
-  public isColliding(car: Car): boolean {
+  public isColliding(car: Car | null): boolean {
+    if (!car) throw new Error('car not found');
     const distance = Math.sqrt(
       Math.pow(this.x - car.x, 2) + Math.pow(this.y - car.y, 2),
     );

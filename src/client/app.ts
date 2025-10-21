@@ -5,7 +5,7 @@ import {LandingPage} from './pages/LandingPage';
 import {Lobby} from './pages/Lobby';
 import {PageNotFound} from './pages/PageNotFound';
 import {PongGame} from './pages/PongGame';
-import {RacecarGame} from './pages/RacecarGame';
+import {RaceGame} from './pages/RaceGame';
 import {Router} from './services/router';
 import {Settings} from './pages/Settings';
 import {Statistics} from './pages/Statistics';
@@ -75,9 +75,44 @@ class App {
     this.router.addPrivateRoute('/homepage', () => new Homepage(chat));
     this.router.addPrivateRoute('/settings', () => new Settings(chat));
     this.router.addPrivateRoute('/lobby', () => new Lobby(chat));
-    this.router.addPrivateRoute('/pong', () => new PongGame());
-    this.router.addPrivateRoute('/racecar', () => new RacecarGame());
+    this.router.addPrivateRoute(
+      '/pong',
+      this.protectedGameRoute('pong', () => new PongGame(), chat),
+    );
+    this.router.addPrivateRoute(
+      '/race',
+      this.protectedGameRoute('race', () => new RaceGame(), chat),
+    );
+
     this.router.addPrivateRoute('/statistics', () => new Statistics());
+  }
+
+  private protectedGameRoute(
+    gameName: string,
+    gameFactory: () => PongGame | RaceGame,
+    chat: HTMLElement,
+  ) {
+    return () => {
+      const router = Router.getInstance();
+      const validAccess = sessionStorage.getItem('validGameAccess');
+
+      if (!validAccess) {
+        console.error(
+          `Invalid ${gameName} game access (no valid navigation flag), redirecting to homepage`,
+        );
+
+        setTimeout(() => {
+          router.navigate('/homepage');
+        }, 0);
+
+        return new Homepage(chat);
+      }
+
+      // Clear the flag after successful access
+      sessionStorage.removeItem('validGameAccess');
+
+      return gameFactory();
+    };
   }
 }
 

@@ -1,4 +1,4 @@
-import {IPlayer, IPongGame, PongGameUIElement} from '../../types/game';
+import {GameUIElement, IPongGame} from '../../types/game';
 import {Store} from '../../services/store';
 import {displayCountdownMessage} from '../../utils/content';
 import {socket} from '../../utils/websocket';
@@ -8,7 +8,6 @@ export class PongCanvas {
   private ctx: CanvasRenderingContext2D;
   public pong: IPongGame;
   private raf: number | null;
-  private color = 'rgb(0, 0, 0)';
 
   private constructor(pong: IPongGame) {
     this.ctx = pong.ctx;
@@ -51,7 +50,7 @@ export class PongCanvas {
       this.pong.isLocal &&
       (this.pong.player.score === 3 || this.pong.opponent.score === 3)
     )
-      PongCanvas.getInstance().endofAMatch(
+      this.endofAMatch(
         this.pong.player.score == 3
           ? this.pong.player.id
           : this.pong.opponent.id,
@@ -61,13 +60,13 @@ export class PongCanvas {
       );
 
     if (countdownMessage)
-      displayCountdownMessage(this.ctx, this.color, countdownMessage);
+      displayCountdownMessage(this.ctx, 'rgb(0, 0, 0)', countdownMessage);
     this.raf = window.requestAnimationFrame(this.gameLoop.bind(this));
   }
 
   private updateScore(): void {
-    this.pong.player.scoreElement.innerHTML = this.pong.player.score.toString();
-    this.pong.opponent.scoreElement.innerHTML =
+    this.pong.player.scoreElement.innerText = this.pong.player.score.toString();
+    this.pong.opponent.scoreElement.innerText =
       this.pong.opponent.score.toString();
   }
 
@@ -115,52 +114,15 @@ export class PongCanvas {
     }
 
     if (moved && !this.pong.isLocal)
-      this.sendPaddleMovement(
-        this.pong.player.side,
-        direction,
-        this.pong.player.paddle?.y || 0,
+      socket.send(
+        JSON.stringify({
+          type: 'paddleMove',
+          side: this.pong.player.side,
+          direction,
+          yPosition: this.pong.player.paddle?.y || 0,
+          timestamp: Date.now(),
+        }),
       );
-  }
-
-  private sendPaddleMovement(
-    side: string,
-    direction: number,
-    yPosition: number,
-  ) {
-    socket.send(
-      JSON.stringify({
-        type: 'move',
-        side,
-        direction,
-        yPosition,
-        timestamp: Date.now(),
-      }),
-    );
-  }
-
-  public handleOpponentPaddleMovement(data: {
-    side: string;
-    direction: number;
-    yPosition: number;
-    timestamp: number;
-  }) {
-    // Find the player whose side matches the incoming data
-    let targetPlayer: IPlayer | null = null;
-
-    if (this.pong.player.side === data.side) {
-      // This shouldn't happen - we received our own movement
-      return;
-    } else if (this.pong.opponent.side === data.side) {
-      // The opponent is moving
-      targetPlayer = this.pong.opponent;
-    }
-
-    if (targetPlayer && targetPlayer.paddle) {
-      // Use the exact position for better sync
-      targetPlayer.paddle.y = data.yPosition;
-      // Optional: Add interpolation for smoother movement
-      // targetPlayer.paddle.move(data.direction * (this.ctx.canvas.height * 0.01));
-    }
   }
 
   public endofAMatch(
@@ -169,15 +131,13 @@ export class PongCanvas {
     eloChange?: number,
     isLocal?: boolean,
   ) {
-    const {players} = Store.getInstance().getState();
-    this.resetPongGame();
-
+    const {game} = Store.getInstance().getState();
     // Update final scores in DOM before showing modal
     const winnerSide = isLocal
       ? winner === this.pong.player.id
         ? 'left'
         : 'right'
-      : winner === players[0].id
+      : winner === game.players[0].id
         ? 'left'
         : 'right';
     const winnerScoreElement = document.getElementById(`${winnerSide}_score`);
@@ -187,10 +147,11 @@ export class PongCanvas {
 
     const gameUIElement = document.querySelector(
       '.pong-game-ui',
-    ) as PongGameUIElement;
+    ) as GameUIElement;
     if (gameUIElement && gameUIElement.showGameEndModal) {
       gameUIElement.showGameEndModal({winner, result, eloChange});
     }
+    this.resetPongGame();
   }
 
   public static destroyInstance(): void {

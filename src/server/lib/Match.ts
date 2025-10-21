@@ -194,7 +194,14 @@ export default abstract class Match {
           this.forfeits(opponent);
           break;
         case 'ballState':
-        case 'move':
+        case 'paddleMove':
+          Clients.sendClient(opponent, message as ServerTunnelMessage);
+          break;
+        case 'carMove':
+          Clients.sendClient(opponent, message as ServerTunnelMessage);
+          break;
+        case 'carGrowth':
+        case 'carSlowdown':
           Clients.sendClient(opponent, message as ServerTunnelMessage);
           break;
         case 'score':

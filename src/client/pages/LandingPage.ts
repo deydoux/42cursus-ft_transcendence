@@ -492,7 +492,7 @@ export class LandingPage extends BaseComponent {
         className:
           'text-pink-300 font-bold ml-1 cursor-pointer hover:underline',
         textContent: signin ? 'Sign up' : 'Log in',
-        click: () => this.renderRegistrationForm(signin ? 'signup' : 'login'),
+        onclick: () => this.renderRegistrationForm(signin ? 'signup' : 'login'),
       }),
     );
 
