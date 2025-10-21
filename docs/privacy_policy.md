@@ -99,9 +99,9 @@ Should you wish to report a complaint or if you feel that ft_transcendence has n
 
 In France, this is the CNIL (Commission Nationale de l'Informatique et des Libertés).
 <br>
-Phone: +33 (0) 1 53 73 22 22
-<br>
 Website: https://cnil.fr/
+<br>
+Phone: +33 (0) 1 53 73 22 22
 <br>
 Address:
 
