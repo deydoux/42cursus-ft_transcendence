@@ -77,12 +77,9 @@ const handlePaddleMove = (data: {
   const pongCanvas = PongCanvas.getInstance();
 
   if (pongCanvas.pong.player.side === data.side) {
-    // pongCanvas shouldn't happen - we received our own movement
     return;
   } else if (pongCanvas.pong.opponent && pongCanvas.pong.opponent.paddle) {
     pongCanvas.pong.opponent.paddle.y = data.yPosition;
-    // Optional: Add interpolation for smoother movement
-    // targetPlayer.paddle.move(data.direction * (this.ctx.canvas.height * 0.01));
   }
 };
 
@@ -170,20 +167,47 @@ const handleCarMove = (data: {
 
 const handleCarSlowdown = (data: {slowID: number}) => {
   const raceCanvas = RaceCanvas.getInstance();
-  if (data.slowID === raceCanvas.race.opponent.id) {
-    raceCanvas.race.opponent.car?.applySlowdown();
-    console.log(raceCanvas.race.opponent.username, ' got slowed down');
+  if (data.slowID === raceCanvas.race.player.id) {
+    raceCanvas.race.player.car?.applySlowdown();
   }
   raceCanvas.race.currentSlowpoint = null;
 };
 
-const handlecarGrowth = (data: {growthID: number}) => {
+const handleCarGrowth = (data: {growthID: number}) => {
   const raceCanvas = RaceCanvas.getInstance();
   if (data.growthID === raceCanvas.race.opponent.id) {
     raceCanvas.race.opponent.car?.applyCarGrowth();
-    console.log(raceCanvas.race.opponent.username, ' got growth boost');
   }
   raceCanvas.race.currentGrowpoint = null;
+};
+
+const handleCarStopped = (data: {stoppedID: number}) => {
+  const raceCanvas = RaceCanvas.getInstance();
+  if (data.stoppedID === raceCanvas.race.player.id)
+    raceCanvas.race.player.car?.stopFor();
+  else if (data.stoppedID === raceCanvas.race.opponent.id)
+    raceCanvas.race.opponent.car?.stopFor();
+  return;
+};
+
+const handleUpdateGrowth = (data: {playerId: number}) => {
+  const raceCanvas = RaceCanvas.getInstance();
+
+  if (data.playerId === raceCanvas.race.player.id) {
+    raceCanvas.race.player.car?.resetGrowthStatus();
+  } else if (data.playerId === raceCanvas.race.opponent.id) {
+    raceCanvas.race.opponent.car?.resetGrowthStatus();
+  }
+};
+
+const handleUpdateSlowdown = (data: {playerId: number}) => {
+  const raceCanvas = RaceCanvas.getInstance();
+
+  if (data.playerId === raceCanvas.race.player.id) {
+    raceCanvas.race.player.car?.resetSlowdownStatus();
+  } else if (data.playerId === raceCanvas.race.opponent.id) {
+    raceCanvas.race.opponent.car?.resetSlowdownStatus();
+  }
 };
 
 const handleRaceObject = (data: {object: string; x: number; y: number}) => {
@@ -217,6 +241,9 @@ export const setupGameHandlers = () => {
   socket.on('ballState', handleBallState);
   socket.on('carMove', handleCarMove);
   socket.on('carSlowdown', handleCarSlowdown);
-  socket.on('carGrowth', handlecarGrowth);
+  socket.on('carGrowth', handleCarGrowth);
+  socket.on('carStopped', handleCarStopped);
   socket.on('raceObject', handleRaceObject);
+  socket.on('updateGrowth', handleUpdateGrowth);
+  socket.on('updateSlowdown', handleUpdateSlowdown);
 };

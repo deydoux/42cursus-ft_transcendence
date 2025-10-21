@@ -14,7 +14,7 @@ export class Timer {
     this.startTime = 0;
     this.elapsedTime = 0;
     this.isRunning = false;
-    this.duration = 60 * 1000; // 1 minutes
+    this.duration = 2 * 60 * 1000; // 1 minutes
 
     this.isCountingDown = false;
     this.countdownDuration = 3000; // 3second

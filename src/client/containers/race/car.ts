@@ -1,4 +1,6 @@
+import {RaceCanvas} from './raceCanvas';
 import {Wall} from './wall';
+import {socket} from '../../utils/websocket';
 
 /**
  * Represents a car in the game.
@@ -128,11 +130,25 @@ export class Car {
   }
 
   /**
+   * Resets the car's slowdown status
+   */
+  public resetSlowdownStatus(): void {
+    this.isSlowed = false;
+  }
+
+  /**
    * check and update slowdown status
    */
-  private updateSlowdownStatus(): void {
+  public updateSlowdownStatus(): void {
     if (this.isSlowed && Date.now() > this.slowdownEndTime) {
-      this.isSlowed = false;
+      const raceCanvas = RaceCanvas.getInstance();
+      socket.send(
+        JSON.stringify({
+          type: 'updateSlowdown',
+          playerId: raceCanvas.race.player.id,
+        }),
+      );
+      this.resetSlowdownStatus();
     }
   }
 
@@ -150,17 +166,31 @@ export class Car {
   }
 
   /**
+   * Resets the car's growth status and dimensions
+   */
+  public resetGrowthStatus(): void {
+    this.isBigger = false;
+    if (this.carImage) {
+      this.setCarDimensionsFromImage(-this.growthFactor);
+    } else {
+      this.setDefaultCarDimensions(-this.growthFactor);
+    }
+  }
+
+  /**
    * Updates the growth status of the car.
    * If the growth duration has ended, it resets the car size.
    */
-  private updatedGrowthStatus() {
+  public updateGrowthStatus() {
     if (this.isBigger && Date.now() > this.growthEndTime) {
-      this.isBigger = false;
-      if (this.carImage) {
-        this.setCarDimensionsFromImage(-this.growthFactor);
-      } else {
-        this.setDefaultCarDimensions(-this.growthFactor);
-      }
+      const raceCanvas = RaceCanvas.getInstance();
+      socket.send(
+        JSON.stringify({
+          type: 'updateGrowth',
+          playerId: raceCanvas.race.player.id,
+        }),
+      );
+      this.resetGrowthStatus(); // Use the new method
     }
   }
 
@@ -267,10 +297,6 @@ export class Car {
     walls: Wall,
   ): void {
     if (this.isStopped) return;
-
-    // Update slowdown status first
-    this.updateSlowdownStatus();
-    this.updatedGrowthStatus();
 
     // Check if car is stuck in a wall
     const currentPosition = {

@@ -1,7 +1,7 @@
 import Match, {Player} from '#lib/Match';
 import {FastifyInstance} from 'fastify';
 
-const RACE_TIMEOUT = 60 * 1000; // 1 minute
+const RACE_TIMEOUT = 2 * 60 * 1000; // 1 minute
 const BONUSES: ('growpoint' | 'slowpoint')[] = ['growpoint', 'slowpoint'];
 const BONUS_INTERVAL = 15 * 1000; // 15 seconds
 const CHECKPOINT_INTERVAL = 10 * 1000; // 10 seconds
