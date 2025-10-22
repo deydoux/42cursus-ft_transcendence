@@ -1,6 +1,7 @@
 import {setupChatHandlers} from '../handlers/chat';
 import {setupGameHandlers} from '../handlers/game';
 import {setupTournamentHandlers} from '../handlers/tournament';
+import {Store} from './store';
 
 export class Socket {
   private static instance: Socket | null = null;
@@ -74,7 +75,7 @@ export class Socket {
 
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) {
-          reject();
+          resolve();
           return;
         }
 

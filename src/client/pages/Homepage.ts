@@ -1,5 +1,4 @@
 import {BaseComponent} from '../components/BaseComponent';
-import {Toastify} from '../utils/toastify';
 import {createElement} from '../utils/dom';
 
 export class Homepage extends BaseComponent {
@@ -113,7 +112,7 @@ export class Homepage extends BaseComponent {
       className: `cursor-pointer flex-1 rounded bg-background rounded-xl font-semibold uppercase text-pink-300 border-3 border-pink-300`,
     });
     tournamentsButton.onclick = () => {
-      Toastify.info("Don't know, don't care");
+      this.router.navigate('/tournament');
     };
     gameMenu.appendChild(tournamentsButton);
     gameMenu.appendChild(
