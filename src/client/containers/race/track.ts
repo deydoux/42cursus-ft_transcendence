@@ -7,7 +7,6 @@ export class Track {
 
   public draw(): void {
     const {height, width} = this.ctx.canvas;
-    console.log('width:', width, 'height:', height);
 
     // Draw field background
     this.ctx.fillStyle = '#0a0a0a'; // Darker background for better neon contrast
@@ -22,9 +21,9 @@ export class Track {
     const gridSpacing = height / 9; // Adjust divisor to control grid density
 
     // Set up neon blue styling
-    this.ctx.strokeStyle = '#041dbfc7'; // Bright neon blue
+    this.ctx.strokeStyle = '#f533ff88'; // Bright neon blue
     this.ctx.lineWidth = 4;
-    this.ctx.shadowColor = '#00d4ff'; // Glow color
+    this.ctx.shadowColor = '#e18be6ff'; // Glow color
     this.ctx.shadowBlur = 10; // Glow intensity
     this.ctx.globalCompositeOperation = 'screen'; // Blend mode for glow effect
 
@@ -46,7 +45,7 @@ export class Track {
 
     // Add a second pass for extra glow
     this.ctx.shadowBlur = 20;
-    this.ctx.strokeStyle = '#0088cc'; // Slightly darker blue for depth
+    this.ctx.strokeStyle = '#f073dfff'; // Slightly darker blue for depth
     this.ctx.lineWidth = 2;
 
     // Draw vertical lines (second pass)

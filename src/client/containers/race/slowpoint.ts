@@ -1,6 +1,6 @@
 import {Car} from './car';
 import {Wall} from './wall';
-import slow from '../../assets/slow.png';
+import slow from '../../assets/slowpoint.png';
 
 export class Slowpoint {
   private readonly ctx: CanvasRenderingContext2D;
@@ -71,7 +71,7 @@ export class Slowpoint {
     this.ctx.save();
     if (this.imageLoaded && Slowpoint.slowImg.complete) {
       // Make image larger - increase size by 50%
-      const scaleFactor = 2;
+      const scaleFactor = 1.5;
       const scaledWidth = this.imageWidth * scaleFactor;
       const scaledHeight = this.imageHeight * scaleFactor;
 
@@ -96,10 +96,11 @@ export class Slowpoint {
     this.ctx.restore();
   }
 
-  public isColliding(car: Car): boolean {
+  public isColliding(car: Car | null): boolean {
+    if (!car) throw new Error('car not found');
     const distance = Math.sqrt(
       Math.pow(this.x - car.x, 2) + Math.pow(this.y - car.y, 2),
     );
-    return distance < this.size + car.carWidth / 2;
+    return distance < this.size + (car.carWidth || 0) / 2;
   }
 }

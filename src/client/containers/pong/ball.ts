@@ -281,39 +281,31 @@ export class Ball {
     if (isLeftWall && pong.player.side == 'left') {
       pong.opponent.score++;
       if (!pong.isLocal)
-        this.websocket.send(
-          JSON.stringify({
-            type: 'score',
-            scorerID: pong.opponent.id,
-          }),
-        );
+        this.websocket.send({
+          type: 'score',
+          scorerID: pong.opponent.id,
+        });
     } else if (!isLeftWall && pong.player.side == 'right') {
       pong.opponent.score++;
       if (!pong.isLocal)
-        this.websocket.send(
-          JSON.stringify({
-            type: 'score',
-            scorerID: pong.opponent.id,
-          }),
-        );
+        this.websocket.send({
+          type: 'score',
+          scorerID: pong.opponent.id,
+        });
     } else if (isLeftWall && pong.player.side == 'right') {
       pong.player.score++;
       if (!pong.isLocal)
-        this.websocket.send(
-          JSON.stringify({
-            type: 'score',
-            scorerID: pong.player.id,
-          }),
-        );
+        this.websocket.send({
+          type: 'score',
+          scorerID: pong.player.id,
+        });
     } else {
       pong.player.score++;
       if (!pong.isLocal)
-        this.websocket.send(
-          JSON.stringify({
-            type: 'score',
-            scorerID: pong.player.id,
-          }),
-        );
+        this.websocket.send({
+          type: 'score',
+          scorerID: pong.player.id,
+        });
     }
 
     // Reset the timer

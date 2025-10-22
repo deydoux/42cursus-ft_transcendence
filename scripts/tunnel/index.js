@@ -56,7 +56,7 @@ const joinTournament = tournamentID =>
   send({type: 'joinTournament', tournamentID});
 const leaveMatchmaking = () => send({type: 'leaveMatchmaking'});
 const leaveTournament = () => send({type: 'leaveTournament'});
-const move = direction => send({type: 'move', direction});
+const move = direction => send({type: 'paddleMove', direction});
 const score = scorerID => send({type: 'score', scorerID});
 const startTournament = () => send({type: 'startTournament'});
 

@@ -1,4 +1,6 @@
+import {RaceCanvas} from './raceCanvas';
 import {Wall} from './wall';
+import {socket} from '../../utils/websocket';
 
 /**
  * Represents a car in the game.
@@ -14,8 +16,7 @@ export class Car {
   public speed: number;
   public acceleration: number;
   public color: string;
-  public carImage: HTMLImageElement;
-  public name: string;
+  public carImage: HTMLImageElement | undefined;
   public carWidth: number;
   public carHeight: number;
   public isSlowed: boolean;
@@ -37,7 +38,6 @@ export class Car {
   private readonly growthFactor: number = 0.02; // 30% of normal speed
 
   constructor(
-    name: string,
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
@@ -47,7 +47,6 @@ export class Car {
     this.isSlowed = false;
     this.isBigger = false;
     this.slowdownEndTime = 0;
-    this.name = name;
     this.color = color;
     this.ctx = ctx;
     this.x = x;
@@ -58,12 +57,15 @@ export class Car {
     this.score = 0;
     this.ratioGrowth = 0;
     this.isStopped = false;
+    this.carWidth = 0;
+    this.carHeight = 0;
+    this.growthEndTime = 0;
 
     const speedScale = Math.min(ctx.canvas.width, ctx.canvas.height) / 500;
 
-    this.maxSpeed = 5 * speedScale;
+    this.maxSpeed = 3.75 * speedScale;
     this.minSpeedForTurn = 0.2 * speedScale;
-    this.reverseSpeed = -4 * speedScale;
+    this.reverseSpeed = -3 * speedScale;
 
     if (sprite) {
       this.carImage = Car.createCarImage(sprite);
@@ -82,8 +84,13 @@ export class Car {
   private setCarDimensionsFromImage(newRatio: number): void {
     if (!this.carImage) return;
 
-    //recalculate ratioGrowth
-    this.ratioGrowth += newRatio;
+    // If newRatio is 0, reset to base size. Otherwise, add to current ratio
+    if (newRatio === 0) {
+      this.ratioGrowth = 0;
+    } else {
+      this.ratioGrowth += newRatio;
+    }
+
     // Calculate scale based on canvas size
     const targetSize =
       Math.min(this.ctx.canvas.width, this.ctx.canvas.height) *
@@ -106,11 +113,16 @@ export class Car {
   /**
    * Sets default car dimensions based on the canvas size and growth ratio.
    * This is used when no sprite is provided.
-   * @param newRatio The ratio to adjust the default size
+   * @param newRatio The ratio to adjust the default size, or 0 to reset to base size
    */
   private setDefaultCarDimensions(newRatio: number): void {
-    //recalculate ratioGrowth
-    this.ratioGrowth += newRatio;
+    // If newRatio is 0, reset to base size. Otherwise, add to current ratio
+    if (newRatio === 0) {
+      this.ratioGrowth = 0;
+    } else {
+      this.ratioGrowth += newRatio;
+    }
+
     // Default car dimensions when no sprite is used
     this.carWidth =
       Math.min(this.ctx.canvas.width, this.ctx.canvas.height) *
@@ -128,11 +140,25 @@ export class Car {
   }
 
   /**
+   * Resets the car's slowdown status
+   */
+  public resetSlowdownStatus(): void {
+    this.isSlowed = false;
+  }
+
+  /**
    * check and update slowdown status
    */
-  private updateSlowdownStatus(): void {
+  public updateSlowdownStatus(): void {
     if (this.isSlowed && Date.now() > this.slowdownEndTime) {
-      this.isSlowed = false;
+      const raceCanvas = RaceCanvas.getInstance();
+      socket.send(
+        JSON.stringify({
+          type: 'updateSlowdown',
+          playerId: raceCanvas.race.player.id,
+        }),
+      );
+      this.resetSlowdownStatus();
     }
   }
 
@@ -150,17 +176,37 @@ export class Car {
   }
 
   /**
+   * Resets the car's growth status and dimensions
+   */
+  public resetGrowthStatus(): void {
+    // Check if car is already at base size to avoid making it smaller
+    if (!this.isBigger && this.ratioGrowth <= 0) {
+      return; // Car is already at normal size or smaller, no need to reset
+    }
+
+    this.isBigger = false;
+    this.ratioGrowth = 0;
+    if (this.carImage) {
+      this.setCarDimensionsFromImage(0); // Pass 0 to set to base size
+    } else {
+      this.setDefaultCarDimensions(0); // Pass 0 to set to base size
+    }
+  }
+
+  /**
    * Updates the growth status of the car.
    * If the growth duration has ended, it resets the car size.
    */
-  private updatedGrowthStatus() {
+  public updateGrowthStatus() {
     if (this.isBigger && Date.now() > this.growthEndTime) {
-      this.isBigger = false;
-      if (this.carImage) {
-        this.setCarDimensionsFromImage(-this.growthFactor);
-      } else {
-        this.setDefaultCarDimensions(-this.growthFactor);
-      }
+      const raceCanvas = RaceCanvas.getInstance();
+      socket.send(
+        JSON.stringify({
+          type: 'updateGrowth',
+          playerId: raceCanvas.race.player.id,
+        }),
+      );
+      this.resetGrowthStatus(); // Use the new method
     }
   }
 
@@ -188,7 +234,7 @@ export class Car {
   public draw(): void {
     this.ctx.save();
     this.ctx.translate(this.x, this.y);
-    this.ctx.rotate(this.angle);
+    this.ctx.rotate(this.angle + Math.PI / 2);
 
     if (this.carImage && this.imageLoaded) {
       // Draw car sprite
@@ -213,7 +259,7 @@ export class Car {
     }
 
     if (this.isSlowed) {
-      this.ctx.fillStyle = '#0f6b23'; // Red color
+      this.ctx.fillStyle = '#2713ddff';
       this.ctx.beginPath();
       this.ctx.arc(
         0, // Center horizontally on the car
@@ -226,7 +272,7 @@ export class Car {
     }
 
     if (this.isStopped) {
-      this.ctx.fillStyle = '#cb1aeb'; // Red color
+      this.ctx.fillStyle = '#ddeb1aff';
       this.ctx.beginPath();
       this.ctx.arc(
         0, // Center horizontally on the car
@@ -268,10 +314,6 @@ export class Car {
   ): void {
     if (this.isStopped) return;
 
-    // Update slowdown status first
-    this.updateSlowdownStatus();
-    this.updatedGrowthStatus();
-
     // Check if car is stuck in a wall
     const currentPosition = {
       x: this.x - this.carWidth / 2,
@@ -284,9 +326,6 @@ export class Car {
 
     // Special case for stuck cars - allow escaping regardless of walls
     if (isStuck) {
-      console.warn(
-        `Car ${this.name} is stuck in walls at (${this.x}, ${this.y})`,
-      );
       // Apply "emergency" movement in reverse direction of current angle
       const escapeSpeed = -1.5; // Force backward movement
       this.x += Math.cos(this.angle) * escapeSpeed;
@@ -400,11 +439,13 @@ export class Car {
     width: number;
     height: number;
   } {
+    const width = this.carWidth || 0;
+    const height = this.carHeight || 0;
     return {
-      x: this.x - this.carWidth / 2,
-      y: this.y - this.carHeight / 2,
-      width: this.carWidth,
-      height: this.carHeight,
+      x: this.x - width / 2,
+      y: this.y - height / 2,
+      width: width,
+      height: height,
     };
   }
 
@@ -414,7 +455,8 @@ export class Car {
    * @param otherCar The other car to check collision against
    * @returns True if the cars are colliding, false otherwise
    */
-  public isCollidingWithCar(otherCar: Car): boolean {
+  public isCollidingWithCar(otherCar: Car | null): boolean {
+    if (!otherCar) throw new Error('car not found');
     const thisBox = this.getBoundingBox();
     const otherBox = otherCar.getBoundingBox();
 

@@ -22,8 +22,9 @@ export class PongGame extends BaseComponent {
       if (!value) missingElements.push(name);
       return value;
     };
-    const {isOpponentBlocked, players, user} = this.store.getState();
+    const {isOpponentBlocked, game, user} = this.store.getState();
     if (!user) throw new Error(`User not found`);
+    const players = game.players;
 
     const initializePlayers = () => {
       const playerPaddleX = isLocal
@@ -79,13 +80,16 @@ export class PongGame extends BaseComponent {
             : getHTMLElement('left_score'),
         side: isLocal ? 'right' : user.id === players[0]?.id ? 'right' : 'left',
       };
-      console.log('INIT RESULT', player, opponent);
       return {player, opponent};
     };
 
     const ball = new Ball(ctx);
     const {player, opponent} = initializePlayers();
-
+    if (missingElements.length > 0) {
+      const errorMessage = `Missing HTML elements: ${missingElements.join(', ')}`;
+      console.error(errorMessage);
+      throw new Error(errorMessage);
+    }
     return {
       player,
       opponent,
@@ -129,9 +133,9 @@ export class PongGame extends BaseComponent {
       return;
     }
 
-    const {isGameLocal} = this.store.getState();
+    const isLocal = this.store.getState().game.isLocal;
 
-    const pong = this.initializeGame(ctx, isGameLocal);
+    const pong = this.initializeGame(ctx, isLocal);
     const pongCanvas = PongCanvas.getInstance(pong);
     this.handleInput(pong);
 
@@ -141,8 +145,20 @@ export class PongGame extends BaseComponent {
     if (matchStartBallData)
       pong.ball.setDirection(matchStartBallData.dx, matchStartBallData.dy);
 
+    const {game} = this.store.getState();
     pong.gameStarted = true;
-    pongCanvas.startGame();
+    if (!game.isLocal) {
+      const gameStartTime = game.startTime;
+      const currentTime = Date.now();
+      if (currentTime >= gameStartTime) {
+        pongCanvas.startGame();
+      } else {
+        const delay = gameStartTime - currentTime;
+        setTimeout(() => {
+          pongCanvas.startGame();
+        }, delay);
+      }
+    } else pongCanvas.startGame();
   }
 
   render(): HTMLElement {
@@ -151,7 +167,6 @@ export class PongGame extends BaseComponent {
         'w-screen h-screen flex items-center gap-10 py-16 overflow-hidden',
     });
 
-    // Use PongGameUI instead of renderPong()
     this.pongGameUI = new PongGameUI();
     const gameElement = this.pongGameUI.render();
     container.appendChild(gameElement);
@@ -161,7 +176,7 @@ export class PongGame extends BaseComponent {
 
     // Initialize game after render
     requestAnimationFrame(() => {
-      this.renderGameCanvas(); // Keep your existing canvas setup
+      this.renderGameCanvas();
     });
 
     return container;
