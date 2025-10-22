@@ -139,7 +139,7 @@ export class RaceGameUI extends BaseComponent {
     if (canvas) canvas.style.display = 'none';
 
     const isWinner = data.winner === user.id;
-    const isTie = data.result == 'tie';
+    const isTie = data.result === 'tie' ? true : false;
     const opponent = players.find(p => p.id !== user.id);
 
     const userScore =
