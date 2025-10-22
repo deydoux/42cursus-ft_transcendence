@@ -28,7 +28,7 @@ export class Api {
     return localStorage.getItem('accessToken');
   }
 
-  private async refreshAccessToken(): Promise<string> {
+  public async refreshAccessToken(): Promise<string> {
     if (this.refreshPromise) {
       return this.refreshPromise;
     }
