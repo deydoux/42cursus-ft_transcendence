@@ -1,10 +1,10 @@
 import Match, {Player} from '#lib/Match';
 import {FastifyInstance} from 'fastify';
 
-const RACE_TIMEOUT = 2 * 60 * 1000; // 1 minute
+const RACE_TIMEOUT = 2 * 60 * 1000; // 2 minute
 const BONUSES: ('growpoint' | 'slowpoint')[] = ['growpoint', 'slowpoint'];
-const BONUS_INTERVAL = 15 * 1000; // 15 seconds
-const CHECKPOINT_INTERVAL = 10 * 1000; // 10 seconds
+const BONUS_INTERVAL = 20 * 1000; // 20 seconds
+const CHECKPOINT_INTERVAL = 5 * 1000; // 5 seconds
 const WIDTH = 1920;
 const HEIGHT = 1080;
 
@@ -157,6 +157,9 @@ export default class RaceMatch extends Match {
   }
 
   public async start() {
+    this.createObject('checkpoint');
+    this.generateBonuses();
+
     this.timeouts.push(
       setTimeout(() => this.handleEnd(), RACE_TIMEOUT),
       setInterval(() => this.generateBonuses(), BONUS_INTERVAL),

@@ -378,12 +378,14 @@ export class RaceCanvas {
     if (isColliding) {
       if (
         this.race.isLocal &&
-        this.race.player.car?.carWidth > this.race.opponent.car?.carWidth
+        this.race.player.car?.carWidth > this.race.opponent.car?.carWidth &&
+        !this.race.opponent.car.isStopped
       ) {
         this.race.player.car?.handleCarCollision(this.race.opponent.car);
         this.race.opponent.car?.stopFor();
       } else if (
-        this.race.opponent.car?.carWidth > this.race.player.car?.carWidth
+        this.race.opponent.car?.carWidth > this.race.player.car?.carWidth &&
+        !this.race.player.car.isStopped
       ) {
         this.race.opponent.car?.handleCarCollision(this.race.player.car);
         this.race.player.car?.stopFor();

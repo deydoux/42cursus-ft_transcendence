@@ -139,6 +139,7 @@ export class RaceGameUI extends BaseComponent {
     if (canvas) canvas.style.display = 'none';
 
     const isWinner = data.winner === user.id;
+    const isTie = data.result == 'tie' ? true : false;
     const opponent = players.find(p => p.id !== user.id);
 
     const userScore =
@@ -155,21 +156,21 @@ export class RaceGameUI extends BaseComponent {
 
     content.innerHTML = `
   <!-- Victory/Defeat message centered at top -->
-  <h2 class="text-4xl font-bold mb-8 text-center ${isWinner ? 'text-green-400' : 'text-red-400'}">
-    ${isWinner ? 'Victory!' : 'Defeat!'}
+  <h2 class="text-4xl font-bold mb-8 text-center ${isTie ? 'text-gray-400' : isWinner ? 'text-green-400' : 'text-red-400'}">
+    ${isTie ? 'Tie!' : isWinner ? 'Victory!' : 'Defeat!'}
   </h2>
   
   <!-- Player info with scores in the middle -->
   <div class="flex justify-between items-center mb-8">
     <div class="flex flex-col items-center">
-      <img class="w-20 h-20 rounded-full mb-3 border-2 ${isWinner ? 'border-green-400' : 'border-red-400'}" 
+      <img class="w-20 h-20 rounded-full mb-3 border-2 ${isTie ? 'border-gray-400' : isWinner ? 'border-green-400' : 'border-red-400'}" 
            src="${user.avatar || unknow_avatar}" alt="${user.username}">
       <div class="font-bold text-white text-lg">${user.username}</div>
       ${!raceCanvas.race.isLocal ? `<div class="text-sm text-black mb-2">ELO: ${user.elo}</div>` : ''}
       ${
         data.eloChange && !raceCanvas.race.isLocal
-          ? `<div class="text-sm ${isWinner ? 'text-green-400' : 'text-red-400'} font-bold">
-        ${isWinner ? '+' : ''}${data.eloChange}
+          ? `<div class="text-sm ${isTie ? 'text-gray-400' : isWinner ? 'text-green-400' : 'text-red-400'} font-bold">
+        ${isTie ? '' : isWinner ? '+' : ''}${data.eloChange}
       </div>`
           : ''
       }
@@ -183,7 +184,7 @@ export class RaceGameUI extends BaseComponent {
     </div>
     
     <div class="flex flex-col items-center">
-      <img class="w-20 h-20 rounded-full mb-3 border-2 ${!isWinner ? 'border-green-400' : 'border-red-400'}" 
+      <img class="w-20 h-20 rounded-full mb-3 border-2 ${isTie ? 'border-gray-400' : !isWinner ? 'border-green-400' : 'border-red-400'}" 
            src="${opponent?.avatar || unknow_avatar}" alt="${opponent?.username || 'Opponent'}">
       <div class="font-bold text-white text-lg">${opponent?.username || 'Opponent'}</div>
       ${!raceCanvas.race.isLocal ? `<div class="text-sm text-black mb-2">ELO: ${opponent?.elo || 'N/A'}</div>` : ''}
@@ -215,7 +216,7 @@ export class RaceGameUI extends BaseComponent {
     this.gameEndModal.classList.remove('hidden');
 
     // Start celebration only if user is the winner
-    if (isWinner) startWinnerCelebration();
+    if (isWinner || isTie) startWinnerCelebration();
 
     // Add event listeners
     this.setupModalEventListeners();
