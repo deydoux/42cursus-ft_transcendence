@@ -1,7 +1,3 @@
-import {Ball} from '../pong/ball';
-import {Paddle} from '../pong/paddle';
-import race_bd from '../../assets/race_track.png';
-
 export class StatsCanvas {
   private ctx_race: CanvasRenderingContext2D;
   private ctx_pong: CanvasRenderingContext2D;
@@ -18,101 +14,195 @@ export class StatsCanvas {
 
   loop(): void {
     this.raceBand();
-    // this.pongBand();
+    this.pongBand();
     requestAnimationFrame(() => this.loop());
   }
 
   raceBand(): void {
-    const img = new Image();
-    img.onload = () => {
-      // Calculate scaling to maintain aspect ratio
-      const scale = Math.min(
-        this.ctx_race.canvas.width / img.width,
-        this.ctx_race.canvas.height / img.height,
-      );
+    const ctx = this.ctx_race;
+    const canvas = ctx.canvas;
 
-      // Calculate centered position
-      const x = (this.ctx_race.canvas.width - img.width * scale) / 2;
-      const y = (this.ctx_race.canvas.height - img.height * scale) / 2;
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Clear canvas and draw scaled image
-      this.ctx_race.clearRect(
-        0,
-        0,
-        this.ctx_race.canvas.width,
-        this.ctx_race.canvas.height,
-      );
-      this.ctx_race.drawImage(img, x, y, img.width * scale, img.height * scale);
-    };
-    img.onerror = () => console.error('Failed to load race track image!');
-    img.src = race_bd;
+    // Save context state
+    ctx.save();
+
+    // Move to center and rotate 90 degrees
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate(Math.PI / 2); // 90 degrees
+
+    // Now draw as if it's horizontal (but it will appear vertical)
+    const virtualWidth = canvas.height; // Swapped dimensions
+    const virtualHeight = canvas.width;
+
+    // Draw race track elements vertically
+    this.drawRaceTrack(ctx, virtualWidth, virtualHeight);
+
+    // Restore context state
+    ctx.restore();
   }
 
   pongBand(): void {
-    this.ctx_pong.clearRect(
-      0,
-      0,
-      this.ctx_pong.canvas.width,
-      this.ctx_pong.canvas.height,
+    const ctx = this.ctx_pong;
+    const canvas = ctx.canvas;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Save context state
+    ctx.save();
+
+    // Move to center and rotate 90 degrees
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate(Math.PI / 2); // 90 degrees
+
+    // Now draw as if it's horizontal (but it will appear vertical)
+    const virtualWidth = canvas.height; // Swapped dimensions
+    const virtualHeight = canvas.width;
+
+    // Draw pong elements vertically
+    this.drawPongGame(ctx, virtualWidth, virtualHeight);
+
+    // Restore context state
+    ctx.restore();
+  }
+
+  private drawRaceTrack(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+  ): void {
+    // Draw race track background
+    ctx.fillStyle = '#2a2a2a';
+    ctx.fillRect(-width / 2, -height / 2, width, height);
+
+    // Draw road stripes (now they'll be horizontal when rotated)
+    ctx.strokeStyle = '#ffff44';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([10, 15]);
+
+    // Center line
+    ctx.beginPath();
+    ctx.moveTo(-width / 2, 0);
+    ctx.lineTo(width / 2, 0);
+    ctx.stroke();
+
+    // Side lines
+    ctx.setLineDash([]);
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#ffffff';
+
+    ctx.beginPath();
+    ctx.moveTo(-width / 2, -height / 3);
+    ctx.lineTo(width / 2, -height / 3);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(-width / 2, height / 3);
+    ctx.lineTo(width / 2, height / 3);
+    ctx.stroke();
+
+    // Add animated car
+    const time = Date.now() * 0.002;
+    const carX = Math.sin(time) * (width / 2);
+    const carY = 0;
+
+    ctx.fillStyle = '#ff4444';
+    ctx.fillRect(carX - 10, carY - 5, 20, 10);
+
+    // Car details
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(carX - 8, carY - 3, 16, 6); // Body
+    ctx.fillStyle = '#333333';
+    ctx.fillRect(carX - 10, carY - 2, 4, 4); // Wheels
+    ctx.fillRect(carX + 6, carY - 2, 4, 4);
+  }
+
+  private drawPongGame(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+  ): void {
+    // Draw pong background
+    const gradient = ctx.createLinearGradient(
+      -width / 2,
+      -height / 2,
+      width / 2,
+      height / 2,
     );
-    const rightPaddle = new Paddle(this.ctx_pong, 10, 0);
-    const leftPaddle = new Paddle(
-      this.ctx_pong,
-      this.ctx_pong.canvas.width - 10 - rightPaddle.width,
-      0,
+    gradient.addColorStop(0, 'rgba(255, 105, 180, 0.1)');
+    gradient.addColorStop(0.5, 'rgba(255, 20, 147, 0.05)');
+    gradient.addColorStop(1, 'rgba(255, 105, 180, 0.1)');
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(-width / 2, -height / 2, width, height);
+
+    // Draw center line (dashed)
+    ctx.strokeStyle = '#ff69b4';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 10]);
+
+    ctx.beginPath();
+    ctx.moveTo(0, -height / 2);
+    ctx.lineTo(0, height / 2);
+    ctx.stroke();
+
+    // Reset line dash
+    ctx.setLineDash([]);
+
+    // Animated paddles
+    const time = Date.now() * 0.003;
+    const leftPaddleY = Math.sin(time) * (height / 4);
+    const rightPaddleY = Math.sin(time + Math.PI) * (height / 4);
+
+    const paddleWidth = 8;
+    const paddleHeight = height / 6;
+
+    // Left paddle
+    ctx.fillStyle = '#ff69b4';
+    ctx.fillRect(
+      -width / 2 + 10,
+      leftPaddleY - paddleHeight / 2,
+      paddleWidth,
+      paddleHeight,
     );
-    const ball = new Ball(this.ctx_pong);
-    // Move the ball
-    ball.x += ball.speed * ball.vx;
-    ball.y += ball.speed * ball.vy;
 
-    // Bounce off top and bottom
-    if (ball.y <= 0 || ball.y >= this.ctx_pong.canvas.height - ball.radius) {
-      ball.vy = -ball.vy;
-    }
-
-    // Paddle AI - simple following with slight delay
-    rightPaddle.y += (ball.y - (rightPaddle.y + rightPaddle.height / 2)) * 0.1;
-    leftPaddle.y += (ball.y - (leftPaddle.y + leftPaddle.height / 2)) * 0.1;
-
-    // Keep paddles within canvas
-    rightPaddle.y = Math.max(
-      0,
-      Math.min(this.ctx_pong.canvas.height - rightPaddle.height, rightPaddle.y),
-    );
-    leftPaddle.y = Math.max(
-      0,
-      Math.min(this.ctx_pong.canvas.height - leftPaddle.height, leftPaddle.y),
+    // Right paddle
+    ctx.fillRect(
+      width / 2 - 10 - paddleWidth,
+      rightPaddleY - paddleHeight / 2,
+      paddleWidth,
+      paddleHeight,
     );
 
-    // Bounce off paddles
-    if (ball.vx > 0) {
-      // Moving right
-      if (
-        ball.x + ball.radius >= leftPaddle.x &&
-        ball.y >= leftPaddle.y &&
-        ball.y <= leftPaddle.y + leftPaddle.height
-      ) {
-        ball.vx = -ball.vx;
-      }
-    } else {
-      // Moving left
-      if (
-        ball.x - ball.radius <= rightPaddle.x + rightPaddle.width &&
-        ball.y >= rightPaddle.y &&
-        ball.y <= rightPaddle.y + rightPaddle.height
-      ) {
-        ball.vx = -ball.vx;
-      }
-    }
+    // Animated ball
+    const ballX = Math.sin(time * 0.7) * (width / 2.5);
+    const ballY = Math.cos(time * 1) * (height / 2.7);
+    const ballRadius = 8;
 
-    // Reset ball if it goes off screen
-    if (ball.x < 0 || ball.x > this.ctx_pong.canvas.width) {
-      ball.x = this.ctx_pong.canvas.width / 2;
-      ball.y = this.ctx_pong.canvas.height / 2;
-    }
-    rightPaddle.draw();
-    leftPaddle.draw();
-    ball.draw();
+    // Ball glow effect
+    const ballGradient = ctx.createRadialGradient(
+      ballX,
+      ballY,
+      0,
+      ballX,
+      ballY,
+      ballRadius * 2,
+    );
+    ballGradient.addColorStop(0, '#ffffff');
+    ballGradient.addColorStop(0.7, '#ff69b4');
+    ballGradient.addColorStop(1, 'transparent');
+
+    ctx.fillStyle = ballGradient;
+    ctx.beginPath();
+    ctx.arc(ballX, ballY, ballRadius * 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Ball core
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+    ctx.fill();
   }
 }

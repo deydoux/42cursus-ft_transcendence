@@ -1,45 +1,17 @@
 import {BaseComponent} from '../components/BaseComponent.ts';
 import {Chat} from '../containers/chat/Chat.ts';
 import {DOMUtils} from '../utils/dom.ts';
-import {StatsCanvas} from '../containers/statistics/statsCanvas.ts';
-import {renderStats} from '../containers/statistics/renderStats.ts';
+import {StatisticsUI} from '../containers/statistics/statisticsUI.ts';
 
 export class Statistics extends BaseComponent {
-  private renderBandroll() {
-    const pongBandroll = document.getElementById(
-      'pong-bandroll',
-    ) as HTMLCanvasElement;
-    const raceBandroll = document.getElementById(
-      'race-bandroll',
-    ) as HTMLCanvasElement;
-    if (!pongBandroll || !raceBandroll) {
-      console.error('Could not find canvas elements');
-      return;
-    }
+  private statisticsUI: StatisticsUI;
 
-    const ctx_race = raceBandroll.getContext('2d');
-    const ctx_pong = pongBandroll.getContext('2d');
-    if (!ctx_race || !ctx_pong) {
-      console.error('Could not get canvas context');
-      return;
-    }
-
-    ctx_race.canvas.width = 1920;
-    ctx_race.canvas.height = 200;
-    ctx_race.imageSmoothingEnabled = true;
-
-    ctx_pong.canvas.width = 1920;
-    ctx_pong.canvas.height = 200;
-    ctx_pong.imageSmoothingEnabled = true;
-
-    const statsCanvas = new StatsCanvas(ctx_race, ctx_pong);
-    statsCanvas.raf = window.requestAnimationFrame(
-      statsCanvas.loop.bind(statsCanvas),
-    );
-    statsCanvas.loop();
+  constructor() {
+    super();
+    this.statisticsUI = new StatisticsUI();
   }
 
-  render(): HTMLElement | undefined {
+  render(): HTMLElement {
     const container = DOMUtils.createElement('div', {
       className: 'w-screen h-screen flex items-center gap-10 py-16',
     });
@@ -47,13 +19,24 @@ export class Statistics extends BaseComponent {
     const statistics = DOMUtils.createElement('div', {
       className: 'h-full flex-1 flex flex-wrap gap-10',
     });
-    statistics.appendChild(renderStats());
 
-    this.renderBandroll();
+    // Add the StatisticsUI container
+    const statsContainer = this.statisticsUI.render();
+    if (statsContainer) {
+      statistics.appendChild(statsContainer);
+    }
 
     container.appendChild(statistics);
+
+    // Add chat
     const chat = new Chat().render();
     if (chat) container.appendChild(chat);
+
     return container;
+  }
+
+  // Clean up when component is destroyed
+  destroy(): void {
+    this.statisticsUI.hide();
   }
 }
