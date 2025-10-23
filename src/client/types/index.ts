@@ -10,7 +10,7 @@ export interface round {
   participants: (user & {score?: number})[];
   rounds: round[];
   winnerID?: number;
-  result?: 'forfeit' | 'cancel' | 'tie';
+  result?: 'forfeit' | 'cancel' | 'tie' | 'empty';
 }
 
 export interface AppState {

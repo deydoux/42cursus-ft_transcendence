@@ -127,15 +127,18 @@ const handleTournamentMatchEnd = (data: {
   nextRoundID: number | undefined;
   winnerID: number;
   participants: (user & {score: number})[];
-  result?: 'cancel' | 'forfeit' | 'tie';
+  result?: 'cancel' | 'forfeit' | 'tie' | 'empty';
 }) => {
   const store = Store.getInstance();
   const router = Router.getInstance();
   const {joinedTournament} = store.getState();
   if (!joinedTournament || !joinedTournament.rounds) return;
 
-  router.navigate('/tournament');
-  store.setState({tournamentView: 'lobby'});
+  const {user} = store.getState();
+  if (user && data.participants.find(p => p.id === user.id)) {
+    router.navigate('/tournament');
+    store.setState({tournamentView: 'lobby'});
+  }
 
   const updateRoundImmutably = (
     round: round | undefined,
@@ -144,21 +147,18 @@ const handleTournamentMatchEnd = (data: {
       nextRoundID: number | undefined;
       winnerID: number;
       participants: (user & {score?: number})[];
-      result?: 'forfeit' | 'cancel' | 'tie';
+      result?: 'forfeit' | 'cancel' | 'tie' | 'empty';
     },
   ): round | undefined => {
     if (!round) return round;
 
     const winner = data.participants.find(p => p.id === data.winnerID);
-    if (!winner) return;
-
     if (round.id === data.nextRoundID) {
       return {
         ...round,
-        participants: winner
-          ? [...round.participants, winner]
-          : round.participants,
-        rounds: round.rounds.map(r => updateRoundImmutably(r, data) || r),
+        participants: winner ? [...round.participants, winner] : [],
+        rounds:
+          round.rounds?.map(r => updateRoundImmutably(r, data) || r) ?? [],
       };
     }
 
@@ -171,7 +171,7 @@ const handleTournamentMatchEnd = (data: {
       };
     }
 
-    if (round.rounds.length > 0) {
+    if (round.rounds && round.rounds.length > 0) {
       const updatedRounds = round.rounds.map(
         r => updateRoundImmutably(r, data) || r,
       );
@@ -193,7 +193,7 @@ const handleTournamentMatchEnd = (data: {
   };
 
   const winner = data.participants.find(p => p.id === data.winnerID);
-  if (!data.nextRoundID) {
+  if (!data.nextRoundID && (!data.result || data.result !== 'empty')) {
     updatedTournament.winner = winner;
   }
 
