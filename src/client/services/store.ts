@@ -1,4 +1,5 @@
 import {AppState} from '../types';
+import {loadIcons} from '../utils/icons';
 
 const defaultValues = {
   totpCode: undefined,
@@ -13,6 +14,14 @@ const defaultValues = {
   friendRequests: [],
   sentFriendRequests: [],
   countFriendRequests: 0,
+  tournamentView: 'tournaments',
+  tournaments: [],
+  publicKPIs: {
+    totalUsers: 0,
+    totalGames: 0,
+    bestPlayer: 'hkitty',
+  },
+  players: [undefined, undefined],
   isOpponentBlocked: false,
   game: {
     id: 0,
@@ -46,6 +55,8 @@ export class Store {
       if (currentValue !== previousValue) {
         listeners.forEach(listener => listener(currentValue, previousValue));
       }
+
+      loadIcons();
     });
   }
 

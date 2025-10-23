@@ -2,8 +2,8 @@ import {GameUIElement, IRaceGame} from '../../types/game';
 import {Checkpoint} from './checkpoint';
 import {Growpoint} from './growpoint';
 import {Slowpoint} from './slowpoint';
+import {Socket} from '../../services/websocket';
 import {displayCountdownMessage} from '../../utils/content';
-import {socket} from '../../utils/websocket';
 
 export class RaceCanvas {
   private static instance: RaceCanvas | null = null;
@@ -11,6 +11,7 @@ export class RaceCanvas {
   public race: IRaceGame;
   public raf: number | null;
   private color = 'rgb(255, 255, 255)';
+  private websocket = Socket.getInstance();
 
   private constructor(race: IRaceGame) {
     this.raf = null;
@@ -177,19 +178,17 @@ export class RaceCanvas {
     }
 
     if (moved && !this.race.isLocal) {
-      socket.send(
-        JSON.stringify({
-          type: 'carMove',
-          playerId: this.race.player.id,
-          timestamp: Date.now(),
-          position: {
-            x: this.race.player.car?.x || 0,
-            y: this.race.player.car?.y || 0,
-          },
-          angle: this.race.player.car?.angle || 0,
-          speed: this.race.player.car?.speed || 0,
-        }),
-      );
+      this.websocket.send({
+        type: 'carMove',
+        playerId: this.race.player.id,
+        timestamp: Date.now(),
+        position: {
+          x: this.race.player.car?.x || 0,
+          y: this.race.player.car?.y || 0,
+        },
+        angle: this.race.player.car?.angle || 0,
+        speed: this.race.player.car?.speed || 0,
+      });
     }
   }
 
@@ -280,12 +279,10 @@ export class RaceCanvas {
           this.race.player.score += 2;
           this.updateScore();
           if (!this.race.isLocal) {
-            socket.send(
-              JSON.stringify({
-                type: 'score',
-                scorerID: this.race.player.id,
-              }),
-            );
+            this.websocket.send({
+              type: 'score',
+              scorerID: this.race.player.id,
+            });
           }
           return false; // Remove checkpoint
         }
@@ -294,12 +291,10 @@ export class RaceCanvas {
           this.race.opponent.score += 2;
           this.updateScore();
           if (!this.race.isLocal) {
-            socket.send(
-              JSON.stringify({
-                type: 'score',
-                scorerID: this.race.opponent.id,
-              }),
-            );
+            this.websocket.send({
+              type: 'score',
+              scorerID: this.race.opponent.id,
+            });
           }
           return false; // Remove checkpoint
         }
@@ -317,12 +312,10 @@ export class RaceCanvas {
       this.race.currentGrowpoint = null;
       this.race.player.car?.applyCarGrowth();
       if (!this.race.isLocal) {
-        socket.send(
-          JSON.stringify({
-            type: 'carGrowth',
-            growthID: this.race.player.id,
-          }),
-        );
+        this.websocket.send({
+          type: 'carGrowth',
+          growthID: this.race.player.id,
+        });
       }
     }
 
@@ -335,12 +328,10 @@ export class RaceCanvas {
       this.race.currentSlowpoint = null;
       this.race.opponent.car?.applySlowdown();
       if (!this.race.isLocal) {
-        socket.send(
-          JSON.stringify({
-            type: 'carSlowdown',
-            slowID: this.race.opponent.id,
-          }),
-        );
+        this.websocket.send({
+          type: 'carSlowdown',
+          slowID: this.race.opponent.id,
+        });
       }
     }
 
@@ -390,12 +381,10 @@ export class RaceCanvas {
         this.race.opponent.car?.handleCarCollision(this.race.player.car);
         this.race.player.car?.stopFor();
         if (!this.race.isLocal) {
-          socket.send(
-            JSON.stringify({
-              type: 'carStopped',
-              stoppedID: this.race.player.id,
-            }),
-          );
+          this.websocket.send({
+            type: 'carStopped',
+            stoppedID: this.race.player.id,
+          });
         }
       } else this.race.opponent.car?.handleCarCollision(this.race.player.car);
     }

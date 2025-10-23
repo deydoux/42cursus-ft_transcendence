@@ -178,8 +178,6 @@ export class Tournament {
 
     delete this.server.game.players[participant.userID];
 
-    if (this.round) return;
-
     if (!silent) {
       Clients.sendClient(participant, {
         type: 'success',

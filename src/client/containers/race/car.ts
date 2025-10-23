@@ -1,6 +1,6 @@
 import {RaceCanvas} from './raceCanvas';
+import {Socket} from '../../services/websocket';
 import {Wall} from './wall';
-import {socket} from '../../utils/websocket';
 
 /**
  * Represents a car in the game.
@@ -36,6 +36,8 @@ export class Car {
   private readonly growthDuration: number = 20000;
   private readonly slowdownFactor: number = 0.3; // 30% of normal speed
   private readonly growthFactor: number = 0.02; // 30% of normal speed
+
+  private websocket = Socket.getInstance();
 
   constructor(
     ctx: CanvasRenderingContext2D,
@@ -152,12 +154,10 @@ export class Car {
   public updateSlowdownStatus(): void {
     if (this.isSlowed && Date.now() > this.slowdownEndTime) {
       const raceCanvas = RaceCanvas.getInstance();
-      socket.send(
-        JSON.stringify({
-          type: 'updateSlowdown',
-          playerId: raceCanvas.race.player.id,
-        }),
-      );
+      this.websocket.send({
+        type: 'updateSlowdown',
+        playerId: raceCanvas.race.player.id,
+      });
       this.resetSlowdownStatus();
     }
   }
@@ -200,12 +200,10 @@ export class Car {
   public updateGrowthStatus() {
     if (this.isBigger && Date.now() > this.growthEndTime) {
       const raceCanvas = RaceCanvas.getInstance();
-      socket.send(
-        JSON.stringify({
-          type: 'updateGrowth',
-          playerId: raceCanvas.race.player.id,
-        }),
-      );
+      this.websocket.send({
+        type: 'updateGrowth',
+        playerId: raceCanvas.race.player.id,
+      });
       this.resetGrowthStatus(); // Use the new method
     }
   }

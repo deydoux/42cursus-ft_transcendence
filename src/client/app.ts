@@ -8,12 +8,14 @@ import {PongGame} from './pages/PongGame';
 import {RaceGame} from './pages/RaceGame';
 import {Router} from './services/router';
 import {Settings} from './pages/Settings';
+import {Socket} from './services/websocket';
 import {Statistics} from './pages/Statistics';
 import {Store} from './services/store';
+import {Tournament} from './pages/Tournament';
 import {loadIcons} from './utils/icons';
-import {socket} from './utils/websocket';
 
 class App {
+  private websocket: Socket;
   private router: Router;
   private store: Store;
 
@@ -60,8 +62,8 @@ class App {
     this.setupRoutes();
     this.router.initialize();
 
-    // Initialize websocket if connected
-    socket.connect();
+    this.websocket = Socket.getInstance();
+    this.websocket.connect();
 
     loadIcons();
   }
@@ -84,6 +86,7 @@ class App {
       this.protectedGameRoute('race', () => new RaceGame(), chat),
     );
     this.router.addPrivateRoute('/statistics', () => new Statistics());
+    this.router.addPrivateRoute('/tournament', () => new Tournament(chat));
   }
 
   private protectedGameRoute(
