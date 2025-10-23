@@ -1,10 +1,14 @@
+import {
+  getCurrentGame,
+  getPongCanvasInstance,
+  startWinnerCelebration,
+} from '../../utils/content';
 import {BaseComponent} from '../../components/BaseComponent';
 import {DOMUtils} from '../../utils/dom';
 import {IPlayer} from '../../types/game';
 import {PongCanvas} from './pongCanvas';
 import {Router} from '../../services/router';
 import {User} from '../../handlers/game';
-import {startWinnerCelebration} from '../../utils/content';
 import unknow_avatar from '../../assets/unknown-avatar.jpeg';
 
 interface PongGameUIElement extends HTMLElement {
@@ -45,7 +49,7 @@ export class PongGameUI extends BaseComponent {
     const header = DOMUtils.createElement('div', {
       attributes: {id: 'game-header'},
       className:
-        'flex justify-between items-center px-8 py-4 bg-gray-600 rounded-lg mx-auto',
+        'flex justify-between items-center px-8 py-4 bg-white/5 border border-white/20 rounded-lg mx-auto',
     });
 
     // Left player info
@@ -124,7 +128,7 @@ export class PongGameUI extends BaseComponent {
     result?: string;
     eloChange?: number;
   }): void {
-    const pongCanvas = PongCanvas.getInstance();
+    const pongCanvas = getPongCanvasInstance();
     const {user} = this.store.getState();
     if (!user) throw new Error('user not found');
 
@@ -219,7 +223,7 @@ export class PongGameUI extends BaseComponent {
   private setupModalEventListeners(): void {
     if (!this.gameEndModal) return;
 
-    const pongCanvas = PongCanvas.getInstance();
+    const pongCanvas = getPongCanvasInstance();
     const closeBtn = this.gameEndModal.querySelector('#close-modal-btn');
     const rematchBtn = this.gameEndModal.querySelector('#rematch-btn');
 
@@ -260,11 +264,11 @@ export class PongGameUI extends BaseComponent {
     if (canvas) canvas.style.display = 'block';
 
     // Destroy the PongCanvas instance when navigating away
-    PongCanvas.destroyInstance();
+    PongCanvas.clearInstance(getCurrentGame().id.toString());
   }
 
   public initializePlayerInfo(): void {
-    const pongCanvas = PongCanvas.getInstance();
+    const pongCanvas = getPongCanvasInstance();
     const {user} = this.store.getState();
     if (!user) throw new Error('user not found');
 

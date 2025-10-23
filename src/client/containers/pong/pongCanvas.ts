@@ -3,34 +3,101 @@ import {Store} from '../../services/store';
 import {displayCountdownMessage} from '../../utils/content';
 import {socket} from '../../utils/websocket';
 
+type aMap = Map<string, PongCanvas>;
 export class PongCanvas {
-  private static instance: PongCanvas | null = null;
+  private static instances: aMap = new Map<string, PongCanvas>();
+  private animationId: number | null = null;
+  private gameRunning: boolean;
   private ctx: CanvasRenderingContext2D;
   public pong: IPongGame;
-  private raf: number | null;
+  private gameId: string | null = null;
 
-  private constructor(pong: IPongGame) {
+  private constructor(pong: IPongGame, gameId?: string) {
     this.ctx = pong.ctx;
     this.pong = pong;
-    this.raf = null;
+    this.gameRunning = false;
+    this.gameId = gameId || null;
   }
 
-  static getInstance(pong?: IPongGame): PongCanvas {
-    if (!PongCanvas.instance) {
-      if (!pong)
-        throw new Error('PongGame is needed to initialize the Pong Canvas');
-      PongCanvas.instance = new PongCanvas(pong);
+  public static createInstance(
+    pong: IPongGame,
+    gameId = 'default',
+  ): PongCanvas {
+    // Clear previous instance with same gameId if it exists
+    if (PongCanvas.instances.has(gameId)) {
+      PongCanvas.instances.get(gameId)?.cleanup();
     }
-    return PongCanvas.instance;
+
+    const instance = new PongCanvas(pong, gameId);
+    PongCanvas.instances.set(gameId, instance);
+    return instance;
   }
 
-  public startGame() {
+  public static getInstance(gameId: string): PongCanvas | null {
+    return PongCanvas.instances.get(gameId) || null;
+  }
+
+  public static clearInstance(gameId = 'default'): void {
+    const instance = PongCanvas.instances.get(gameId);
+    if (instance) {
+      instance.cleanup();
+      PongCanvas.instances.delete(gameId);
+    }
+  }
+
+  public static clearAllInstances(): void {
+    PongCanvas.instances.forEach(instance => {
+      instance.cleanup();
+    });
+    PongCanvas.instances.clear();
+  }
+
+  public cleanup(): void {
+    // Stop animation loop
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+      this.animationId = null;
+    }
+
+    // Stop game
+    this.gameRunning = false;
+
+    // Clear canvas
+    if (this.pong.ctx) {
+      this.pong.ctx.clearRect(
+        0,
+        0,
+        this.pong.ctx.canvas.width,
+        this.pong.ctx.canvas.height,
+      );
+    }
+
+    // Reset timer
+    if (this.pong.timer) {
+      this.pong.timer.stop();
+    }
+
+    console.log('PongCanvas cleaned up (gameId: ${this.gameId})');
+  }
+
+  public startGame(): void {
+    this.gameRunning = true;
     this.pong.timer.startCountdown();
-    this.raf = window.requestAnimationFrame(this.gameLoop.bind(this));
+    this.gameLoop();
+  }
+
+  public stopGame(): void {
+    this.gameRunning = false;
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+      this.animationId = null;
+    }
   }
 
   public gameLoop() {
+    if (!this.gameRunning) return;
     if (!this.pong.gameStarted) return;
+
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
     // Check if countdown is active
@@ -61,7 +128,7 @@ export class PongCanvas {
 
     if (countdownMessage)
       displayCountdownMessage(this.ctx, 'rgb(0, 0, 0)', countdownMessage);
-    this.raf = window.requestAnimationFrame(this.gameLoop.bind(this));
+    this.animationId = requestAnimationFrame(() => this.gameLoop());
   }
 
   private updateScore(): void {
@@ -152,16 +219,6 @@ export class PongCanvas {
       gameUIElement.showGameEndModal({winner, result, eloChange});
     }
     this.resetPongGame();
-  }
-
-  public static destroyInstance(): void {
-    if (PongCanvas.instance) {
-      // Cancel any running animation frame
-      if (PongCanvas.instance.raf) {
-        window.cancelAnimationFrame(PongCanvas.instance.raf);
-      }
-      PongCanvas.instance = null;
-    }
   }
 
   public resetPongGame() {

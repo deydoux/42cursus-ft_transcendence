@@ -23,8 +23,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     serializeUserAvatar(user);
 
     const dbQuery = SQL`
-      SELECT game, mode, winner_id, loser_id, winner_score, loser_score, result,
-             created_at AS createdAt, updated_at AS updatedAt,
+      SELECT id, game, mode, winner_id, loser_id, winner_score, loser_score,
+             result, created_at AS createdAt, updated_at AS updatedAt,
              u.id, username, has_avatar, avatar_version,
              winner_elo, loser_elo, elo_change AS eloChange
       FROM matches m

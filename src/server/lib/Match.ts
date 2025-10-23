@@ -12,10 +12,12 @@ export interface Player extends Client {
 }
 
 export const kFactor = 32;
+let it = 0;
 
 const SCORE_TIMEOUT = 1000; // 1 second
 
 export default abstract class Match {
+  private it = ++it;
   private server;
   private _game;
   private ranked;
@@ -79,7 +81,7 @@ export default abstract class Match {
   }
 
   private cancel(cause?: string) {
-    this.send({type: 'matchCancel', cause});
+    this.send({type: 'matchCancel', it: this.it, cause});
     this.result = 'cancel';
     this.unlock();
   }
@@ -125,6 +127,7 @@ export default abstract class Match {
     else
       this.send({
         type: 'matchEnd',
+        it: this.it,
         winner: winner.userID,
         result: this.result,
       });
@@ -152,6 +155,7 @@ export default abstract class Match {
 
     this.send({
       type: 'matchEnd',
+      it: this.it,
       winner: winner.userID,
       result: this.result,
       eloChange: change,
@@ -283,6 +287,7 @@ export default abstract class Match {
 
     this.send({
       type: 'matchStart',
+      it: this.it,
       game: this._game,
       ranked: this.ranked,
       block: this.block,

@@ -15,6 +15,7 @@ const defaultValues = {
   countFriendRequests: 0,
   isOpponentBlocked: false,
   game: {
+    id: 0,
     startTime: 0,
     name: '',
     isLocal: false,

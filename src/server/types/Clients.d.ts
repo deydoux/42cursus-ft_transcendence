@@ -64,16 +64,19 @@ type ServerTunnelMessage =
     }
   | {
       type: 'matchCancel';
+      it: number;
       cause?: string;
     }
   | {
       type: 'matchEnd';
+      it: number;
       winner: number;
       result?: 'cancel' | 'forfeit' | 'tie';
       eloChange?: number;
     }
   | {
       type: 'matchStart';
+      it: number;
       game: string;
       ranked: boolean;
       block: boolean;

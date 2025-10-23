@@ -11,6 +11,11 @@ import {Timer} from '../containers/timer';
 import {keys} from '../utils/keys';
 export class PongGame extends BaseComponent {
   private pongGameUI?: PongGameUI;
+  private pongCanvas?: PongCanvas;
+  private keyHandlers: {
+    keydown: (e: KeyboardEvent) => void;
+    keyup: (e: KeyboardEvent) => void;
+  } | null = null;
 
   public initializeGame(
     ctx: CanvasRenderingContext2D,
@@ -103,20 +108,63 @@ export class PongGame extends BaseComponent {
     };
   }
 
+  public cleanup(): void {
+    // Stop and cleanup the canvas instance
+    if (this.pongCanvas) {
+      this.pongCanvas.cleanup();
+      this.pongCanvas = undefined;
+    }
+
+    // Clear the specific instance from static map
+    const {game} = this.store.getState();
+    if (game?.id) {
+      PongCanvas.clearInstance(game.id.toString());
+    }
+
+    // Remove key handlers
+    this.removeKeyHandlers();
+
+    console.log('PongGame cleaned up');
+  }
+
+  // Add destroy method for completeness
+  public destroy(): void {
+    this.cleanup();
+  }
+
   private handleInput(pong: IPongGame) {
-    document.addEventListener('keydown', e => {
+    // Remove existing event listeners first
+    this.removeKeyHandlers();
+
+    // Create new handlers
+    const keydownHandler = (e: KeyboardEvent) => {
       if (e.key === 'w' || e.key === 'W') pong.keys.w = true;
       if (e.key === 's' || e.key === 'S') pong.keys.s = true;
       if (e.key === 'ArrowUp') pong.keys.ArrowUp = true;
       if (e.key === 'ArrowDown') pong.keys.ArrowDown = true;
-    });
+    };
 
-    document.addEventListener('keyup', e => {
+    const keyupHandler = (e: KeyboardEvent) => {
       if (e.key === 'w' || e.key === 'W') pong.keys.w = false;
       if (e.key === 's' || e.key === 'S') pong.keys.s = false;
       if (e.key === 'ArrowUp') pong.keys.ArrowUp = false;
       if (e.key === 'ArrowDown') pong.keys.ArrowDown = false;
-    });
+    };
+
+    // Store handlers for cleanup
+    this.keyHandlers = {keydown: keydownHandler, keyup: keyupHandler};
+
+    // Add event listeners
+    document.addEventListener('keydown', keydownHandler);
+    document.addEventListener('keyup', keyupHandler);
+  }
+
+  private removeKeyHandlers(): void {
+    if (this.keyHandlers) {
+      document.removeEventListener('keydown', this.keyHandlers.keydown);
+      document.removeEventListener('keyup', this.keyHandlers.keyup);
+      this.keyHandlers = null;
+    }
   }
 
   private renderGameCanvas() {
@@ -125,18 +173,19 @@ export class PongGame extends BaseComponent {
       return;
     }
 
-    // Use PongGameUI to set up the canvas
-    const canvas = this.pongGameUI.initializeCanvas();
+    this.cleanup(); //cleanup previous instance
+
+    const canvas = this.pongGameUI.initializeCanvas(); // Use PongGameUI to set up the canvas
     const ctx = canvas.getContext('2d');
     if (!ctx) {
       console.error('Could not get canvas context');
       return;
     }
 
-    const isLocal = this.store.getState().game.isLocal;
+    const {game} = this.store.getState();
 
-    const pong = this.initializeGame(ctx, isLocal);
-    const pongCanvas = PongCanvas.getInstance(pong);
+    const pong = this.initializeGame(ctx, game.isLocal);
+    this.pongCanvas = PongCanvas.createInstance(pong, game.id.toString());
     this.handleInput(pong);
 
     this.pongGameUI?.initializePlayerInfo();
@@ -145,20 +194,19 @@ export class PongGame extends BaseComponent {
     if (matchStartBallData)
       pong.ball.setDirection(matchStartBallData.dx, matchStartBallData.dy);
 
-    const {game} = this.store.getState();
     pong.gameStarted = true;
     if (!game.isLocal) {
       const gameStartTime = game.startTime;
       const currentTime = Date.now();
       if (currentTime >= gameStartTime) {
-        pongCanvas.startGame();
+        this.pongCanvas.startGame();
       } else {
         const delay = gameStartTime - currentTime;
         setTimeout(() => {
-          pongCanvas.startGame();
+          this.pongCanvas?.startGame();
         }, delay);
       }
-    } else pongCanvas.startGame();
+    } else this.pongCanvas.startGame();
   }
 
   render(): HTMLElement {

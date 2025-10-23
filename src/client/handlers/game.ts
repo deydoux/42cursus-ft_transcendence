@@ -1,8 +1,11 @@
+import {
+  getCurrentGame,
+  getPongCanvasInstance,
+  getRaceCanvasInstance,
+} from '../utils/content';
 import {Checkpoint} from '../containers/race/checkpoint';
 import {Growpoint} from '../containers/race/growpoint';
 import {Lobby} from '../pages/Lobby';
-import {PongCanvas} from '../containers/pong/pongCanvas';
-import {RaceCanvas} from '../containers/race/raceCanvas';
 import {Router} from '../services/router';
 import {Slowpoint} from '../containers/race/slowpoint';
 import {Store} from '../services/store';
@@ -17,6 +20,7 @@ export interface User {
 }
 
 const handleMatchStart = (data: {
+  it: number;
   game: string;
   ranked: boolean;
   players: [User, User];
@@ -32,6 +36,7 @@ const handleMatchStart = (data: {
   store.setState({
     isOpponentBlocked: data.block,
     game: {
+      id: data.it,
       startTime: data.time,
       name: data.game,
       isLocal: false,
@@ -74,7 +79,7 @@ const handlePaddleMove = (data: {
   yPosition: number;
   timestamp: number;
 }) => {
-  const pongCanvas = PongCanvas.getInstance();
+  const pongCanvas = getPongCanvasInstance();
 
   if (pongCanvas.pong.player.side === data.side) {
     return;
@@ -85,14 +90,13 @@ const handlePaddleMove = (data: {
 
 const handleMatchCancel = (data: {cause: string}) => {
   const router = Router.getInstance();
-  const {game} = Store.getInstance().getState();
-  if (!game) throw new Error('failed to fetch game state');
+  const game = getCurrentGame();
 
   if (game.name == 'pong') {
-    const pongCanvas = PongCanvas.getInstance();
-    pongCanvas.resetPongGame();
+    const pongCanvas = getPongCanvasInstance();
+    pongCanvas?.resetPongGame();
   } else if (game.name == 'race') {
-    const raceCanvas = RaceCanvas.getInstance();
+    const raceCanvas = getRaceCanvasInstance();
     raceCanvas.resetCarGame();
   }
   Toastify.error(data.cause);
@@ -104,16 +108,15 @@ const handleMatchEnd = (data: {
   result?: string;
   eloChange?: number;
 }) => {
-  const {game} = Store.getInstance().getState();
-  if (!game) throw new Error('failed to fetch game state');
+  const game = getCurrentGame();
   if (game.name == 'pong') {
-    const pongCanvas = PongCanvas.getInstance();
+    const pongCanvas = getPongCanvasInstance();
     if (pongCanvas && pongCanvas.pong) {
       pongCanvas.endofAMatch(data.winner, data.result, data.eloChange, false);
     }
   }
   if (game.name == 'race') {
-    const raceCanvas = RaceCanvas.getInstance();
+    const raceCanvas = getRaceCanvasInstance();
     if (raceCanvas && raceCanvas.race) {
       raceCanvas.endofAMatch(data.winner, data.result, data.eloChange);
     }
@@ -121,8 +124,8 @@ const handleMatchEnd = (data: {
 };
 
 const handleRound = (data: {dx: number; dy: number}) => {
-  const pongCanvas = PongCanvas.getInstance();
-  if (pongCanvas && pongCanvas.pong && pongCanvas.pong.ball) {
+  const pongCanvas = getPongCanvasInstance();
+  if (pongCanvas.pong && pongCanvas.pong.ball) {
     pongCanvas.pong.ball.setDirection(data.dx, data.dy);
   }
 };
@@ -136,7 +139,7 @@ const handleBallState = (data: {
   timestamp: number;
   side: 'left' | 'right';
 }) => {
-  const pongCanvas = PongCanvas.getInstance();
+  const pongCanvas = getPongCanvasInstance();
   if (pongCanvas && pongCanvas.pong) {
     pongCanvas.pong.ball.receiveBallState(data);
   }
@@ -152,7 +155,7 @@ const handleCarMove = (data: {
   angle: number;
   speed: number;
 }) => {
-  const raceCanvas = RaceCanvas.getInstance();
+  const raceCanvas = getRaceCanvasInstance();
   if (data.playerId === raceCanvas.race.player.id) return;
   const now = Date.now();
   const lag = now - data.timestamp;
@@ -166,7 +169,7 @@ const handleCarMove = (data: {
 };
 
 const handleCarSlowdown = (data: {slowID: number}) => {
-  const raceCanvas = RaceCanvas.getInstance();
+  const raceCanvas = getRaceCanvasInstance();
   if (data.slowID === raceCanvas.race.player.id) {
     raceCanvas.race.player.car?.applySlowdown();
   }
@@ -174,7 +177,7 @@ const handleCarSlowdown = (data: {slowID: number}) => {
 };
 
 const handleCarGrowth = (data: {growthID: number}) => {
-  const raceCanvas = RaceCanvas.getInstance();
+  const raceCanvas = getRaceCanvasInstance();
   if (data.growthID === raceCanvas.race.opponent.id) {
     raceCanvas.race.opponent.car?.applyCarGrowth();
   }
@@ -182,7 +185,7 @@ const handleCarGrowth = (data: {growthID: number}) => {
 };
 
 const handleCarStopped = (data: {stoppedID: number}) => {
-  const raceCanvas = RaceCanvas.getInstance();
+  const raceCanvas = getRaceCanvasInstance();
   if (data.stoppedID === raceCanvas.race.player.id)
     raceCanvas.race.player.car?.stopFor();
   else if (data.stoppedID === raceCanvas.race.opponent.id)
@@ -191,7 +194,7 @@ const handleCarStopped = (data: {stoppedID: number}) => {
 };
 
 const handleUpdateGrowth = (data: {playerId: number}) => {
-  const raceCanvas = RaceCanvas.getInstance();
+  const raceCanvas = getRaceCanvasInstance();
 
   if (data.playerId === raceCanvas.race.player.id) {
     raceCanvas.race.player.car?.resetGrowthStatus();
@@ -201,7 +204,7 @@ const handleUpdateGrowth = (data: {playerId: number}) => {
 };
 
 const handleUpdateSlowdown = (data: {playerId: number}) => {
-  const raceCanvas = RaceCanvas.getInstance();
+  const raceCanvas = getRaceCanvasInstance();
 
   if (data.playerId === raceCanvas.race.player.id) {
     raceCanvas.race.player.car?.resetSlowdownStatus();
@@ -211,7 +214,7 @@ const handleUpdateSlowdown = (data: {playerId: number}) => {
 };
 
 const handleRaceObject = (data: {object: string; x: number; y: number}) => {
-  const raceCanvas = RaceCanvas.getInstance();
+  const raceCanvas = getRaceCanvasInstance();
   if (data.object === 'checkpoint')
     raceCanvas.race.checkpoints.push(
       new Checkpoint(raceCanvas.race.ctx, data.x, data.y),
