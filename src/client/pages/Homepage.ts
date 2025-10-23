@@ -1,7 +1,5 @@
 import {BaseComponent} from '../components/BaseComponent';
-import {Toastify} from '../utils/toastify';
 import {createElement} from '../utils/dom';
-import {socket} from '../utils/websocket';
 
 export class Homepage extends BaseComponent {
   constructor(private chat: HTMLElement) {
@@ -49,13 +47,11 @@ export class Homepage extends BaseComponent {
           this.store.setState({
             game: {...this.store.getState().game, isLocal: false},
           });
-          socket.send(
-            JSON.stringify({
-              type: 'joinMatchmaking',
-              game: 'pong',
-              mode: 'casual',
-            }),
-          );
+          this.websocket.send({
+            type: 'joinMatchmaking',
+            game: 'pong',
+            mode: 'casual',
+          });
         },
       }),
     );
@@ -85,13 +81,11 @@ export class Homepage extends BaseComponent {
           this.store.setState({
             game: {...this.store.getState().game, isLocal: false},
           });
-          socket.send(
-            JSON.stringify({
-              type: 'joinMatchmaking',
-              game: 'race',
-              mode: 'casual',
-            }),
-          );
+          this.websocket.send({
+            type: 'joinMatchmaking',
+            game: 'race',
+            mode: 'casual',
+          });
         },
       }),
     );
@@ -118,7 +112,7 @@ export class Homepage extends BaseComponent {
       className: `cursor-pointer flex-1 rounded bg-background rounded-xl font-semibold uppercase text-pink-300 border-3 border-pink-300`,
     });
     tournamentsButton.onclick = () => {
-      Toastify.info("Don't know, don't care");
+      this.router.navigate('/tournament');
     };
     gameMenu.appendChild(tournamentsButton);
     gameMenu.appendChild(

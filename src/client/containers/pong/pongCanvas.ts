@@ -1,15 +1,17 @@
-import {GameUIElement, IPongGame} from '../../types/game';
+import {GameUIElement, IPlayer, IPongGame} from '../../types/game';
+import {Socket} from '../../services/websocket';
 import {Store} from '../../services/store';
 import {displayCountdownMessage} from '../../utils/content';
-import {socket} from '../../utils/websocket';
 
 export class PongCanvas {
   private static instance: PongCanvas | null = null;
   private ctx: CanvasRenderingContext2D;
   public pong: IPongGame;
   private raf: number | null;
+  private websocket: Socket;
 
   private constructor(pong: IPongGame) {
+    this.websocket = Socket.getInstance();
     this.ctx = pong.ctx;
     this.pong = pong;
     this.raf = null;
@@ -114,15 +116,13 @@ export class PongCanvas {
     }
 
     if (moved && !this.pong.isLocal)
-      socket.send(
-        JSON.stringify({
-          type: 'paddleMove',
-          side: this.pong.player.side,
-          direction,
-          yPosition: this.pong.player.paddle?.y || 0,
-          timestamp: Date.now(),
-        }),
-      );
+      this.websocket.send({
+        type: 'paddleMove',
+        side: this.pong.player.side,
+        direction,
+        yPosition: this.pong.player.paddle?.y || 0,
+        timestamp: Date.now(),
+      });
   }
 
   public endofAMatch(

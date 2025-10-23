@@ -3,7 +3,6 @@ import {ChatsList} from './chatsList';
 import {Discussion} from './discussion';
 import {FriendRequests} from './friendRequests';
 import {createElement} from '../../utils/dom';
-import {loadIcons} from '../../utils/icons';
 
 export class Chat extends BaseComponent {
   private chatClass: BaseComponent | undefined;
@@ -107,7 +106,7 @@ export class Chat extends BaseComponent {
 
     // Chat view
     const view = createElement('div', {
-      className: `flex-1 overflow-hidden border border-pink-300 rounded-xl flex flex-col`,
+      className: `flex-1 overflow-hidden border border-pink-300/50 rounded-xl flex flex-col`,
     });
     container.appendChild(view);
     const renderChatview = () => {
@@ -130,8 +129,6 @@ export class Chat extends BaseComponent {
 
     renderChatview();
     this.subscribeToPath('chatView', renderChatview);
-
-    this.subscribe(loadIcons);
     return container;
   }
 }

@@ -1,13 +1,13 @@
 import {Checkpoint} from '../containers/race/checkpoint';
 import {Growpoint} from '../containers/race/growpoint';
-import {Lobby} from '../pages/Lobby';
+// import {Lobby} from '../pages/Lobby';
 import {PongCanvas} from '../containers/pong/pongCanvas';
 import {RaceCanvas} from '../containers/race/raceCanvas';
 import {Router} from '../services/router';
 import {Slowpoint} from '../containers/race/slowpoint';
+import {Socket} from '../services/websocket';
 import {Store} from '../services/store';
 import {Toastify} from '../utils/toastify';
-import {socket} from '../utils/websocket';
 
 export interface User {
   id: number;
@@ -41,11 +41,11 @@ const handleMatchStart = (data: {
     raceWalls: data.walls,
   });
 
-  setTimeout(() => {
-    const {user} = store.getState();
-    const opponent = user && data.players.find(player => player.id !== user.id);
-    if (opponent) Lobby.renderFoundOpponent(opponent);
-  }, 50);
+  // setTimeout(() => {
+  //   const {user} = store.getState();
+  //   const opponent = user && data.players.find(player => player.id !== user.id);
+  //   if (opponent) Lobby.renderFoundOpponent(opponent);
+  // }, 50);
 
   setTimeout(() => {
     store.setState({isWaitingForMatchmaking: false});
@@ -61,6 +61,15 @@ const handleSuccess = (data: {origin: string}) => {
   if (data.origin === 'joinMatchmaking') {
     store.setState({isWaitingForMatchmaking: true});
     router.navigate('/lobby');
+  } else if (data.origin === 'createTournament') {
+    Toastify.success('Tournament created successfully!');
+    store.setState({tournamentView: 'lobby'});
+  } else if (data.origin === 'kickParticipant') {
+    Toastify.error('You were kicked from tournament');
+    store.setState({
+      tournamentView: 'tournaments',
+      joinedTournament: undefined,
+    });
   }
 };
 
@@ -231,19 +240,20 @@ const handleRaceObject = (data: {object: string; x: number; y: number}) => {
 };
 
 export const setupGameHandlers = () => {
-  socket.on('matchStart', handleMatchStart);
-  socket.on('success', handleSuccess);
-  socket.on('error', handleError);
-  socket.on('paddleMove', handlePaddleMove);
-  socket.on('matchCancel', handleMatchCancel);
-  socket.on('matchEnd', handleMatchEnd);
-  socket.on('round', handleRound);
-  socket.on('ballState', handleBallState);
-  socket.on('carMove', handleCarMove);
-  socket.on('carSlowdown', handleCarSlowdown);
-  socket.on('carGrowth', handleCarGrowth);
-  socket.on('carStopped', handleCarStopped);
-  socket.on('raceObject', handleRaceObject);
-  socket.on('updateGrowth', handleUpdateGrowth);
-  socket.on('updateSlowdown', handleUpdateSlowdown);
+  const websocket = Socket.getInstance();
+  websocket.on('matchStart', handleMatchStart);
+  websocket.on('success', handleSuccess);
+  websocket.on('error', handleError);
+  websocket.on('paddleMove', handlePaddleMove);
+  websocket.on('matchCancel', handleMatchCancel);
+  websocket.on('matchEnd', handleMatchEnd);
+  websocket.on('round', handleRound);
+  websocket.on('ballState', handleBallState);
+  websocket.on('carMove', handleCarMove);
+  websocket.on('carSlowdown', handleCarSlowdown);
+  websocket.on('carGrowth', handleCarGrowth);
+  websocket.on('carStopped', handleCarStopped);
+  websocket.on('raceObject', handleRaceObject);
+  websocket.on('updateGrowth', handleUpdateGrowth);
+  websocket.on('updateSlowdown', handleUpdateSlowdown);
 };

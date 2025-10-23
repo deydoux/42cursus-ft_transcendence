@@ -186,22 +186,36 @@ export const sendGeneralMessage = async (message: string) => {
     }
 
     const {generalDiscussion, generalChat, user} = store.getState();
-    if (!generalDiscussion || !generalChat || !user)
-      throw new Error('generalDiscussion, generalChat or user undefined');
+    if (!generalDiscussion || !user)
+      throw new Error('generalDiscussion or user undefined');
+
+    const now = new Date().toISOString();
 
     const newMessages = [
       {
         id: (generalDiscussion.messages[0]?.id ?? 0) + 1,
         userID: user.id,
         content: message,
-        createdAt: new Date().toISOString(),
+        createdAt: now,
       },
       ...generalDiscussion.messages,
     ];
     store.setState({
       generalDiscussion: {...generalDiscussion, messages: newMessages},
-      generalChat: {...generalChat, content: message},
     });
+
+    let newGeneralChat;
+    if (generalChat) {
+      newGeneralChat = {...generalChat, content: message};
+    } else {
+      newGeneralChat = {
+        content: message,
+        user: user,
+        createdAt: now,
+      };
+    }
+
+    store.setState({generalChat: newGeneralChat});
   } catch (error) {
     Toastify.error('An error occured while sending a message');
     console.error(error);

@@ -5,10 +5,10 @@ import {Toastify} from '../utils/toastify';
 import {createDialog} from '../components/Dialog';
 import {createElement} from '../utils/dom';
 import {createOTPInput} from '../components/OTPInput';
+import {fetchPublicKPIs} from '../api/account';
 import {gdpr} from '../containers/chat/gdpr';
 import img from '../assets/kittypong.png';
 import {loadIcons} from '../utils/icons';
-import {socket} from '../utils/websocket';
 import sticker from '../assets/sticker.png';
 
 declare const __GOOGLE_ID__: string;
@@ -203,10 +203,7 @@ export class LandingPage extends BaseComponent {
         }
 
         localStorage.setItem('accessToken', token);
-        socket.updateConfig({
-          protocols: [localStorage.getItem('accessToken') ?? ''],
-        });
-        await socket.connect();
+        await this.websocket.connect();
 
         this.router.navigate('/homepage');
         return;
@@ -250,10 +247,7 @@ export class LandingPage extends BaseComponent {
           }
 
           localStorage.setItem('accessToken', data.accessToken);
-          socket.updateConfig({
-            protocols: [localStorage.getItem('accessToken') ?? ''],
-          });
-          await socket.connect();
+          await this.websocket.connect();
 
           this.router.navigate('/homepage');
           return;
@@ -408,7 +402,7 @@ export class LandingPage extends BaseComponent {
 
       const gdprConfirmation = createElement('p', {
         className: 'text-sm max-w-2/3 mx-auto text-white/50 text-center',
-        textContent: `By creating an account, you confirm that you have read Kitty Pong's`,
+        textContent: `By creating an account, you confirm that you have read Kitty Pong's `,
       });
       gdprConfirmation.appendChild(
         createElement('span', {
@@ -638,20 +632,27 @@ export class LandingPage extends BaseComponent {
     return kpi;
   };
 
-  private renderKPIContainer() {
-    const container = createElement('div', {
-      className:
-        'flex-none w-1/2 max-w-[600px] hidden xl:flex xl:flex-wrap justify-end gap-10 overflow-y-visible',
-    });
+  private renderKPIContainer(container: HTMLDivElement) {
+    const {publicKPIs} = this.store.getState();
 
     container.appendChild(
-      this.renderKPIBlock('users', 'Total users', '142', true),
+      this.renderKPIBlock(
+        'users',
+        'Total users',
+        publicKPIs.totalUsers.toString(),
+        true,
+      ),
     );
     container.appendChild(
-      this.renderKPIBlock('pingpong', 'Total games', '380', false),
+      this.renderKPIBlock(
+        'pingpong',
+        'Total games',
+        publicKPIs.totalGames.toString(),
+        false,
+      ),
     );
     container.appendChild(
-      this.renderKPIBlock('star', 'Best player', 'mapale', false),
+      this.renderKPIBlock('star', 'Best player', publicKPIs.bestPlayer, false),
     );
 
     const stickerBlock = createElement('div', {
@@ -667,14 +668,14 @@ export class LandingPage extends BaseComponent {
     );
 
     container.appendChild(stickerBlock);
-
-    return container;
   }
 
   render(): HTMLElement {
     if (location.pathname === '/') {
       this.store.clearState();
     }
+
+    fetchPublicKPIs();
 
     const container = createElement('div', {
       className:
@@ -685,7 +686,13 @@ export class LandingPage extends BaseComponent {
     dialogContent.className = 'flex overflow-hidden items-center gap-4';
     this.authDialogContent = dialogContent;
 
-    container.appendChild(this.renderKPIContainer());
+    const kpiContainer = createElement('div', {
+      className: `flex-none w-1/2 max-w-[600px] hidden xl:flex xl:flex-wrap justify-end gap-10 overflow-y-visible`,
+    });
+    this.store.subscribeToPath('publicKPIs', () =>
+      this.renderKPIContainer(kpiContainer),
+    );
+    container.appendChild(kpiContainer);
     container.appendChild(this.renderWelcomeContainer(showModal));
     return container;
   }

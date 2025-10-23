@@ -1,7 +1,7 @@
 import {IPongGame} from '../../types/game';
 import {Paddle} from './paddle';
+import {Socket} from '../../services/websocket';
 import hk_ball from '../../assets/hk_ball.png';
-import {socket} from '../../utils/websocket';
 
 export class Ball {
   x: number;
@@ -14,8 +14,11 @@ export class Ball {
   maxSpeed: number;
   ctx: CanvasRenderingContext2D;
   isScoring: boolean;
+  private websocket: Socket;
 
   constructor(ctx: CanvasRenderingContext2D) {
+    this.websocket = Socket.getInstance();
+
     this.ctx = ctx;
     this.x = ctx.canvas.width / 2;
     this.y = ctx.canvas.height / 2;
@@ -235,20 +238,18 @@ export class Ball {
 
   // NEW: Method to send ball state after collision
   private sendBallState(isLeftPaddle: boolean) {
-    socket.send(
-      JSON.stringify({
-        type: 'ballState',
-        data: {
-          x: this.x,
-          y: this.y,
-          vx: this.vx,
-          vy: this.vy,
-          speed: this.speed,
-          timestamp: Date.now(),
-          side: isLeftPaddle ? 'left' : 'right', // Which paddle was hit
-        },
-      }),
-    );
+    this.websocket.send({
+      type: 'ballState',
+      data: {
+        x: this.x,
+        y: this.y,
+        vx: this.vx,
+        vy: this.vy,
+        speed: this.speed,
+        timestamp: Date.now(),
+        side: isLeftPaddle ? 'left' : 'right', // Which paddle was hit
+      },
+    });
   }
 
   // NEW: Method to receive and apply ball state from opponent
@@ -280,39 +281,31 @@ export class Ball {
     if (isLeftWall && pong.player.side == 'left') {
       pong.opponent.score++;
       if (!pong.isLocal)
-        socket.send(
-          JSON.stringify({
-            type: 'score',
-            scorerID: pong.opponent.id,
-          }),
-        );
+        this.websocket.send({
+          type: 'score',
+          scorerID: pong.opponent.id,
+        });
     } else if (!isLeftWall && pong.player.side == 'right') {
       pong.opponent.score++;
       if (!pong.isLocal)
-        socket.send(
-          JSON.stringify({
-            type: 'score',
-            scorerID: pong.opponent.id,
-          }),
-        );
+        this.websocket.send({
+          type: 'score',
+          scorerID: pong.opponent.id,
+        });
     } else if (isLeftWall && pong.player.side == 'right') {
       pong.player.score++;
       if (!pong.isLocal)
-        socket.send(
-          JSON.stringify({
-            type: 'score',
-            scorerID: pong.player.id,
-          }),
-        );
+        this.websocket.send({
+          type: 'score',
+          scorerID: pong.player.id,
+        });
     } else {
       pong.player.score++;
       if (!pong.isLocal)
-        socket.send(
-          JSON.stringify({
-            type: 'score',
-            scorerID: pong.player.id,
-          }),
-        );
+        this.websocket.send({
+          type: 'score',
+          scorerID: pong.player.id,
+        });
     }
 
     // Reset the timer

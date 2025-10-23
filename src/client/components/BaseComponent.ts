@@ -1,6 +1,7 @@
 import {AppState, Component} from '../types';
 import {Api} from '../utils/Api';
 import {Router} from '../services/router';
+import {Socket} from '../services/websocket';
 import {Store} from '../services/store';
 
 export abstract class BaseComponent implements Component {
@@ -10,6 +11,7 @@ export abstract class BaseComponent implements Component {
   protected store = Store.getInstance();
   protected api = Api.getInstance();
   protected router = Router.getInstance();
+  protected websocket = Socket.getInstance();
 
   abstract render(): HTMLElement;
 
