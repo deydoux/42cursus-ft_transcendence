@@ -297,6 +297,11 @@ export class Tournament extends BaseComponent {
     if (joinedTournament.winner && joinedTournament.winner.id === user.id) {
       statusText.textContent = `You won this tournament! Well done!`;
     } else if (
+      closestMatch.round.result &&
+      ['tie', 'cancel'].includes(closestMatch.round.result)
+    ) {
+      statusText.textContent = `Unfortunately, something went wrong and you were disqualified`;
+    } else if (
       closestMatch.round.winnerID &&
       closestMatch.round.winnerID !== user.id
     ) {
@@ -347,7 +352,7 @@ export class Tournament extends BaseComponent {
         this.renderTournamentsPage(pageContent);
       } else if (joinedTournament) {
         const header = createElement('div', {
-          className: `flex-none py-10 w-full border border-white/30 rounded-lg mb-10 text-center text-3xl bg-white/5 font-semibold`,
+          className: `flex-none py-10 w-full border border-white/20 rounded-lg mb-10 text-center text-3xl bg-white/5 font-semibold`,
           textContent: `${joinedTournament.name}`,
         });
         header.appendChild(

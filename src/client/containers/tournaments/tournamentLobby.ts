@@ -110,7 +110,7 @@ export class TournamentLobby extends BaseComponent {
       className: 'flex items-center justify-center gap-4',
     });
     const startButton = createElement('button', {
-      className: `border border-pink-300 py-2 px-4 rounded-lg text-white cursor-pointer disabled:border-white/30 disabled:text-white/20 hover:bg-pink-300/20 duration-100 disabled:bg-background`,
+      className: `border border-pink-300 py-2 px-4 rounded-lg text-white enabled:cursor-pointer disabled:border-white/30 disabled:text-white/20 hover:bg-pink-300/20 duration-100 disabled:bg-background`,
       textContent: 'Start the tournament',
       onclick: () => {
         this.websocket.send({

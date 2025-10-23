@@ -54,10 +54,16 @@ const renderBracket = (round: round, isFinal = true) => {
     row.appendChild(leftContent);
 
     const isParticipantWinner =
-      round.winnerID && round.winnerID === participant.id && !round.result;
+      round.winnerID &&
+      round.winnerID === participant.id &&
+      !(round.result && round.result === 'cancel');
 
     let rightContent: HTMLElement;
-    if (round.result && round.result !== 'empty' && !isParticipantWinner) {
+    if (
+      round.result &&
+      ['cancel', 'forfeit'].includes(round.result) &&
+      !isParticipantWinner
+    ) {
       rightContent = createElement('i', {
         className: 'text-red-500 w-4 h-4',
         icon: 'x',
