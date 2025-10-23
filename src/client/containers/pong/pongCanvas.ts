@@ -125,45 +125,6 @@ export class PongCanvas {
       });
   }
 
-  private sendPaddleMovement(
-    side: string,
-    direction: number,
-    yPosition: number,
-  ) {
-    this.websocket.send({
-      type: 'move',
-      side,
-      direction,
-      yPosition,
-      timestamp: Date.now(),
-    });
-  }
-
-  public handleOpponentPaddleMovement(data: {
-    side: string;
-    direction: number;
-    yPosition: number;
-    timestamp: number;
-  }) {
-    // Find the player whose side matches the incoming data
-    let targetPlayer: IPlayer | null = null;
-
-    if (this.pong.player.side === data.side) {
-      // This shouldn't happen - we received our own movement
-      return;
-    } else if (this.pong.opponent.side === data.side) {
-      // The opponent is moving
-      targetPlayer = this.pong.opponent;
-    }
-
-    if (targetPlayer && targetPlayer.paddle) {
-      // Use the exact position for better sync
-      targetPlayer.paddle.y = data.yPosition;
-      // Optional: Add interpolation for smoother movement
-      // targetPlayer.paddle.move(data.direction * (this.ctx.canvas.height * 0.01));
-    }
-  }
-
   public endofAMatch(
     winner: number,
     result?: string,

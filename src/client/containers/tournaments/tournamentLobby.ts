@@ -135,7 +135,7 @@ export class TournamentLobby extends BaseComponent {
     const renderStatusText = () => {
       const {joinedTournament, user} = this.store.getState();
       if (!joinedTournament || !user) {
-        Toastify.error('Could no find joined tournament or user');
+        Toastify.error('Could not find joined tournament or user');
         return;
       }
 

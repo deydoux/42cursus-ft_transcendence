@@ -307,7 +307,7 @@ export class Tournament extends BaseComponent {
     ) {
       statusText.textContent = `Unfortunately, you lost this tournament :(`;
     } else if (opponent && !opponent.score) {
-      statusText.innerHTML = `Your match with <span className="text-white">${opponent.username}</span> will start in a few`;
+      statusText.innerHTML = `Your match with <span class="text-white">${opponent.username}</span> will start in a few`;
     } else if (waitingForRound) {
       statusText.innerHTML = `Waiting for <span class="text-white">${waitingForRound.participants.map(p => p.username).join('</span> and <span class="text-white">')}</span> to finish their match`;
     }

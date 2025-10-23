@@ -114,7 +114,6 @@ export class Socket {
           } else {
             this.emit('close', event);
           }
-          this.emit('close', event);
         };
 
         this.ws.onerror = event => {
