@@ -192,7 +192,6 @@ const handleTournamentMatchEnd = (data: {
     rounds: updateRoundImmutably(joinedTournament.rounds, data),
   };
 
-  console.log(data);
   const winner = data.participants.find(p => p.id === data.winnerID);
   if (
     winner &&
