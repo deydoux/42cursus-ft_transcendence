@@ -1,9 +1,10 @@
 import {Api} from '../utils/Api';
 import {Router} from '../services/router';
+import {Socket} from '../services/websocket';
 import {Toastify} from '../utils/toastify';
-import {socket} from '../utils/websocket';
 
 const api = Api.getInstance();
+const websocket = Socket.getInstance();
 
 export const logout = async () => {
   const router = Router.getInstance();
@@ -17,6 +18,7 @@ export const logout = async () => {
     }
 
     localStorage.removeItem('accessToken');
+    websocket.disconnect();
     router.navigate('/');
   } catch (error) {
     Toastify.error('An error occurred while fetching user account');
@@ -51,11 +53,7 @@ export const verifyTOTP = async (
     const data = await response.json();
     api.setAccessToken(data.accessToken);
 
-    socket.updateConfig({
-      protocols: [localStorage.getItem('accessToken') ?? ''],
-    });
-    await socket.connect();
-
+    await websocket.connect();
     router.navigate('/homepage');
   } catch (error) {
     errorMessage.textContent = error.message;
@@ -84,12 +82,7 @@ export const register = async (
 
     api.setAccessToken(data.accessToken);
 
-    // Initialize websocket connection
-    socket.updateConfig({
-      protocols: [localStorage.getItem('accessToken') ?? ''],
-    });
-    await socket.connect();
-
+    await websocket.connect();
     return {success: true};
   } catch (error) {
     return {success: false, message: error.message};

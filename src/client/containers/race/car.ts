@@ -1,6 +1,6 @@
 import {RaceCanvas} from './raceCanvas';
+import {Socket} from '../../services/websocket';
 import {Wall} from './wall';
-import {socket} from '../../utils/websocket';
 
 /**
  * Represents a car in the game.
@@ -36,6 +36,8 @@ export class Car {
   private readonly growthDuration: number = 20000;
   private readonly slowdownFactor: number = 0.3; // 30% of normal speed
   private readonly growthFactor: number = 0.02; // 30% of normal speed
+
+  private websocket = Socket.getInstance();
 
   constructor(
     ctx: CanvasRenderingContext2D,
@@ -84,8 +86,13 @@ export class Car {
   private setCarDimensionsFromImage(newRatio: number): void {
     if (!this.carImage) return;
 
-    //recalculate ratioGrowth
-    this.ratioGrowth += newRatio;
+    // If newRatio is 0, reset to base size. Otherwise, add to current ratio
+    if (newRatio === 0) {
+      this.ratioGrowth = 0;
+    } else {
+      this.ratioGrowth += newRatio;
+    }
+
     // Calculate scale based on canvas size
     const targetSize =
       Math.min(this.ctx.canvas.width, this.ctx.canvas.height) *
@@ -108,11 +115,16 @@ export class Car {
   /**
    * Sets default car dimensions based on the canvas size and growth ratio.
    * This is used when no sprite is provided.
-   * @param newRatio The ratio to adjust the default size
+   * @param newRatio The ratio to adjust the default size, or 0 to reset to base size
    */
   private setDefaultCarDimensions(newRatio: number): void {
-    //recalculate ratioGrowth
-    this.ratioGrowth += newRatio;
+    // If newRatio is 0, reset to base size. Otherwise, add to current ratio
+    if (newRatio === 0) {
+      this.ratioGrowth = 0;
+    } else {
+      this.ratioGrowth += newRatio;
+    }
+
     // Default car dimensions when no sprite is used
     this.carWidth =
       Math.min(this.ctx.canvas.width, this.ctx.canvas.height) *
@@ -142,12 +154,10 @@ export class Car {
   public updateSlowdownStatus(): void {
     if (this.isSlowed && Date.now() > this.slowdownEndTime) {
       const raceCanvas = RaceCanvas.getInstance();
-      socket.send(
-        JSON.stringify({
-          type: 'updateSlowdown',
-          playerId: raceCanvas.race.player.id,
-        }),
-      );
+      this.websocket.send({
+        type: 'updateSlowdown',
+        playerId: raceCanvas.race.player.id,
+      });
       this.resetSlowdownStatus();
     }
   }
@@ -169,11 +179,17 @@ export class Car {
    * Resets the car's growth status and dimensions
    */
   public resetGrowthStatus(): void {
+    // Check if car is already at base size to avoid making it smaller
+    if (!this.isBigger && this.ratioGrowth <= 0) {
+      return; // Car is already at normal size or smaller, no need to reset
+    }
+
     this.isBigger = false;
+    this.ratioGrowth = 0;
     if (this.carImage) {
-      this.setCarDimensionsFromImage(-this.growthFactor);
+      this.setCarDimensionsFromImage(0); // Pass 0 to set to base size
     } else {
-      this.setDefaultCarDimensions(-this.growthFactor);
+      this.setDefaultCarDimensions(0); // Pass 0 to set to base size
     }
   }
 
@@ -184,12 +200,10 @@ export class Car {
   public updateGrowthStatus() {
     if (this.isBigger && Date.now() > this.growthEndTime) {
       const raceCanvas = RaceCanvas.getInstance();
-      socket.send(
-        JSON.stringify({
-          type: 'updateGrowth',
-          playerId: raceCanvas.race.player.id,
-        }),
-      );
+      this.websocket.send({
+        type: 'updateGrowth',
+        playerId: raceCanvas.race.player.id,
+      });
       this.resetGrowthStatus(); // Use the new method
     }
   }
