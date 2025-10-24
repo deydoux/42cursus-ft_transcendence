@@ -1,6 +1,6 @@
 import {BaseComponent} from '../../components/BaseComponent';
 import {DOMUtils} from '../../utils/dom';
-import {StatisticsData} from '../../types/game';
+import {StatisticsData} from '../../types/statistics';
 import {StatsCanvas} from './statisticsCanvas';
 
 export class StatisticsUI extends BaseComponent {
@@ -457,8 +457,8 @@ export class StatisticsUI extends BaseComponent {
   }
 
   private refreshStats(): void {
-    // Emit event to request fresh statistics data
-    console.log('Refreshing stats...');
+    const refreshEvent = new CustomEvent('refreshStatistics');
+    document.dispatchEvent(refreshEvent);
   }
 
   public updateStatistics(data: StatisticsData): void {

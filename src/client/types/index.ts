@@ -178,6 +178,36 @@ export interface AppState {
     value: number;
     createdAt: string;
   }[];
+  streaks: {
+    pong: {
+      casual: {
+        current: number;
+        best: number;
+        winRate: number;
+        totalMatches: number;
+      };
+      ranked: {
+        current: number;
+        best: number;
+        winRate: number;
+        totalMatches: number;
+      };
+    };
+    race: {
+      casual: {
+        current: number;
+        best: number;
+        winRate: number;
+        totalMatches: number;
+      };
+      ranked: {
+        current: number;
+        best: number;
+        winRate: number;
+        totalMatches: number;
+      };
+    };
+  };
 }
 
 export interface Component {

@@ -64,39 +64,3 @@ export interface IRaceGame {
   currentSlowpoint: Slowpoint | null;
   lastSlowpointTime: number | null;
 }
-
-/*STATISTICS*/
-
-export interface StatisticsData {
-  // General game stats
-  totalGamesPlayed: number;
-  totalWins: number;
-  totalLosses: number;
-  winRate: number;
-  totalPlaytime: number;
-  level: number;
-  experience: number;
-
-  // Pong-specific stats
-  pongStats: {
-    gamesPlayed: number;
-    wins: number;
-    losses: number;
-    winRate: number;
-    bestStreak: number;
-    totalPoints: number;
-    averageGameDuration: number;
-  };
-
-  // Race-specific stats
-  raceStats: {
-    racesFinished: number;
-    wins: number;
-    losses: number;
-    bestTime: number;
-    averageTime: number;
-    crashes: number;
-    checkpointsHit: number;
-    totalDistance: number;
-  };
-}

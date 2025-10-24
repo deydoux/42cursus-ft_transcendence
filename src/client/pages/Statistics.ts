@@ -1,42 +1,51 @@
-import {BaseComponent} from '../components/BaseComponent.ts';
-import {Chat} from '../containers/chat/Chat.ts';
-import {DOMUtils} from '../utils/dom.ts';
-import {StatisticsUI} from '../containers/statistics/statisticsUI.ts';
+import {BaseComponent} from '../components/BaseComponent';
+import {StatisticsData} from '../types/statistics';
+import {StatisticsUI} from '../containers/statistics/statisticsUI';
+import {statisticsApi} from '../api/statistics';
 
 export class Statistics extends BaseComponent {
-  private statisticsUI: StatisticsUI;
-
-  constructor() {
-    super();
-    this.statisticsUI = new StatisticsUI();
-  }
+  private statisticsUI?: StatisticsUI;
 
   render(): HTMLElement {
-    const container = DOMUtils.createElement('div', {
-      className: 'w-screen h-screen flex items-center gap-10 py-16',
+    this.statisticsUI = new StatisticsUI();
+    const container = this.statisticsUI.render();
+
+    // Listen for refresh events
+    document.addEventListener('refreshStatistics', () => {
+      this.refreshStatistics();
     });
 
-    const statistics = DOMUtils.createElement('div', {
-      className: 'h-full flex-1 flex flex-wrap gap-10',
-    });
-
-    // Add the StatisticsUI container
-    const statsContainer = this.statisticsUI.render();
-    if (statsContainer) {
-      statistics.appendChild(statsContainer);
-    }
-
-    container.appendChild(statistics);
-
-    // Add chat
-    const chat = new Chat().render();
-    if (chat) container.appendChild(chat);
+    // Load statistics data on render
+    this.loadStatistics();
 
     return container;
   }
 
-  // Clean up when component is destroyed
-  destroy(): void {
-    this.statisticsUI.hide();
+  private async loadStatistics(): Promise<void> {
+    try {
+      // First fetch the data from APIs and store in AppState
+      await statisticsApi.getStreaks();
+      await statisticsApi.getMatches();
+
+      // Then transform and get the statistics
+      const data: StatisticsData = await statisticsApi.getAllStatistics();
+
+      // Update the UI with the data
+      this.statisticsUI?.updateStatistics(data);
+    } catch (error) {
+      console.error('Failed to load statistics:', error);
+    }
+  }
+
+  public async refreshStatistics(): Promise<void> {
+    await this.loadStatistics();
+  }
+
+  public cleanup(): void {
+    this.statisticsUI?.hide();
+  }
+
+  public destroy(): void {
+    this.cleanup();
   }
 }
