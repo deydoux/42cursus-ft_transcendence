@@ -534,7 +534,7 @@ export class LandingPage extends BaseComponent {
     );
     text.appendChild(
       createElement('span', {
-        textContent: 'Hello Kitty',
+        textContent: 'Kitty White',
         className: 'text-pink-300 font-bold',
       }),
     );
