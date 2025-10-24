@@ -5,35 +5,100 @@ import {Slowpoint} from './slowpoint';
 import {Socket} from '../../services/websocket';
 import {displayCountdownMessage} from '../../utils/content';
 
+type RaceMap = Map<string, RaceCanvas>;
+
 export class RaceCanvas {
-  private static instance: RaceCanvas | null = null;
+  private static instances: RaceMap = new Map<string, RaceCanvas>();
+  private animationId: number | null = null;
+  private gameRunning: boolean;
   private ctx: CanvasRenderingContext2D;
-  public race: IRaceGame;
-  public raf: number | null;
-  private color = 'rgb(255, 255, 255)';
-  private websocket = Socket.getInstance();
+  public race: IRaceGame; // Assuming you have this interface
+  private websocket: Socket;
+  private gameId: string | null = null;
 
-  private constructor(race: IRaceGame) {
-    this.raf = null;
-    this.race = race;
+  private constructor(race: IRaceGame, gameId?: string) {
+    this.websocket = Socket.getInstance();
     this.ctx = race.ctx;
+    this.race = race;
+    this.gameRunning = false;
+    this.gameId = gameId || null;
   }
 
-  static getInstance(race?: IRaceGame): RaceCanvas {
-    if (!RaceCanvas.instance) {
-      if (!race)
-        throw new Error('RaceGame is needed to initialize the Race Canvas');
-      RaceCanvas.instance = new RaceCanvas(race);
+  public static createInstance(
+    race: IRaceGame,
+    gameId = 'default',
+  ): RaceCanvas {
+    // Clear previous instance with same gameId if it exists
+    if (RaceCanvas.instances.has(gameId)) {
+      RaceCanvas.instances.get(gameId)?.cleanup();
     }
-    return RaceCanvas.instance;
+
+    const instance = new RaceCanvas(race, gameId);
+    RaceCanvas.instances.set(gameId, instance);
+    return instance;
   }
 
-  /**
-   * Starts the game loop and initializes
-   */
+  public static getInstance(gameId: string): RaceCanvas | null {
+    return RaceCanvas.instances.get(gameId) || null;
+  }
+
+  public static clearInstance(gameId = 'default'): void {
+    const instance = RaceCanvas.instances.get(gameId);
+    if (instance) {
+      instance.cleanup();
+      RaceCanvas.instances.delete(gameId);
+    }
+  }
+
+  public static clearAllInstances(): void {
+    RaceCanvas.instances.forEach(instance => {
+      instance.cleanup();
+    });
+    RaceCanvas.instances.clear();
+  }
+
+  public cleanup(): void {
+    // Stop animation loop
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+      this.animationId = null;
+    }
+
+    // Stop game
+    this.gameRunning = false;
+
+    // Clear canvas
+    if (this.race.ctx) {
+      this.race.ctx.clearRect(
+        0,
+        0,
+        this.race.ctx.canvas.width,
+        this.race.ctx.canvas.height,
+      );
+    }
+
+    // Reset timer if exists
+    if (this.race.timer) {
+      this.race.timer.stop();
+    }
+
+    console.log(`RaceCanvas cleaned up (gameId: ${this.gameId})`);
+  }
+
   public startGame(): void {
-    this.race.timer.startCountdown();
-    this.raf = window.requestAnimationFrame(this.gameLoop.bind(this));
+    this.gameRunning = true;
+    if (this.race.timer) {
+      this.race.timer.startCountdown();
+    }
+    this.gameLoop();
+  }
+
+  public stopGame(): void {
+    this.gameRunning = false;
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+      this.animationId = null;
+    }
   }
 
   /**
@@ -49,9 +114,9 @@ export class RaceCanvas {
    * This method is called recursively using requestAnimationFrame to create a smooth animation loop.
    */
   private gameLoop(): void {
-    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    if (!this.race.gameStarted || !this.gameRunning) return;
 
-    if (!this.race.gameStarted) return;
+    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
     this.race.timerDisplay.innerHTML = this.race.timer.formatTime(
       this.race.timer.getRemainingTime(),
@@ -111,10 +176,10 @@ export class RaceCanvas {
     this.race.opponent.car?.draw();
 
     if (countdownMessage) {
-      displayCountdownMessage(this.ctx, this.color, countdownMessage);
+      displayCountdownMessage(this.ctx, '#4e3f49', countdownMessage);
     }
 
-    this.raf = requestAnimationFrame(this.gameLoop.bind(this));
+    this.animationId = requestAnimationFrame(() => this.gameLoop());
   }
 
   /**
@@ -423,16 +488,6 @@ export class RaceCanvas {
       gameUIElement.showGameEndModal({winner, result, eloChange});
     }
     this.resetCarGame();
-  }
-
-  public static destroyInstance(): void {
-    if (RaceCanvas.instance) {
-      // Cancel any running animation frame
-      if (RaceCanvas.instance.raf) {
-        window.cancelAnimationFrame(RaceCanvas.instance.raf);
-      }
-      RaceCanvas.instance = null;
-    }
   }
 
   /**

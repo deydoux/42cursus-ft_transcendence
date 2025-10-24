@@ -69,8 +69,6 @@ export function displayCountdownMessage(
 }
 
 export function startWinnerCelebration(): void {
-  console.log('Starting winner celebration...');
-
   // Check if confetti is available
   if (typeof confetti !== 'function') {
     console.error('Confetti library not available');
@@ -134,8 +132,11 @@ export const getPongCanvasInstance = (gameId?: string) => {
   return pongCanvas;
 };
 
-export const getRaceCanvasInstance = () => {
-  const raceCanvas = RaceCanvas.getInstance();
-  if (!raceCanvas) throw new Error('raceCanvas instance not found');
+export const getRaceCanvasInstance = (gameId?: string) => {
+  const game = getCurrentGame();
+  const id = gameId || game.id.toString();
+  const raceCanvas = RaceCanvas.getInstance(id);
+  if (!raceCanvas)
+    throw new Error(`raceCanvas instance not found for gameId: ${id}`);
   return raceCanvas;
 };
