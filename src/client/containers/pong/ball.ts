@@ -273,7 +273,6 @@ export class Ball {
       this.vx = data.vx;
       this.vy = data.vy;
       this.speed = data.speed;
-      console.log(`Received ball state from ${data.side} paddle`);
     }
   }
 

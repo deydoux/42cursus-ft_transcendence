@@ -24,6 +24,7 @@ const defaultValues = {
   players: [undefined, undefined],
   isOpponentBlocked: false,
   game: {
+    id: 0,
     startTime: 0,
     name: '',
     isLocal: false,

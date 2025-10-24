@@ -11,10 +11,16 @@ import {Track} from '../containers/race/track';
 import {Wall} from '../containers/race/wall';
 import carOpponent from '../assets/car_opponent.svg';
 import carPlayer from '../assets/car_player.svg';
+import {getCurrentGame} from '../utils/content';
 import {keys} from '../utils/keys';
 
 export class RaceGame extends BaseComponent {
   private raceGameUI?: RaceGameUI;
+  private raceCanvas?: RaceCanvas;
+  private keyHandlers: {
+    keydown: (e: KeyboardEvent) => void;
+    keyup: (e: KeyboardEvent) => void;
+  } | null = null;
 
   /**
    * Initializes the game state with the provided canvas context.
@@ -145,7 +151,11 @@ export class RaceGame extends BaseComponent {
    * @param onStart Callback function to start the game loop
    */
   private handleInput(race: IRaceGame): void {
-    document.addEventListener('keydown', (e: KeyboardEvent) => {
+    // Remove existing event listeners first
+    this.removeKeyHandlers();
+
+    // Create new handlers
+    const keydownHandler = (e: KeyboardEvent) => {
       // Car 1 controls (WASD)
       if (e.key === 'w' || e.key === 'W') race.keys.w = true;
       if (e.key === 'a' || e.key === 'A') race.keys.a = true;
@@ -157,9 +167,9 @@ export class RaceGame extends BaseComponent {
       if (e.key === 'ArrowLeft') race.keys.ArrowLeft = true;
       if (e.key === 'ArrowDown') race.keys.ArrowDown = true;
       if (e.key === 'ArrowRight') race.keys.ArrowRight = true;
-    });
+    };
 
-    document.addEventListener('keyup', (e: KeyboardEvent) => {
+    const keyupHandler = (e: KeyboardEvent) => {
       // Car 1 controls (WASD)
       if (e.key === 'w' || e.key === 'W') race.keys.w = false;
       if (e.key === 'a' || e.key === 'A') race.keys.a = false;
@@ -171,47 +181,81 @@ export class RaceGame extends BaseComponent {
       if (e.key === 'ArrowLeft') race.keys.ArrowLeft = false;
       if (e.key === 'ArrowDown') race.keys.ArrowDown = false;
       if (e.key === 'ArrowRight') race.keys.ArrowRight = false;
-    });
+    };
+
+    // Store handlers for cleanup
+    this.keyHandlers = {keydown: keydownHandler, keyup: keyupHandler};
+
+    // Add event listeners
+    document.addEventListener('keydown', keydownHandler);
+    document.addEventListener('keyup', keyupHandler);
+  }
+
+  private removeKeyHandlers(): void {
+    if (this.keyHandlers) {
+      document.removeEventListener('keydown', this.keyHandlers.keydown);
+      document.removeEventListener('keyup', this.keyHandlers.keyup);
+      this.keyHandlers = null;
+    }
+  }
+
+  public cleanup(): void {
+    // Stop and cleanup the canvas instance
+    if (this.raceCanvas) {
+      this.raceCanvas.cleanup();
+      this.raceCanvas = undefined;
+    }
+
+    // Clear the specific instance from static map
+    const {game} = this.store.getState();
+    if (game?.id) {
+      RaceCanvas.clearInstance(game.id.toString());
+    }
+
+    // Remove key handlers
+    this.removeKeyHandlers();
+
+    console.log('RaceGame cleaned up');
+  }
+
+  public destroy(): void {
+    this.cleanup();
   }
 
   private renderRacecarCanvas() {
-    const canvas = document.getElementById('race') as HTMLCanvasElement;
-    if (!canvas) {
-      console.error('Could not find canvas element');
+    if (!this.raceGameUI) {
+      console.error('RaceGameUI not initialized');
       return;
     }
 
+    this.cleanup();
+
+    const game = getCurrentGame();
+    const canvas = this.raceGameUI.initializeCanvas();
     const ctx = canvas.getContext('2d');
     if (!ctx) {
       console.error('Could not get canvas context');
       return;
     }
-    canvas.width = 1920;
-    canvas.height = 1080;
-    ctx.imageSmoothingEnabled = true;
 
-    const isLocal = this.store.getState().game.isLocal;
-
-    const race = this.initializeGame(ctx, isLocal); // Initialize game state
-    const raceCanvas = RaceCanvas.getInstance(race); // Create canvas controller
+    const race = this.initializeGame(ctx, game.isLocal); // Initialize game state
+    this.raceCanvas = RaceCanvas.createInstance(race, game.id?.toString()); // Create canvas controller
     this.handleInput(race); //Binds click events to the keyboard events for car controls
-
     this.raceGameUI?.initializePlayerInfo();
 
-    const {game} = this.store.getState();
     race.gameStarted = true;
     if (!game.isLocal) {
       const gameStartTime = game.startTime;
       const currentTime = Date.now();
       if (currentTime >= gameStartTime) {
-        raceCanvas.startGame();
+        this.raceCanvas.startGame();
       } else {
         const delay = gameStartTime - currentTime;
         setTimeout(() => {
-          raceCanvas.startGame();
+          this.raceCanvas?.startGame();
         }, delay);
       }
-    } else raceCanvas.startGame();
+    } else this.raceCanvas.startGame();
   }
 
   render(): HTMLElement {

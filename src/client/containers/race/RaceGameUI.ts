@@ -1,10 +1,14 @@
+import {
+  getCurrentGame,
+  getRaceCanvasInstance,
+  startWinnerCelebration,
+} from '../../utils/content';
 import {BaseComponent} from '../../components/BaseComponent';
 import {DOMUtils} from '../../utils/dom';
 import {IPlayer} from '../../types/game';
 import {RaceCanvas} from './raceCanvas';
 import {Router} from '../../services/router';
 import {User} from '../../handlers/game';
-import {startWinnerCelebration} from '../../utils/content';
 import unknow_avatar from '../../assets/unknown-avatar.jpeg';
 
 interface RaceGameUIElement extends HTMLElement {
@@ -122,7 +126,7 @@ export class RaceGameUI extends BaseComponent {
     result?: string;
     eloChange?: number;
   }): void {
-    const raceCanvas = RaceCanvas.getInstance();
+    const raceCanvas = getRaceCanvasInstance();
     const {user} = this.store.getState();
     if (!user) throw new Error('user not found');
 
@@ -187,7 +191,7 @@ export class RaceGameUI extends BaseComponent {
       <img class="w-20 h-20 rounded-full mb-3 border-2 ${isTie ? 'border-gray-400' : !isWinner ? 'border-green-400' : 'border-red-400'}" 
            src="${opponent?.avatar || unknow_avatar}" alt="${opponent?.username || 'Opponent'}">
       <div class="font-bold text-white text-lg">${opponent?.username || 'Opponent'}</div>
-      ${!raceCanvas.race.isLocal ? `<div class="text-sm text-black mb-2">ELO: ${opponent?.elo || 'N/A'}</div>` : ''}
+      ${!raceCanvas.race.isLocal ? `<div class="text-sm text-black mb-2">ELO: '0'</div>` : ''}
     </div>
   </div>
   
@@ -223,7 +227,7 @@ export class RaceGameUI extends BaseComponent {
   }
 
   public initializePlayerInfo(): void {
-    const raceCanvas = RaceCanvas.getInstance();
+    const raceCanvas = getRaceCanvasInstance();
     const {user} = this.store.getState();
     if (!user) throw new Error('user not found');
 
@@ -313,7 +317,7 @@ export class RaceGameUI extends BaseComponent {
   private setupModalEventListeners(): void {
     if (!this.gameEndModal) return;
 
-    const raceCanvas = RaceCanvas.getInstance();
+    const raceCanvas = getRaceCanvasInstance();
     const closeBtn = this.gameEndModal.querySelector('#close-modal-btn');
     const rematchBtn = this.gameEndModal.querySelector('#rematch-btn');
 
@@ -354,6 +358,6 @@ export class RaceGameUI extends BaseComponent {
     if (canvas) canvas.style.display = 'block';
 
     // Destroy the RaceCanvas instance when navigating away
-    RaceCanvas.destroyInstance();
+    RaceCanvas.clearInstance(getCurrentGame().id.toString());
   }
 }

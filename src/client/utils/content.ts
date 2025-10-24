@@ -1,3 +1,7 @@
+import {PongCanvas} from '../containers/pong/pongCanvas';
+import {RaceCanvas} from '../containers/race/raceCanvas';
+import {Store} from '../services/store';
+
 // Define the confetti function interface
 interface ConfettiOptions {
   particleCount?: number;
@@ -53,12 +57,11 @@ export function displayCountdownMessage(
   const centerY = height / 2;
 
   ctx.font = `bold ${baseFontSize}px monospace`;
-  ctx.fillStyle = message === 'GO!' ? '#00ff00' : color;
+  ctx.fillStyle = message === 'GO!' ? '#d23095' : color;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.shadowBlur = 20;
-  ctx.shadowColor =
-    message === 'GO!' ? 'rgba(0, 0, 0, 0.8)' : 'rgba(41, 42, 43, 0.78)';
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
 
   ctx.fillText(message, centerX, centerY);
 
@@ -66,8 +69,6 @@ export function displayCountdownMessage(
 }
 
 export function startWinnerCelebration(): void {
-  console.log('Starting winner celebration...');
-
   // Check if confetti is available
   if (typeof confetti !== 'function') {
     console.error('Confetti library not available');
@@ -115,3 +116,27 @@ export function startWinnerCelebration(): void {
     }
   }, 250);
 }
+
+export const getCurrentGame = () => {
+  const {game} = Store.getInstance().getState();
+  if (!game) throw new Error('failed to fetch game state');
+  return game;
+};
+
+export const getPongCanvasInstance = (gameId?: string) => {
+  const game = getCurrentGame();
+  const id = gameId || game.id.toString();
+  const pongCanvas = PongCanvas.getInstance(id);
+  if (!pongCanvas)
+    throw new Error(`pongCanvas instance not found for gameId: ${id}`);
+  return pongCanvas;
+};
+
+export const getRaceCanvasInstance = (gameId?: string) => {
+  const game = getCurrentGame();
+  const id = gameId || game.id.toString();
+  const raceCanvas = RaceCanvas.getInstance(id);
+  if (!raceCanvas)
+    throw new Error(`raceCanvas instance not found for gameId: ${id}`);
+  return raceCanvas;
+};
