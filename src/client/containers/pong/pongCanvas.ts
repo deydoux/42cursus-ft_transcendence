@@ -1,4 +1,4 @@
-import {GameUIElement, IPlayer, IPongGame} from '../../types/game';
+import {GameUIElement, IPongGame} from '../../types/game';
 import {Socket} from '../../services/websocket';
 import {Store} from '../../services/store';
 import {displayCountdownMessage} from '../../utils/content';
@@ -79,7 +79,7 @@ export class PongCanvas {
       this.pong.timer.stop();
     }
 
-    console.log('PongCanvas cleaned up (gameId: ${this.gameId})');
+    console.log(`PongCanvas cleaned up (gameId: ${this.gameId})`);
   }
 
   public startGame(): void {

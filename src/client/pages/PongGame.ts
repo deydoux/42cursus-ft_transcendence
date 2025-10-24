@@ -8,6 +8,7 @@ import {Paddle} from '../containers/pong/paddle';
 import {PongCanvas} from '../containers/pong/pongCanvas';
 import {PongGameUI} from '../containers/pong/PongGameUI';
 import {Timer} from '../containers/timer';
+import {getCurrentGame} from '../utils/content';
 import {keys} from '../utils/keys';
 export class PongGame extends BaseComponent {
   private pongGameUI?: PongGameUI;
@@ -175,6 +176,7 @@ export class PongGame extends BaseComponent {
 
     this.cleanup(); //cleanup previous instance
 
+    const game = getCurrentGame();
     const canvas = this.pongGameUI.initializeCanvas(); // Use PongGameUI to set up the canvas
     const ctx = canvas.getContext('2d');
     if (!ctx) {
@@ -182,12 +184,9 @@ export class PongGame extends BaseComponent {
       return;
     }
 
-    const {game} = this.store.getState();
-
     const pong = this.initializeGame(ctx, game.isLocal);
     this.pongCanvas = PongCanvas.createInstance(pong, game.id.toString());
     this.handleInput(pong);
-
     this.pongGameUI?.initializePlayerInfo();
 
     const {matchStartBallData} = this.store.getState();
@@ -222,10 +221,9 @@ export class PongGame extends BaseComponent {
     const chat = new Chat().render();
     if (chat) container.appendChild(chat);
 
-    // Initialize game after render
     requestAnimationFrame(() => {
       this.renderGameCanvas();
-    });
+    }); // Initialize game after render
 
     return container;
   }
