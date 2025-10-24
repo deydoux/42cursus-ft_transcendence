@@ -17,6 +17,7 @@ export interface User {
 }
 
 const handleMatchStart = (data: {
+  it: number;
   game: string;
   ranked: boolean;
   players: [User, User];
@@ -32,6 +33,7 @@ const handleMatchStart = (data: {
   store.setState({
     isOpponentBlocked: data.block,
     game: {
+      id: data.it,
       startTime: data.time,
       name: data.game,
       isLocal: false,

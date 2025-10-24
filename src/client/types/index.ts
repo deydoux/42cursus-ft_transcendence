@@ -150,6 +150,33 @@ export interface AppState {
     width: number;
     height: number;
   }[];
+  matches: {
+    game: string;
+    mode: string;
+    result: string;
+    createdAt: string;
+    updatedAt: string;
+    eloChange: number;
+    winner: {
+      id: number;
+      username: string;
+      avatar: string;
+      score: number;
+      elo: number;
+    };
+    loser: {
+      id: number;
+      username: string;
+      avatar: string;
+      score: number;
+      elo: number;
+    };
+  }[];
+  elo: {
+    game: string;
+    value: number;
+    createdAt: string;
+  }[];
 }
 
 export interface Component {

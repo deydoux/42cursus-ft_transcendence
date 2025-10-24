@@ -1,40 +1,7 @@
 import {BaseComponent} from '../../components/BaseComponent';
 import {DOMUtils} from '../../utils/dom';
-import {StatsCanvas} from './statsCanvas';
-
-interface StatisticsData {
-  // General game stats
-  totalGamesPlayed: number;
-  totalWins: number;
-  totalLosses: number;
-  winRate: number;
-  totalPlaytime: number;
-  level: number;
-  experience: number;
-
-  // Pong-specific stats
-  pongStats: {
-    gamesPlayed: number;
-    wins: number;
-    losses: number;
-    winRate: number;
-    bestStreak: number;
-    totalPoints: number;
-    averageGameDuration: number;
-  };
-
-  // Race-specific stats
-  raceStats: {
-    racesFinished: number;
-    wins: number;
-    losses: number;
-    bestTime: number;
-    averageTime: number;
-    crashes: number;
-    checkpointsHit: number;
-    totalDistance: number;
-  };
-}
+import {StatisticsData} from '../../types/game';
+import {StatsCanvas} from './statisticsCanvas';
 
 export class StatisticsUI extends BaseComponent {
   private decorativeCanvas: StatsCanvas | null = null;
@@ -57,150 +24,171 @@ export class StatisticsUI extends BaseComponent {
 
   private createContent(): string {
     return `
-      <div class="w-full h-full">
-        <div class="statistics-layout">
-          <!-- Left Bandroll Canvas -->
-          <div class="left-bandroll">
-            <canvas
-              id="pong-bandroll"
-              class="pong-bandroll"
-            ></canvas>
+    <div class="w-full h-full">
+      <div class="flex w-full min-h-screen gap-8 p-8">
+        <!-- Left Bandroll Canvas -->
+        <div class="flex-none w-36 flex items-center justify-center">
+          <canvas
+            id="pong-bandroll"
+            class="w-30 h-4/5 rounded-full border-4 border-pink-400 bg-gradient-to-b from-pink-400/10 via-pink-400/5 to-pink-400/10 shadow-lg shadow-pink-400/50 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-pink-500/70"
+          ></canvas>
+        </div>
+        
+        <!-- Center Statistics Content -->
+        <div class="flex-1 flex flex-col items-center max-w-6xl mx-auto px-8">
+          <h1 class="text-5xl font-bold text-center bg-clip-text text-shadow-pink-300 text-shadow-lg/50 text-gray-300 mb-8">
+            Game's Statistics
+          </h1>
+          
+          <!-- Stats Navigation -->
+          <div class="flex justify-center gap-4 mb-8">
+            <button class="nav-btn px-6 py-3 bg-black/50 border-2 border-gray-600 text-white cursor-pointer transition-all duration-300 rounded-full font-bold uppercase tracking-wide hover:bg-white/10 hover:border-pink-400 hover:-translate-y-1 data-[active]:bg-gradient-to-r data-[active]:from-pink-400 data-[active]:to-pink-600 data-[active]:border-pink-400 data-[active]:shadow-lg data-[active]:shadow-pink-400/50" data-view="overview">
+              Overview
+            </button>
+            <button class="nav-btn px-6 py-3 bg-black/50 border-2 border-gray-600 text-white cursor-pointer transition-all duration-300 rounded-full font-bold uppercase tracking-wide hover:bg-white/10 hover:border-pink-400 hover:-translate-y-1" data-view="pong">
+              🏓 Pong
+            </button>
+            <button class="nav-btn px-6 py-3 bg-black/50 border-2 border-gray-600 text-white cursor-pointer transition-all duration-300 rounded-full font-bold uppercase tracking-wide hover:bg-white/10 hover:border-pink-400 hover:-translate-y-1" data-view="race">
+              🏁 Race
+            </button>
           </div>
           
-          <!-- Center Statistics Content -->
-          <div class="center-content">
-            <h1 class="title">Game's Statistics</h1>
-            
-            <!-- Stats Navigation -->
-            <div class="stats-nav mt-6">
-              <button class="nav-btn active" data-view="overview">Overview</button>
-              <button class="nav-btn" data-view="pong">🏓 Pong</button>
-              <button class="nav-btn" data-view="race">🏁 Race</button>
+          <!-- Main Statistics Content -->
+          <div class="w-full">
+            <!-- Overview Stats -->
+            <div id="overview-stats" class="stats-section w-full">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8 max-w-4xl mx-auto">
+                <div class="stat-card bg-black/70 border-2 border-gray-600 rounded-xl p-6 text-center transition-all duration-300 relative overflow-hidden group hover:-translate-y-2 hover:border-red-400 hover:shadow-lg hover:shadow-red-400/50 text-red-400">
+                  <div class="text-4xl font-bold mb-2 drop-shadow-lg" id="total-games">0</div>
+                  <div class="text-sm text-gray-300 uppercase tracking-wide">Total Games</div>
+                  <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-600"></div>
+                </div>
+                
+                <div class="stat-card bg-black/70 border-2 border-gray-600 rounded-xl p-6 text-center transition-all duration-300 relative overflow-hidden group hover:-translate-y-2 hover:border-blue-400 hover:shadow-lg hover:shadow-blue-400/50 text-blue-400">
+                  <div class="text-4xl font-bold mb-2 drop-shadow-lg" id="total-wins">0</div>
+                  <div class="text-sm text-gray-300 uppercase tracking-wide">Total Wins</div>
+                  <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-600"></div>
+                </div>
+                
+                <div class="stat-card bg-black/70 border-2 border-gray-600 rounded-xl p-6 text-center transition-all duration-300 relative overflow-hidden group hover:-translate-y-2 hover:border-green-400 hover:shadow-lg hover:shadow-green-400/50 text-green-400">
+                  <div class="text-4xl font-bold mb-2 drop-shadow-lg" id="win-rate">0%</div>
+                  <div class="text-sm text-gray-300 uppercase tracking-wide">Win Rate</div>
+                  <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-600"></div>
+                </div>
+                
+                <div class="stat-card bg-black/70 border-2 border-gray-600 rounded-xl p-6 text-center transition-all duration-300 relative overflow-hidden group hover:-translate-y-2 hover:border-yellow-400 hover:shadow-lg hover:shadow-yellow-400/50 text-yellow-400">
+                  <div class="text-4xl font-bold mb-2 drop-shadow-lg" id="total-losses">0</div>
+                  <div class="text-sm text-gray-300 uppercase tracking-wide">Total Losses</div>
+                  <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-600"></div>
+                </div>
+              </div>
             </div>
             
-            <!-- Main Statistics Content -->
-            <div class="stats-content mt-8">
-              <!-- Overview Stats -->
-              <div id="overview-stats" class="stats-section">
-                <div class="stats-grid">
-                  <div class="stat-card glow-red">
-                    <div class="stat-value" id="total-games">0</div>
-                    <div class="stat-label">Total Games</div>
-                  </div>
-                  <div class="stat-card glow-blue">
-                    <div class="stat-value" id="total-wins">0</div>
-                    <div class="stat-label">Total Wins</div>
-                  </div>
-                  <div class="stat-card glow-green">
-                    <div class="stat-value" id="win-rate">0%</div>
-                    <div class="stat-label">Win Rate</div>
-                  </div>
-                  <div class="stat-card glow-yellow">
-                    <div class="stat-value" id="total-losses">0</div>
-                    <div class="stat-label">Total Losses</div>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Pong Stats -->
-              <div id="pong-stats" class="stats-section hidden">
-                <div class="game-detailed-grid">
-                  <div class="game-card pong-themed">
-                    <h3>🏓 Pong Statistics</h3>
-                    <div class="game-stats-detailed">
-                      <div class="game-stat">
-                        <span>Games Played:</span>
-                        <span id="pong-games">0</span>
-                      </div>
-                      <div class="game-stat">
-                        <span>Wins:</span>
-                        <span id="pong-wins">0</span>
-                      </div>
-                      <div class="game-stat">
-                        <span>Losses:</span>
-                        <span id="pong-losses">0</span>
-                      </div>
-                      <div class="game-stat">
-                        <span>Win Rate:</span>
-                        <span id="pong-winrate">0%</span>
-                      </div>
-                      <div class="game-stat">
-                        <span>Best Streak:</span>
-                        <span id="pong-streak">0</span>
-                      </div>
-                      <div class="game-stat">
-                        <span>Total Points:</span>
-                        <span id="pong-points">0</span>
-                      </div>
-                      <div class="game-stat">
-                        <span>Avg Game Duration:</span>
-                        <span id="pong-avg-duration">0:00</span>
-                      </div>
+            <!-- Pong Stats -->
+            <div id="pong-stats" class="stats-section hidden w-full">
+              <div class="flex justify-center w-full">
+                <div class="bg-black/70 border-2 border-pink-400 rounded-xl p-8 text-center min-w-96 max-w-2xl w-full bg-gradient-to-br from-pink-400/10 to-black/70">
+                  <h3 class="text-2xl mb-8 drop-shadow-lg text-pink-400">🏓 Pong Statistics</h3>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                      <span class="text-gray-300">Games Played:</span>
+                      <span class="text-white font-bold" id="pong-games">0</span>
                     </div>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Race Stats -->
-              <div id="race-stats" class="stats-section hidden">
-                <div class="game-detailed-grid">
-                  <div class="game-card race-themed">
-                    <h3>🏁 Race Statistics</h3>
-                    <div class="game-stats-detailed">
-                      <div class="game-stat">
-                        <span>Races Finished:</span>
-                        <span id="race-finished">0</span>
-                      </div>
-                      <div class="game-stat">
-                        <span>Wins:</span>
-                        <span id="race-wins">0</span>
-                      </div>
-                      <div class="game-stat">
-                        <span>Losses:</span>
-                        <span id="race-losses">0</span>
-                      </div>
-                      <div class="game-stat">
-                        <span>Best Time:</span>
-                        <span id="race-best-time">--:--</span>
-                      </div>
-                      <div class="game-stat">
-                        <span>Average Time:</span>
-                        <span id="race-avg-time">--:--</span>
-                      </div>
-                      <div class="game-stat">
-                        <span>Crashes:</span>
-                        <span id="race-crashes">0</span>
-                      </div>
-                      <div class="game-stat">
-                        <span>Checkpoints Hit:</span>
-                        <span id="race-checkpoints">0</span>
-                      </div>
-                      <div class="game-stat">
-                        <span>Total Distance:</span>
-                        <span id="race-distance">0m</span>
-                      </div>
+                    <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                      <span class="text-gray-300">Wins:</span>
+                      <span class="text-white font-bold" id="pong-wins">0</span>
+                    </div>
+                    <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                      <span class="text-gray-300">Losses:</span>
+                      <span class="text-white font-bold" id="pong-losses">0</span>
+                    </div>
+                    <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                      <span class="text-gray-300">Win Rate:</span>
+                      <span class="text-white font-bold" id="pong-winrate">0%</span>
+                    </div>
+                    <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                      <span class="text-gray-300">Best Streak:</span>
+                      <span class="text-white font-bold" id="pong-streak">0</span>
+                    </div>
+                    <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                      <span class="text-gray-300">Total Points:</span>
+                      <span class="text-white font-bold" id="pong-points">0</span>
+                    </div>
+                    <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10 col-span-2">
+                      <span class="text-gray-300">Avg Game Duration:</span>
+                      <span class="text-white font-bold" id="pong-avg-duration">0:00</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
             
-            <!-- Footer Controls -->
-            <div class="stats-footer mt-8">
-              <button class="refresh-btn" id="refresh-stats">🔄 Refresh Stats</button>
+            <!-- Race Stats -->
+            <div id="race-stats" class="stats-section hidden w-full">
+              <div class="flex justify-center w-full">
+                <div class="bg-black/70 border-2 border-green-400 rounded-xl p-8 text-center min-w-96 max-w-2xl w-full bg-gradient-to-br from-green-400/10 to-black/70">
+                  <h3 class="text-2xl mb-8 drop-shadow-lg text-green-400">🏁 Race Statistics</h3>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                      <span class="text-gray-300">Races Finished:</span>
+                      <span class="text-white font-bold" id="race-finished">0</span>
+                    </div>
+                    <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                      <span class="text-gray-300">Wins:</span>
+                      <span class="text-white font-bold" id="race-wins">0</span>
+                    </div>
+                    <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                      <span class="text-gray-300">Losses:</span>
+                      <span class="text-white font-bold" id="race-losses">0</span>
+                    </div>
+                    <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                      <span class="text-gray-300">Best Time:</span>
+                      <span class="text-white font-bold" id="race-best-time">--:--</span>
+                    </div>
+                    <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                      <span class="text-gray-300">Average Time:</span>
+                      <span class="text-white font-bold" id="race-avg-time">--:--</span>
+                    </div>
+                    <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                      <span class="text-gray-300">Crashes:</span>
+                      <span class="text-white font-bold" id="race-crashes">0</span>
+                    </div>
+                    <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                      <span class="text-gray-300">Checkpoints Hit:</span>
+                      <span class="text-white font-bold" id="race-checkpoints">0</span>
+                    </div>
+                    <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                      <span class="text-gray-300">Total Distance:</span>
+                      <span class="text-white font-bold" id="race-distance">0m</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           
-          <!-- Right Bandroll Canvas -->
-          <div class="right-bandroll">
-            <canvas
-              id="race-bandroll"
-              class="race-bandroll"
-            ></canvas>
+          <!-- Footer Controls -->
+          <div class="text-center mt-8">
+            <button class="cursor-pointer bg-gray-500 hover:bg-grey-600 text-white px-6 py-4 rounded-lg transition-colors flex items-center gap-2" id="refresh-stats">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> 
+            <path d="M15.9775 8.71452L15.5355 8.2621C13.5829 6.26318 10.4171 6.26318 8.46447 8.2621C6.51184 10.261 6.51184 13.5019 8.46447 15.5008C10.4171 17.4997 13.5829 17.4997 15.5355 15.5008C16.671 14.3384 17.1462 12.7559 16.9611 11.242M15.9775 8.71452H13.3258M15.9775 8.71452V6" stroke="#fda5d5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> 
+            <path d="M22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C21.5093 4.43821 21.8356 5.80655 21.9449 8" stroke="#fda5d5" stroke-width="2" stroke-linecap="round"></path> </g>
+            </svg>  
+            Refresh Stats
+            </button>
           </div>
         </div>
+        
+        <!-- Right Bandroll Canvas -->
+        <div class="flex-none w-36 flex items-center justify-center">
+          <canvas
+            id="race-bandroll"
+            class="w-30 h-4/5 rounded-full border-4 border-pink-400 bg-gradient-to-b from-pink-400/30 via-pink-400/10 to-pink-400/30 shadow-lg shadow-pink-400/50 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-pink-500/70"
+          ></canvas>
+        </div>
       </div>
-    `;
+    </div>
+  `;
   }
 
   private setupEventListeners(container: HTMLElement): void {
@@ -230,386 +218,27 @@ export class StatisticsUI extends BaseComponent {
   private applyStyles(): void {
     const style = document.createElement('style');
     style.textContent = `
-            /* Main Layout */
-            .statistics-layout {
-                display: flex;
-                width: 100%;
-                height: 100vh;
-                min-height: 100vh;
-                gap: 2rem;
-                padding: 2rem;
-            }
-            
-            /* Bandroll Containers */
-            .left-bandroll, .right-bandroll {
-                flex: 0 0 150px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            
-            /* Canvas Styles - Long Vertical Bandrolls */
-            .pong-bandroll {
-                width: 120px;
-                height: 80vh;
-                border-radius: 60px;
-                border: 3px solid #fda5d5;
-                background: linear-gradient(180deg, 
-                    rgba(253, 165, 213, 0.1) 0%, 
-                    rgba(253, 165, 213, 0.05) 50%, 
-                    rgba(253, 165, 213, 0.1) 100%);
-                box-shadow: 
-                    0 0 20px rgba(253, 165, 213, 0.5),
-                    inset 0 0 20px rgba(253, 165, 213, 0.2);
-                transform: rotate(0deg);
-                transition: all 0.3s ease;
-            }
-            
-            .race-bandroll {
-                width: 120px;
-                height: 80vh;
-                border-radius: 60px;
-                border: 3px solid #fda5d5;
-                background: linear-gradient(180deg, 
-                    rgba(253, 165, 213, 0.3) 0%, 
-                    rgba(253, 165, 213, 0.1) 50%, 
-                    rgba(253, 165, 213, 0.3) 100%);
-                box-shadow: 
-                    0 0 30px rgba(253, 165, 213, 0.5),
-                    inset 0 0 20px rgba(253, 165, 213, 0.2);
-                transform: rotate(0deg);
-                transition: all 0.3s ease;
-            }
-            
-            .pong-bandroll:hover {
-                transform: scale(1.05);
-                box-shadow: 
-                    0 0 40px rgba(255, 105, 180, 0.7),
-                    inset 0 0 30px rgba(255, 105, 180, 0.3);
-            }
-            
-            .race-bandroll:hover {
-                transform: scale(1.05);
-                box-shadow: 
-                    0 0 40px rgba(255, 105, 180, 0.7),
-                    inset 0 0 30px rgba(255, 105, 180, 0.3);
-            }
-            
-            /* Center Content */
-            .center-content {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 0 2rem;
-            }
-            
-            .title {
-                font-size: 3rem;
-                font-weight: bold;
-                text-align: center;
-                background: linear-gradient(45deg, #ff69b4, #44ff44, #ff69b4);
-                background-size: 200% 200%;
-                background-clip: text;
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                animation: gradientShift 3s ease-in-out infinite;
-                text-shadow: 0 0 20px rgba(255, 105, 180, 0.5);
-                margin-bottom: 2rem;
-            }
-            
-            @keyframes gradientShift {
-                0% { background-position: 0% 50%; }
-                50% { background-position: 100% 50%; }
-                100% { background-position: 0% 50%; }
-            }
-
-            /* Navigation Styles */
-            .stats-nav {
-                display: flex;
-                justify-content: center;
-                gap: 1rem;
-                margin-bottom: 2rem;
-            }
-
-            .nav-btn {
-                padding: 0.75rem 1.5rem;
-                background: rgba(0, 0, 0, 0.5);
-                border: 2px solid #444;
-                color: #fff;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                border-radius: 25px;
-                font-weight: bold;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-            }
-
-            .nav-btn:hover {
-                background: rgba(255, 255, 255, 0.1);
-                border-color: #ff69b4;
-                transform: translateY(-2px);
-            }
-
-            .nav-btn.active {
-                background: linear-gradient(45deg, #ff69b4, #ff1493);
-                border-color: #ff69b4;
-                box-shadow: 0 0 20px rgba(255, 105, 180, 0.5);
-            }
-
-            /* Stats Grid */
-            .stats-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-                gap: 1.5rem;
-                margin-bottom: 2rem;
-                width: 100%;
-            }
-
-            .stat-card {
-                background: rgba(0, 0, 0, 0.7);
-                border: 2px solid #444;
-                border-radius: 15px;
-                padding: 1.5rem;
-                text-align: center;
-                transition: all 0.3s ease;
-                position: relative;
-                overflow: hidden;
-            }
-
-            .stat-card::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-                transform: translateX(-100%);
-                transition: transform 0.6s;
-            }
-
-            .stat-card:hover::before {
-                transform: translateX(100%);
-            }
-
-            .stat-card:hover {
-                transform: translateY(-5px);
-                border-color: currentColor;
-                box-shadow: 0 0 20px currentColor;
-            }
-
-            .glow-red { color: #ff4444; }
-            .glow-blue { color: #4444ff; }
-            .glow-green { color: #44ff44; }
-            .glow-yellow { color: #ffff44; }
-            .glow-purple { color: #ff44ff; }
-            .glow-orange { color: #ff8844; }
-
-            .stat-value {
-                font-size: 2.5rem;
-                font-weight: bold;
-                margin-bottom: 0.5rem;
-                text-shadow: 0 0 10px currentColor;
-            }
-
-            .stat-label {
-                font-size: 0.9rem;
-                color: #ccc;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-            }
-
-            /* Level Progress */
-            .level-section {
-                display: flex;
-                justify-content: center;
-                width: 100%;
-            }
-
-            .level-card {
-                background: rgba(0, 0, 0, 0.7);
-                border: 2px solid #ff69b4;
-                border-radius: 15px;
-                padding: 1.5rem;
-                min-width: 400px;
-                max-width: 500px;
-            }
-
-            .level-info {
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 1rem;
-                font-size: 1.2rem;
-            }
-
-            .level-text {
-                color: #ff69b4;
-                font-weight: bold;
-                text-shadow: 0 0 10px #ff69b4;
-            }
-
-            .xp-text {
-                color: #ccc;
-            }
-
-            .progress-bar {
-                height: 20px;
-                background: #333;
-                border-radius: 10px;
-                overflow: hidden;
-                border: 1px solid #555;
-            }
-
-            .progress-fill {
-                height: 100%;
-                background: linear-gradient(90deg, #ff69b4, #ff1493, #ff69b4);
-                width: 0%;
-                transition: width 1s ease;
-                box-shadow: 0 0 10px #ff69b4;
-            }
-
-            /* Game Detailed Stats */
-            .game-detailed-grid {
-                display: flex;
-                justify-content: center;
-                width: 100%;
-            }
-
-            .game-card {
-                background: rgba(0, 0, 0, 0.7);
-                border: 2px solid #444;
-                border-radius: 15px;
-                padding: 2rem;
-                text-align: center;
-                min-width: 500px;
-                max-width: 600px;
-                width: 100%;
-            }
-
-            .pong-themed {
-                border-color: #ff69b4;
-                background: linear-gradient(135deg, rgba(255, 105, 180, 0.1), rgba(0, 0, 0, 0.7));
-            }
-
-            .race-themed {
-                border-color: #ff69b4;
-                background: linear-gradient(135deg, rgba(68, 255, 68, 0.1), rgba(0, 0, 0, 0.7));
-            }
-
-            .game-card h3 {
-                margin-bottom: 2rem;
-                font-size: 1.5rem;
-                text-shadow: 0 0 10px currentColor;
-            }
-
-            .game-stats-detailed {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 1rem;
-            }
-
-            .game-stat {
-                display: flex;
-                justify-content: space-between;
-                padding: 0.75rem;
-                background: rgba(255, 255, 255, 0.05);
-                border-radius: 8px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
-            }
-
-            .game-stat span:first-child {
-                color: #ccc;
-                font-weight: normal;
-            }
-
-            .game-stat span:last-child {
-                color: #fff;
-                font-weight: bold;
-            }
-
-            /* Footer */
-            .stats-footer {
-                text-align: center;
-                margin-top: 2rem;
-            }
-
-            .refresh-btn {
-                padding: 1rem 2rem;
-                background: linear-gradient(45deg, #ff69b4, #ff1493);
-                border: none;
-                color: white;
-                cursor: pointer;
-                border-radius: 25px;
-                font-weight: bold;
-                transition: all 0.3s ease;
-                font-size: 1rem;
-            }
-
-            .refresh-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 10px 20px rgba(255, 105, 180, 0.3);
-            }
-
-            /* Utility Classes */
-            .hidden {
-                display: none !important;
-            }
-
-            .stats-section {
-                animation: fadeIn 0.5s ease;
-                width: 100%;
-            }
-
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(20px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            
-            /* Responsive Design */
-            @media (max-width: 1200px) {
-                .statistics-layout {
-                    gap: 1rem;
-                    padding: 1rem;
-                }
-                
-                .left-bandroll, .right-bandroll {
-                    flex: 0 0 100px;
-                }
-                
-                .pong-bandroll, .race-bandroll {
-                    width: 80px;
-                    height: 70vh;
-                }
-                
-                .center-content {
-                    padding: 0 1rem;
-                }
-            }
-            
-            @media (max-width: 768px) {
-                .statistics-layout {
-                    flex-direction: column;
-                    height: auto;
-                }
-                
-                .left-bandroll, .right-bandroll {
-                    flex: 0 0 80px;
-                    order: 1;
-                }
-                
-                .center-content {
-                    order: 2;
-                }
-                
-                .pong-bandroll, .race-bandroll {
-                    width: 60vw;
-                    height: 60px;
-                }
-            }
-        `;
+    /* Custom animations and effects that Tailwind doesn't cover */
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    .stats-section {
+      animation: fadeIn 0.5s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Active nav button state */
+    .nav-btn[data-active="true"] {
+      @apply bg-gradient-to-r from-pink-400 to-pink-600 border-pink-400 shadow-lg shadow-pink-400/50;
+    }
+  `;
     document.head.appendChild(style);
   }
 
@@ -678,8 +307,27 @@ export class StatisticsUI extends BaseComponent {
     container: HTMLElement,
   ): void {
     const navButtons = container.querySelectorAll('.nav-btn');
-    navButtons.forEach(btn => btn.classList.remove('active'));
-    activeButton.classList.add('active');
+    navButtons.forEach(btn => {
+      btn.removeAttribute('data-active');
+      btn.classList.remove(
+        'bg-gradient-to-r',
+        'from-pink-400',
+        'to-pink-600',
+        'border-pink-400',
+        'shadow-lg',
+        'shadow-pink-400/50',
+      );
+    });
+
+    activeButton.setAttribute('data-active', 'true');
+    activeButton.classList.add(
+      'bg-gradient-to-r',
+      'from-pink-400',
+      'to-pink-600',
+      'border-pink-400',
+      'shadow-lg',
+      'shadow-pink-400/50',
+    );
   }
 
   private updateViewContent(container: HTMLElement): void {
