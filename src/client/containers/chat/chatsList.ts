@@ -1,7 +1,8 @@
+import {fetchChats, fetchDiscussion} from '../../api/chats';
 import {getTimeElapsed, truncateString} from '../../utils/string';
 import {BaseComponent} from '../../components/BaseComponent';
+import {Toastify} from '../../utils/toastify';
 import {createElement} from '../../utils/dom';
-import {fetchChats} from '../../api/chats';
 import {loadIcons} from '../../utils/icons';
 import {renderUserContextMenu} from './userContextMenu';
 import {sendFriendRequest} from '../../api/relationships';
@@ -113,12 +114,37 @@ export class ChatsList extends BaseComponent {
       const line = createElement('div', {
         className: `overflow-x-hidden flex items-center justify-between hover:bg-white/5 py-2 px-6 cursor-pointer`,
       });
-      line.onclick = () =>
-        this.store.setState({
-          chatView: chat.isGeneral
-            ? {label: 'general'}
-            : {label: chat.user.username, id: chat.user.id},
-        });
+      line.onclick = async () => {
+        if (chat.isGeneral) {
+          this.store.setState({
+            chatView: {label: 'general'},
+          });
+        } else {
+          const response = await fetchDiscussion(chat.user.id);
+          const {directChats} = this.store.getState();
+
+          if (
+            !response.success &&
+            response.data === 'Error: You can only view messages with friends'
+          ) {
+            Toastify.error(
+              `You and ${chat.user.username} are no longer friends`,
+            );
+            this.store.setState({
+              directChats: directChats.filter(c => c.user.id !== chat.user.id),
+            });
+
+            return;
+          }
+
+          this.store.setState({
+            chatView: {label: chat.user.username, id: chat.user.id},
+            directChats: directChats.map(c =>
+              c.user.id === chat.user.id ? {...c, unread: 0} : c,
+            ),
+          });
+        }
+      };
 
       if (!chat.isGeneral) {
         line.oncontextmenu = evt => {

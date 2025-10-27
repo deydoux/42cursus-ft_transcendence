@@ -245,11 +245,21 @@ const handleFriendRequestAccepted = (data: {
 }) => {
   const store = Store.getInstance();
 
-  const {sentFriendRequests} = store.getState();
+  const {sentFriendRequests, directChats} = store.getState();
   store.setState({
     sentFriendRequests: sentFriendRequests.filter(
       request => request.username !== data.user.username,
     ),
+    directChats: [
+      ...directChats,
+      {
+        relationshipID: data.relationship,
+        updatedAt: new Date().toISOString(),
+        user: data.user,
+        content: '',
+        unread: 1,
+      },
+    ],
   });
 
   Toastify.info(`${data.user.username} accepted your friend request!`);

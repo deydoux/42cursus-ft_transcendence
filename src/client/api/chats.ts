@@ -39,10 +39,18 @@ export const fetchDiscussion = async (userID: number) => {
     }
 
     const data = await response.json();
-    store.setState({discussion: data});
+    const lastMessage = data.messages[data.messages.length - 1];
+    const {directChats} = store.getState();
+    store.setState({
+      discussion: data,
+      directChats: directChats.map(c =>
+        c.user.id === userID ? {...c, content: lastMessage.content} : c,
+      ),
+    });
+    return {success: true, data};
   } catch (error) {
-    Toastify.error('An error occured while fetching discussion');
     console.error(error);
+    return {success: false, data: error.toString()};
   }
 };
 

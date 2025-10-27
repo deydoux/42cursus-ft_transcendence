@@ -1,6 +1,7 @@
 import {Api} from '../utils/Api';
 import {Store} from '../services/store';
 import {Toastify} from '../utils/toastify';
+import {fetchDiscussion} from './chats';
 
 const api = Api.getInstance();
 
@@ -116,11 +117,34 @@ export const acceptFriendRequest = async (
 
     const {friendRequests} = store.getState();
 
+    const user = friendRequests.find(r => r.id === userID);
+    if (!user) {
+      console.warn('User not found when accepting friend request');
+      return;
+    }
+
     const filteredRequests = friendRequests.filter(request => {
-      return request.username !== username;
+      return request.id !== userID;
     });
+    const fetchDiscussionResponse = await fetchDiscussion(userID);
+    const {directChats} = store.getState();
+    const lastMessage =
+      fetchDiscussionResponse.data.messages[
+        fetchDiscussionResponse.data.messages.length - 1
+      ];
+
     store.setState({
       friendRequests: filteredRequests,
+      directChats: [
+        ...directChats,
+        {
+          relationshipID: relationshipID,
+          updatedAt: new Date().toISOString(),
+          content: lastMessage.content,
+          unread: 0,
+          user: user,
+        },
+      ],
       chatView: {
         id: userID,
         label: username,
@@ -176,7 +200,11 @@ export const unfriendUser = async (
       throw new Error(errorData.message);
     }
 
-    store.setState({chatView: {label: 'chatsList'}});
+    const {directChats} = store.getState();
+    store.setState({
+      chatView: {label: 'chatsList'},
+      directChats: directChats.filter(c => c.relationshipID !== relationshipID),
+    });
     Toastify.success(`You and ${username} are no longer friends anymore`);
   } catch (error) {
     Toastify.error(

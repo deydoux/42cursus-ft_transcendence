@@ -1,5 +1,4 @@
 import {
-  fetchDiscussion,
   fetchGeneralDiscussion,
   loadMoreMessages,
   sendGeneralMessage,
@@ -315,6 +314,7 @@ export class Discussion extends BaseComponent {
       leftContent.appendChild(userInfos);
     };
 
+    renderUserInformations();
     this.subscribeToPath('discussion.user', renderUserInformations);
     header.appendChild(leftContent);
 
@@ -359,8 +359,6 @@ export class Discussion extends BaseComponent {
   }
 
   private renderPrivateDiscussion(userID: number) {
-    fetchDiscussion(userID);
-
     const container = createElement('div', {
       className: 'flex flex-col h-full',
     });
@@ -370,6 +368,7 @@ export class Discussion extends BaseComponent {
       className: 'flex flex-col-reverse gap-2 overflow-y-auto flex-1 pt-6',
     });
 
+    this.renderMessages(messagesList, 'discussion');
     this.subscribeToPath('discussion.messages', () => {
       this.renderMessages(messagesList, 'discussion');
     });
