@@ -93,7 +93,7 @@ export class PongGameUI extends BaseComponent {
 
   private renderGameArea(): HTMLElement {
     const gameArea = DOMUtils.createElement('div', {
-      className: 'flex-1 flex justify-center items-center overflow-hidden ',
+      className: 'flex-1 flex justify-center items-center overflow-hidden',
     });
 
     const canvas = DOMUtils.createElement('canvas', {
