@@ -129,6 +129,7 @@ export const acceptFriendRequest = async (
     const fetchDiscussionResponse = await fetchDiscussion(userID);
     const {directChats} = store.getState();
     const lastMessage =
+      fetchDiscussionResponse.data.messages.length > 0 &&
       fetchDiscussionResponse.data.messages[
         fetchDiscussionResponse.data.messages.length - 1
       ];
@@ -140,7 +141,7 @@ export const acceptFriendRequest = async (
         {
           relationshipID: relationshipID,
           updatedAt: new Date().toISOString(),
-          content: lastMessage.content,
+          content: lastMessage?.content || '',
           unread: 0,
           user: user,
         },

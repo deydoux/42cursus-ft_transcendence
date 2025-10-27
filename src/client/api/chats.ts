@@ -39,12 +39,13 @@ export const fetchDiscussion = async (userID: number) => {
     }
 
     const data = await response.json();
-    const lastMessage = data.messages[data.messages.length - 1];
+    const lastMessage =
+      data.length > 0 && data.messages[data.messages.length - 1];
     const {directChats} = store.getState();
     store.setState({
       discussion: data,
       directChats: directChats.map(c =>
-        c.user.id === userID ? {...c, content: lastMessage.content} : c,
+        c.user.id === userID ? {...c, content: lastMessage?.content ?? ''} : c,
       ),
     });
     return {success: true, data};
