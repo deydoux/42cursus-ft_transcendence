@@ -104,19 +104,33 @@ export class StatsCanvas {
     ctx.stroke();
 
     // Add animated car
-    const time = Date.now() * 0.002;
-    const carX = Math.sin(time) * (width / 2);
-    const carY = 0;
+    const time = Date.now() * 0.0015;
+    const bleuCarX = -Math.sin(time) * (width / 2);
+    const bleuCarY = -21;
 
-    ctx.fillStyle = '#ff4444';
-    ctx.fillRect(carX - 10, carY - 5, 20, 10);
+    ctx.fillStyle = '#5744ffff';
+    ctx.fillRect(bleuCarX - 10, bleuCarY - 5, 20, 10);
 
     // Car details
     ctx.fillStyle = '#000000';
-    ctx.fillRect(carX - 8, carY - 3, 16, 6); // Body
+    ctx.fillRect(bleuCarX - 8, bleuCarY - 3, 16, 6); // Body
     ctx.fillStyle = '#333333';
-    ctx.fillRect(carX - 10, carY - 2, 4, 4); // Wheels
-    ctx.fillRect(carX + 6, carY - 2, 4, 4);
+    ctx.fillRect(bleuCarX - 10, bleuCarY - 2, 4, 4); // Wheels
+    ctx.fillRect(bleuCarX + 6, bleuCarY - 2, 4, 4);
+
+    // Add animated car
+    const redCarX = Math.sin(time) * (width / 2);
+    const redCarY = 21;
+
+    ctx.fillStyle = '#ff4444';
+    ctx.fillRect(redCarX - 10, redCarY - 5, 20, 10);
+
+    // Car details
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(redCarX - 8, redCarY - 3, 16, 6); // Body
+    ctx.fillStyle = '#333333';
+    ctx.fillRect(redCarX - 10, redCarY - 2, 4, 4); // Wheels
+    ctx.fillRect(redCarX + 6, redCarY - 2, 4, 4);
   }
 
   private drawPongGame(
