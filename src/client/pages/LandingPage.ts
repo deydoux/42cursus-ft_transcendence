@@ -232,10 +232,8 @@ export class LandingPage extends BaseComponent {
         .replace(/[^a-zA-Z0-9_]/g, '_');
 
       this.authDialogContent.innerHTML = '';
-      this.authDialogContent.className = `bg-background border rounded-3xl p-10 text-white`;
-
       const createUsernameContainer = createElement('form', {
-        className: 'flex flex-col gap-4 w-120',
+        className: `flex flex-col gap-4 w-120 bg-background border rounded-3xl p-10 text-white`,
       });
       createUsernameContainer.onsubmit = async evt => {
         evt.preventDefault();
