@@ -17,6 +17,19 @@ export class LandingPage extends BaseComponent {
   private gdprDialogOpened = false;
   private authDialogContent: HTMLDivElement;
   private totpAccessToken: string;
+  private googleSignin: HTMLElement | null = null;
+
+  private cleanupGoogleIdentityDuplicates() {
+    const links = document.querySelectorAll('link[id="googleidentityservice"]');
+    for (let i = 1; i < links.length; i++) {
+      links[i].remove();
+    }
+
+    const metas = document.querySelectorAll('meta[http-equiv="origin-trial"]');
+    for (let i = 1; i < metas.length; i++) {
+      metas[i].remove();
+    }
+  }
 
   private renderTOTPDialog() {
     this.authDialogContent.innerHTML = '';
@@ -143,12 +156,12 @@ export class LandingPage extends BaseComponent {
     //   }),
     // );
 
-    const script = document.createElement('script');
+    const script = createElement('script');
     script.type = 'text/javascript';
 
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
-    document.body.appendChild(script);
+    container.appendChild(script);
 
     function decodeJWT(token) {
       const parts = token.split('.');
@@ -174,8 +187,7 @@ export class LandingPage extends BaseComponent {
     }
 
     window.googleSignup = async response => {
-      console.debug('Response:', response);
-
+      //   console.debug('Response:', response);
       let payload;
       try {
         const {credential} = response;
@@ -291,6 +303,9 @@ export class LandingPage extends BaseComponent {
       this.authDialogContent.appendChild(createUsernameContainer);
     };
 
+    const existingButton = document.getElementById('g_id_onload');
+    if (existingButton) existingButton.remove();
+
     const googleSignin = createElement('div');
     googleSignin.innerHTML = `
       <div
@@ -314,6 +329,7 @@ export class LandingPage extends BaseComponent {
 
     remoteAuths.appendChild(googleSignin);
     container.appendChild(remoteAuths);
+    this.cleanupGoogleIdentityDuplicates();
 
     const separator = createElement('div', {
       className: 'relative w-full px-4 text-center mb-8 opacity-50 text-sm',
