@@ -111,7 +111,7 @@ export class ChatsList extends BaseComponent {
 
     filteredChats.forEach(chat => {
       const line = createElement('div', {
-        className: `flex items-center justify-between hover:bg-white/5 py-2 px-6 cursor-pointer`,
+        className: `overflow-x-hidden flex items-center justify-between hover:bg-white/5 py-2 px-6 cursor-pointer`,
       });
       line.onclick = () =>
         this.store.setState({
@@ -160,13 +160,13 @@ export class ChatsList extends BaseComponent {
       );
 
       const prefix = chat.isGeneral ? chat.user.username + ': ' : '';
-      const content = truncateString(chat.content || '', 35);
+      const content = truncateString(prefix + chat.content || '', 35);
       const timeDelta = getTimeElapsed(chat.updatedAt);
       text.appendChild(
         createElement('p', {
           className: `text-sm text-nowrap overflow-x-hidden ${chat.content ? (chat.unread ? 'text-white font-bold' : 'text-white/60') : 'text-white/40 italic'}`,
           textContent: chat.content
-            ? `${prefix}${content} • ${timeDelta}`
+            ? `${content} • ${timeDelta}`
             : 'Aucun message',
         }),
       );
@@ -236,7 +236,7 @@ export class ChatsList extends BaseComponent {
     container.appendChild(this.renderHeader());
 
     const list = createElement('div', {
-      className: 'flex flex-col flex-1 overflow-auto',
+      className: 'flex flex-col flex-1 overflow-y-auto',
     });
     this.renderChats(list);
 
