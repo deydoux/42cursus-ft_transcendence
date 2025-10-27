@@ -140,23 +140,20 @@ const handleDirectMessage = (data: {
 
     markMessagesAsRead(data.sender.id);
   } else {
-    // In the chats list
-    store.setState({
-      directChats: directChats.map(chat => {
-        if (chat.user.username !== data.sender.username) {
-          return chat;
-        }
-
-        return {
-          ...chat,
-          content: data.content,
-          updatedAt: new Date().toISOString(),
-        };
-      }),
-    });
-
     toastMessageNotification(data.sender, data.content);
   }
+
+  store.setState({
+    directChats: directChats.map(chat =>
+      chat.user.username === data.sender.username
+        ? {
+            ...chat,
+            content: data.content,
+            updatedAt: new Date().toISOString(),
+          }
+        : chat,
+    ),
+  });
 };
 
 const handleGeneralMessage = (data: {
