@@ -6,6 +6,10 @@ import {statisticsApi} from '../api/statistics';
 export class Statistics extends BaseComponent {
   private statisticsUI?: StatisticsUI;
 
+  constructor(private chat: HTMLElement) {
+    super();
+  }
+
   render(): HTMLElement {
     this.statisticsUI = new StatisticsUI();
     const container = this.statisticsUI.render();
@@ -18,6 +22,7 @@ export class Statistics extends BaseComponent {
     // Load statistics data on render
     this.loadStatistics();
 
+    if (this.chat) container.appendChild(this.chat);
     return container;
   }
 
@@ -26,6 +31,7 @@ export class Statistics extends BaseComponent {
       // First fetch the data from APIs and store in AppState
       await statisticsApi.getStreaks();
       await statisticsApi.getMatches();
+      await statisticsApi.getElo();
 
       // Then transform and get the statistics
       const data: StatisticsData = await statisticsApi.getAllStatistics();

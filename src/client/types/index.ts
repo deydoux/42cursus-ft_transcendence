@@ -214,3 +214,4 @@ export interface Component {
   render(): HTMLElement | undefined;
   destroy?(): void;
 }
+

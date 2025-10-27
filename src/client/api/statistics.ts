@@ -29,6 +29,16 @@ export const statisticsApi = {
     store.setState({matches: data});
   },
 
+  async getElo(): Promise<void> {
+    const response = await api.get(`statistics/elo`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message);
+    }
+    const data = await response.json();
+    store.setState({elo: data});
+  },
+
   // Get all statistics and transform to StatisticsData format
   async getAllStatistics(): Promise<StatisticsData> {
     try {
@@ -37,12 +47,12 @@ export const statisticsApi = {
         throw new Error('User not found in store');
       }
 
-      const {streaks} = store.getState();
-      console.log(streaks);
-      const {matches} = store.getState();
-      console.log(matches);
+      const {streaks, matches, elo} = store.getState();
+      console.log(elo);
       const pongMatches = matches.filter(match => match.game === 'pong');
       const raceMatches = matches.filter(match => match.game === 'race');
+      const pongElo = elo.filter(elo => elo.game === 'pong');
+      const raceElo = elo.filter(elo => elo.game === 'race');
 
       // Calculate user-specific stats from matches
       const userPongStats = this.calculateUserStats(pongMatches, user.id);
@@ -61,6 +71,7 @@ export const statisticsApi = {
 
         // Pong-specific stats
         pongStats: {
+          matches: pongMatches,
           gamesPlayed:
             streaks.pong.casual.totalMatches + streaks.pong.ranked.totalMatches,
           wins: userPongStats.wins,
@@ -70,12 +81,22 @@ export const statisticsApi = {
             streaks.pong.casual.best,
             streaks.pong.ranked.best,
           ),
-          totalPoints: userPongStats.totalScore,
+          currentStreak: Math.max(
+            streaks.pong.casual.current,
+            streaks.pong.ranked.current,
+          ),
+          eloHistory: pongElo.sort(
+            (a, b) =>
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+          ),
+          currentElo:
+            pongElo.length > 0 ? pongElo[pongElo.length - 1].value : undefined,
         },
 
         // Race-specific stats
         raceStats: {
-          racesFinished:
+          matches: raceMatches,
+          gamesPlayed:
             streaks.race.casual.totalMatches + streaks.race.ranked.totalMatches,
           wins: userRaceStats.wins,
           losses: userRaceStats.losses,
@@ -84,7 +105,16 @@ export const statisticsApi = {
             streaks.race.casual.best,
             streaks.race.ranked.best,
           ),
-          totalPoints: userRaceStats.totalScore,
+          currentStreak: Math.max(
+            streaks.race.casual.current,
+            streaks.race.ranked.current,
+          ),
+          eloHistory: raceElo.sort(
+            (a, b) =>
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+          ), // Add this
+          currentElo:
+            raceElo.length > 0 ? raceElo[raceElo.length - 1].value : undefined,
         },
       };
 
