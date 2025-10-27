@@ -30,6 +30,8 @@ export interface AppState {
     elo: number;
   };
 
+  loading: string[];
+
   chatView: {
     label: string;
     id?: number;

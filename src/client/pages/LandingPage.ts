@@ -345,6 +345,7 @@ export class LandingPage extends BaseComponent {
         return;
       }
 
+      this.store.toggleLoading('authentication');
       const result = await register(mode, body);
       if (result.success && result.totp) {
         this.totpAccessToken = result.totp;
@@ -354,6 +355,8 @@ export class LandingPage extends BaseComponent {
       } else if (!result.success && result.message) {
         errorMessage.textContent = result.message;
       }
+
+      this.store.toggleLoading('authentication');
     };
 
     const form = createElement('form', {
@@ -461,16 +464,25 @@ export class LandingPage extends BaseComponent {
 
     form.appendChild(errorMessage);
 
-    form.appendChild(
-      createElement('button', {
-        className:
-          'w-full cursor-pointer h-16 rounded-full font-bold uppercase bg-linear-to-br from-pink-200 to-pink-300 text-black mt-6 shadow-lg shadow-pink-300/20 hover:shadow-pink-300/30 hover:-translate-y-1 transition-all',
-        textContent: signin ? 'Start playing' : 'Create account',
-        attributes: {
-          type: 'submit',
-        },
-      }),
-    );
+    const submitButton = createElement('button', {
+      className: `w-full enabled:cursor-pointer h-16 rounded-full font-bold uppercase bg-linear-to-br from-pink-200 to-pink-300 text-black mt-6 enabled:shadow-lg shadow-pink-300/20 hover:shadow-pink-300/30 hover:-translate-y-1 transition-all disabled:from-white/10 disabled:to-white/10 disabled:border border-white/20 disbaled:shadow-none disabled:text-white/50 disabled:translate-y-0`,
+      textContent: signin ? 'Start playing' : 'Create account',
+      attributes: {type: 'submit'},
+    });
+
+    const disableSubmitButton = () => {
+      const {loading} = this.store.getState();
+      const isLoading = loading.includes('authentication');
+      submitButton.disabled = isLoading;
+      submitButton.textContent = isLoading
+        ? 'Checking ...'
+        : signin
+          ? 'Start playing'
+          : 'Create account';
+    };
+
+    form.appendChild(submitButton);
+    this.subscribeToPath('loading', disableSubmitButton);
 
     container.appendChild(form);
 
