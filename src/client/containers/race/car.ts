@@ -145,7 +145,6 @@ export class Car {
    * Resets the car's slowdown status
    */
   public resetSlowdownStatus(): void {
-    console.log('UPDATE SLOWDOWN');
     this.isSlowed = false;
   }
 
@@ -179,52 +178,52 @@ export class Car {
     }
   }
 
-  /*
-  public applyCarGrowth(): void {
-  // Check if growing would cause collision with walls
-  const testRatio = this.ratioGrowth + this.growthFactor;
-  const testSize = Math.min(this.ctx.canvas.width, this.ctx.canvas.height) * (0.06 + testRatio);
-  
-  let testWidth, testHeight;
-  if (this.carImage) {
-    const imageRatio = this.carImage.width / this.carImage.height;
-    if (this.carImage.width > this.carImage.height) {
-      testWidth = testSize;
-      testHeight = testSize / imageRatio;
-    } else {
-      testHeight = testSize;
-      testWidth = testSize * imageRatio;
-    }
-  } else {
-    testWidth = testSize;
-    testHeight = testSize * 0.6;
-  }
+  /* public applyCarGrowth(): void {
+    // Check if growing would cause collision with walls
+    const testRatio = this.ratioGrowth + this.growthFactor;
+    const testSize =
+      Math.min(this.ctx.canvas.width, this.ctx.canvas.height) *
+      (0.06 + testRatio);
 
-  const testPosition = {
-    x: this.x - testWidth / 2,
-    y: this.y - testHeight / 2,
-    width: testWidth,
-    height: testHeight,
-  };
-
-  // Get wall instance to check collision
-  const gameID = getCurrentGame().id.toString() || '';
-  const raceCanvas = getRaceCanvasInstance(gameID);
-  
-  // Only grow if it won't cause a collision
-  if (!raceCanvas.race.wall.isCarColliding(testPosition)) {
-    this.isBigger = true;
-    this.growthEndTime = Date.now() + this.growthDuration;
+    let testWidth, testHeight;
     if (this.carImage) {
-      this.setCarDimensionsFromImage(this.growthFactor);
+      const imageRatio = this.carImage.width / this.carImage.height;
+      if (this.carImage.width > this.carImage.height) {
+        testWidth = testSize;
+        testHeight = testSize / imageRatio;
+      } else {
+        testHeight = testSize;
+        testWidth = testSize * imageRatio;
+      }
     } else {
-      this.setDefaultCarDimensions(this.growthFactor);
+      testWidth = testSize;
+      testHeight = testSize * 0.6;
     }
-  } else {
-    console.log('Growth prevented due to wall collision');
-  }
-}
-  */
+
+    const testPosition = {
+      x: this.x - testWidth / 2,
+      y: this.y - testHeight / 2,
+      width: testWidth,
+      height: testHeight,
+    };
+
+    // Get wall instance to check collision
+    const gameID = getCurrentGame().id.toString() || '';
+    const raceCanvas = getRaceCanvasInstance(gameID);
+
+    // Only grow if it won't cause a collision
+    if (!raceCanvas.race.wall.isCarColliding(testPosition)) {
+      this.isBigger = true;
+      this.growthEndTime = Date.now() + this.growthDuration;
+      if (this.carImage) {
+        this.setCarDimensionsFromImage(this.growthFactor);
+      } else {
+        this.setDefaultCarDimensions(this.growthFactor);
+      }
+    } else {
+      console.log('Growth prevented due to wall collision');
+    }
+  } */
 
   /**
    * Resets the car's growth status and dimensions
@@ -359,7 +358,7 @@ export class Car {
    * @param walls
    * @returns
    */
-  /* public move(
+  public move(
     isAccelerating: boolean | null,
     isTurning: number,
     walls: Wall,
@@ -384,167 +383,6 @@ export class Car {
       this.y += Math.sin(this.angle) * escapeSpeed;
       return;
     }
-    const effectiveAcceleration = this.getEffectiveAcceleration() + 0.5;
-    const effectiveMaxSpeed = this.getEffectiveMaxSpeed();
-
-    // Handle acceleration/deceleration with modified values
-    if (isAccelerating === true) {
-      this.speed += effectiveAcceleration;
-    } else if (isAccelerating === false) {
-      this.speed -= effectiveAcceleration;
-    } else {
-      // No input (null case) - apply friction
-      this.speed *= 0.95;
-    }
-
-    // Clamp speed between reverse and effective max forward speed
-    this.speed = Math.min(
-      Math.max(this.speed, this.reverseSpeed),
-      effectiveMaxSpeed,
-    );
-
-    // Calculate potential new position
-    const newX = this.x + Math.cos(this.angle) * this.speed;
-    const newY = this.y + Math.sin(this.angle) * this.speed;
-
-    // Create car hitbox
-    const carBox = {
-      x: newX - this.carWidth / 2,
-      y: newY - this.carHeight / 2,
-      width: this.carWidth,
-      height: this.carHeight,
-    };
-
-    // Check canvas boundaries
-    const inBounds =
-      carBox.x >= 0 &&
-      carBox.x + carBox.width <= this.ctx.canvas.width &&
-      carBox.y >= 0 &&
-      carBox.y + carBox.height <= this.ctx.canvas.height;
-
-    // Update position if not colliding and in bounds
-    if (!walls.isCarColliding(carBox) && inBounds) {
-      this.x = newX;
-      this.y = newY;
-    } else {
-      // Allow sliding along walls/boundaries by trying individual axis movement
-      const tryHorizontal = {
-        ...carBox,
-        x: newX - this.carWidth / 2,
-        y: this.y - this.carHeight / 2,
-      };
-
-      const tryVertical = {
-        ...carBox,
-        x: this.x - this.carWidth / 2,
-        y: newY - this.carHeight / 2,
-      };
-
-      // Try horizontal movement
-      if (
-        !walls.isCarColliding(tryHorizontal) &&
-        tryHorizontal.x >= 0 &&
-        tryHorizontal.x + this.carWidth <= this.ctx.canvas.width
-      ) {
-        this.x = newX;
-      }
-
-      // Try vertical movement
-      if (
-        !walls.isCarColliding(tryVertical) &&
-        tryVertical.y >= 0 &&
-        tryVertical.y + this.carHeight <= this.ctx.canvas.height
-      ) {
-        this.y = newY;
-      }
-
-      // Reduce speed on collision
-      this.speed *= 0.5;
-    }
-
-    // Handle turning - works in both forward and reverse
-    if (Math.abs(this.speed) > this.minSpeedForTurn) {
-      // Invert turning direction when reversing
-      const turnDirection = this.speed >= 0 ? 1 : -1;
-      this.angle += isTurning * this.turnSpeed * turnDirection;
-    }
-  } */
-  public move(
-    isAccelerating: boolean | null,
-    isTurning: number,
-    walls: Wall,
-  ): void {
-    if (this.isStopped) return;
-
-    // Check if car is stuck in a wall
-    const currentPosition = {
-      x: this.x - this.carWidth / 2,
-      y: this.y - this.carHeight / 2,
-      width: this.carWidth,
-      height: this.carHeight,
-    };
-
-    const isStuck = walls.isCarColliding(currentPosition);
-
-    // Special case for stuck cars - allow escaping regardless of walls
-    if (isStuck) {
-      // Calculate escape speed based on car size and severity of overlap
-      const baseEscapeSpeed = 2.0;
-      const sizeMultiplier = this.isBigger ? 1.5 : 1.0; // Stronger escape for bigger cars
-      const escapeSpeed = -(baseEscapeSpeed * sizeMultiplier);
-
-      // Try multiple escape directions if needed
-      const escapeAttempts = [
-        {dx: Math.cos(this.angle), dy: Math.sin(this.angle)}, // Reverse current direction
-        {
-          dx: Math.cos(this.angle + Math.PI / 2),
-          dy: Math.sin(this.angle + Math.PI / 2),
-        }, // Left
-        {
-          dx: Math.cos(this.angle - Math.PI / 2),
-          dy: Math.sin(this.angle - Math.PI / 2),
-        }, // Right
-        {
-          dx: Math.cos(this.angle + Math.PI),
-          dy: Math.sin(this.angle + Math.PI),
-        }, // Forward
-      ];
-
-      for (const attempt of escapeAttempts) {
-        const testX = this.x + attempt.dx * Math.abs(escapeSpeed);
-        const testY = this.y + attempt.dy * Math.abs(escapeSpeed);
-
-        const testPosition = {
-          x: testX - this.carWidth / 2,
-          y: testY - this.carHeight / 2,
-          width: this.carWidth,
-          height: this.carHeight,
-        };
-
-        // Check if this escape direction gets us out of the wall and keeps us in bounds
-        const inBounds =
-          testPosition.x >= 0 &&
-          testPosition.x + testPosition.width <= this.ctx.canvas.width &&
-          testPosition.y >= 0 &&
-          testPosition.y + testPosition.height <= this.ctx.canvas.height;
-
-        if (!walls.isCarColliding(testPosition) && inBounds) {
-          this.x = testX;
-          this.y = testY;
-          this.speed *= 0.1; // Reduce speed after escape
-          return;
-        }
-      }
-
-      // If no escape direction works, force the car to shrink temporarily
-      if (this.isBigger) {
-        console.log('Emergency shrink due to wall collision');
-        this.resetGrowthStatus();
-      }
-      return;
-    }
-
-    // Rest of your existing movement logic stays the same...
     const effectiveAcceleration = this.getEffectiveAcceleration() + 0.5;
     const effectiveMaxSpeed = this.getEffectiveMaxSpeed();
 

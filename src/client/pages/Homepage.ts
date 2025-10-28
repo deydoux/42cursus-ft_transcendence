@@ -50,7 +50,7 @@ export class Homepage extends BaseComponent {
           this.websocket.send({
             type: 'joinMatchmaking',
             game: 'pong',
-            mode: 'casual',
+            mode: 'ranked',
           });
         },
       }),
@@ -84,7 +84,7 @@ export class Homepage extends BaseComponent {
           this.websocket.send({
             type: 'joinMatchmaking',
             game: 'race',
-            mode: 'casual',
+            mode: 'ranked',
           });
         },
       }),

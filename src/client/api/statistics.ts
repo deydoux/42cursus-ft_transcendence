@@ -58,6 +58,20 @@ export const statisticsApi = {
       const userPongStats = this.calculateUserStats(pongMatches, user.id);
       const userRaceStats = this.calculateUserStats(raceMatches, user.id);
 
+      const monthlyActivity = this.calculateMonthlyActivity(matches);
+
+      // Get game mode distribution from streaks
+      const gameModeDistribution = {
+        pong: {
+          casual: streaks.pong.casual.totalMatches,
+          ranked: streaks.pong.ranked.totalMatches,
+        },
+        race: {
+          casual: streaks.race.casual.totalMatches,
+          ranked: streaks.race.ranked.totalMatches,
+        },
+      };
+
       // Transform to StatisticsData format
       const statisticsData: StatisticsData = {
         // General stats (calculated from all games)
@@ -68,6 +82,8 @@ export const statisticsApi = {
           userPongStats.wins + userRaceStats.wins,
           userPongStats.totalGames + userRaceStats.totalGames,
         ),
+        monthlyActivity,
+        gameModeDistribution,
 
         // Pong-specific stats
         pongStats: {
@@ -163,5 +179,18 @@ export const statisticsApi = {
   // Helper method to calculate overall win rate
   calculateOverallWinRate(wins: number, totalGames: number): number {
     return totalGames > 0 ? Math.round((wins / totalGames) * 100 * 10) / 10 : 0;
+  },
+
+  calculateMonthlyActivity(
+    matches: AppState['matches'],
+  ): Record<string, number> {
+    const activity: Record<string, number> = {};
+
+    matches.forEach(match => {
+      const date = new Date(match.createdAt).toISOString().split('T')[0]; // YYYY-MM-DD format
+      activity[date] = (activity[date] || 0) + 1;
+    });
+
+    return activity;
   },
 };

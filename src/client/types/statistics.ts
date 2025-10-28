@@ -4,7 +4,11 @@ export interface StatisticsData {
   totalWins: number;
   totalLosses: number;
   winRate: number;
-
+  monthlyActivity: Record<string, number>; // Date string -> number of games
+  gameModeDistribution: {
+    pong: {casual: number; ranked: number};
+    race: {casual: number; ranked: number};
+  };
   // Pong-specific stats
   pongStats: {
     matches: {

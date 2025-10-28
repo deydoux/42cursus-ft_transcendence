@@ -174,7 +174,7 @@ export class RaceGameUI extends BaseComponent {
       ${
         data.eloChange && !raceCanvas.race.isLocal
           ? `<div class="text-sm ${isTie ? 'text-gray-400' : isWinner ? 'text-green-400' : 'text-red-400'} font-bold">
-        ${isTie ? '' : isWinner ? '+' : ''}${data.eloChange}
+        ${isTie ? '' : isWinner ? '+' : '-'}${data.eloChange}
       </div>`
           : ''
       }
