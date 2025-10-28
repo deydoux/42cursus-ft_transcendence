@@ -1,30 +1,88 @@
+import {Popup, createPopupContainer} from '../components/Popup';
 import {BaseComponent} from '../components/BaseComponent';
 import {createElement} from '../utils/dom';
+import pongsticker from '../assets/fuck3.png';
+import racesticker from '../assets/fuck2.png';
+import settingssticker from '../assets/fuck1.png';
+import sticker from '../assets/sticker.png';
+import textIMG from '../assets/kittypong.png';
+import tournamentsticker from '../assets/fuck4.png';
 
 export class Homepage extends BaseComponent {
+  private gameModeMenu: Popup | null = null;
+
   constructor(private chat: HTMLElement) {
     super();
   }
 
-  renderMenuButton = (
-    darkMode = false,
-    label?: string,
-    callback?: () => void,
-  ) => {
-    const button = createElement('div', {
-      className: 'flex-1 min-w-1/3',
-      onclick: () => {
-        if (callback) callback();
+  private renderGameModeMenu = (evt: PointerEvent, game: 'pong' | 'race') => {
+    const buttons = createElement('div', {
+      className: 'flex flex-col items-stretch gap-2',
+    });
+    ['play local', 'play remote'].forEach(mode => {
+      buttons.appendChild(
+        createElement('button', {
+          className: `w-full font-semibold rounded text-white hover:bg-pink-300 hover:text-background duration-100 p-4 uppercase cursor-pointer`,
+          textContent: mode,
+          onclick: () => {
+            this.store.setState({
+              game: {
+                ...this.store.getState().game,
+                isLocal: mode === 'play local',
+              },
+            });
+
+            if (mode === 'play local') {
+              sessionStorage.setItem('validGameAccess', 'true');
+              this.router.navigate(`/${game}`);
+            } else {
+              this.websocket.send({
+                type: 'joinMatchmaking',
+                game: game,
+                mode: 'casual',
+              });
+            }
+          },
+        }),
+      );
+    });
+
+    this.gameModeMenu = createPopupContainer({
+      x: evt.pageX,
+      y: evt.pageY,
+      className: `absolute min-w-40 bg-background/40 backdrop-blur-md rounded-lg shadow-xl border p-1 border-white/30 text-sm z-50`,
+      content: buttons,
+      onClose: () => {
+        this.gameModeMenu = null;
       },
     });
-    button.appendChild(
-      createElement('button', {
-        className: `w-full h-full bg-linear-to-br ${darkMode ? 'from-pink-200 to-pink-300 text-background' : 'from-gray-500/20 to-gray-800/20 text-pink-300'} text-background font-bold uppercase rounded-xl`,
-        textContent: label ? label : 'Play pong',
+
+    this.gameModeMenu.show();
+  };
+
+  renderBanner = () => {
+    const container = createElement('div', {
+      className: `relative bg-gradient-to-br from-background to-pink-300/10 border border-pink-300/70 w-full h-50 rounded-xl`,
+    });
+    container.appendChild(
+      createElement('p', {
+        className: 'text-xs m-3 text-pink-300/30',
+        textContent: 'made with ❤︎ by deydoux, mapale & quteriss',
       }),
     );
-
-    return button;
+    container.appendChild(
+      createElement('img', {
+        className: 'absolute -rotate-5 h-[140%] -left-15 -top-10',
+        attributes: {src: textIMG},
+      }),
+    );
+    container.appendChild(
+      createElement('img', {
+        className: 'absolute w-65 rotate-5 -right-5 -top-10 animate-wiggle',
+        attributes: {src: sticker},
+      }),
+    );
+    return container;
   };
 
   render(): HTMLElement {
@@ -32,100 +90,181 @@ export class Homepage extends BaseComponent {
       className: 'flex h-full w-full gap-10',
     });
 
-    const gameMenu = createElement('div', {
-      className: 'h-full flex-1 grid grid-cols-2 grid-rows-2 gap-10',
+    const homepage = createElement('div', {
+      className: 'flex-1 flex flex-col',
     });
 
-    const pongButtons = createElement('div', {
-      className: 'flex flex-col gap-2',
-    });
-    pongButtons.append(
-      createElement('button', {
-        textContent: 'Play pong online',
-        className: `cursor-pointer flex-1 rounded bg-gradient-to-br from-pink-200 to-pink-300 font-semibold uppercase text-background rounded-t-xl`,
-        onclick: () => {
-          this.store.setState({
-            game: {...this.store.getState().game, isLocal: false},
-          });
-          this.websocket.send({
-            type: 'joinMatchmaking',
-            game: 'pong',
-            mode: 'casual',
-          });
-        },
-      }),
-    );
-    pongButtons.append(
-      createElement('button', {
-        textContent: 'Play pong local',
-        className: `cursor-pointer flex-1 rounded bg-background rounded-b-xl font-semibold uppercase text-pink-300 border-3 border-pink-300`,
-        onclick: () => {
-          this.store.setState({
-            game: {...this.store.getState().game, isLocal: true},
-          });
-          // Set the session flag before navigating for local games
-          sessionStorage.setItem('validGameAccess', 'true');
-          this.router.navigate(`/pong`);
-        },
-      }),
-    );
+    homepage.appendChild(this.renderBanner());
 
-    const raceButtons = createElement('div', {
-      className: 'flex flex-col gap-2',
+    const buttons = createElement('div', {
+      className: 'flex flex-col flex-1',
     });
-    raceButtons.append(
-      createElement('button', {
-        textContent: 'Play race online',
-        className: `cursor-pointer flex-1 rounded bg-gradient-to-br from-pink-200 to-pink-300 font-semibold uppercase text-background rounded-t-xl`,
-        onclick: () => {
-          this.store.setState({
-            game: {...this.store.getState().game, isLocal: false},
-          });
-          this.websocket.send({
-            type: 'joinMatchmaking',
-            game: 'race',
-            mode: 'casual',
-          });
-        },
-      }),
-    );
-    raceButtons.append(
-      createElement('button', {
-        textContent: 'Play race local',
-        className: `cursor-pointer flex-1 rounded bg-background rounded-b-xl font-semibold uppercase text-pink-300 border-3 border-pink-300`,
-        onclick: () => {
-          this.store.setState({
-            game: {...this.store.getState().game, isLocal: true},
-          });
-          // Set the session flag before navigating for local games
-          sessionStorage.setItem('validGameAccess', 'true');
-          this.router.navigate(`/race`);
-        },
-      }),
-    );
+    const renderButton = (
+      name: string,
+      onclick?: (evt: PointerEvent) => void,
+      sticker?: string,
+    ) => {
+      const button = createElement('button', {
+        className: `group relative flex items-center justify-center overflow-hidden uppercase cursor-pointer font-bold flex-1 h-full bg-gradient-to-br from-background to-white/5 hover:to-pink-300/20 hover:border-pink-300 border border-white/50 rounded-lg duration-200`,
+      });
 
-    gameMenu.appendChild(pongButtons);
-    gameMenu.appendChild(raceButtons);
+      if (sticker) {
+        button.appendChild(
+          createElement('img', {
+            className: `absolute h-12/10 z-0 grayscale opacity-10 group-hover:grayscale-0 group-hover:scale-115 duration-200 group-hover:opacity-100 group-hover:rotate-3`,
+            attributes: {src: sticker},
+            onclick: onclick as EventListener,
+          }),
+        );
+      }
 
-    const tournamentsButton = createElement('button', {
-      textContent: 'Tournaments',
-      className: `cursor-pointer flex-1 rounded bg-background rounded-xl font-semibold uppercase text-pink-300 border-3 border-pink-300`,
-    });
-    tournamentsButton.onclick = () => {
-      this.router.navigate('/tournament');
+      button.appendChild(
+        createElement('p', {
+          textContent: name,
+          className: 'z-10 drop-shadow-[0_0_5px_rgb(0,0,0)]',
+        }),
+      );
+
+      return button;
     };
-    gameMenu.appendChild(tournamentsButton);
-    gameMenu.appendChild(
-      createElement('button', {
-        textContent: 'Settings',
-        className: `cursor-pointer flex-1 rounded bg-gradient-to-br from-pink-200 to-pink-300 rounded-xl font-semibold uppercase text-background`,
-        onclick: () => {
-          this.router.navigate('/settings');
-        },
-      }),
-    );
 
-    container.appendChild(gameMenu);
+    const firstRow = createElement('div', {
+      className: 'flex h-5/9 items-center gap-4 mt-4',
+    });
+    firstRow.appendChild(
+      renderButton(
+        'Play Pong',
+        evt => this.renderGameModeMenu(evt, 'pong'),
+        pongsticker,
+      ),
+    );
+    firstRow.appendChild(
+      renderButton(
+        'Play race cars',
+        evt => this.renderGameModeMenu(evt, 'race'),
+        racesticker,
+      ),
+    );
+    buttons.appendChild(firstRow);
+
+    const secondRow = createElement('div', {
+      className: 'flex flex-1 items-center gap-4 mt-4 text-sm',
+    });
+    secondRow.appendChild(
+      renderButton(
+        'Tournaments',
+        () => this.router.navigate('tournament'),
+        tournamentsticker,
+      ),
+    );
+    secondRow.appendChild(
+      renderButton('Statistics', () => this.router.navigate('statistics')),
+    );
+    secondRow.appendChild(
+      renderButton(
+        'Settings',
+        () => this.router.navigate('settings'),
+        settingssticker,
+      ),
+    );
+    buttons.appendChild(secondRow);
+
+    homepage.appendChild(buttons);
+
+    // const gameMenu = createElement('div', {
+    //   className: 'h-full flex-1 grid grid-cols-2 grid-rows-2 gap-10',
+    // });
+
+    // const pongButtons = createElement('div', {
+    //   className: 'flex flex-col gap-2',
+    // });
+    // pongButtons.append(
+    //   createElement('button', {
+    //     textContent: 'Play pong online',
+    //     className: `cursor-pointer flex-1 rounded bg-gradient-to-br from-pink-200 to-pink-300 font-semibold uppercase text-background rounded-t-xl`,
+    //     onclick: () => {
+    //       this.store.setState({
+    //         game: {...this.store.getState().game, isLocal: false},
+    //       });
+    //       this.websocket.send({
+    //         type: 'joinMatchmaking',
+    //         game: 'pong',
+    //         mode: 'casual',
+    //       });
+    //     },
+    //   }),
+    // );
+    // pongButtons.append(
+    //   createElement('button', {
+    //     textContent: 'Play pong local',
+    //     className: `cursor-pointer flex-1 rounded bg-background rounded-b-xl font-semibold uppercase text-pink-300 border-3 border-pink-300`,
+    //     onclick: () => {
+    //       this.store.setState({
+    //         game: {...this.store.getState().game, isLocal: true},
+    //       });
+    //       // Set the session flag before navigating for local games
+    //       sessionStorage.setItem('validGameAccess', 'true');
+    //       this.router.navigate(`/pong`);
+    //     },
+    //   }),
+    // );
+
+    // const raceButtons = createElement('div', {
+    //   className: 'flex flex-col gap-2',
+    // });
+    // raceButtons.append(
+    //   createElement('button', {
+    //     textContent: 'Play race online',
+    //     className: `cursor-pointer flex-1 rounded bg-gradient-to-br from-pink-200 to-pink-300 font-semibold uppercase text-background rounded-t-xl`,
+    //     onclick: () => {
+    //       this.store.setState({
+    //         game: {...this.store.getState().game, isLocal: false},
+    //       });
+    //       this.websocket.send({
+    //         type: 'joinMatchmaking',
+    //         game: 'race',
+    //         mode: 'casual',
+    //       });
+    //     },
+    //   }),
+    // );
+    // raceButtons.append(
+    //   createElement('button', {
+    //     textContent: 'Play race local',
+    //     className: `cursor-pointer flex-1 rounded bg-background rounded-b-xl font-semibold uppercase text-pink-300 border-3 border-pink-300`,
+    //     onclick: () => {
+    //       this.store.setState({
+    //         game: {...this.store.getState().game, isLocal: true},
+    //       });
+    //       // Set the session flag before navigating for local games
+    //       sessionStorage.setItem('validGameAccess', 'true');
+    //       this.router.navigate(`/race`);
+    //     },
+    //   }),
+    // );
+
+    // gameMenu.appendChild(pongButtons);
+    // gameMenu.appendChild(raceButtons);
+
+    // const tournamentsButton = createElement('button', {
+    //   textContent: 'Tournaments',
+    //   className: `cursor-pointer flex-1 rounded bg-background rounded-xl font-semibold uppercase text-pink-300 border-3 border-pink-300`,
+    // });
+    // tournamentsButton.onclick = () => {
+    //   this.router.navigate('/tournament');
+    // };
+    // gameMenu.appendChild(tournamentsButton);
+    // gameMenu.appendChild(
+    //   createElement('button', {
+    //     textContent: 'Settings',
+    //     className: `cursor-pointer flex-1 rounded bg-gradient-to-br from-pink-200 to-pink-300 rounded-xl font-semibold uppercase text-background`,
+    //     onclick: () => {
+    //       this.router.navigate('/settings');
+    //     },
+    //   }),
+    // );
+
+    container.appendChild(homepage);
     if (this.chat) container.appendChild(this.chat);
     return container;
   }
