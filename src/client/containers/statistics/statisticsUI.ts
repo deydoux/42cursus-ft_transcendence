@@ -1,8 +1,36 @@
+import {
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  Chart,
+  DoughnutController,
+  Legend,
+  LineController,
+  LineElement,
+  LinearScale,
+  PointElement,
+  Title,
+  Tooltip,
+} from 'chart.js';
 import {BaseComponent} from '../../components/BaseComponent';
 import {DOMUtils} from '../../utils/dom';
 import {StatisticsData} from '../../types/statistics';
 import {StatsCanvas} from './statisticsCanvas';
 import star from '../../assets/star.png';
+
+Chart.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineController,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  ArcElement,
+  DoughnutController,
+);
 
 export class StatisticsUI extends BaseComponent {
   private decorativeCanvas: StatsCanvas | null = null;
@@ -39,13 +67,10 @@ export class StatisticsUI extends BaseComponent {
 
         <!-------------Starts---------------->
         <div class="hidden 2xl:block absolute top-[12px] right-[30px] hover:animate-[spin_1s_infinite] w-fit h-fit">
-          <img class="h-45 rotate-[-5deg]" src="${star}" alt="Star decoration"></img>
+          <img class="h-15 rotate-[-5deg]" src="${star}" alt="Star decoration"></img>
         </div>
         <div class="hidden 2xl:block absolute top-[12px] left-[30px] hover:animate-[spin_1s_infinite] w-fit h-fit">
-          <img class="h-45 rotate-[-5deg]" src="${star}" alt="Star decoration"></img>
-        </div>
-        <div class="hidden 2xl:block absolute bottom-5 left-1/2 transform -translate-x-1/2 hover:animate-[spin_1s_infinite] w-fit h-fit">
-          <img class="h-45 rotate-[-5deg]" src="${star}" alt="Star decoration"></img>
+          <img class="h-15 rotate-[-5deg]" src="${star}" alt="Star decoration"></img>
         </div>
 
         <div class="flex items-center">
@@ -174,7 +199,7 @@ export class StatisticsUI extends BaseComponent {
                   <!-- ELO Chart -->
                   <div id="pong-elo-section" class="mb-6 p-4 bg-white/5 rounded-lg border border-white/10">
                     <h4 class="text-lg text-gray-300 mb-4">ELO Evolution</h4>
-                    <canvas id="pong-elo-chart" class="w-full" height="100"></canvas>
+                    <canvas id="pong-elo-chart" width="600" height="300" class="max-w-full max-w-[600px] max-h-[300px]"></canvas>
                   </div>
 
                   <!-- Match History -->
@@ -265,7 +290,7 @@ export class StatisticsUI extends BaseComponent {
                     <!-- ELO Chart -->
                     <div id="race-elo-section" class="mb-6 p-4 bg-white/5 rounded-lg border border-white/10">
                       <h4 class="text-lg text-gray-300 mb-4">ELO Evolution</h4>
-                      <canvas id="race-elo-chart" class="w-full" height="100"></canvas>
+                      <canvas id="race-elo-chart" width="600" height="300" class="max-w-full max-w-[600px] max-h-[300px]"></canvas>
                     </div>
 
                     <!-- Match History -->
@@ -744,7 +769,7 @@ export class StatisticsUI extends BaseComponent {
       '#pong-current-elo',
       data.pongStats.currentElo?.toString() || '--',
     );
-    this.drawEloChart('pong-elo-chart', data.pongStats.eloHistory, '#ff4444');
+    this.drawEloChart('pong-elo-chart', data.pongStats.eloHistory, '#f472b6');
 
     // Update race stats
     this.updateElement(container, '#race-wins', data.raceStats.wins.toString());
@@ -773,7 +798,7 @@ export class StatisticsUI extends BaseComponent {
       '#race-current-elo',
       data.raceStats.currentElo?.toString() || '--',
     );
-    this.drawEloChart('race-elo-chart', data.raceStats.eloHistory, '#44ff44');
+    this.drawEloChart('race-elo-chart', data.raceStats.eloHistory, '#4ade80');
   }
 
   private updateElement(
@@ -787,6 +812,8 @@ export class StatisticsUI extends BaseComponent {
     }
   }
 
+  // Replace the drawEloChart method with this:
+
   private drawEloChart(
     canvasId: string,
     eloHistory: {value: number; createdAt: string}[],
@@ -795,144 +822,219 @@ export class StatisticsUI extends BaseComponent {
     const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     if (!canvas || !eloHistory.length) return;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Set canvas size
-    canvas.width = canvas.offsetWidth;
-    canvas.height = 200;
-
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Chart settings with more bottom padding for date labels
-    const padding = 40;
-    const bottomPadding = 60; // Extra space for date labels
-    const chartWidth = canvas.width - padding * 2;
-    const chartHeight = canvas.height - padding - bottomPadding;
-
-    // Find min and max ELO
-    const eloValues = eloHistory.map(entry => entry.value);
-    const minElo = Math.min(...eloValues) - 50;
-    const maxElo = Math.max(...eloValues) + 50;
-    const eloRange = maxElo - minElo;
-
-    // Draw grid lines and ELO labels (Y-axis)
-    ctx.strokeStyle = '#444';
-    ctx.lineWidth = 1;
-    ctx.font = '12px Arial';
-    ctx.fillStyle = '#888';
-
-    // Horizontal grid lines (ELO values)
-    for (let i = 0; i <= 5; i++) {
-      const y = padding + (chartHeight / 5) * i;
-      const eloValue = maxElo - (eloRange / 5) * i;
-
-      ctx.beginPath();
-      ctx.moveTo(padding, y);
-      ctx.lineTo(padding + chartWidth, y);
-      ctx.stroke();
-
-      ctx.textAlign = 'right';
-      ctx.fillText(Math.round(eloValue).toString(), padding - 5, y + 4);
+    // Destroy existing chart if it exists
+    const existingChart = Chart.getChart(canvas);
+    if (existingChart) {
+      existingChart.destroy();
     }
 
-    // Draw vertical grid lines and date labels (X-axis)
-    const maxDateLabels = Math.min(6, eloHistory.length); // Show max 6 date labels
-    const dateInterval = Math.floor(eloHistory.length / maxDateLabels) || 1;
-
-    for (let i = 0; i < eloHistory.length; i += dateInterval) {
-      const x = padding + (chartWidth / (eloHistory.length - 1)) * i;
-      const date = new Date(eloHistory[i].createdAt);
-
-      // Draw vertical grid line
-      ctx.strokeStyle = '#333';
-      ctx.lineWidth = 0.5;
-      ctx.beginPath();
-      ctx.moveTo(x, padding);
-      ctx.lineTo(x, padding + chartHeight);
-      ctx.stroke();
-
-      // Format date label
-      const dateLabel = date.toLocaleDateString('en-US', {
+    // Prepare data
+    const labels = eloHistory.map(entry => {
+      const date = new Date(entry.createdAt);
+      return date.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
       });
+    });
 
-      // Draw date label
-      ctx.fillStyle = '#888';
-      ctx.font = '10px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText(dateLabel, x, padding + chartHeight + 15);
+    const data = eloHistory.map(entry => entry.value);
 
-      // Add time if recent (within last 7 days)
-      const daysDiff = (Date.now() - date.getTime()) / (1000 * 60 * 60 * 24);
-      if (daysDiff < 7) {
-        const timeLabel = date.toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit',
-        });
-        ctx.font = '8px Arial';
-        ctx.fillStyle = '#666';
-        ctx.fillText(timeLabel, x, padding + chartHeight + 30);
-      }
+    // Create the chart
+    new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'ELO Rating',
+            data: data,
+            borderColor: color,
+            backgroundColor: color + '20', // Add transparency for fill
+            borderWidth: 3,
+            pointBackgroundColor: color,
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 8,
+            pointHoverBackgroundColor: color,
+            pointHoverBorderColor: '#ffffff',
+            pointHoverBorderWidth: 3,
+            fill: false,
+            tension: 0.4, // This creates the smooth curve
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          intersect: false,
+          mode: 'index',
+        },
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            titleColor: '#ffffff',
+            bodyColor: '#ffffff',
+            borderColor: '#666666',
+            borderWidth: 1,
+            cornerRadius: 8,
+            displayColors: false,
+            callbacks: {
+              title: context => {
+                const index = context[0].dataIndex;
+                const date = new Date(eloHistory[index].createdAt);
+                return date.toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                });
+              },
+              label: context => {
+                return `ELO: ${context.parsed.y}`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            display: true,
+            border: {
+              display: false,
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)',
+            },
+            ticks: {
+              color: '#888888',
+              maxTicksLimit: 6,
+              font: {
+                size: 10,
+              },
+            },
+            title: {
+              display: true,
+              text: 'Date',
+              color: '#aaaaaa',
+              font: {
+                size: 12,
+                weight: 'bold',
+              },
+            },
+          },
+          y: {
+            display: true,
+            border: {
+              display: false, // This replaces drawBorder
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)',
+            },
+            ticks: {
+              color: '#888888',
+              font: {
+                size: 10,
+              },
+            },
+            title: {
+              display: true,
+              text: 'ELO Rating',
+              color: '#aaaaaa',
+              font: {
+                size: 12,
+                weight: 'bold',
+              },
+            },
+          },
+        },
+        animation: {
+          duration: 1000,
+          easing: 'easeInOutQuart',
+        },
+      },
+    });
+  }
+
+  // Replace the drawGameModeChart method with this:
+
+  /*   private drawGameModeChart(gameModeDistribution: {
+    pong: {casual: number; ranked: number};
+    race: {casual: number; ranked: number};
+  }): void {
+    const canvas = document.getElementById(
+      'game-mode-chart',
+    ) as HTMLCanvasElement;
+    if (!canvas) return;
+
+    // Destroy existing chart if it exists
+    const existingChart = Chart.getChart(canvas);
+    if (existingChart) {
+      existingChart.destroy();
     }
 
-    // Draw ELO line
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
+    const data = [
+      gameModeDistribution.pong.casual + gameModeDistribution.pong.ranked,
+      gameModeDistribution.race.casual + gameModeDistribution.race.ranked,
+    ];
 
-    eloHistory.forEach((entry, index) => {
-      const x = padding + (chartWidth / (eloHistory.length - 1)) * index;
-      const y =
-        padding +
-        chartHeight -
-        ((entry.value - minElo) / eloRange) * chartHeight;
+    const total = data.reduce((sum, value) => sum + value, 0);
+    if (total === 0) return;
 
-      if (index === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
+    new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels: ['Pong', 'Race'],
+        datasets: [
+          {
+            data: data,
+            backgroundColor: [
+              '#f472b6', // Pink for Pong
+              '#4ade80', // Green for Race
+            ],
+            borderColor: ['#f472b6', '#4ade80'],
+            borderWidth: 2,
+            hoverBorderWidth: 3,
+            hoverBorderColor: '#ffffff',
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false, // We have custom legend below
+          },
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            titleColor: '#ffffff',
+            bodyColor: '#ffffff',
+            borderColor: '#666666',
+            borderWidth: 1,
+            cornerRadius: 8,
+            callbacks: {
+              label: context => {
+                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                return `${context.label}: ${context.parsed} games (${percentage}%)`;
+              },
+            },
+          },
+        },
+        animation: {
+          animateRotate: true,
+          animateScale: true,
+          duration: 1000,
+        },
+      },
     });
-
-    ctx.stroke();
-
-    // Draw ELO points with hover effect capability
-    ctx.fillStyle = color;
-    eloHistory.forEach((entry, index) => {
-      const x = padding + (chartWidth / (eloHistory.length - 1)) * index;
-      const y =
-        padding +
-        chartHeight -
-        ((entry.value - minElo) / eloRange) * chartHeight;
-
-      ctx.beginPath();
-      ctx.arc(x, y, 3, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Add white border to points for better visibility
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    });
-
-    // Draw axis labels
-    ctx.fillStyle = '#aaa';
-    ctx.font = 'bold 12px Arial';
-    ctx.textAlign = 'center';
-
-    // X-axis label
-    ctx.fillText('Date', canvas.width / 2, canvas.height - 5);
-
-    // Y-axis label (rotated)
-    ctx.save();
-    ctx.translate(canvas.width - 15, canvas.height / 2);
-    ctx.rotate(Math.PI / 2);
-    ctx.fillText('ELO Rating', 0, 0);
-    ctx.restore();
-  }
+  } */
 
   private drawGameModeChart(gameModeDistribution: {
     pong: {casual: number; ranked: number};
