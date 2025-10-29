@@ -2,6 +2,7 @@ import {BaseComponent} from '../../components/BaseComponent';
 import {DOMUtils} from '../../utils/dom';
 import {StatisticsData} from '../../types/statistics';
 import {StatsCanvas} from './statisticsCanvas';
+import star from '../../assets/star.png';
 
 export class StatisticsUI extends BaseComponent {
   private decorativeCanvas: StatsCanvas | null = null;
@@ -26,20 +27,32 @@ export class StatisticsUI extends BaseComponent {
     return `
       <div class="flex w-full h-full">
         <!-- Left Bandroll Canvas -->
-        <div class="flex-none w-36 flex items-center h-full justify-center">
+        <div class="hidden xl:block flex-none w-36 flex items-center h-full justify-center">
           <canvas
             id="pong-bandroll"
             class="w-30 h-4/5 rounded-full border-4 border-pink-400 bg-gradient-to-b from-pink-400/10 via-pink-400/5 to-pink-400/10 shadow-lg shadow-pink-400/50 transition-all duration-300"
           ></canvas>
         </div>
-        
+
         <!-- Center Statistics Content -->
-        <div class="flex-1 flex flex-col items-center max-w-6xl mx-auto px-8">
+        <div class="relative flex-1 flex flex-col items-center max-w-6xl mx-auto px-8">
+
+        <!-------------Starts---------------->
+        <div class="hidden 2xl:block absolute top-[12px] right-[30px] hover:animate-[spin_1s_infinite] w-fit h-fit">
+          <img class="h-45 rotate-[-5deg]" src="${star}" alt="Star decoration"></img>
+        </div>
+        <div class="hidden 2xl:block absolute top-[12px] left-[30px] hover:animate-[spin_1s_infinite] w-fit h-fit">
+          <img class="h-45 rotate-[-5deg]" src="${star}" alt="Star decoration"></img>
+        </div>
+        <div class="hidden 2xl:block absolute bottom-5 left-1/2 transform -translate-x-1/2 hover:animate-[spin_1s_infinite] w-fit h-fit">
+          <img class="h-45 rotate-[-5deg]" src="${star}" alt="Star decoration"></img>
+        </div>
+
         <div class="flex items-center">
           <h1 class="text-5xl font-bold text-center bg-clip-text text-shadow-pink-300 text-shadow-lg/50 text-gray-300 mb-8">
             Game's Statistics
           </h1>
-          <button title="Refresh stats" class="cursor-pointer hover:bg-gray-100 text-white rounded-lg ml-4 mb-6" id="refresh-stats">
+          <button title="Refresh stats" class="cursor-pointer bg-zinc-900 hover:bg-black text-white rounded-lg ml-4 mb-6" id="refresh-stats">
             <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> 
             <path d="M15.9775 8.71452L15.5355 8.2621C13.5829 6.26318 10.4171 6.26318 8.46447 8.2621C6.51184 10.261 6.51184 13.5019 8.46447 15.5008C10.4171 17.4997 13.5829 17.4997 15.5355 15.5008C16.671 14.3384 17.1462 12.7559 16.9611 11.242M15.9775 8.71452H13.3258M15.9775 8.71452V6" stroke="#fda5d5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> 
             <path d="M22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C21.5093 4.43821 21.8356 5.80655 21.9449 8" stroke="#fda5d5" stroke-width="2" stroke-linecap="round"></path> </g>
@@ -53,7 +66,7 @@ export class StatisticsUI extends BaseComponent {
               <svg class="mb-2 w-6 h-6" version="1.0" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 64 64" enable-background="new 0 0 64 64" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> 
               <path fill="#ffff" d="M62.242,53.757L51.578,43.093C54.373,38.736,56,33.56,56,28C56,12.536,43.464,0,28,0S0,12.536,0,28 s12.536,28,28,28c5.56,0,10.736-1.627,15.093-4.422l10.664,10.664c2.344,2.344,6.142,2.344,8.485,0S64.586,56.101,62.242,53.757z M28,54C13.641,54,2,42.359,2,28S13.641,2,28,2s26,11.641,26,26S42.359,54,28,54z M60.828,60.828c-1.562,1.562-4.095,1.562-5.656,0 L44.769,50.425c2.145-1.606,4.051-3.513,5.657-5.656l10.402,10.402C62.391,56.732,62.391,59.266,60.828,60.828z"></path> <path fill="#ffff" d="M28,4C14.745,4,4,14.745,4,28s10.745,24,24,24s24-10.745,24-24S41.255,4,28,4z M28,50 C15.85,50,6,40.15,6,28S15.85,6,28,6s22,9.85,22,22S40.15,50,28,50z"></path> 
               <path fill="#ffff" d="M28,11c-0.553,0-1,0.447-1,1s0.447,1,1,1c8.284,0,15,6.716,15,15c0,0.553,0.447,1,1,1s1-0.447,1-1 C45,18.611,37.389,11,28,11z"></path> </g> </g>
-              </svg>  
+              </svg>
               Overview
             </button>
             <button class="nav-btn flex items-center gap-2 px-6 py-3 bg-black/50 border-2 border-gray-600 text-white cursor-pointer transition-all duration-300 rounded-full font-bold uppercase tracking-wide hover:bg-white/10 hover:border-pink-400 hover:-translate-y-1" data-view="pong">
@@ -121,7 +134,7 @@ export class StatisticsUI extends BaseComponent {
             <!-- Pong Stats -->
             <div id="pong-stats" class="stats-section hidden w-full">
               <div class="flex justify-center w-full">
-                <div class="bg-black/70 border-2 border-pink-400 rounded-xl p-4 text-center min-w-96 max-w-2xl w-full bg-gradient-to-br from-pink-400/10 to-black/70">
+                <div class="bg-black/70 border-2 border-pink-400 rounded-xl p-8 text-center min-w-96 max-w-2xl w-full bg-gradient-to-br from-pink-400/10 to-black/70">
                 <div class="justify-center flex">
                   <svg class="h-6 w-6 mt-2" viewBox="0 0 64.00 64.00" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <defs> <style>.cls-1{fill:none;stroke:#ffffff;stroke-linejoin:round;stroke-width:3.072;}</style> </defs> <title></title> <g data-name="Layer 29" id="Layer_29"> 
                   <path class="cls-1" d="M62,34A14,14,0,1,0,45,47.67V59a3,3,0,0,0,3,3h0a3,3,0,0,0,3-3V47.67A14,14,0,0,0,62,34Z"></path> <line class="cls-1" x1="37" x2="59" y1="42" y2="42"></line> 
@@ -215,7 +228,7 @@ export class StatisticsUI extends BaseComponent {
               <div class="flex justify-center w-full">
                 <div class="bg-black/70 border-2 border-green-400 rounded-xl p-8 text-center min-w-96 max-w-2xl w-full bg-gradient-to-br from-green-400/10 to-black/70">
                   <div class="justify-center flex">
-                    <svg class="h-6 w-6 mt-2" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <style type="text/css"> .st0{fill:#ffff;} </style> <g> 
+                    <svg class="h-6 w-10 mt-3" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <style type="text/css"> .st0{fill:#ffff;} </style> <g> 
                     <path class="st0" d="M222.537,232.693h49.21l-0.469-12.424l-19.929-1.29c-0.423-0.062-0.782-0.359-0.938-0.782l-1.681-6.458 c-0.141-0.399-0.078-0.86,0.156-1.212c0.25-0.351,0.657-0.563,1.095-0.563h18.951c-1.407-13.127-9.78-22.853-22.962-24.839 c-18.741-2.815-33.228,10.602-30.93,26.708C215.978,218.386,219.261,228.714,222.537,232.693z M259.628,196.51l-5.293-0.344 c0,0-2.432-3.135-4.527-5.575C251.903,190.591,257.189,192.686,259.628,196.51z"></path> <path class="st0" d="M65.417,237.509c-28.796,0-52.142,23.346-52.142,52.149c0,28.804,23.346,52.149,52.142,52.149 c28.804,0,52.149-23.346,52.149-52.149C117.566,260.856,94.221,237.509,65.417,237.509z M65.417,317.156 c-15.176,0-27.49-12.298-27.49-27.498c0-15.191,12.314-27.49,27.49-27.49c15.2,0,27.498,12.299,27.498,27.49 C92.915,304.858,80.617,317.156,65.417,317.156z"></path> <path class="st0" d="M65.417,281.121c-4.707,0-8.522,3.831-8.522,8.538c0,4.715,3.815,8.538,8.522,8.538 c4.715,0,8.546-3.823,8.546-8.538C73.963,284.952,70.132,281.121,65.417,281.121z"></path> <path class="st0" d="M393.738,229.965c-38.874-5.817-78.622-9.453-110.967-11.72c-2.291,10.148-9.75,19.264-19.186,19.264 c-11.376,0-51.203,0-51.203,0v-22.751v-44.566c-61.97,6.756-101.288,39.296-124.165,64.268 c21.658,8.976,36.942,30.336,36.942,55.198c0,5.583-0.79,10.977-2.228,16.122h214.946c-1.439-5.145-2.228-10.539-2.228-16.122 C335.647,257.275,361.557,230.84,393.738,229.965z"></path> <path class="st0" d="M65.417,229.926c1.9,0,3.768,0.102,5.614,0.266l10.508-14.496v-33.173H0v83.439l8.741,4.902 C16.646,247.111,39.061,229.926,65.417,229.926z"></path> <path class="st0" d="M470.281,286.813v-9.476l18.021-9.476c0,0,3.331-11.04,3.331-18.624c-21.219-7.005-49.57-11.102-75.738-15.684 c22.862,8.397,39.217,30.375,39.217,56.105c0,5.583-0.79,10.977-2.236,16.122H512v-18.967H470.281z"></path> <path class="st0" d="M395.38,237.509c-28.796,0-52.15,23.346-52.15,52.149c0,28.804,23.354,52.149,52.15,52.149 c28.804,0,52.149-23.346,52.149-52.149C447.529,260.856,424.184,237.509,395.38,237.509z M395.38,317.156 c-15.192,0-27.498-12.298-27.498-27.498c0-15.191,12.306-27.49,27.498-27.49c15.184,0,27.498,12.299,27.498,27.49 C422.878,304.858,410.564,317.156,395.38,317.156z"></path> <path class="st0" d="M395.38,281.121c-4.715,0-8.538,3.831-8.538,8.538c0,4.715,3.823,8.538,8.538,8.538 c4.715,0,8.53-3.823,8.53-8.538C403.91,284.952,400.095,281.121,395.38,281.121z"></path> </g> </g>
                     </svg>  
                     <h3 class="text-2xl m-2 drop-shadow-lg text-green-400"> Race Statistics </h3>
@@ -305,7 +318,7 @@ export class StatisticsUI extends BaseComponent {
         </div>
         
         <!-- Right Bandroll Canvas -->
-        <div class="flex-none w-36 flex items-center justify-center">
+        <div class="hidden xl:block flex-none w-36 flex items-center justify-center">
           <canvas
             id="race-bandroll"
             class="w-30 h-4/5 rounded-full border-4 border-pink-400 bg-gradient-to-b from-pink-400/30 via-pink-400/10 to-pink-400/30 shadow-lg shadow-pink-400/50 transition-all duration-300"
