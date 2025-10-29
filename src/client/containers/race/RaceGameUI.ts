@@ -48,7 +48,7 @@ export class RaceGameUI extends BaseComponent {
     const header = DOMUtils.createElement('div', {
       attributes: {id: 'game-header'},
       className:
-        'flex justify-between items-center px-8 py-4 bg-gray-600 rounded-lg mx-auto w-full',
+        'flex justify-between items-center px-8 py-4 bg-white/5 rounded-lg mx-auto w-full',
     });
 
     // Left player info
