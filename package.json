@@ -28,16 +28,16 @@
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.51.0",
-    "@eslint/js": "^9.36.0",
+    "@eslint/js": "^9.38.0",
     "@tailwindcss/vite": "^4.1.13",
     "@types/bcrypt": "^6.0.0",
     "@types/ms": "^2.1.0",
-    "@types/node": "^24.5.2",
+    "@types/node": "^24.9.2",
     "@types/qrcode": "^1.5.5",
     "@types/sqlite3": "^5.1.0",
     "@types/ws": "^8.18.1",
     "concurrently": "^9.2.1",
-    "eslint": "^9.36.0",
+    "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "nodemon": "^3.1.10",
@@ -45,9 +45,9 @@
     "prettier-plugin-tailwindcss": "^0.6.14",
     "qrcode": "^1.5.4",
     "tailwindcss": "^4.1.13",
-    "typescript": "^5.9.2",
+    "typescript": "^5.9.3",
     "typescript-eslint": "^8.45.0",
-    "vite": "^7.1.7"
+    "vite": "^7.1.12"
   },
   "dependencies": {
     "@fastify/autoload": "^6.3.1",
