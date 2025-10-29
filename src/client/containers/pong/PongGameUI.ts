@@ -93,7 +93,7 @@ export class PongGameUI extends BaseComponent {
 
   private renderGameArea(): HTMLElement {
     const gameArea = DOMUtils.createElement('div', {
-      className: 'flex-1 flex justify-center items-center overflow-hidden ',
+      className: 'flex-1 flex justify-center items-center overflow-hidden',
     });
 
     const canvas = DOMUtils.createElement('canvas', {
@@ -173,7 +173,7 @@ export class PongGameUI extends BaseComponent {
       ${
         data.eloChange && !pongCanvas.pong.isLocal
           ? `<div class="text-sm ${isWinner ? 'text-green-400' : 'text-red-400'} font-bold">
-        ${isWinner ? '+' : ''}${data.eloChange}
+        ${isWinner ? '+' : '-'}${data.eloChange}
           </div>`
           : ''
       }

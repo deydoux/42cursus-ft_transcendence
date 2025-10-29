@@ -1,6 +1,6 @@
 import {Car} from './car';
 import {Wall} from './wall';
-import coin from '../../assets/coin.png';
+import star from '../../assets/star.png';
 
 /**
  * Represents a checkpoint in the game.
@@ -17,10 +17,10 @@ export class Checkpoint {
   private imageHeight: number;
 
   // Keep static image loader
-  static coinImg: HTMLImageElement = (() => {
+  static starImg: HTMLImageElement = (() => {
     const img = new window.Image();
-    img.src = coin;
-    img.onerror = () => console.error('Failed to load coin image!');
+    img.src = star;
+    img.onerror = () => console.error('Failed to load star image!');
     return img;
   })();
 
@@ -35,16 +35,16 @@ export class Checkpoint {
     // Calculate image dimensions - maintaining aspect ratio
     const desiredWidth = this.canvas.width * 0.02; // Adjust this value as needed
     const aspectRatio =
-      Checkpoint.coinImg.naturalWidth / Checkpoint.coinImg.naturalHeight || 1;
+      Checkpoint.starImg.naturalWidth / Checkpoint.starImg.naturalHeight || 1;
 
     this.imageWidth = desiredWidth;
     this.imageHeight = desiredWidth / aspectRatio;
 
     // Ensure image is loaded
-    if (Checkpoint.coinImg.complete) {
+    if (Checkpoint.starImg.complete) {
       this.imageLoaded = true;
     } else {
-      Checkpoint.coinImg.onload = () => {
+      Checkpoint.starImg.onload = () => {
         this.imageLoaded = true;
       };
     }
@@ -110,7 +110,7 @@ export class Checkpoint {
   public draw(): void {
     this.ctx.save();
 
-    if (this.imageLoaded && Checkpoint.coinImg.complete) {
+    if (this.imageLoaded && Checkpoint.starImg.complete) {
       // Make image larger - increase size by 50%
       const scaleFactor = 2;
       const scaledWidth = this.imageWidth * scaleFactor;
@@ -125,7 +125,7 @@ export class Checkpoint {
 
       // Draw the ring image centered at the checkpoint position
       this.ctx.drawImage(
-        Checkpoint.coinImg,
+        Checkpoint.starImg,
         this.x - scaledWidth / 2,
         this.y - scaledHeight / 2,
         scaledWidth,

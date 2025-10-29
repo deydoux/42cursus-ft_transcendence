@@ -151,9 +151,67 @@ export interface AppState {
     width: number;
     height: number;
   }[];
+  matches: {
+    game: string;
+    mode: string;
+    result: string;
+    createdAt: string;
+    updatedAt: string;
+    eloChange: number;
+    winner: {
+      id: number;
+      username: string;
+      avatar: string;
+      score: number;
+      elo: number;
+    };
+    loser: {
+      id: number;
+      username: string;
+      avatar: string;
+      score: number;
+      elo: number;
+    };
+  }[];
+  elo: {
+    game: string;
+    value: number;
+    createdAt: string;
+  }[];
+  streaks: {
+    pong: {
+      casual: {
+        current: number;
+        best: number;
+        winRate: number;
+        totalMatches: number;
+      };
+      ranked: {
+        current: number;
+        best: number;
+        winRate: number;
+        totalMatches: number;
+      };
+    };
+    race: {
+      casual: {
+        current: number;
+        best: number;
+        winRate: number;
+        totalMatches: number;
+      };
+      ranked: {
+        current: number;
+        best: number;
+        winRate: number;
+        totalMatches: number;
+      };
+    };
+  };
 }
 
 export interface Component {
   render(): HTMLElement | undefined;
   destroy?(): void;
 }
+
