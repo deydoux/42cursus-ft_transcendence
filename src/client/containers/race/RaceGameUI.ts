@@ -48,7 +48,7 @@ export class RaceGameUI extends BaseComponent {
     const header = DOMUtils.createElement('div', {
       attributes: {id: 'game-header'},
       className:
-        'flex justify-between items-center px-8 py-4 bg-white/5 rounded-lg mx-auto w-full',
+        'flex justify-between items-center py-4 bg-white/5 rounded-lg mx-auto w-full',
     });
 
     // Left player info
@@ -91,14 +91,13 @@ export class RaceGameUI extends BaseComponent {
 
   private renderGameArea(): HTMLElement {
     const gameArea = DOMUtils.createElement('div', {
-      className:
-        'flex-1 flex justify-center items-center border-4 border-pink-300 rounded-md',
+      className: 'flex-1 flex justify-center items-center  rounded-md',
     });
 
     const canvas = DOMUtils.createElement('canvas', {
       attributes: {id: 'race'},
       className:
-        'w-full h-auto bg-linear-to-br from-pink-500 to-pink-600 shadow-lg shadow-pink-500/30 rounded-lg',
+        'w-full h-auto bg-linear-to-br from-pink-500 to-pink-600 shadow-lg shadow-pink-500/30 rounded-lg border-4 border-pink-300',
     }) as HTMLCanvasElement;
 
     gameArea.appendChild(canvas);
