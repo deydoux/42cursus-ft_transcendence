@@ -8,6 +8,7 @@ import SQL from 'sql-template-strings';
 import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 export interface Participant extends Player {
+  left?: boolean;
   onSocketMessage?: (data: RawData) => void;
   onSocketClose?: () => void;
 }
@@ -173,6 +174,7 @@ export class Tournament {
     silent = false,
     origin = 'leaveTournament',
   ) {
+    participant.left = true;
     this.participants = this.participants.filter(p => p !== participant);
 
     if (participant.onSocketMessage)
