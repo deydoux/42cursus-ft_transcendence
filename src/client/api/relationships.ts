@@ -136,6 +136,7 @@ export const acceptFriendRequest = async (
 
     store.setState({
       friendRequests: filteredRequests,
+      countFriendRequests: filteredRequests.length,
       directChats: [
         ...directChats,
         {

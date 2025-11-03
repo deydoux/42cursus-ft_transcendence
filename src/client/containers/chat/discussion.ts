@@ -161,7 +161,7 @@ export class Discussion extends BaseComponent {
     container.innerHTML = '';
 
     const list = createElement('div', {
-      className: 'flex flex-col-reverse overflow-y-auto flex-1',
+      className: `flex flex-col-reverse overflow-y-auto overflow-x-hidden flex-1`,
     });
 
     let isAtTop = false;
@@ -304,7 +304,7 @@ export class Discussion extends BaseComponent {
       text.appendChild(
         createElement('p', {
           className: 'text-sm text-white/50',
-          textContent: discussion.user.online
+          textContent: discussion.user.status
             ? 'Connected'
             : `Offline • ${getRelativeTime(discussion.user.lastSeen)}`,
         }),
@@ -429,12 +429,13 @@ export class Discussion extends BaseComponent {
     fetchGeneralDiscussion();
 
     const container = createElement('div', {
-      className: 'flex flex-col h-full',
+      className: 'flex flex-col h-full overflow-x-hidden  ',
     });
     container.appendChild(this.renderGeneralDiscussionHeader());
 
     const messagesList = createElement('div', {
-      className: 'flex flex-col-reverse overflow-y-auto flex-1 pt-6',
+      className:
+        'flex flex-col-reverse overflow-y-auto overflow-x-hidden flex-1 pt-6',
     });
 
     this.subscribeToPath('generalDiscussion.messages', () =>

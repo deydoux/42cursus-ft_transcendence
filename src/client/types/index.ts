@@ -3,6 +3,7 @@ export interface user {
   id: number;
   username: string;
   avatar: string;
+  status?: string | null;
 }
 
 export interface round {
@@ -57,7 +58,7 @@ export interface AppState {
       username: string;
       lastSeen: string;
       avatar: string;
-      online: boolean;
+      status?: string | null;
     };
     messages: {
       id: number;
@@ -216,4 +217,3 @@ export interface Component {
   render(): HTMLElement | undefined;
   destroy?(): void;
 }
-

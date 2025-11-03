@@ -124,7 +124,7 @@ const handleDirectMessage = (data: {
         ...discussion,
         user: {
           ...discussion.user,
-          online: true,
+          status: 'online',
         },
         messages: [
           {
@@ -189,20 +189,17 @@ const handleGeneralMessage = (data: {
         },
       },
     });
-  } else if (generalChat) {
-    // In the chats list
-    store.setState({
-      generalChat: {
-        ...generalChat,
-        content: data.content,
-        createdAt: new Date().toISOString(),
-      },
-    });
-
-    if (data.mention) {
-      toastMessageNotification(data.sender, data.content);
-    }
+  } else if (generalChat && data.mention) {
+    toastMessageNotification(data.sender, data.content);
   }
+
+  store.setState({
+    generalChat: {
+      user: data.sender,
+      content: data.content,
+      createdAt: new Date().toISOString(),
+    },
+  });
 };
 
 const handleFriendRequest = (data: {

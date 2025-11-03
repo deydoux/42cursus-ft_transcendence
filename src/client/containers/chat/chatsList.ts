@@ -158,7 +158,7 @@ export class ChatsList extends BaseComponent {
       }
 
       const leftContent = createElement('div', {
-        className: 'flex items-center justify-start gap-4',
+        className: 'flex items-center justify-start gap-4 relative',
       });
 
       let icon: HTMLElement;
@@ -169,11 +169,19 @@ export class ChatsList extends BaseComponent {
         });
       } else {
         icon = createElement('img', {
-          className: 'w-12 h-12 rounded-full',
+          className: 'w-12 h-12 rounded-full relative z-5',
           attributes: {
             src: chat.user.avatar,
           },
         });
+        if (chat.user.status) {
+          leftContent.appendChild(
+            createElement('div', {
+              className:
+                'w-4 h-4 rounded-full bg-emerald-500 border-2 border-background absolute bottom-0 left-9 z-10',
+            }),
+          );
+        }
       }
       leftContent.appendChild(icon);
 
@@ -248,10 +256,15 @@ export class ChatsList extends BaseComponent {
   }
 
   render() {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState == 'visible') fetchChatsList();
+    });
+
     const fetchChatsList = () => {
       const {user} = this.store.getState();
       if (user) fetchChats();
     };
+    fetchChatsList();
     this.subscribeToPath('user', fetchChatsList);
 
     const container = createElement('div', {
