@@ -14,11 +14,10 @@ export class Lobby extends BaseComponent {
       const newPath = window.location.pathname;
 
       // Only trigger if we were in /lobby and are leaving it
-      const playingLocations = ['pong', 'race', 'lobby'];
-      // TODO: fix this shit
+      const playingLocations = ['/pong', '/race'];
       if (
-        playingLocations.includes(this.currentPath) &&
-        !playingLocations.includes(this.currentPath)
+        this.currentPath === '/lobby' &&
+        !playingLocations.includes(newPath)
       ) {
         this.websocket.send({
           type: 'leaveMatchmaking',

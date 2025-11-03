@@ -32,6 +32,38 @@ const defaultValues = {
     players: [undefined, undefined],
   },
   raceWalls: [],
+  streak: {
+    pong: {
+      casual: {
+        current: 0,
+        best: 0,
+        winRate: 0,
+        totalMatches: 0,
+      },
+      ranked: {
+        current: 0,
+        best: 0,
+        winRate: 0,
+        totalMatches: 0,
+      },
+    },
+    race: {
+      casual: {
+        current: 0,
+        best: 0,
+        winRate: 0,
+        totalMatches: 0,
+      },
+      ranked: {
+        current: 0,
+        best: 0,
+        winRate: 0,
+        totalMatches: 0,
+      },
+    },
+  },
+  matches: [],
+  elo: [],
 };
 
 export class Store {

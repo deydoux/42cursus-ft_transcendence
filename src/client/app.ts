@@ -85,7 +85,7 @@ class App {
       '/race',
       this.protectedGameRoute('race', () => new RaceGame(), chat),
     );
-    this.router.addPrivateRoute('/statistics', () => new Statistics());
+    this.router.addPrivateRoute('/statistics', () => new Statistics(chat));
     this.router.addPrivateRoute('/tournament', () => new Tournament(chat));
   }
 

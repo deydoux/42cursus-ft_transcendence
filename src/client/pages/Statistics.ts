@@ -1,59 +1,57 @@
-import {BaseComponent} from '../components/BaseComponent.ts';
-import {Chat} from '../containers/chat/Chat.ts';
-import {DOMUtils} from '../utils/dom.ts';
-import {StatsCanvas} from '../containers/statistics/statsCanvas.ts';
-import {renderStats} from '../containers/statistics/renderStats.ts';
+import {BaseComponent} from '../components/BaseComponent';
+import {StatisticsData} from '../types/statistics';
+import {StatisticsUI} from '../containers/statistics/statisticsUI';
+import {statisticsApi} from '../api/statistics';
 
 export class Statistics extends BaseComponent {
-  private renderBandroll() {
-    const pongBandroll = document.getElementById(
-      'pong-bandroll',
-    ) as HTMLCanvasElement;
-    const raceBandroll = document.getElementById(
-      'race-bandroll',
-    ) as HTMLCanvasElement;
-    if (!pongBandroll || !raceBandroll) {
-      console.error('Could not find canvas elements');
-      return;
-    }
+  private statisticsUI?: StatisticsUI;
 
-    const ctx_race = raceBandroll.getContext('2d');
-    const ctx_pong = pongBandroll.getContext('2d');
-    if (!ctx_race || !ctx_pong) {
-      console.error('Could not get canvas context');
-      return;
-    }
-
-    ctx_race.canvas.width = 1920;
-    ctx_race.canvas.height = 200;
-    ctx_race.imageSmoothingEnabled = true;
-
-    ctx_pong.canvas.width = 1920;
-    ctx_pong.canvas.height = 200;
-    ctx_pong.imageSmoothingEnabled = true;
-
-    const statsCanvas = new StatsCanvas(ctx_race, ctx_pong);
-    statsCanvas.raf = window.requestAnimationFrame(
-      statsCanvas.loop.bind(statsCanvas),
-    );
-    statsCanvas.loop();
+  constructor(private chat: HTMLElement) {
+    super();
   }
 
   render(): HTMLElement {
-    const container = DOMUtils.createElement('div', {
-      className: 'w-screen h-screen flex items-center gap-10 py-16',
+    this.statisticsUI = new StatisticsUI();
+    const container = this.statisticsUI.render();
+
+    // Listen for refresh events
+    document.addEventListener('refreshStatistics', () => {
+      this.refreshStatistics();
     });
 
-    const statistics = DOMUtils.createElement('div', {
-      className: 'h-full flex-1 flex flex-wrap gap-10',
-    });
-    statistics.appendChild(renderStats());
+    // Load statistics data on render
+    this.loadStatistics();
 
-    this.renderBandroll();
-
-    container.appendChild(statistics);
-    const chat = new Chat().render();
-    if (chat) container.appendChild(chat);
+    if (this.chat) container.appendChild(this.chat);
     return container;
+  }
+
+  private async loadStatistics(): Promise<void> {
+    try {
+      // First fetch the data from APIs and store in AppState
+      await statisticsApi.getStreaks();
+      await statisticsApi.getMatches();
+      await statisticsApi.getElo();
+
+      // Then transform and get the statistics
+      const data: StatisticsData = await statisticsApi.getAllStatistics();
+
+      // Update the UI with the data
+      this.statisticsUI?.updateStatistics(data);
+    } catch (error) {
+      console.error('Failed to load statistics:', error);
+    }
+  }
+
+  public async refreshStatistics(): Promise<void> {
+    await this.loadStatistics();
+  }
+
+  public cleanup(): void {
+    this.statisticsUI?.hide();
+  }
+
+  public destroy(): void {
+    this.cleanup();
   }
 }

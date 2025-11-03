@@ -176,7 +176,7 @@ export class RaceCanvas {
     this.race.opponent.car?.draw();
 
     if (countdownMessage) {
-      displayCountdownMessage(this.ctx, '#4e3f49', countdownMessage);
+      displayCountdownMessage(this.ctx, '#fda5d5', countdownMessage);
     }
 
     this.animationId = requestAnimationFrame(() => this.gameLoop());
@@ -279,7 +279,7 @@ export class RaceCanvas {
     // Update checkpoint position every 10 seconds
     if (
       this.race.lastCheckpointTime &&
-      currentTime - this.race.lastCheckpointTime > 10000
+      currentTime - this.race.lastCheckpointTime > 5000
     ) {
       const newCheckpoint = Checkpoint.createRandomCheckpoint(
         this.ctx,

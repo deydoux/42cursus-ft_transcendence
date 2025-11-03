@@ -67,7 +67,7 @@ export const downloadData = async () => {
 
     const {user} = api.store.getState();
     if (!user) throw new Error('User is undefined');
-    downloadResponse(`KittyPong-${user.username}-data.txt`, response);
+    downloadResponse(`KittyPong-${user.username}-data.json`, response);
   } catch (error) {
     Toastify.error('An error occured while downloading data');
     console.error(error);
