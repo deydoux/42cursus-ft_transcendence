@@ -46,7 +46,7 @@
     "qrcode": "^1.5.4",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.45.0",
+    "typescript-eslint": "^8.46.2",
     "vite": "^7.1.12"
   },
   "dependencies": {
