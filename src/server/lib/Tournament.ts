@@ -8,6 +8,7 @@ import SQL from 'sql-template-strings';
 import serializeUserAvatar from '#lib/serializeUserAvatar';
 
 export interface Participant extends Player {
+  left?: boolean;
   onSocketMessage?: (data: RawData) => void;
   onSocketClose?: () => void;
 }
@@ -43,6 +44,12 @@ export class Tournament {
       } catch {
         return;
       }
+
+      if (this.round)
+        return Clients.sendClient(participant, {
+          type: 'error',
+          message: 'Tournament already started',
+        });
 
       if (this.participants.length >= MAX_PARTICIPANTS)
         return Clients.sendClient(participant, {
@@ -167,6 +174,7 @@ export class Tournament {
     silent = false,
     origin = 'leaveTournament',
   ) {
+    participant.left = true;
     this.participants = this.participants.filter(p => p !== participant);
 
     if (participant.onSocketMessage)
@@ -218,6 +226,8 @@ export class Tournament {
         type: 'error',
         message: 'Not enough participants to start the tournament',
       });
+
+    this.server.tournaments.delete(this.id);
 
     const size = 2 ** Math.floor(Math.log2(this.participants.length - 1) + 1);
     this.round = new Round(this.server, this, size);
