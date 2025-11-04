@@ -9,9 +9,7 @@ export default function serializeUserAvatar(user: {
   delete user.has_avatar;
   delete user.avatar_version;
 
-  user.avatar = hasAvatar
-    ? `/api/users/${id}/avatar?v=${version}`
-    : '/static/default_avatar.webp';
+  user.avatar = `/api/users/${id}/avatar?v=${hasAvatar ? version : 0}`;
 
   return user;
 }

@@ -165,7 +165,7 @@ CREATE TABLE users(
   totp_enabled       INTEGER NOT NULL DEFAULT FALSE,
 
   has_avatar         INTEGER NOT NULL DEFAULT FALSE,
-  avatar_version     INTEGER NOT NULL DEFAULT FALSE
+  avatar_version     INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE INDEX idx_users_google_sub ON users(google_sub);
