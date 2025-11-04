@@ -257,6 +257,9 @@ export class Discussion extends BaseComponent {
   }
 
   private renderPrivateDiscussionHeader() {
+    const container = createElement('div', {
+      className: 'flex flex-col w-full flex-none',
+    });
     const header = createElement('div', {
       className: `flex items-center justify-between px-6 py-4 border-b border-pink-300/50 flex-none`,
     });
@@ -400,7 +403,49 @@ export class Discussion extends BaseComponent {
 
     header.appendChild(actionButtons);
 
-    return header;
+    container.appendChild(header);
+
+    const duelBanner = createElement('div', {
+      className: 'bg-pink-300 flex items-center justify-between',
+    });
+    const renderDuelBanner = () => {
+      const {discussion} = this.store.getState();
+      if (!discussion) return;
+      duelBanner.innerHTML = '';
+      if (!discussion.invite) return;
+
+      const text = createElement('p', {
+        className: 'py-2 px-3 text-sm text-background',
+      });
+      text.innerHTML = `This user invites you to play <span class="font-semibold">${discussion.invite}</span> with them`;
+      duelBanner.appendChild(text);
+      duelBanner.appendChild(
+        createElement('button', {
+          textContent: `Join`,
+          className: `text-white bg-background rounded mr-2 py-1 text-xs px-3 cursor-pointer`,
+          onclick: () => {
+            this.websocket.send({
+              type: 'joinMatchmaking',
+              game: discussion.invite,
+              mode: 'casual',
+              targetID: discussion.user.id,
+            });
+            this.store.setState({
+              discussion: {
+                ...discussion,
+                invite: null,
+              },
+            });
+          },
+        }),
+      );
+    };
+
+    renderDuelBanner();
+    container.appendChild(duelBanner);
+    this.subscribeToPath('discussion.invite', renderDuelBanner);
+
+    return container;
   }
 
   private renderPrivateDiscussion(userID: number) {
