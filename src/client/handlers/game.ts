@@ -34,6 +34,7 @@ const handleMatchStart = (data: {
   const store = Store.getInstance();
 
   store.setState({
+    matchmakingTargetUser: undefined,
     isOpponentBlocked: data.block,
     game: {
       id: data.it,
@@ -75,6 +76,12 @@ const handleSuccess = (data: {origin: string}) => {
       tournamentView: 'tournaments',
       joinedTournament: undefined,
     });
+  } else if (data.origin === 'leaveMatchmaking') {
+    store.setState({
+      isWaitingForMatchmaking: false,
+      matchmakingTargetUser: undefined,
+    });
+    router.navigate('/homepage');
   }
 };
 

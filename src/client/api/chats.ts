@@ -43,7 +43,10 @@ export const fetchDiscussion = async (userID: number) => {
       data.length > 0 && data.messages[data.messages.length - 1];
     const {directChats} = store.getState();
     store.setState({
-      discussion: data,
+      discussion: {
+        ...data,
+        invite: directChats.find(c => c.user.id === userID)?.invite,
+      },
       directChats: directChats.map(c =>
         c.user.id === userID ? {...c, content: lastMessage?.content ?? ''} : c,
       ),

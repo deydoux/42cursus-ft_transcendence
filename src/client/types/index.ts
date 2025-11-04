@@ -17,6 +17,7 @@ export interface round {
 export interface AppState {
   currentRoute: string;
   isWaitingForMatchmaking: boolean;
+  matchmakingTargetUser?: user;
   totpCode?: {
     uri: string;
     secret: string;
@@ -66,6 +67,7 @@ export interface AppState {
       content: string;
       createdAt: string;
     }[];
+    invite: null | 'race' | 'pong';
     next: string;
   };
   generalDiscussion?: {

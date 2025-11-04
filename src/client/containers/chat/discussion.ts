@@ -322,27 +322,72 @@ export class Discussion extends BaseComponent {
       className: 'flex items-center justify-center gap-2',
     });
 
-    const pongButton = createElement('button', {
-      className: `w-10 h-10 flex items-center justify-center hover:text-pink-300 hover:bg-pink-300/10 rounded cursor-pointer p-2 duration-100`,
+    const duelButton = createElement('button', {
+      className: `w-10 h-10 flex items-center justify-center enabled:hover:text-pink-300 enabled:hover:bg-pink-300/10 disabled:text-white/20 disabled:cursor-not-allowed rounded cursor-pointer p-2 duration-100`,
     });
-    pongButton.appendChild(
-      createElement('i', {
-        icon: 'pingpong',
-      }),
-    );
-    actionButtons.appendChild(pongButton);
+    duelButton.onclick = () => {
+      const {discussion} = this.store.getState();
+      if (!discussion) return;
+
+      if (!discussion.invite) {
+        const rect = duelButton.getBoundingClientRect();
+        renderUserContextMenu(
+          discussion.user,
+          ['invite'],
+          [rect.right - 100, rect.bottom + 10],
+        );
+      } else {
+        this.websocket.send({
+          type: 'joinMatchmaking',
+          game: discussion.invite,
+          mode: 'casual',
+          targetID: discussion.user.id,
+        });
+        this.store.setState({
+          discussion: {
+            ...discussion,
+            invite: null,
+          },
+        });
+      }
+    };
+
+    const renderDuelButton = () => {
+      const {discussion, isWaitingForMatchmaking} = this.store.getState();
+      if (!discussion) return;
+
+      duelButton.disabled = isWaitingForMatchmaking;
+
+      duelButton.innerHTML = '';
+      duelButton.appendChild(
+        createElement('i', {
+          className: discussion.invite ? '' : 'mt-[5px]',
+          icon: discussion.invite
+            ? discussion.invite === 'pong'
+              ? 'pingpong'
+              : 'carWheel'
+            : 'crossedSwords',
+        }),
+      );
+    };
+
+    renderDuelButton();
+    this.subscribeToPath('discussion.invite', renderDuelButton);
+    this.subscribeToPath('isWaitingForMatchmaking', renderDuelButton);
+    actionButtons.appendChild(duelButton);
 
     const cogButton = createElement('button', {
       className: `w-10 h-10 flex items-center justify-center hover:text-pink-300 hover:bg-pink-300/10 rounded cursor-pointer p-1 duration-100`,
     });
-    cogButton.onclick = evt => {
+    cogButton.onclick = () => {
       const {discussion} = this.store.getState();
       if (!discussion) return;
 
+      const rect = cogButton.getBoundingClientRect();
       renderUserContextMenu(
-        discussion?.user,
-        ['unfriend', 'invite', 'block'],
-        [evt.pageX - 100, evt.pageY + 30],
+        discussion.user,
+        ['unfriend', 'block'],
+        [rect.right - 120, rect.bottom + 10],
       );
     };
 
