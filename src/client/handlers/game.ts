@@ -11,6 +11,7 @@ import {Slowpoint} from '../containers/race/slowpoint';
 import {Socket} from '../services/websocket';
 import {Store} from '../services/store';
 import {Toastify} from '../utils/toastify';
+import {createElement} from '../utils/dom';
 
 export interface User {
   id: number;
@@ -18,6 +19,67 @@ export interface User {
   avatar: string;
   elo: number;
 }
+
+const toastGameInviteNotification = (
+  game: string,
+  user: {
+    username: string;
+    avatar: string;
+    id: number;
+  },
+) => {
+  const joinButton = createElement('button', {
+    className: `cursor-pointer border rounded flex items-center justify-center px-2 py-1`,
+    textContent: 'Join',
+  });
+  joinButton.onclick = async () => {
+    const websocket = Socket.getInstance();
+    const store = Store.getInstance();
+    const {discussion} = store.getState();
+
+    Toastify.dismissAll();
+    websocket.send({
+      type: 'joinMatchmaking',
+      targetID: user.id,
+      mode: 'casual',
+      game: game,
+    });
+
+    if (discussion) {
+      store.setState({
+        discussion: {
+          ...discussion,
+          invite: null,
+        },
+      });
+    }
+  };
+
+  const content = createElement('div', {
+    className: 'flex items-center gap-4',
+  });
+  content.appendChild(
+    createElement('img', {
+      className: 'w-10 h-10 rounded-full',
+      attributes: {
+        src: user.avatar,
+      },
+    }),
+  );
+
+  const userInfos = createElement('div', {
+    className: 'max-w-30 leading-tight',
+  });
+  userInfos.innerHTML = `Wanna play <span class="font-semibold">${game}</span> with <strong>${user.username}</strong>?`;
+
+  content.appendChild(userInfos);
+
+  Toastify.info(content, {
+    closable: false,
+    actionButtons: [joinButton],
+    duration: 6000,
+  });
+};
 
 const handleMatchStart = (data: {
   it: number;
@@ -249,6 +311,33 @@ const handleRaceObject = (data: {object: string; x: number; y: number}) => {
     );
 };
 
+const handleGameInvite = (data: {
+  game: 'race' | 'pong';
+  user: {
+    id: number;
+    username: string;
+    avatar: string;
+  };
+}) => {
+  const store = Store.getInstance();
+  toastGameInviteNotification(data.game, data.user);
+
+  const {discussion, directChats} = store.getState();
+  store.setState({
+    directChats: directChats.map(c =>
+      c.user.id === data.user.id ? {...c, invite: data.game} : c,
+    ),
+  });
+  if (discussion && discussion.user.id === data.user.id) {
+    store.setState({
+      discussion: {
+        ...discussion,
+        invite: data.game,
+      },
+    });
+  }
+};
+
 export const setupGameHandlers = () => {
   const websocket = Socket.getInstance();
   websocket.on('matchStart', handleMatchStart);
@@ -266,4 +355,5 @@ export const setupGameHandlers = () => {
   websocket.on('raceObject', handleRaceObject);
   websocket.on('updateGrowth', handleUpdateGrowth);
   websocket.on('updateSlowdown', handleUpdateSlowdown);
+  websocket.on('gameInvite', handleGameInvite);
 };

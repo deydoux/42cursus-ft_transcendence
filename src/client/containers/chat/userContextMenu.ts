@@ -7,11 +7,12 @@ import {
 import {Socket} from '../../services/websocket';
 import {Store} from '../../services/store';
 import {createElement} from '../../utils/dom';
+import {user} from '../../types';
 
 let contextMenu: Popup | null = null;
 
 export const renderUserContextMenu = (
-  user: {username: string; id: number},
+  user: user,
   includeButtons: (
     | 'unfriend'
     | 'friend'
@@ -53,17 +54,14 @@ export const renderUserContextMenu = (
   });
 
   const inviteToGame = (game: 'pong' | 'race') => {
-    const {discussion} = store.getState();
-    if (!discussion) return;
-
     store.setState({
-      matchmakingTargetUser: discussion.user,
+      matchmakingTargetUser: user,
     });
     websocket.send({
       type: 'joinMatchmaking',
       game: game,
       mode: 'casual',
-      targetID: discussion.user.id,
+      targetID: user.id,
     });
     if (contextMenu) contextMenu.destroy();
   };
