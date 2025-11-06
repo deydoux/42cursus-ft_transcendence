@@ -1,7 +1,8 @@
+import {fetchChats, fetchDiscussion} from '../../api/chats';
 import {getTimeElapsed, truncateString} from '../../utils/string';
 import {BaseComponent} from '../../components/BaseComponent';
+import {Toastify} from '../../utils/toastify';
 import {createElement} from '../../utils/dom';
-import {fetchChats} from '../../api/chats';
 import {loadIcons} from '../../utils/icons';
 import {renderUserContextMenu} from './userContextMenu';
 import {sendFriendRequest} from '../../api/relationships';
@@ -111,14 +112,39 @@ export class ChatsList extends BaseComponent {
 
     filteredChats.forEach(chat => {
       const line = createElement('div', {
-        className: `flex items-center justify-between hover:bg-white/5 py-2 px-6 cursor-pointer`,
+        className: `overflow-x-hidden flex items-center justify-between gap-4 hover:bg-white/5 py-2 px-6 cursor-pointer`,
       });
-      line.onclick = () =>
-        this.store.setState({
-          chatView: chat.isGeneral
-            ? {label: 'general'}
-            : {label: chat.user.username, id: chat.user.id},
-        });
+      line.onclick = async () => {
+        if (chat.isGeneral) {
+          this.store.setState({
+            chatView: {label: 'general'},
+          });
+        } else {
+          const response = await fetchDiscussion(chat.user.id);
+          const {directChats} = this.store.getState();
+
+          if (
+            !response.success &&
+            response.data === 'Error: You can only view messages with friends'
+          ) {
+            Toastify.error(
+              `You and ${chat.user.username} are no longer friends`,
+            );
+            this.store.setState({
+              directChats: directChats.filter(c => c.user.id !== chat.user.id),
+            });
+
+            return;
+          }
+
+          this.store.setState({
+            chatView: {label: chat.user.username, id: chat.user.id},
+            directChats: directChats.map(c =>
+              c.user.id === chat.user.id ? {...c, unread: 0} : c,
+            ),
+          });
+        }
+      };
 
       if (!chat.isGeneral) {
         line.oncontextmenu = evt => {
@@ -132,7 +158,7 @@ export class ChatsList extends BaseComponent {
       }
 
       const leftContent = createElement('div', {
-        className: 'flex items-center justify-start gap-4',
+        className: 'flex items-center justify-start gap-4 relative',
       });
 
       let icon: HTMLElement;
@@ -143,11 +169,19 @@ export class ChatsList extends BaseComponent {
         });
       } else {
         icon = createElement('img', {
-          className: 'w-12 h-12 rounded-full',
+          className: 'w-12 h-12 rounded-full relative z-5',
           attributes: {
             src: chat.user.avatar,
           },
         });
+        if (chat.user.status) {
+          leftContent.appendChild(
+            createElement('div', {
+              className:
+                'w-4 h-4 rounded-full bg-emerald-500 border-2 border-background absolute bottom-0 left-9 z-10',
+            }),
+          );
+        }
       }
       leftContent.appendChild(icon);
 
@@ -160,13 +194,13 @@ export class ChatsList extends BaseComponent {
       );
 
       const prefix = chat.isGeneral ? chat.user.username + ': ' : '';
-      const content = truncateString(chat.content || '', 35);
+      const content = truncateString(prefix + chat.content || '', 35);
       const timeDelta = getTimeElapsed(chat.updatedAt);
       text.appendChild(
         createElement('p', {
           className: `text-sm text-nowrap overflow-x-hidden ${chat.content ? (chat.unread ? 'text-white font-bold' : 'text-white/60') : 'text-white/40 italic'}`,
           textContent: chat.content
-            ? `${prefix}${content} • ${timeDelta}`
+            ? `${content} • ${timeDelta}`
             : 'Aucun message',
         }),
       );
@@ -174,13 +208,47 @@ export class ChatsList extends BaseComponent {
       leftContent.appendChild(text);
       line.appendChild(leftContent);
 
-      const rightContent = createElement('div');
-      if (chat.unread) {
+      const rightContent = createElement('div', {
+        className: 'flex items-center justify-center gap-4',
+      });
+      console.log('chat', chat);
+      if (chat.invite) {
+        const duelButton = createElement('button', {
+          className: `w-10 h-10 flex items-center justify-center enabled:hover:text-pink-300 enabled:hover:bg-pink-300/10 disabled:text-white/20 disabled:cursor-not-allowed rounded cursor-pointer p-2 duration-100`,
+        });
+        duelButton.onclick = () => {
+          this.websocket.send({
+            type: 'joinMatchmaking',
+            game: chat.invite,
+            mode: 'casual',
+            targetID: chat.user.id,
+          });
+          this.store.setState({
+            directChats: directChats.map(c =>
+              c.user.id === chat.user.id ? {...c, invite: null} : c,
+            ),
+          });
+        };
+        duelButton.appendChild(
+          createElement('i', {
+            icon: chat.invite === 'pong' ? 'pingpong' : 'carWheel',
+          }),
+        );
+
+        rightContent.appendChild(duelButton);
+      } else if (chat.unread) {
         rightContent.appendChild(
           createElement('div', {
             className: 'w-2 h-2 bg-pink-300 rounded-full',
           }),
         );
+      }
+
+      if (chat.invite) {
+        const duelButton = createElement('button', {
+          className: `w-10 h-10 flex items-center justify-center enabled:hover:text-pink-300 enabled:hover:bg-pink-300/10 disabled:text-white/20 disabled:cursor-not-allowed rounded cursor-pointer p-2 duration-100`,
+        });
+        duelButton.appendChild(createElement('i', {}));
       }
       line.appendChild(rightContent);
 
@@ -222,10 +290,15 @@ export class ChatsList extends BaseComponent {
   }
 
   render() {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState == 'visible') fetchChatsList();
+    });
+
     const fetchChatsList = () => {
       const {user} = this.store.getState();
       if (user) fetchChats();
     };
+    fetchChatsList();
     this.subscribeToPath('user', fetchChatsList);
 
     const container = createElement('div', {
@@ -236,7 +309,7 @@ export class ChatsList extends BaseComponent {
     container.appendChild(this.renderHeader());
 
     const list = createElement('div', {
-      className: 'flex flex-col flex-1 overflow-auto',
+      className: 'flex flex-col flex-1 overflow-y-auto',
     });
     this.renderChats(list);
 

@@ -17,6 +17,19 @@ export class LandingPage extends BaseComponent {
   private gdprDialogOpened = false;
   private authDialogContent: HTMLDivElement;
   private totpAccessToken: string;
+  private googleSignin: HTMLElement | null = null;
+
+  private cleanupGoogleIdentityDuplicates() {
+    const links = document.querySelectorAll('link[id="googleidentityservice"]');
+    for (let i = 1; i < links.length; i++) {
+      links[i].remove();
+    }
+
+    const metas = document.querySelectorAll('meta[http-equiv="origin-trial"]');
+    for (let i = 1; i < metas.length; i++) {
+      metas[i].remove();
+    }
+  }
 
   private renderTOTPDialog() {
     this.authDialogContent.innerHTML = '';
@@ -143,12 +156,12 @@ export class LandingPage extends BaseComponent {
     //   }),
     // );
 
-    const script = document.createElement('script');
+    const script = createElement('script');
     script.type = 'text/javascript';
 
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
-    document.body.appendChild(script);
+    container.appendChild(script);
 
     function decodeJWT(token) {
       const parts = token.split('.');
@@ -174,8 +187,7 @@ export class LandingPage extends BaseComponent {
     }
 
     window.googleSignup = async response => {
-      console.debug('Response:', response);
-
+      //   console.debug('Response:', response);
       let payload;
       try {
         const {credential} = response;
@@ -220,10 +232,8 @@ export class LandingPage extends BaseComponent {
         .replace(/[^a-zA-Z0-9_]/g, '_');
 
       this.authDialogContent.innerHTML = '';
-      this.authDialogContent.className = `bg-background border rounded-3xl p-10 text-white`;
-
       const createUsernameContainer = createElement('form', {
-        className: 'flex flex-col gap-4 w-120',
+        className: `flex flex-col gap-4 w-120 bg-background border rounded-3xl p-10 text-white`,
       });
       createUsernameContainer.onsubmit = async evt => {
         evt.preventDefault();
@@ -291,6 +301,9 @@ export class LandingPage extends BaseComponent {
       this.authDialogContent.appendChild(createUsernameContainer);
     };
 
+    const existingButton = document.getElementById('g_id_onload');
+    if (existingButton) existingButton.remove();
+
     const googleSignin = createElement('div');
     googleSignin.innerHTML = `
       <div
@@ -314,6 +327,7 @@ export class LandingPage extends BaseComponent {
 
     remoteAuths.appendChild(googleSignin);
     container.appendChild(remoteAuths);
+    this.cleanupGoogleIdentityDuplicates();
 
     const separator = createElement('div', {
       className: 'relative w-full px-4 text-center mb-8 opacity-50 text-sm',
@@ -345,6 +359,7 @@ export class LandingPage extends BaseComponent {
         return;
       }
 
+      this.store.toggleLoading('authentication');
       const result = await register(mode, body);
       if (result.success && result.totp) {
         this.totpAccessToken = result.totp;
@@ -354,6 +369,8 @@ export class LandingPage extends BaseComponent {
       } else if (!result.success && result.message) {
         errorMessage.textContent = result.message;
       }
+
+      this.store.toggleLoading('authentication');
     };
 
     const form = createElement('form', {
@@ -461,16 +478,25 @@ export class LandingPage extends BaseComponent {
 
     form.appendChild(errorMessage);
 
-    form.appendChild(
-      createElement('button', {
-        className:
-          'w-full cursor-pointer h-16 rounded-full font-bold uppercase bg-linear-to-br from-pink-200 to-pink-300 text-black mt-6 shadow-lg shadow-pink-300/20 hover:shadow-pink-300/30 hover:-translate-y-1 transition-all',
-        textContent: signin ? 'Start playing' : 'Create account',
-        attributes: {
-          type: 'submit',
-        },
-      }),
-    );
+    const submitButton = createElement('button', {
+      className: `w-full enabled:cursor-pointer h-16 rounded-full font-bold uppercase bg-linear-to-br from-pink-200 to-pink-300 text-black mt-6 enabled:shadow-lg shadow-pink-300/20 hover:shadow-pink-300/30 hover:-translate-y-1 transition-all disabled:from-white/10 disabled:to-white/10 disabled:border border-white/20 disbaled:shadow-none disabled:text-white/50 disabled:translate-y-0`,
+      textContent: signin ? 'Start playing' : 'Create account',
+      attributes: {type: 'submit'},
+    });
+
+    const disableSubmitButton = () => {
+      const {loading} = this.store.getState();
+      const isLoading = loading.includes('authentication');
+      submitButton.disabled = isLoading;
+      submitButton.textContent = isLoading
+        ? 'Checking ...'
+        : signin
+          ? 'Start playing'
+          : 'Create account';
+    };
+
+    form.appendChild(submitButton);
+    this.subscribeToPath('loading', disableSubmitButton);
 
     container.appendChild(form);
 

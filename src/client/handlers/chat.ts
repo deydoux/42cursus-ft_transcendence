@@ -124,7 +124,7 @@ const handleDirectMessage = (data: {
         ...discussion,
         user: {
           ...discussion.user,
-          online: true,
+          status: 'online',
         },
         messages: [
           {
@@ -140,23 +140,20 @@ const handleDirectMessage = (data: {
 
     markMessagesAsRead(data.sender.id);
   } else {
-    // In the chats list
-    store.setState({
-      directChats: directChats.map(chat => {
-        if (chat.user.username !== data.sender.username) {
-          return chat;
-        }
-
-        return {
-          ...chat,
-          content: data.content,
-          updatedAt: new Date().toISOString(),
-        };
-      }),
-    });
-
     toastMessageNotification(data.sender, data.content);
   }
+
+  store.setState({
+    directChats: directChats.map(chat =>
+      chat.user.username === data.sender.username
+        ? {
+            ...chat,
+            content: data.content,
+            updatedAt: new Date().toISOString(),
+          }
+        : chat,
+    ),
+  });
 };
 
 const handleGeneralMessage = (data: {
@@ -192,20 +189,17 @@ const handleGeneralMessage = (data: {
         },
       },
     });
-  } else if (generalChat) {
-    // In the chats list
-    store.setState({
-      generalChat: {
-        ...generalChat,
-        content: data.content,
-        createdAt: new Date().toISOString(),
-      },
-    });
-
-    if (data.mention) {
-      toastMessageNotification(data.sender, data.content);
-    }
+  } else if (generalChat && data.mention) {
+    toastMessageNotification(data.sender, data.content);
   }
+
+  store.setState({
+    generalChat: {
+      user: data.sender,
+      content: data.content,
+      createdAt: new Date().toISOString(),
+    },
+  });
 };
 
 const handleFriendRequest = (data: {
@@ -245,11 +239,21 @@ const handleFriendRequestAccepted = (data: {
 }) => {
   const store = Store.getInstance();
 
-  const {sentFriendRequests} = store.getState();
+  const {sentFriendRequests, directChats} = store.getState();
   store.setState({
     sentFriendRequests: sentFriendRequests.filter(
       request => request.username !== data.user.username,
     ),
+    directChats: [
+      ...directChats,
+      {
+        relationshipID: data.relationship,
+        updatedAt: new Date().toISOString(),
+        user: data.user,
+        content: '',
+        unread: 1,
+      },
+    ],
   });
 
   Toastify.info(`${data.user.username} accepted your friend request!`);

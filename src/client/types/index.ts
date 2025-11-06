@@ -3,6 +3,7 @@ export interface user {
   id: number;
   username: string;
   avatar: string;
+  status?: string | null;
 }
 
 export interface round {
@@ -16,6 +17,7 @@ export interface round {
 export interface AppState {
   currentRoute: string;
   isWaitingForMatchmaking: boolean;
+  matchmakingTargetUser?: user;
   totpCode?: {
     uri: string;
     secret: string;
@@ -30,6 +32,8 @@ export interface AppState {
     elo: number;
   };
 
+  loading: string[];
+
   chatView: {
     label: string;
     id?: number;
@@ -40,7 +44,7 @@ export interface AppState {
     content: string;
     unread?: number;
     user: user;
-    invite?: string;
+    invite?: null | string;
   }[];
   generalChat?: {
     content: string;
@@ -55,7 +59,7 @@ export interface AppState {
       username: string;
       lastSeen: string;
       avatar: string;
-      online: boolean;
+      status?: string | null;
     };
     messages: {
       id: number;
@@ -63,6 +67,7 @@ export interface AppState {
       content: string;
       createdAt: string;
     }[];
+    invite: null | 'race' | 'pong';
     next: string;
   };
   generalDiscussion?: {
@@ -214,4 +219,3 @@ export interface Component {
   render(): HTMLElement | undefined;
   destroy?(): void;
 }
-
