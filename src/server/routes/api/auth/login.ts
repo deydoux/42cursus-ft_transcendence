@@ -22,7 +22,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       WHERE lower(username) = lower(${username})
     `);
 
-    if (!user || !compareSync(password, user.password))
+    if (!user?.password || !compareSync(password, user.password))
       return reply.unauthorized('Invalid username or password');
 
     if (user.totp) {
