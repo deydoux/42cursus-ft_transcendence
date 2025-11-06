@@ -44,7 +44,7 @@ export interface AppState {
     content: string;
     unread?: number;
     user: user;
-    invite?: string;
+    invite?: null | string;
   }[];
   generalChat?: {
     content: string;

@@ -112,7 +112,7 @@ export class ChatsList extends BaseComponent {
 
     filteredChats.forEach(chat => {
       const line = createElement('div', {
-        className: `overflow-x-hidden flex items-center justify-between hover:bg-white/5 py-2 px-6 cursor-pointer`,
+        className: `overflow-x-hidden flex items-center justify-between gap-4 hover:bg-white/5 py-2 px-6 cursor-pointer`,
       });
       line.onclick = async () => {
         if (chat.isGeneral) {
@@ -208,13 +208,47 @@ export class ChatsList extends BaseComponent {
       leftContent.appendChild(text);
       line.appendChild(leftContent);
 
-      const rightContent = createElement('div');
-      if (chat.unread) {
+      const rightContent = createElement('div', {
+        className: 'flex items-center justify-center gap-4',
+      });
+      console.log('chat', chat);
+      if (chat.invite) {
+        const duelButton = createElement('button', {
+          className: `w-10 h-10 flex items-center justify-center enabled:hover:text-pink-300 enabled:hover:bg-pink-300/10 disabled:text-white/20 disabled:cursor-not-allowed rounded cursor-pointer p-2 duration-100`,
+        });
+        duelButton.onclick = () => {
+          this.websocket.send({
+            type: 'joinMatchmaking',
+            game: chat.invite,
+            mode: 'casual',
+            targetID: chat.user.id,
+          });
+          this.store.setState({
+            directChats: directChats.map(c =>
+              c.user.id === chat.user.id ? {...c, invite: null} : c,
+            ),
+          });
+        };
+        duelButton.appendChild(
+          createElement('i', {
+            icon: chat.invite === 'pong' ? 'pingpong' : 'carWheel',
+          }),
+        );
+
+        rightContent.appendChild(duelButton);
+      } else if (chat.unread) {
         rightContent.appendChild(
           createElement('div', {
             className: 'w-2 h-2 bg-pink-300 rounded-full',
           }),
         );
+      }
+
+      if (chat.invite) {
+        const duelButton = createElement('button', {
+          className: `w-10 h-10 flex items-center justify-center enabled:hover:text-pink-300 enabled:hover:bg-pink-300/10 disabled:text-white/20 disabled:cursor-not-allowed rounded cursor-pointer p-2 duration-100`,
+        });
+        duelButton.appendChild(createElement('i', {}));
       }
       line.appendChild(rightContent);
 
