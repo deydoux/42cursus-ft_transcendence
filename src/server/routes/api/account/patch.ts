@@ -1,7 +1,7 @@
 import {password, username} from '#lib/schemas';
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
-import {compareSync} from 'bcrypt';
+import compareHash from '#lib/compareHash';
 import {errorCodes} from 'fastify';
 import hash from '#lib/hash';
 
@@ -33,7 +33,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       if (
         !user ||
         (user.password &&
-          (!oldPassword || !compareSync(oldPassword, user.password)))
+          (!oldPassword || !compareHash(oldPassword, user.password)))
       )
         throw {
           ...errorCodes.FST_ERR_VALIDATION('Invalid password'),

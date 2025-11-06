@@ -1,6 +1,6 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
-import {compareSync} from 'bcrypt';
+import compareHash from '#lib/compareHash';
 
 const schema = {
   body: {
@@ -22,7 +22,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       WHERE lower(username) = lower(${username})
     `);
 
-    if (!user || !compareSync(password, user.password))
+    if (!user?.password || !compareHash(password, user.password))
       return reply.unauthorized('Invalid username or password');
 
     if (user.totp) {
