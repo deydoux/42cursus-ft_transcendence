@@ -214,7 +214,7 @@ export class Discussion extends BaseComponent {
     onSubmit: (message: string) => Promise<void>,
   ) {
     const input = createElement('input', {
-      className: `border border-pink-300 h-full w-full focus:outline-none focus:border-white rounded-lg px-3 pr-10 bg-pink-300/10 placeholder:text-pink-300/50`,
+      className: `chat-input border border-pink-300 h-full w-full focus:outline-none focus:border-white rounded-lg px-3 pr-10 bg-pink-300/10 placeholder:text-pink-300/50`,
       attributes: {
         name: 'message',
         maxLength: '1024',
