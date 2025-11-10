@@ -137,8 +137,27 @@ export class PongGame extends BaseComponent {
     // Remove existing event listeners first
     this.removeKeyHandlers();
 
+    // Helper function to check if user is typing in chat
+    const isChatInputFocused = (): boolean => {
+      const activeElement = document.activeElement;
+
+      // Check if it's an HTMLElement first, then check contentEditable
+      const isContentEditable =
+        activeElement instanceof HTMLElement &&
+        activeElement.contentEditable === 'true';
+
+      return (
+        activeElement?.tagName === 'INPUT' ||
+        activeElement?.tagName === 'TEXTAREA' ||
+        isContentEditable ||
+        activeElement?.closest('.chat-input') !== null
+      );
+    };
+
     // Create new handlers
     const keydownHandler = (e: KeyboardEvent) => {
+      if (isChatInputFocused()) return; // Don't handle game keys if user is typing in chat
+
       if (e.key === 'w' || e.key === 'W') pong.keys.w = true;
       if (e.key === 's' || e.key === 'S') pong.keys.s = true;
       if (e.key === 'ArrowUp') pong.keys.ArrowUp = true;
@@ -146,6 +165,8 @@ export class PongGame extends BaseComponent {
     };
 
     const keyupHandler = (e: KeyboardEvent) => {
+      if (isChatInputFocused()) return; // Don't handle game keys if user is typing in chat
+
       if (e.key === 'w' || e.key === 'W') pong.keys.w = false;
       if (e.key === 's' || e.key === 'S') pong.keys.s = false;
       if (e.key === 'ArrowUp') pong.keys.ArrowUp = false;

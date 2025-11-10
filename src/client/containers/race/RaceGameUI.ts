@@ -143,6 +143,7 @@ export class RaceGameUI extends BaseComponent {
 
     const isWinner = data.winner === user.id;
     const isTie = data.result === 'tie' ? true : false;
+    const isRanked = getCurrentGame().isRanked;
     const opponent = players.find(p => p.id !== user.id);
 
     const userScore =
@@ -169,11 +170,11 @@ export class RaceGameUI extends BaseComponent {
       <img class="w-20 h-20 rounded-full mb-3 border-2 ${isTie ? 'border-gray-400' : isWinner ? 'border-green-400' : 'border-red-400'}" 
            src="${user.avatar || unknow_avatar}" alt="${user.username}">
       <div class="font-bold text-white text-lg">${user.username}</div>
-      ${!raceCanvas.race.isLocal ? `<div class="text-sm text-black mb-2">ELO: ${user.elo}</div>` : ''}
+      ${!raceCanvas.race.isLocal && isRanked ? `<div class="text-sm text-black mb-2">ELO: ${user.elo}</div>` : ''}
       ${
         data.eloChange && !raceCanvas.race.isLocal
           ? `<div class="text-sm ${isTie ? 'text-gray-400' : isWinner ? 'text-green-400' : 'text-red-400'} font-bold">
-        ${isTie ? '' : isWinner ? '+' : '-'}${data.eloChange}
+        ${!isRanked ? ' ' : isTie ? '' : isWinner ? '+' : '-'}${data.eloChange}
       </div>`
           : ''
       }
@@ -190,7 +191,7 @@ export class RaceGameUI extends BaseComponent {
       <img class="w-20 h-20 rounded-full mb-3 border-2 ${isTie ? 'border-gray-400' : !isWinner ? 'border-green-400' : 'border-red-400'}" 
            src="${opponent?.avatar || unknow_avatar}" alt="${opponent?.username || 'Opponent'}">
       <div class="font-bold text-white text-lg">${opponent?.username || 'Opponent'}</div>
-      ${!raceCanvas.race.isLocal ? `<div class="text-sm text-black mb-2">ELO: '0'</div>` : ''}
+      ${!raceCanvas.race.isLocal && isRanked ? `<div class="text-sm text-black mb-2">ELO: '0'</div>` : ''}
     </div>
   </div>
   

@@ -144,6 +144,7 @@ export interface AppState {
   isOpponentBlocked: boolean;
   matchStartBallData: {dx: number; dy: number};
   game: {
+    isRanked: boolean;
     id: number;
     startTime: number;
     name: string;

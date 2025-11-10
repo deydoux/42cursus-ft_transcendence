@@ -99,6 +99,7 @@ const handleMatchStart = (data: {
     matchmakingTargetUser: undefined,
     isOpponentBlocked: data.block,
     game: {
+      isRanked: data.ranked,
       id: data.it,
       startTime: data.time,
       name: data.game,

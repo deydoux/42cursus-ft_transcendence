@@ -154,8 +154,27 @@ export class RaceGame extends BaseComponent {
     // Remove existing event listeners first
     this.removeKeyHandlers();
 
+    // Helper function to check if user is typing in chat
+    const isChatInputFocused = (): boolean => {
+      const activeElement = document.activeElement;
+
+      // Check if it's an HTMLElement first, then check contentEditable
+      const isContentEditable =
+        activeElement instanceof HTMLElement &&
+        activeElement.contentEditable === 'true';
+
+      return (
+        activeElement?.tagName === 'INPUT' ||
+        activeElement?.tagName === 'TEXTAREA' ||
+        isContentEditable ||
+        activeElement?.closest('.chat-input') !== null
+      );
+    };
+
     // Create new handlers
     const keydownHandler = (e: KeyboardEvent) => {
+      if (isChatInputFocused()) return; // Don't handle game keys if user is typing in chat
+
       // Car 1 controls (WASD)
       if (e.key === 'w' || e.key === 'W') race.keys.w = true;
       if (e.key === 'a' || e.key === 'A') race.keys.a = true;
@@ -170,6 +189,8 @@ export class RaceGame extends BaseComponent {
     };
 
     const keyupHandler = (e: KeyboardEvent) => {
+      if (isChatInputFocused()) return; // Don't handle game keys if user is typing in chat
+
       // Car 1 controls (WASD)
       if (e.key === 'w' || e.key === 'W') race.keys.w = false;
       if (e.key === 'a' || e.key === 'A') race.keys.a = false;
