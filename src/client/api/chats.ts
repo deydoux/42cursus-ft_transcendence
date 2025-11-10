@@ -39,10 +39,22 @@ export const fetchDiscussion = async (userID: number) => {
     }
 
     const data = await response.json();
-    store.setState({discussion: data});
+    const lastMessage =
+      data.length > 0 && data.messages[data.messages.length - 1];
+    const {directChats} = store.getState();
+    store.setState({
+      discussion: {
+        ...data,
+        invite: directChats.find(c => c.user.id === userID)?.invite,
+      },
+      directChats: directChats.map(c =>
+        c.user.id === userID ? {...c, content: lastMessage?.content ?? ''} : c,
+      ),
+    });
+    return {success: true, data};
   } catch (error) {
-    Toastify.error('An error occured while fetching discussion');
     console.error(error);
+    return {success: false, data: error.toString()};
   }
 };
 
@@ -185,7 +197,7 @@ export const sendGeneralMessage = async (message: string) => {
       throw new Error(errorData.message);
     }
 
-    const {generalDiscussion, generalChat, user} = store.getState();
+    const {generalDiscussion, user} = store.getState();
     if (!generalDiscussion || !user)
       throw new Error('generalDiscussion or user undefined');
 
@@ -204,18 +216,13 @@ export const sendGeneralMessage = async (message: string) => {
       generalDiscussion: {...generalDiscussion, messages: newMessages},
     });
 
-    let newGeneralChat;
-    if (generalChat) {
-      newGeneralChat = {...generalChat, content: message};
-    } else {
-      newGeneralChat = {
+    store.setState({
+      generalChat: {
         content: message,
         user: user,
         createdAt: now,
-      };
-    }
-
-    store.setState({generalChat: newGeneralChat});
+      },
+    });
   } catch (error) {
     Toastify.error('An error occured while sending a message');
     console.error(error);

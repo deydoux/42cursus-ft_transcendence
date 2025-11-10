@@ -77,6 +77,8 @@ export default class Round {
       })),
       result: result,
     });
+
+    return {winner, result};
   }
 
   public async start() {
@@ -113,16 +115,20 @@ export default class Round {
 
     await new Promise(resolve => setTimeout(resolve, DELAY));
 
+    const activeParticipant = this._participants.filter(p => !p.left);
+    switch (activeParticipant.length) {
+      case 0:
+        return this.sendTournamentMatchEnd(undefined, 'cancel');
+      case 1:
+        return this.sendTournamentMatchEnd(activeParticipant[0], 'forfeit');
+    }
+
     try {
       const result = await match.start();
-      this.sendTournamentMatchEnd(result.winner, result.result);
-
-      return result;
+      return this.sendTournamentMatchEnd(result.winner, result.result);
     } catch {
       match.error();
-      this.sendTournamentMatchEnd(undefined, 'cancel');
-
-      return {winner: undefined, result: 'cancel'};
+      return this.sendTournamentMatchEnd(undefined, 'cancel');
     }
   }
 }

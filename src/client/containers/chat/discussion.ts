@@ -1,5 +1,4 @@
 import {
-  fetchDiscussion,
   fetchGeneralDiscussion,
   loadMoreMessages,
   sendGeneralMessage,
@@ -162,7 +161,7 @@ export class Discussion extends BaseComponent {
     container.innerHTML = '';
 
     const list = createElement('div', {
-      className: 'flex flex-col-reverse overflow-y-auto flex-1',
+      className: `flex flex-col-reverse overflow-y-auto overflow-x-hidden flex-1`,
     });
 
     let isAtTop = false;
@@ -258,6 +257,9 @@ export class Discussion extends BaseComponent {
   }
 
   private renderPrivateDiscussionHeader() {
+    const container = createElement('div', {
+      className: 'flex flex-col w-full flex-none',
+    });
     const header = createElement('div', {
       className: `flex items-center justify-between px-6 py-4 border-b border-pink-300/50 flex-none`,
     });
@@ -305,7 +307,7 @@ export class Discussion extends BaseComponent {
       text.appendChild(
         createElement('p', {
           className: 'text-sm text-white/50',
-          textContent: discussion.user.online
+          textContent: discussion.user.status
             ? 'Connected'
             : `Offline • ${getRelativeTime(discussion.user.lastSeen)}`,
         }),
@@ -315,6 +317,7 @@ export class Discussion extends BaseComponent {
       leftContent.appendChild(userInfos);
     };
 
+    renderUserInformations();
     this.subscribeToPath('discussion.user', renderUserInformations);
     header.appendChild(leftContent);
 
@@ -322,27 +325,72 @@ export class Discussion extends BaseComponent {
       className: 'flex items-center justify-center gap-2',
     });
 
-    const pongButton = createElement('button', {
-      className: `w-10 h-10 flex items-center justify-center hover:text-pink-300 hover:bg-pink-300/10 rounded cursor-pointer p-2 duration-100`,
+    const duelButton = createElement('button', {
+      className: `w-10 h-10 flex items-center justify-center enabled:hover:text-pink-300 enabled:hover:bg-pink-300/10 disabled:text-white/20 disabled:cursor-not-allowed rounded cursor-pointer p-2 duration-100`,
     });
-    pongButton.appendChild(
-      createElement('i', {
-        icon: 'pingpong',
-      }),
-    );
-    actionButtons.appendChild(pongButton);
+    duelButton.onclick = () => {
+      const {discussion} = this.store.getState();
+      if (!discussion) return;
+
+      if (!discussion.invite) {
+        const rect = duelButton.getBoundingClientRect();
+        renderUserContextMenu(
+          discussion.user,
+          ['invite'],
+          [rect.right - 100, rect.bottom + 10],
+        );
+      } else {
+        this.websocket.send({
+          type: 'joinMatchmaking',
+          game: discussion.invite,
+          mode: 'casual',
+          targetID: discussion.user.id,
+        });
+        this.store.setState({
+          discussion: {
+            ...discussion,
+            invite: null,
+          },
+        });
+      }
+    };
+
+    const renderDuelButton = () => {
+      const {discussion, isWaitingForMatchmaking} = this.store.getState();
+      if (!discussion) return;
+
+      duelButton.disabled = isWaitingForMatchmaking;
+
+      duelButton.innerHTML = '';
+      duelButton.appendChild(
+        createElement('i', {
+          className: discussion.invite ? '' : 'mt-[5px]',
+          icon: discussion.invite
+            ? discussion.invite === 'pong'
+              ? 'pingpong'
+              : 'carWheel'
+            : 'crossedSwords',
+        }),
+      );
+    };
+
+    renderDuelButton();
+    this.subscribeToPath('discussion.invite', renderDuelButton);
+    this.subscribeToPath('isWaitingForMatchmaking', renderDuelButton);
+    actionButtons.appendChild(duelButton);
 
     const cogButton = createElement('button', {
       className: `w-10 h-10 flex items-center justify-center hover:text-pink-300 hover:bg-pink-300/10 rounded cursor-pointer p-1 duration-100`,
     });
-    cogButton.onclick = evt => {
+    cogButton.onclick = () => {
       const {discussion} = this.store.getState();
       if (!discussion) return;
 
+      const rect = cogButton.getBoundingClientRect();
       renderUserContextMenu(
-        discussion?.user,
-        ['unfriend', 'invite', 'block'],
-        [evt.pageX - 100, evt.pageY + 30],
+        discussion.user,
+        ['unfriend', 'block'],
+        [rect.right - 120, rect.bottom + 10],
       );
     };
 
@@ -355,12 +403,52 @@ export class Discussion extends BaseComponent {
 
     header.appendChild(actionButtons);
 
-    return header;
+    container.appendChild(header);
+
+    const duelBanner = createElement('div', {
+      className: 'bg-pink-300 flex items-center justify-between',
+    });
+    const renderDuelBanner = () => {
+      const {discussion} = this.store.getState();
+      if (!discussion) return;
+      duelBanner.innerHTML = '';
+      if (!discussion.invite) return;
+
+      const text = createElement('p', {
+        className: 'py-2 px-3 text-sm text-background',
+      });
+      text.innerHTML = `This user invites you to play <span class="font-semibold">${discussion.invite}</span> with them`;
+      duelBanner.appendChild(text);
+      duelBanner.appendChild(
+        createElement('button', {
+          textContent: `Join`,
+          className: `text-white bg-background rounded mr-2 py-1 text-xs px-3 cursor-pointer`,
+          onclick: () => {
+            this.websocket.send({
+              type: 'joinMatchmaking',
+              game: discussion.invite,
+              mode: 'casual',
+              targetID: discussion.user.id,
+            });
+            this.store.setState({
+              discussion: {
+                ...discussion,
+                invite: null,
+              },
+            });
+          },
+        }),
+      );
+    };
+
+    renderDuelBanner();
+    container.appendChild(duelBanner);
+    this.subscribeToPath('discussion.invite', renderDuelBanner);
+
+    return container;
   }
 
   private renderPrivateDiscussion(userID: number) {
-    fetchDiscussion(userID);
-
     const container = createElement('div', {
       className: 'flex flex-col h-full',
     });
@@ -370,6 +458,7 @@ export class Discussion extends BaseComponent {
       className: 'flex flex-col-reverse gap-2 overflow-y-auto flex-1 pt-6',
     });
 
+    this.renderMessages(messagesList, 'discussion');
     this.subscribeToPath('discussion.messages', () => {
       this.renderMessages(messagesList, 'discussion');
     });
@@ -430,12 +519,13 @@ export class Discussion extends BaseComponent {
     fetchGeneralDiscussion();
 
     const container = createElement('div', {
-      className: 'flex flex-col h-full',
+      className: 'flex flex-col h-full overflow-x-hidden  ',
     });
     container.appendChild(this.renderGeneralDiscussionHeader());
 
     const messagesList = createElement('div', {
-      className: 'flex flex-col-reverse overflow-y-auto flex-1 pt-6',
+      className:
+        'flex flex-col-reverse overflow-y-auto overflow-x-hidden flex-1 pt-6',
     });
 
     this.subscribeToPath('generalDiscussion.messages', () =>

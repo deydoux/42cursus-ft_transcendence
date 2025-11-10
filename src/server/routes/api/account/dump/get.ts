@@ -54,6 +54,12 @@ const plugin: FastifyPluginAsync = async server => {
       WHERE user_id = ${id}
     `);
 
+    const streaks = await server.db.all(SQL`
+      SELECT game, mode, current, best
+      FROM streaks
+      WHERE user_id = ${id}
+    `);
+
     if (user.has_avatar) {
       const avatarPath = join(server.paths.avatars, `${id}.webp`);
 
@@ -78,6 +84,7 @@ const plugin: FastifyPluginAsync = async server => {
         general_messages,
         matches,
         elo,
+        streaks,
       });
   });
 };

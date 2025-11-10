@@ -81,17 +81,37 @@ export class Lobby extends BaseComponent {
     const lobby = createElement('div', {
       className: 'flex flex-1 flex-col gap-4 items-center justify-center',
     });
+    const text = createElement('p', {
+      textContent: 'Looking for other players...',
+    });
+
+    const renderLobbyText = () => {
+      const {matchmakingTargetUser} = this.store.getState();
+      lobby.innerHTML = '';
+
+      if (matchmakingTargetUser) {
+        text.innerHTML = `Waiting for 
+          <span class="text-pink-300">${matchmakingTargetUser.username}</span> 
+        to accept your invite`;
+      } else {
+        text.textContent = 'Looking for other players...';
+      }
+    };
+
+    renderLobbyText();
+    this.subscribeToPath('matchmakingTargetUser', renderLobbyText);
+
+    lobby.appendChild(text);
 
     lobby.appendChild(
-      createElement('p', {
-        textContent: 'Looking for other players...',
-      }),
-    );
-    lobby.appendChild(
-      createElement('i', {
-        className: 'w-20 h-20 text-pink-300 fill-pink-300 animate-spin',
-        attributes: {
-          icon: 'loadingSpin',
+      createElement('button', {
+        textContent: 'Quit lobby',
+        className: `border border-red-500/80 bg-red-500/10 text-red-500/80 hover:border-red-500 py-2 px-4 rounded-lg hover:text-red-500 hover:bg-red-500/20 cursor-pointer duration-100`,
+        onclick: () => {
+          this.store.setState({game: undefined});
+          this.websocket.send({
+            type: 'leaveMatchmaking',
+          });
         },
       }),
     );

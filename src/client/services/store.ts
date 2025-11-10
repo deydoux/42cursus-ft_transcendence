@@ -4,6 +4,7 @@ import {loadIcons} from '../utils/icons';
 const defaultValues = {
   totpCode: undefined,
   user: undefined,
+  loading: [],
   blockedUsers: [],
   sessions: {session: 0, sessions: []},
   currentRoute: '/',
@@ -170,5 +171,14 @@ export class Store {
         }
       }
     };
+  }
+
+  toggleLoading(field: string) {
+    const {loading} = this.state;
+    this.setState({
+      loading: loading.includes(field)
+        ? loading.filter(l => l !== field)
+        : [...loading, field],
+    });
   }
 }

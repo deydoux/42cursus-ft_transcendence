@@ -19,7 +19,7 @@ export class Homepage extends BaseComponent {
     const buttons = createElement('div', {
       className: 'flex flex-col items-stretch gap-2',
     });
-    ['play local', 'play remote'].forEach(mode => {
+    ['play local', 'play remote', 'play ranked'].forEach(mode => {
       buttons.appendChild(
         createElement('button', {
           className: `w-full font-semibold rounded text-white hover:bg-pink-300 hover:text-background duration-100 p-4 uppercase cursor-pointer`,
@@ -35,13 +35,21 @@ export class Homepage extends BaseComponent {
             if (mode === 'play local') {
               sessionStorage.setItem('validGameAccess', 'true');
               this.router.navigate(`/${game}`);
-            } else {
+            } else if (mode === 'play remote') {
               this.websocket.send({
                 type: 'joinMatchmaking',
                 game: game,
                 mode: 'casual',
               });
+            } else {
+              this.websocket.send({
+                type: 'joinMatchmaking',
+                game: game,
+                mode: 'ranked',
+              });
             }
+
+            if (this.gameModeMenu) this.gameModeMenu.destroy();
           },
         }),
       );

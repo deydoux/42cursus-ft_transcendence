@@ -4,17 +4,28 @@ import {
   sendFriendRequest,
   unfriendUser,
 } from '../../api/relationships';
+import {Socket} from '../../services/websocket';
 import {Store} from '../../services/store';
 import {createElement} from '../../utils/dom';
+import {user} from '../../types';
 
 let contextMenu: Popup | null = null;
 
 export const renderUserContextMenu = (
-  user: {username: string; id: number},
-  includeButtons: ('unfriend' | 'friend' | 'invite' | 'block' | 'markAsRead')[],
+  user: user,
+  includeButtons: (
+    | 'unfriend'
+    | 'friend'
+    | 'invite'
+    | 'invite-pong'
+    | 'invite-race'
+    | 'block'
+    | 'markAsRead'
+  )[],
   origin: number[],
 ) => {
   const store = Store.getInstance();
+  const websocket = Socket.getInstance();
 
   if (contextMenu) {
     contextMenu.destroy();
@@ -42,12 +53,28 @@ export const renderUserContextMenu = (
     },
   });
 
-  const inviteButton = createElement('div', {
+  const inviteToGame = (game: 'pong' | 'race') => {
+    store.setState({
+      matchmakingTargetUser: user,
+    });
+    websocket.send({
+      type: 'joinMatchmaking',
+      game: game,
+      mode: 'casual',
+      targetID: user.id,
+    });
+    if (contextMenu) contextMenu.destroy();
+  };
+
+  const invitePongButton = createElement('div', {
     className: `block cursor-pointer w-full text-left px-2 py-1 rounded hover:bg-white/10`,
-    textContent: `Play pong`,
-    onclick: () => {
-      // TODO: Invite in a pong game
-    },
+    textContent: `Invite to play pong`,
+    onclick: () => inviteToGame('pong'),
+  });
+  const inviteRaceButton = createElement('div', {
+    className: `block cursor-pointer w-full text-left px-2 py-1 rounded hover:bg-white/10`,
+    textContent: `Invite to play race cars`,
+    onclick: () => inviteToGame('race'),
   });
 
   const blockButton = createElement('div', {
@@ -63,7 +90,16 @@ export const renderUserContextMenu = (
   if (includeButtons.includes('friend')) buttons.appendChild(friendButton);
   else if (includeButtons.includes('unfriend'))
     buttons.appendChild(unfriendButton);
-  if (includeButtons.includes('invite')) buttons.appendChild(inviteButton);
+  if (
+    includeButtons.includes('invite') ||
+    includeButtons.includes('invite-pong')
+  )
+    buttons.appendChild(invitePongButton);
+  if (
+    includeButtons.includes('invite') ||
+    includeButtons.includes('invite-race')
+  )
+    buttons.appendChild(inviteRaceButton);
 
   if (includeButtons.includes('block')) {
     buttons.appendChild(blockButton);
