@@ -36,6 +36,7 @@ const handleMatchStart = (data: {
   store.setState({
     isOpponentBlocked: data.block,
     game: {
+      isRanked: data.ranked,
       id: data.it,
       startTime: data.time,
       name: data.game,
