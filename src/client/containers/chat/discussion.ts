@@ -124,7 +124,7 @@ export class Discussion extends BaseComponent {
 
     text.appendChild(
       createElement('p', {
-        className: 'break-words hyphens-auto',
+        className: 'break-all hyphens-auto',
         textContent: message.content,
       }),
     );
