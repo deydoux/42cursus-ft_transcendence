@@ -1,4 +1,5 @@
 import {Api} from '../utils/Api';
+import {Router} from './router';
 import {setupChatHandlers} from '../handlers/chat';
 import {setupGameHandlers} from '../handlers/game';
 import {setupTournamentHandlers} from '../handlers/tournament';
@@ -115,7 +116,7 @@ export class Socket {
               break;
 
             case 3000:
-              // TODO: navigate to '/'
+              Router.getInstance().navigate('/');
               break;
 
             default:
