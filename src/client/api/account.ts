@@ -154,6 +154,7 @@ export const updatePassword = async (
       throw new Error(errorData.message);
     }
 
+    await fetchAccount();
     Toastify.success('Password updated successfully');
     return {success: true, data: undefined};
   } catch (error) {

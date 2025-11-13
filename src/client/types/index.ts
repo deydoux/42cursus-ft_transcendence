@@ -25,7 +25,7 @@ export interface AppState {
   user?: {
     id: number;
     username: string;
-    passwordEditedAt: string;
+    passwordEditedAt: string | null;
     totp: boolean; // 2FA
     hasAvatar: boolean;
     avatar: string;
