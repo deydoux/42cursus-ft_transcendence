@@ -212,8 +212,9 @@ const handleFriendRequest = (data: {
 }) => {
   const store = Store.getInstance();
 
-  const {friendRequests} = store.getState();
+  const {friendRequests, countFriendRequests} = store.getState();
   store.setState({
+    countFriendRequests: countFriendRequests + 1,
     friendRequests: [
       ...friendRequests,
       {
