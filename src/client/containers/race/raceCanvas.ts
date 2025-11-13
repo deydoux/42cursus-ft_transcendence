@@ -12,7 +12,7 @@ export class RaceCanvas {
   private animationId: number | null = null;
   private gameRunning: boolean;
   private ctx: CanvasRenderingContext2D;
-  public race: IRaceGame; // Assuming you have this interface
+  public race: IRaceGame;
   private websocket: Socket;
   private gameId: string | null = null;
 

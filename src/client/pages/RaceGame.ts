@@ -167,7 +167,8 @@ export class RaceGame extends BaseComponent {
         activeElement?.tagName === 'INPUT' ||
         activeElement?.tagName === 'TEXTAREA' ||
         isContentEditable ||
-        activeElement?.closest('.chat-input') !== null
+        activeElement?.closest('.chat-input') !== null ||
+        activeElement?.closest('.search-input') !== null
       );
     };
 
