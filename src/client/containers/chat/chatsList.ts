@@ -201,7 +201,7 @@ export class ChatsList extends BaseComponent {
           className: `text-sm text-nowrap overflow-x-hidden ${chat.content ? (chat.unread ? 'text-white font-bold' : 'text-white/60') : 'text-white/40 italic'}`,
           textContent: chat.content
             ? `${content} • ${timeDelta}`
-            : 'Aucun message',
+            : 'No messages yet',
         }),
       );
 
