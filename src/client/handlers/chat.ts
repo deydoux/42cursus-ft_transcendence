@@ -36,7 +36,7 @@ const toastMessageNotification = (
   );
   userInfo.appendChild(
     createElement('p', {
-      textContent: `General: ${message}`,
+      textContent: `${isGeneralMessage ? 'General : ' : ''}${message}`,
     }),
   );
   container.appendChild(userInfo);
@@ -46,10 +46,10 @@ const toastMessageNotification = (
       Toastify.dismiss(toastID);
       Store.getInstance().setState(
         isGeneralMessage
-          ? {
+          ? {chatView: {label: 'general'}}
+          : {
               chatView: {label: user.username, id: user.id},
-            }
-          : {chatView: {label: 'general'}},
+            },
       );
     },
     closable: false,
