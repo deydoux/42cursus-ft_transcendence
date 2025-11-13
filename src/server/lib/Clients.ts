@@ -108,13 +108,13 @@ export default class Clients {
 
   public closeSession = (session: number | null) =>
     this.clients.forEach(client => {
-      if (client.session === session) client.socket.close();
+      if (client.session === session) client.socket.close(3000);
     });
 
   public closeUser = (id: number, ignoreSession: number | null = null) =>
     this.clients.forEach(client => {
       if (client.userID === id && client.session !== ignoreSession)
-        client.socket.close();
+        client.socket.close(3000);
     });
 
   public isUserOnline = (id: number) =>

@@ -1,6 +1,7 @@
 import {Participant, Tournament} from '#lib/Tournament';
 import {FastifyInstance} from 'fastify';
 import PongMatch from '#lib/PongMatch';
+import sleep from '#lib/sleep';
 
 const DELAY = 5000; // 5s
 let id = 0;
@@ -113,7 +114,7 @@ export default class Round {
       })),
     });
 
-    await new Promise(resolve => setTimeout(resolve, DELAY));
+    await sleep(DELAY);
 
     const activeParticipant = this._participants.filter(p => !p.left);
     switch (activeParticipant.length) {
