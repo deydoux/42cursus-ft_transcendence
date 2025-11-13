@@ -43,7 +43,7 @@ export class Chat extends BaseComponent {
       });
       userStats.appendChild(
         createElement('span', {
-          textContent: `${directChats.length} friend${directChats.length > 1 ? 's' : ''} • ${user.elo ?? 300} `,
+          textContent: `${directChats.length} friend${directChats.length === 1 ? '' : 's'} • ${user.elo ?? 300} `,
         }),
       );
       userStats.appendChild(
