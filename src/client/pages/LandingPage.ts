@@ -660,6 +660,7 @@ export class LandingPage extends BaseComponent {
 
   private renderKPIContainer(container: HTMLDivElement) {
     const {publicKPIs} = this.store.getState();
+    container.innerHTML = '';
 
     container.appendChild(
       this.renderKPIBlock(
