@@ -54,3 +54,4 @@ async function main() {
 }
 
 void main();
+process.on('SIGTERM', server.close);
