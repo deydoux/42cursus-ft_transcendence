@@ -85,7 +85,7 @@ export class GDPR extends BaseComponent {
         <li><p><strong>The right to data portability</strong> - You have the right to request that ft_transcendence transfer the data that we have collected to another organization, or directly to you, under certain conditions.</p>
         </li>
       </ul>
-      <p>If you make a request, we have one month to respond to you. If you would like to exercise any of these rights, please contact us at our email: <a>deydoux@student.42lyon.fr</a>, <a>mapale@student.42lyon.fr</a> and <a>quteriss@student.42lyon.fr</a></p>
+      <p>If you make a request, we have one month to respond to you. If you would like to exercise any of these rights, please contact us at our email: <a href="mailto:deydoux@student.42lyon.fr">deydoux@student.42lyon.fr</a>, <a href="mailto:mapale@student.42lyon.fr">mapale@student.42lyon.fr</a> and <a href="mailto:quteriss@student.42lyon.fr">quteriss@student.42lyon.fr</a></p>
       <h2 id="what-are-cookies-">What are cookies?</h2>
       <p>Cookies are text files placed on your computer to collect standard internet log information and visitor behavior information. When you visit our website, we may collect information from you automatically through cookies or similar technology.</p>
       <p>For further information, visit allaboutcookies.org.</p>
