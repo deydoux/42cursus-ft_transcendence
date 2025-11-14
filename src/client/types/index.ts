@@ -30,6 +30,7 @@ export interface AppState {
     hasAvatar: boolean;
     avatar: string;
     elo: number;
+    raceElo: number;
   };
 
   loading: string[];

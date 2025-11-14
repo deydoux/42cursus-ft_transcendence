@@ -27,7 +27,9 @@ export class Chat extends BaseComponent {
       }),
     );
 
-    const userInfos = createElement('div');
+    const userInfos = createElement('div', {
+      className: 'relative cursor-default',
+    });
     const renderUserInfos = () => {
       const {user, directChats} = this.store.getState();
       if (!user) return;
@@ -41,7 +43,7 @@ export class Chat extends BaseComponent {
       );
 
       const userStats = createElement('div', {
-        className: '-mt-1 text-sm flex items-center text-white/60',
+        className: 'peer -mt-1 text-sm flex items-center text-white/60',
       });
       userStats.appendChild(
         createElement('span', {
@@ -55,7 +57,23 @@ export class Chat extends BaseComponent {
         }),
       );
 
+      const elos = createElement('div', {
+        className: `absolute opacity-0 duration-100 peer-hover:opacity-100 top-10 py-2 px-4 w-30 text-center text-xs bg-background border border-white/20 rounded`,
+      });
+
+      elos.appendChild(
+        createElement('p', {
+          textContent: `Pong elo: ${user.elo}`,
+        }),
+      );
+      elos.appendChild(
+        createElement('p', {
+          textContent: `Race elo: ${user.raceElo}`,
+        }),
+      );
+
       userInfos.appendChild(userStats);
+      userInfos.appendChild(elos);
     };
 
     leftPart.appendChild(userInfos);
