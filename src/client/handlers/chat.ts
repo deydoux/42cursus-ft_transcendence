@@ -150,6 +150,7 @@ const handleDirectMessage = (data: {
             ...chat,
             content: data.content,
             updatedAt: new Date().toISOString(),
+            unread: (chat.unread ?? 0) + 1,
           }
         : chat,
     ),
