@@ -1,12 +1,12 @@
 import '../styles/main.css';
 import {register, verifyTOTP} from '../api/authentication';
 import {BaseComponent} from '../components/BaseComponent';
+import {GDPR} from '../components/GDPR';
 import {Toastify} from '../utils/toastify';
 import {createDialog} from '../components/Dialog';
 import {createElement} from '../utils/dom';
 import {createOTPInput} from '../components/OTPInput';
 import {fetchPublicKPIs} from '../api/account';
-import {gdpr} from '../containers/chat/gdpr';
 import img from '../assets/kittypong.png';
 import {loadIcons} from '../utils/icons';
 import sticker from '../assets/sticker.png';
@@ -417,6 +417,8 @@ export class LandingPage extends BaseComponent {
         }),
       );
 
+      const gdpr = this.createChild(GDPR);
+
       const gdprConfirmation = createElement('p', {
         className: 'text-sm max-w-2/3 mx-auto text-white/50 text-center',
         textContent: `By creating an account, you confirm that you have read Kitty Pong's `,
@@ -430,21 +432,11 @@ export class LandingPage extends BaseComponent {
             this.gdprDialogOpened = true;
 
             const gdprContainer = createElement('div', {
-              className:
-                'text-white bg-background border border-white rounded-3xl max-h-[700px] overflow-hidden p-10 w-100 flex flex-col',
+              className: `relative p-10 bg-background text-white border border-white/50 rounded-3xl overflow-y-auto max-w-150 flex flex-col max-h-8/10`,
             });
-            const gdprHeader = createElement('div', {
-              className: 'flex mb-6 items-center justify-between',
-            });
-            gdprHeader.appendChild(
-              createElement('h1', {
-                textContent: 'Privacy Policy',
-                className: 'font-bold text-2xl flex-none',
-              }),
-            );
+
             const closeButton = createElement('button', {
-              className:
-                'rounded-lg text-white/20 border border-white/20 hover:text-white hover:border-white cursor-pointer p-1',
+              className: ` sticky w-fit ml-auto rounded-lg text-white/20 border border-white/20 hover:text-white bg-black/10 backdrop-blur-md hover:border-white cursor-pointer p-1`,
               onclick: () => {
                 this.authDialogContent.removeChild(gdprContainer);
                 this.gdprDialogOpened = false;
@@ -458,15 +450,9 @@ export class LandingPage extends BaseComponent {
                 },
               }),
             );
-            gdprHeader.appendChild(closeButton);
-            gdprContainer.appendChild(gdprHeader);
 
-            gdprContainer.appendChild(
-              createElement('p', {
-                className: 'flex-1 overflow-auto',
-                textContent: gdpr,
-              }),
-            );
+            gdprContainer.appendChild(closeButton);
+            gdprContainer.appendChild(gdpr.render());
 
             this.authDialogContent.appendChild(gdprContainer);
             loadIcons();
@@ -710,7 +696,8 @@ export class LandingPage extends BaseComponent {
     });
 
     const {dialogContent, showModal} = createDialog('auth');
-    dialogContent.className = 'flex overflow-hidden items-center gap-4';
+    dialogContent.className =
+      'flex overflow-hidden items-center gap-4 h-screen';
     this.authDialogContent = dialogContent;
 
     const kpiContainer = createElement('div', {

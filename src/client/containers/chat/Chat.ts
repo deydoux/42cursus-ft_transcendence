@@ -2,6 +2,8 @@ import {BaseComponent} from '../../components/BaseComponent';
 import {ChatsList} from './chatsList';
 import {Discussion} from './discussion';
 import {FriendRequests} from './friendRequests';
+import {GDPR} from '../../components/GDPR';
+import {createDialog} from '../../components/Dialog';
 import {createElement} from '../../utils/dom';
 
 export class Chat extends BaseComponent {
@@ -92,6 +94,7 @@ export class Chat extends BaseComponent {
   }
 
   render(): HTMLElement {
+    const {dialogContent, showModal} = createDialog('gdpr');
     const container = createElement('div', {
       className: `flex-none w-[400px] max-h-[100%] h-full overflow-hidden flex-none flex flex-col gap-4`,
     });
@@ -126,6 +129,30 @@ export class Chat extends BaseComponent {
 
       view.appendChild(this.chatClass.render());
     };
+
+    const gdpr = this.createChild(GDPR);
+    dialogContent.className = `p-10 bg-background text-white border border-white/50 rounded-xl max-w-200 h-9/10 overflow-y-auto`;
+    dialogContent.appendChild(gdpr.render());
+
+    const gdprText = createElement('p', {
+      className: ' w-fit mx-auto text-white/30 text-xs ',
+      textContent: 'Take a look at ',
+    });
+
+    const gdprLink = createElement('button', {
+      className: `cursor-pointer hover:text-pink-300/80 duration-100 underline`,
+      textContent: "Kitty Pong's privacy policy",
+      onclick: evt => {
+        evt.preventDefault();
+        showModal();
+        document
+          .getElementById('ft_transcendence-privacy-policy')
+          ?.scrollIntoView({block: 'end'});
+      },
+    });
+
+    gdprText.appendChild(gdprLink);
+    container.appendChild(gdprText);
 
     renderChatview();
     this.subscribeToPath('chatView', renderChatview);
