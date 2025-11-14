@@ -57,7 +57,7 @@ export class PongGameUI extends BaseComponent {
       className: 'flex items-center gap-4',
     });
     leftPlayer.innerHTML = `
-      <img id="left_pic" class="w-16 h-16 rounded-full border-2 border-blue-500" src="" alt="Player">
+      <img id="left_pic" class="lg:w-10 lg:h-10 w-16 h-16 rounded-full border-2 border-blue-500" src="" alt="Player">
       <div>
         <div id="left_name" class="text-xl font-bold text-white"></div>
       </div>
@@ -78,7 +78,7 @@ export class PongGameUI extends BaseComponent {
       className: 'flex items-center gap-4 flex-row-reverse',
     });
     rightPlayer.innerHTML = `
-      <img id="right_pic" class="w-16 h-16 rounded-full border-2 border-red-500" src="" alt="Player">
+      <img id="right_pic" class="lg:w-10 lg:h-10 w-16 h-16 rounded-full border-2 border-red-500" src="" alt="Player">
       <div class="text-right">
         <div id="right_name" class="text-xl font-bold text-white"></div>
       </div>

@@ -101,6 +101,35 @@ export class RaceCanvas {
     }
   }
 
+  gpPressedLeft = false;
+  gpPressedRight = false;
+
+  private gamePadhandler() {
+    const gps = navigator.getGamepads().filter(gp => gp !== null);
+
+    this.gpPressedLeft =
+      this.gpPressedLeft ||
+      gps.some(gp => [12, 13, 14, 15].map(i => gp.buttons[i]));
+
+    if (this.gpPressedLeft) {
+      this.race.keys.w = gps.some(gp => gp.buttons[12].pressed);
+      this.race.keys.a = gps.some(gp => gp.buttons[14].pressed);
+      this.race.keys.s = gps.some(gp => gp.buttons[13].pressed);
+      this.race.keys.d = gps.some(gp => gp.buttons[15].pressed);
+    }
+
+    this.gpPressedRight =
+      this.gpPressedRight ||
+      gps.some(gp => [0, 1, 3, 2].map(i => gp.buttons[i]));
+
+    if (this.gpPressedRight) {
+      this.race.keys.ArrowUp = gps.some(gp => gp.buttons[3].pressed);
+      this.race.keys.ArrowLeft = gps.some(gp => gp.buttons[0].pressed);
+      this.race.keys.ArrowDown = gps.some(gp => gp.buttons[1].pressed);
+      this.race.keys.ArrowRight = gps.some(gp => gp.buttons[2].pressed);
+    }
+  }
+
   /**
    * Main game loop that updates the canvas
    * Handles game logic, rendering, and animations.
@@ -115,6 +144,8 @@ export class RaceCanvas {
    */
   private gameLoop(): void {
     if (!this.race.gameStarted || !this.gameRunning) return;
+
+    this.gamePadhandler();
 
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 

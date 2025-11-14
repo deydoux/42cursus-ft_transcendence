@@ -240,7 +240,10 @@ export class PongGame extends BaseComponent {
     container.appendChild(gameElement);
 
     const chat = new Chat().render();
-    if (chat) container.appendChild(chat);
+    if (chat) {
+      chat.classList.add('hidden', 'lg:block');
+      container.appendChild(chat);
+    }
 
     requestAnimationFrame(() => {
       this.renderGameCanvas();
