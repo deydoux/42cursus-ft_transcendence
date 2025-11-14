@@ -7,6 +7,7 @@ import settingssticker from '../assets/fuck1.png';
 import sticker from '../assets/sticker.png';
 import textIMG from '../assets/kittypong.png';
 import tournamentsticker from '../assets/fuck4.png';
+import statisticssticker from '../assets/stats.png';
 
 export class Homepage extends BaseComponent {
   private gameModeMenu: Popup | null = null;
@@ -130,6 +131,7 @@ export class Homepage extends BaseComponent {
         createElement('p', {
           textContent: name,
           className: 'z-10 drop-shadow-[0_0_5px_rgb(0,0,0)]',
+          onclick: onclick as EventListener,
         }),
       );
 
@@ -166,7 +168,11 @@ export class Homepage extends BaseComponent {
       ),
     );
     secondRow.appendChild(
-      renderButton('Statistics', () => this.router.navigate('statistics')),
+      renderButton(
+        'Statistics',
+        () => this.router.navigate('statistics'),
+        statisticssticker,
+      ),
     );
     secondRow.appendChild(
       renderButton(
@@ -178,99 +184,6 @@ export class Homepage extends BaseComponent {
     buttons.appendChild(secondRow);
 
     homepage.appendChild(buttons);
-
-    // const gameMenu = createElement('div', {
-    //   className: 'h-full flex-1 grid grid-cols-2 grid-rows-2 gap-10',
-    // });
-
-    // const pongButtons = createElement('div', {
-    //   className: 'flex flex-col gap-2',
-    // });
-    // pongButtons.append(
-    //   createElement('button', {
-    //     textContent: 'Play pong online',
-    //     className: `cursor-pointer flex-1 rounded bg-gradient-to-br from-pink-200 to-pink-300 font-semibold uppercase text-background rounded-t-xl`,
-    //     onclick: () => {
-    //       this.store.setState({
-    //         game: {...this.store.getState().game, isLocal: false},
-    //       });
-    //       this.websocket.send({
-    //         type: 'joinMatchmaking',
-    //         game: 'pong',
-    //         mode: 'casual',
-    //       });
-    //     },
-    //   }),
-    // );
-    // pongButtons.append(
-    //   createElement('button', {
-    //     textContent: 'Play pong local',
-    //     className: `cursor-pointer flex-1 rounded bg-background rounded-b-xl font-semibold uppercase text-pink-300 border-3 border-pink-300`,
-    //     onclick: () => {
-    //       this.store.setState({
-    //         game: {...this.store.getState().game, isLocal: true},
-    //       });
-    //       // Set the session flag before navigating for local games
-    //       sessionStorage.setItem('validGameAccess', 'true');
-    //       this.router.navigate(`/pong`);
-    //     },
-    //   }),
-    // );
-
-    // const raceButtons = createElement('div', {
-    //   className: 'flex flex-col gap-2',
-    // });
-    // raceButtons.append(
-    //   createElement('button', {
-    //     textContent: 'Play race online',
-    //     className: `cursor-pointer flex-1 rounded bg-gradient-to-br from-pink-200 to-pink-300 font-semibold uppercase text-background rounded-t-xl`,
-    //     onclick: () => {
-    //       this.store.setState({
-    //         game: {...this.store.getState().game, isLocal: false},
-    //       });
-    //       this.websocket.send({
-    //         type: 'joinMatchmaking',
-    //         game: 'race',
-    //         mode: 'casual',
-    //       });
-    //     },
-    //   }),
-    // );
-    // raceButtons.append(
-    //   createElement('button', {
-    //     textContent: 'Play race local',
-    //     className: `cursor-pointer flex-1 rounded bg-background rounded-b-xl font-semibold uppercase text-pink-300 border-3 border-pink-300`,
-    //     onclick: () => {
-    //       this.store.setState({
-    //         game: {...this.store.getState().game, isLocal: true},
-    //       });
-    //       // Set the session flag before navigating for local games
-    //       sessionStorage.setItem('validGameAccess', 'true');
-    //       this.router.navigate(`/race`);
-    //     },
-    //   }),
-    // );
-
-    // gameMenu.appendChild(pongButtons);
-    // gameMenu.appendChild(raceButtons);
-
-    // const tournamentsButton = createElement('button', {
-    //   textContent: 'Tournaments',
-    //   className: `cursor-pointer flex-1 rounded bg-background rounded-xl font-semibold uppercase text-pink-300 border-3 border-pink-300`,
-    // });
-    // tournamentsButton.onclick = () => {
-    //   this.router.navigate('/tournament');
-    // };
-    // gameMenu.appendChild(tournamentsButton);
-    // gameMenu.appendChild(
-    //   createElement('button', {
-    //     textContent: 'Settings',
-    //     className: `cursor-pointer flex-1 rounded bg-gradient-to-br from-pink-200 to-pink-300 rounded-xl font-semibold uppercase text-background`,
-    //     onclick: () => {
-    //       this.router.navigate('/settings');
-    //     },
-    //   }),
-    // );
 
     container.appendChild(homepage);
     if (this.chat) container.appendChild(this.chat);
