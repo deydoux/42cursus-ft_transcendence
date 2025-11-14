@@ -33,9 +33,11 @@ export const fetchAccount = async () => {
 
     const data = await response.json();
     api.store.setState({user: data});
+    return true;
   } catch (error) {
     Toastify.error('An error occurred while fetching user account');
     console.error(error);
+    return false;
   }
 };
 

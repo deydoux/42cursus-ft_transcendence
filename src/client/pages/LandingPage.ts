@@ -145,16 +145,6 @@ export class LandingPage extends BaseComponent {
     const remoteAuths = createElement('div', {
       className: 'w-full mb-8',
     });
-    // const googleButton = createElement('div');
-    //   textContent: `Sign ${signin ? 'in' : 'up'} with`,
-    //   className:
-    //     'h-14 w-full rounded-2xl border border-white bg-linear-to-br from-background to-background text-white hover:from-pink-200 hover:to-pink-300 hover:text-black hover:border-pink-300 cursor-pointer',
-    // });
-    // googleButton.appendChild(
-    //   createElement('strong', {
-    //     textContent: ' Google',
-    //   }),
-    // );
 
     const script = createElement('script');
     script.type = 'text/javascript';
