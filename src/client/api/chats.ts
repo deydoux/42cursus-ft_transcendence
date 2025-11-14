@@ -178,8 +178,12 @@ export const sendPrivateMessage = async (toUserID: number, message: string) => {
       }),
     });
   } catch (error) {
-    Toastify.error('An error occured while sending a message');
+    Toastify.error(error.message);
     console.error(error);
+
+    store.setState({
+      chatView: {label: 'chatsList'},
+    });
   }
 };
 
