@@ -86,7 +86,7 @@ export class PasswordManager extends BaseComponent {
             name: label.toLowerCase().replaceAll(' ', ''),
             placeholder: canChangePassword
               ? 'Enter your password'
-              : 'You have no old paswword',
+              : 'You have no old password',
           },
           events: {
             input: () => checkInputs(),
