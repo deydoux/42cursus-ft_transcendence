@@ -1,6 +1,7 @@
 import {FastifyPluginAsyncJsonSchemaToTs} from '@fastify/type-provider-json-schema-to-ts';
 import SQL from 'sql-template-strings';
 import compareHash from '#lib/compareHash';
+import sleep from '#lib/sleep';
 
 const schema = {
   body: {
@@ -28,6 +29,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     )
       return reply.unauthorized('Invalid password');
 
+    server.clients.closeUser(id);
+    await sleep(1000);
     await server.db.run(SQL`DELETE FROM users WHERE id = ${id}`);
 
     await server.removeAvatar(id);

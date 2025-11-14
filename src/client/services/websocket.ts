@@ -1,4 +1,5 @@
 import {Api} from '../utils/Api';
+import {Router} from './router';
 import {setupChatHandlers} from '../handlers/chat';
 import {setupGameHandlers} from '../handlers/game';
 import {setupTournamentHandlers} from '../handlers/tournament';
@@ -96,23 +97,30 @@ export class Socket {
 
         this.ws.onclose = event => {
           console.log(`WebSocket closed: ${event.code} - ${event.reason}`);
-          if (event.code === 1006) {
-            console.log(
-              'Authentication failed, attempting to refresh token...',
-            );
+          switch (event.code) {
+            case 1006:
+              console.log(
+                'Authentication failed, attempting to refresh token...',
+              );
 
-            Api.getInstance()
-              .refreshAccessToken()
-              .then(() => {
-                console.log('Token refreshed, retrying connection...');
-                return this.connect();
-              })
-              .catch(err => {
-                console.error('Token refresh failed:', err);
-                reject(new Error('Authentication failed'));
-              });
-          } else {
-            this.emit('close', event);
+              Api.getInstance()
+                .refreshAccessToken()
+                .then(() => {
+                  console.log('Token refreshed, retrying connection...');
+                  return this.connect();
+                })
+                .catch(err => {
+                  console.error('Token refresh failed:', err);
+                  reject(new Error('Authentication failed'));
+                });
+              break;
+
+            case 3000:
+              Router.getInstance().navigate('/');
+              break;
+
+            default:
+              this.emit('close', event);
           }
         };
 
