@@ -63,7 +63,7 @@ export class PongGame extends BaseComponent {
         side: isLocal ? 'left' : user.id === players[0]?.id ? 'left' : 'right',
       };
       const op = isLocal
-        ? {id: 0, username: 'Unknown', avatar: ''}
+        ? {id: 0, username: 'Guest', avatar: '/static/guest.webp'}
         : user.id === players[0]?.id
           ? players[1]
           : players[0];
@@ -71,7 +71,7 @@ export class PongGame extends BaseComponent {
       const opponent: IPlayer = {
         id: op.id,
         username: isOpponentBlocked ? 'Unknown' : op.username,
-        avatar: isOpponentBlocked ? '' : op.avatar,
+        avatar: isOpponentBlocked ? '/static/guest.webp' : op.avatar,
         score: 0,
         paddle: new Paddle(
           ctx,
