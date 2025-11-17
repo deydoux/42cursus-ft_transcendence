@@ -48,7 +48,6 @@ export const statisticsApi = {
       }
 
       const {streaks, matches, elo} = store.getState();
-      console.log(elo);
       const pongMatches = matches.filter(match => match.game === 'pong');
       const raceMatches = matches.filter(match => match.game === 'race');
       const pongElo = elo.filter(elo => elo.game === 'pong');
@@ -89,14 +88,10 @@ export const statisticsApi = {
           wins: userPongStats.wins,
           losses: userPongStats.losses,
           winRate: this.calculateGameWinRate(streaks.pong.winRate),
-          bestStreak: Math.max(
-            streaks.pong.casual.best,
-            streaks.pong.ranked.best,
-          ),
-          currentStreak: Math.max(
-            streaks.pong.casual.current,
-            streaks.pong.ranked.current,
-          ),
+          casualCurrentStreak: streaks.pong.casual.current,
+          casualBestStreak: streaks.pong.casual.best,
+          rankedCurrentStreak: streaks.pong.ranked.current,
+          rankedBestStreak: streaks.pong.ranked.best,
           eloHistory: pongElo.sort(
             (a, b) =>
               new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
@@ -112,14 +107,10 @@ export const statisticsApi = {
           wins: userRaceStats.wins,
           losses: userRaceStats.losses,
           winRate: this.calculateGameWinRate(streaks.race.winRate),
-          bestStreak: Math.max(
-            streaks.race.casual.best,
-            streaks.race.ranked.best,
-          ),
-          currentStreak: Math.max(
-            streaks.race.casual.current,
-            streaks.race.ranked.current,
-          ),
+          casualCurrentStreak: streaks.race.casual.current,
+          casualBestStreak: streaks.race.casual.best,
+          rankedCurrentStreak: streaks.race.ranked.current,
+          rankedBestStreak: streaks.race.ranked.best,
           eloHistory: raceElo.sort(
             (a, b) =>
               new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
