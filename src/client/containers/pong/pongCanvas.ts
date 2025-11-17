@@ -15,6 +15,8 @@ export class PongCanvas {
   private touchEndHandler: ((e: TouchEvent) => void) | null = null;
   private websocket: Socket;
   private gameId: string | null = null;
+  private lastPaddleState: 'idle' | 'up' | 'down' = 'idle';
+  private opponentPaddleState: 'idle' | 'up' | 'down' = 'idle';
 
   private constructor(pong: IPongGame, gameId?: string) {
     this.websocket = Socket.getInstance();
@@ -174,7 +176,7 @@ export class PongCanvas {
       this.pong.opponent.score.toString();
   }
 
-    private handleTouchStart(e: TouchEvent): void {
+  private handleTouchStart(e: TouchEvent): void {
     e.preventDefault();
 
     const canvas = this.ctx.canvas;
@@ -198,7 +200,9 @@ export class PongCanvas {
       const touchX = touchXDisplay * scaleX;
       const touchY = touchYDisplay * scaleY;
 
-      console.log(`Touch at: X=${touchX.toFixed(0)}, Y=${touchY.toFixed(0)}, Canvas: ${canvas.width}x${canvas.height}`);
+      console.log(
+        `Touch at: X=${touchX.toFixed(0)}, Y=${touchY.toFixed(0)}, Canvas: ${canvas.width}x${canvas.height}`,
+      );
 
       // Determine which corner was touched
       const isTopLeft = touchX < zoneWidth && touchY < zoneHeight;
@@ -210,7 +214,9 @@ export class PongCanvas {
         touchX > canvas.width - zoneWidth &&
         touchY > canvas.height - zoneHeight;
 
-      console.log(`Corners: TL=${isTopLeft}, BL=${isBottomLeft}, TR=${isTopRight}, BR=${isBottomRight}`);
+      console.log(
+        `Corners: TL=${isTopLeft}, BL=${isBottomLeft}, TR=${isTopRight}, BR=${isBottomRight}`,
+      );
 
       if (this.pong.isLocal) {
         // Reset all keys first
@@ -401,39 +407,47 @@ export class PongCanvas {
     if (this.pong.isScoring) return;
     const paddleSpeed = this.ctx.canvas.height * 0.01;
 
-    let moved = false;
+    let currentState: 'idle' | 'up' | 'down' = 'idle';
     let direction = 0;
 
     if (this.pong.player.side == 'right') {
       if (this.pong.keys.ArrowUp) {
         this.pong.player.paddle?.move(-paddleSpeed);
         direction = -1;
-        moved = true;
+        currentState = 'up';
       } else if (this.pong.keys.ArrowDown) {
         this.pong.player.paddle?.move(paddleSpeed);
         direction = 1;
-        moved = true;
+        currentState = 'down';
       }
     } else if (this.pong.player.side == 'left') {
       if (this.pong.keys.w) {
         this.pong.player.paddle?.move(-paddleSpeed);
         direction = -1;
-        moved = true;
+        currentState = 'up';
       } else if (this.pong.keys.s) {
         this.pong.player.paddle?.move(paddleSpeed);
         direction = 1;
-        moved = true;
+        currentState = 'down';
       }
     }
+
     if (this.pong.isLocal) {
       if (this.pong.keys.ArrowUp) {
         this.pong.opponent.paddle?.move(-paddleSpeed);
       } else if (this.pong.keys.ArrowDown) {
         this.pong.opponent.paddle?.move(paddleSpeed);
       }
+    } else {
+      // Online mode: use opponent's state
+      if (this.opponentPaddleState === 'up') {
+        this.pong.opponent.paddle?.move(-paddleSpeed);
+      } else if (this.opponentPaddleState === 'down') {
+        this.pong.opponent.paddle?.move(paddleSpeed);
+      }
     }
 
-    if (moved && !this.pong.isLocal)
+    if (!this.pong.isLocal && currentState !== this.lastPaddleState)
       this.websocket.send({
         type: 'paddleMove',
         side: this.pong.player.side,
@@ -441,6 +455,17 @@ export class PongCanvas {
         yPosition: this.pong.player.paddle?.y || 0,
         timestamp: Date.now(),
       });
+    this.lastPaddleState = currentState;
+  }
+
+  public setOpponentPaddleMovement(direction: number): void {
+    if (direction === -1) {
+      this.opponentPaddleState = 'up';
+    } else if (direction === 1) {
+      this.opponentPaddleState = 'down';
+    } else {
+      this.opponentPaddleState = 'idle';
+    }
   }
 
   public endofAMatch(

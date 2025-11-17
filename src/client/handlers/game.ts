@@ -162,7 +162,12 @@ const handlePaddleMove = (data: {
 
   if (pongCanvas.pong.player.side === data.side) {
     return;
-  } else if (pongCanvas.pong.opponent && pongCanvas.pong.opponent.paddle) {
+  }
+  // Set opponent paddle movement state
+  pongCanvas.setOpponentPaddleMovement(data.direction);
+
+  // Optional: Sync position to prevent drift
+  if (data.direction === 0 && pongCanvas.pong.opponent.paddle) {
     pongCanvas.pong.opponent.paddle.y = data.yPosition;
   }
 };
@@ -357,4 +362,5 @@ export const setupGameHandlers = () => {
   websocket.on('updateGrowth', handleUpdateGrowth);
   websocket.on('updateSlowdown', handleUpdateSlowdown);
   websocket.on('gameInvite', handleGameInvite);
+  // websocket.on('paddleSync', handlePaddleSync);
 };
