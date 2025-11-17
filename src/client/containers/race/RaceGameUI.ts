@@ -53,7 +53,7 @@ export class RaceGameUI extends BaseComponent {
 
     // Left player info
     const leftPlayer = DOMUtils.createElement('div', {
-      className: 'flex items-center gap-4',
+      className: 'flex items-center gap-4 flex-1',
     });
     leftPlayer.innerHTML = `
       <img id="left_pic" class="w-16 h-16 rounded-full" src="" alt="Player">
@@ -64,7 +64,8 @@ export class RaceGameUI extends BaseComponent {
     `;
 
     const timeDisplay = DOMUtils.createElement('div', {
-      className: 'flex flex-col items-center gap-2 text-white',
+      className:
+        'flex flex-col items-center gap-2 text-white h-full justify-end self-end scale-90 lg:self-auto lg:scale-100 lg:justify-center',
     });
     timeDisplay.innerHTML = `
       <div id="race_timer" class="text-3xl font-bold">00:00</div>
@@ -72,7 +73,7 @@ export class RaceGameUI extends BaseComponent {
 
     // Right player info
     const rightPlayer = DOMUtils.createElement('div', {
-      className: 'flex items-center gap-4 flex-row-reverse',
+      className: 'flex items-center gap-4 flex-row-reverse flex-1',
     });
     rightPlayer.innerHTML = `
       <img id="right_pic" class="w-16 h-16 rounded-full" src="" alt="Player">
