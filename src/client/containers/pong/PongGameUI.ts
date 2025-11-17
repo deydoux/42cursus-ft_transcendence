@@ -49,23 +49,25 @@ export class PongGameUI extends BaseComponent {
     const header = DOMUtils.createElement('div', {
       attributes: {id: 'game-header'},
       className:
-        'flex justify-between items-center px-8 py-4 bg-white/5 border border-white/20 rounded-lg mx-auto',
+        'flex justify-between items-center p-3 bg-white/5 border border-white/20 gap-10 rounded-lg',
     });
 
     // Left player info
     const leftPlayer = DOMUtils.createElement('div', {
-      className: 'flex items-center gap-4',
+      className: 'flex items-start gap-4 lg:items-center',
     });
+
     leftPlayer.innerHTML = `
-      <img id="left_pic" class="w-16 h-16 rounded-full border-2 border-blue-500" src="" alt="Player">
-      <div>
-        <div id="left_name" class="text-xl font-bold text-white"></div>
+      <img id="left_pic" class="w-16 h-16 rounded-full self-start lg:self-center" src="" alt="Player">
+      <div class="flex flex-col justify-start lg:justify-center">
+      <div id="left_name" class="text-xl font-bold text-white"></div>
       </div>
     `;
 
     // Score display
     const scoreDisplay = DOMUtils.createElement('div', {
-      className: 'flex items-center gap-8 text-4xl font-bold text-white',
+      className:
+        'flex h-full self-stretch items-end lg:items-center justify-center gap-6 text-3xl lg:text-4xl font-bold text-white',
     });
     scoreDisplay.innerHTML = `
       <span id="left_score">0</span>
@@ -75,12 +77,12 @@ export class PongGameUI extends BaseComponent {
 
     // Right player info
     const rightPlayer = DOMUtils.createElement('div', {
-      className: 'flex items-center gap-4 flex-row-reverse',
+      className: 'flex items-start gap-4 flex-row-reverse lg:items-center',
     });
     rightPlayer.innerHTML = `
-      <img id="right_pic" class="w-16 h-16 rounded-full border-2 border-red-500" src="" alt="Player">
-      <div class="text-right">
-        <div id="right_name" class="text-xl font-bold text-white"></div>
+      <img id="right_pic" class="w-16 h-16 rounded-full self-start lg:self-center" src="" alt="Player">
+      <div class="flex flex-col justify-start lg:justify-center text-right">
+      <div id="right_name" class="text-xl font-bold text-white"></div>
       </div>
     `;
 
