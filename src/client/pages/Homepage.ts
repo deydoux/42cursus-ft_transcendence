@@ -87,7 +87,8 @@ export class Homepage extends BaseComponent {
     );
     container.appendChild(
       createElement('img', {
-        className: 'absolute w-65 rotate-5 -right-5 -top-10 animate-wiggle',
+        className:
+          'absolute rotate-5 -right-5 -bottom-5 animate-wiggle w-32 sm:w-40 lg:w-65',
         attributes: {src: sticker},
       }),
     );
