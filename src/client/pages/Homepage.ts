@@ -121,7 +121,7 @@ export class Homepage extends BaseComponent {
       if (sticker) {
         button.appendChild(
           createElement('img', {
-            className: `absolute h-12/10 z-0 grayscale opacity-10 group-hover:grayscale-0 group-hover:scale-115 duration-200 group-hover:opacity-100 group-hover:rotate-3`,
+            className: `absolute z-0 max-h-[120%] h-auto w-auto object-contain grayscale opacity-10 group-hover:grayscale-0 group-hover:scale-115 duration-200 group-hover:opacity-100 group-hover:rotate-3`,
             attributes: {src: sticker},
             onclick: onclick as EventListener,
           }),
