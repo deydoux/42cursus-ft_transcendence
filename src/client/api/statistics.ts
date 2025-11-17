@@ -63,36 +63,32 @@ export const statisticsApi = {
       // Get game mode distribution from streaks
       const gameModeDistribution = {
         pong: {
-          casual: streaks.pong.casual.totalMatches,
-          ranked: streaks.pong.ranked.totalMatches,
+          casual: streaks.pong.casual.current + streaks.pong.casual.best,
+          ranked: streaks.pong.ranked.current + streaks.pong.ranked.best,
         },
         race: {
-          casual: streaks.race.casual.totalMatches,
-          ranked: streaks.race.ranked.totalMatches,
+          casual: streaks.race.casual.current + streaks.race.casual.best,
+          ranked: streaks.race.ranked.current + streaks.race.ranked.best,
         },
       };
 
       // Transform to StatisticsData format
       const statisticsData: StatisticsData = {
         // General stats (calculated from all games)
-        totalGamesPlayed: userPongStats.totalGames + userRaceStats.totalGames,
-        totalWins: userPongStats.wins + userRaceStats.wins,
-        totalLosses: userPongStats.losses + userRaceStats.losses,
-        winRate: this.calculateOverallWinRate(
-          userPongStats.wins + userRaceStats.wins,
-          userPongStats.totalGames + userRaceStats.totalGames,
-        ),
+        totalGamesPlayed: streaks.total.totalMatches,
+        totalWins: streaks.total.wins,
+        totalLosses: streaks.total.losses,
+        winRate: this.calculateGameWinRate(streaks.total.winRate),
         monthlyActivity,
         gameModeDistribution,
 
         // Pong-specific stats
         pongStats: {
           matches: pongMatches,
-          gamesPlayed:
-            streaks.pong.casual.totalMatches + streaks.pong.ranked.totalMatches,
+          gamesPlayed: streaks.pong.totalMatches,
           wins: userPongStats.wins,
           losses: userPongStats.losses,
-          winRate: this.calculateGameWinRate(streaks.pong),
+          winRate: this.calculateGameWinRate(streaks.pong.winRate),
           bestStreak: Math.max(
             streaks.pong.casual.best,
             streaks.pong.ranked.best,
@@ -112,11 +108,10 @@ export const statisticsApi = {
         // Race-specific stats
         raceStats: {
           matches: raceMatches,
-          gamesPlayed:
-            streaks.race.casual.totalMatches + streaks.race.ranked.totalMatches,
+          gamesPlayed: streaks.race.totalMatches,
           wins: userRaceStats.wins,
           losses: userRaceStats.losses,
-          winRate: this.calculateGameWinRate(streaks.race),
+          winRate: this.calculateGameWinRate(streaks.race.winRate),
           bestStreak: Math.max(
             streaks.race.casual.best,
             streaks.race.ranked.best,
@@ -166,19 +161,8 @@ export const statisticsApi = {
   },
 
   // Helper method to calculate win rate from streak data (convert 0-1 to percentage)
-  calculateGameWinRate(gameStreaks: {
-    casual: {winRate: number};
-    ranked: {winRate: number};
-  }): number {
-    // Average the win rates from casual and ranked, convert to percentage
-    const avgWinRate =
-      (gameStreaks.casual.winRate + gameStreaks.ranked.winRate) / 2;
-    return Math.round(avgWinRate * 100 * 10) / 10; // Round to 1 decimal place
-  },
-
-  // Helper method to calculate overall win rate
-  calculateOverallWinRate(wins: number, totalGames: number): number {
-    return totalGames > 0 ? Math.round((wins / totalGames) * 100 * 10) / 10 : 0;
+  calculateGameWinRate(winRate: number): number {
+    return Math.round(winRate * 100 * 10) / 10; // Round to 1 decimal place
   },
 
   calculateMonthlyActivity(
