@@ -27,12 +27,12 @@
     "fix:server": "npm run fix -- src/server"
   },
   "devDependencies": {
-    "@dotenvx/dotenvx": "^1.51.0",
+    "@dotenvx/dotenvx": "^1.51.1",
     "@eslint/js": "^9.38.0",
     "@tailwindcss/vite": "^4.1.16",
     "@types/bcrypt": "^6.0.0",
     "@types/ms": "^2.1.0",
-    "@types/node": "^24.9.2",
+    "@types/node": "^24.10.1",
     "@types/qrcode": "^1.5.5",
     "@types/sqlite3": "^5.1.0",
     "@types/ws": "^8.18.1",
@@ -47,7 +47,7 @@
     "tailwindcss": "^4.1.16",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.3",
-    "vite": "^7.1.12"
+    "vite": "^7.2.2"
   },
   "dependencies": {
     "@fastify/autoload": "^6.3.1",
