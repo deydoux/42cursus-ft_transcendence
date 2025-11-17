@@ -77,12 +77,6 @@ export class RGPD extends BaseComponent {
         textContent: `By deleting your account, you will lose your data. This cannot be undone.`,
       }),
     );
-    dialogContent.appendChild(
-      createElement('p', {
-        className: 'text-white/80 my-4',
-        textContent: `Please enter your password to confirm your account deletion`,
-      }),
-    );
 
     const errorMessage = createElement('p', {
       className: 'text-red-500 text-sm',
@@ -98,17 +92,34 @@ export class RGPD extends BaseComponent {
       if (result.success) this.router.navigate('/');
       else errorMessage.textContent = result.error;
     };
-    form.appendChild(
-      createElement('input', {
-        className: `mt-1 border w-full border-pink-300/50 bg-background focus:border-white rounded-lg focus:outline-none px-3 py-2 placeholder:font-light placeholder:text-white/20`,
-        attributes: {
-          name: 'password',
-          type: 'password',
-          placeholder: 'Your Password',
-        },
-      }),
-    );
-    form.appendChild(errorMessage);
+
+    const renderConfirmPasswordForm = () => {
+      form.innerHTML = '';
+      const {user} = this.store.getState();
+      if (user && !user.passwordEditedAt) return;
+
+      form.appendChild(
+        createElement('p', {
+          className: 'text-white/80 my-4',
+          textContent: `Please enter your password to confirm your account deletion`,
+        }),
+      );
+
+      form.appendChild(
+        createElement('input', {
+          className: `mt-1 border w-full border-pink-300/50 bg-background focus:border-white rounded-lg focus:outline-none px-3 py-2 placeholder:font-light placeholder:text-white/20`,
+          attributes: {
+            name: 'password',
+            type: 'password',
+            placeholder: 'Your Password',
+          },
+        }),
+      );
+      form.appendChild(errorMessage);
+    };
+
+    renderConfirmPasswordForm();
+    this.subscribeToPath('user.passwordEditedAt', renderConfirmPasswordForm);
 
     const buttons = createElement('div', {
       className: 'flex items-center justify-end gap-4 mt-6',

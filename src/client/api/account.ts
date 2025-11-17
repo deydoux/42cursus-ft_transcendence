@@ -31,11 +31,30 @@ export const fetchAccount = async () => {
       throw new Error(errorData.message);
     }
 
-    const data = await response.json();
-    api.store.setState({user: data});
+    const data: {
+      id: number;
+      username: string;
+      passwordEditedAt: string;
+      totp: boolean;
+      elo: {
+        pong: number;
+        race: number;
+      };
+      hasAvatar: boolean;
+      avatar: string;
+    } = await response.json();
+    api.store.setState({
+      user: {
+        ...data,
+        elo: data.elo.pong,
+        raceElo: data.elo.race,
+      },
+    });
+    return true;
   } catch (error) {
     Toastify.error('An error occurred while fetching user account');
     console.error(error);
+    return false;
   }
 };
 
@@ -154,6 +173,7 @@ export const updatePassword = async (
       throw new Error(errorData.message);
     }
 
+    await fetchAccount();
     Toastify.success('Password updated successfully');
     return {success: true, data: undefined};
   } catch (error) {

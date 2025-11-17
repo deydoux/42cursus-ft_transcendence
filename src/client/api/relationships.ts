@@ -69,13 +69,12 @@ export const sendFriendRequest = async (username: string) => {
 
     if (!response.ok) {
       const errorData = await response.json();
-      if (errorData.message !== 'User not found')
-        throw new Error(errorData.message);
+      throw new Error(errorData.message);
     }
 
     Toastify.success('Friend request sent successfully');
   } catch (error) {
-    Toastify.error('Could not send friend request');
+    Toastify.error(error.message);
     console.error(error);
   }
 };

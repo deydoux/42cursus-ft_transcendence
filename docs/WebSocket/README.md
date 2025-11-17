@@ -14,7 +14,7 @@ Sent to create a new tournament
 }
 ```
 
-**Note:** the `name` field must be `.trim()`, at least **3** and not exceed **64** characters in length.
+**Note:** the `name` field must be `.trim()`, at least **3** and not exceed **20** characters in length.
 
 ### `joinMatchmaking`
 Sent to join the matchmaking queue
