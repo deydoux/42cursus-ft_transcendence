@@ -1,13 +1,13 @@
 import {Popup, createPopupContainer} from '../components/Popup';
 import {BaseComponent} from '../components/BaseComponent';
 import {createElement} from '../utils/dom';
-import pongsticker from '../assets/fuck3.png';
-import racesticker from '../assets/fuck2.png';
-import settingssticker from '../assets/fuck1.png';
-import statisticssticker from '../assets/stats.png';
+import pongsticker from '../assets/home/pong.png';
+import racesticker from '../assets/home/race.png';
+import settingssticker from '../assets/home/settings.png';
+import statisticssticker from '../assets/home/stats.png';
 import sticker from '../assets/sticker.png';
 import textIMG from '../assets/kittypong.png';
-import tournamentsticker from '../assets/fuck4.png';
+import tournamentsticker from '../assets/home/tournament.png';
 
 export class Homepage extends BaseComponent {
   private gameModeMenu: Popup | null = null;
