@@ -1,5 +1,7 @@
 import {Popup, createPopupContainer} from '../components/Popup';
 import {BaseComponent} from '../components/BaseComponent';
+import {Store} from '../services/store';
+import {Toastify} from '../utils/toastify';
 import {createElement} from '../utils/dom';
 import pongsticker from '../assets/fuck3.png';
 import racesticker from '../assets/fuck2.png';
@@ -34,6 +36,10 @@ export class Homepage extends BaseComponent {
             });
 
             if (mode === 'play local') {
+              if (Store.getInstance().getState().joinedTournament) {
+                Toastify.error('You are already in a tournament');
+                return;
+              }
               sessionStorage.setItem('validGameAccess', 'true');
               this.router.navigate(`/${game}`);
             } else if (mode === 'play remote') {
