@@ -12,6 +12,7 @@ import {Socket} from './services/websocket';
 import {Statistics} from './pages/Statistics';
 import {Store} from './services/store';
 import {Tournament} from './pages/Tournament';
+import {fetchAccount} from './api/account';
 import {loadIcons} from './utils/icons';
 
 class App {
@@ -40,23 +41,7 @@ class App {
       const {user} = this.store.getState();
       if (user?.id) return true;
 
-      try {
-        const response = await Api.getInstance().get('account', {
-          headers: {Authorization: `Bearer ${token}`},
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message);
-        }
-
-        const data = await response.json();
-        this.store.setState({user: data});
-        return true;
-      } catch (error) {
-        console.error(error);
-        return false;
-      }
+      return await fetchAccount();
     });
 
     this.setupRoutes();

@@ -547,10 +547,11 @@ export class Discussion extends BaseComponent {
       className: 'overflow-hidden flex-1',
     });
 
-    let view: HTMLDivElement;
     const renderDiscussion = () => {
       const {chatView} = this.store.getState();
-      if (view) view.innerHTML = '';
+      container.innerHTML = '';
+
+      let view: HTMLDivElement;
 
       if (chatView.label === 'general') view = this.renderGeneralDiscussion();
       else if (chatView.id) view = this.renderPrivateDiscussion(chatView.id);

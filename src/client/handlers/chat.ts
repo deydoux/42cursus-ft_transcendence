@@ -3,7 +3,7 @@ import {Socket} from '../services/websocket';
 import {Store} from '../services/store';
 import {Toastify} from '../utils/toastify';
 import {createElement} from '../utils/dom';
-import {markMessagesAsRead} from '../api/chats';
+import {fetchDiscussion, markMessagesAsRead} from '../api/chats';
 
 const toastMessageNotification = (
   user: {
@@ -36,7 +36,7 @@ const toastMessageNotification = (
   );
   userInfo.appendChild(
     createElement('p', {
-      textContent: `General: ${message}`,
+      textContent: `${isGeneralMessage ? 'General : ' : ''}${message}`,
     }),
   );
   container.appendChild(userInfo);
@@ -44,13 +44,14 @@ const toastMessageNotification = (
   Toastify.info(container, {
     onClick: (toastID: string) => {
       Toastify.dismiss(toastID);
-      Store.getInstance().setState(
-        isGeneralMessage
-          ? {
-              chatView: {label: user.username, id: user.id},
-            }
-          : {chatView: {label: 'general'}},
-      );
+      if (isGeneralMessage) {
+        Store.getInstance().setState({chatView: {label: 'general'}});
+      } else {
+        fetchDiscussion(user.id);
+        Store.getInstance().setState({
+          chatView: {label: user.username, id: user.id},
+        });
+      }
     },
     closable: false,
   });
@@ -150,6 +151,7 @@ const handleDirectMessage = (data: {
             ...chat,
             content: data.content,
             updatedAt: new Date().toISOString(),
+            unread: chatView.id === data.sender.id ? 0 : (chat.unread ?? 0) + 1,
           }
         : chat,
     ),
@@ -212,8 +214,9 @@ const handleFriendRequest = (data: {
 }) => {
   const store = Store.getInstance();
 
-  const {friendRequests} = store.getState();
+  const {friendRequests, countFriendRequests} = store.getState();
   store.setState({
+    countFriendRequests: countFriendRequests + 1,
     friendRequests: [
       ...friendRequests,
       {

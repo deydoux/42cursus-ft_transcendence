@@ -211,7 +211,6 @@ export class ChatsList extends BaseComponent {
       const rightContent = createElement('div', {
         className: 'flex items-center justify-center gap-4',
       });
-      console.log('chat', chat);
       if (chat.invite) {
         const duelButton = createElement('button', {
           className: `w-10 h-10 flex items-center justify-center enabled:hover:text-pink-300 enabled:hover:bg-pink-300/10 disabled:text-white/20 disabled:cursor-not-allowed rounded cursor-pointer p-2 duration-100`,

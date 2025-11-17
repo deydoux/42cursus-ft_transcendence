@@ -61,32 +61,46 @@ export class PasswordManager extends BaseComponent {
       className: 'w-full flex items-center gap-4 pt-4',
     });
 
-    ['Old Password', 'New Password', 'New Password Again'].forEach(label => {
-      const password = createElement('div', {
-        className: 'flex-1',
-      });
-      password.appendChild(
-        createElement('label', {
-          className: 'font-semibold mb-1 text-sm',
-          textContent: label,
-        }),
-      );
-      password.appendChild(
-        createElement('input', {
-          className: `change-password mt-1 border w-full border-pink-300/50 bg-background focus:border-white rounded-lg focus:outline-none px-3 py-2 placeholder:font-light placeholder:text-white/20`,
+    const renderPasswords = () => {
+      const {user} = this.store.getState();
+      passwordsWrapper.innerHTML = '';
+
+      ['Old Password', 'New Password', 'New Password Again'].forEach(label => {
+        const password = createElement('div', {
+          className: 'flex-1',
+        });
+        password.appendChild(
+          createElement('label', {
+            className: 'font-semibold mb-1 text-sm',
+            textContent: label,
+          }),
+        );
+
+        const canChangePassword =
+          (label === 'Old Password' && user?.passwordEditedAt) ||
+          label !== 'Old Password';
+        const input = createElement('input', {
+          className: `${canChangePassword ? 'change-password' : ''} mt-1 border w-full enabled:border-pink-300/50 disabled:border-white/20 enabled:bg-background focus:border-white rounded-lg focus:outline-none px-3 py-2 placeholder:font-light placeholder:text-white/20`,
           attributes: {
             type: 'password',
             name: label.toLowerCase().replaceAll(' ', ''),
-            placeholder: 'Enter your password',
+            placeholder: canChangePassword
+              ? 'Enter your password'
+              : 'You have no old password',
           },
           events: {
             input: () => checkInputs(),
           },
-        }),
-      );
+        });
+        input.disabled = !canChangePassword;
+        password.appendChild(input);
 
-      passwordsWrapper.appendChild(password);
-    });
+        passwordsWrapper.appendChild(password);
+      });
+    };
+
+    renderPasswords();
+    this.subscribeToPath('user.passwordEditedAt', renderPasswords);
     container.appendChild(passwordsWrapper);
 
     const submitWrapper = createElement('div', {

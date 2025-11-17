@@ -47,3 +47,30 @@
 .settings-title>span {
   color: white;
 }
+
+.gdpr {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.gdpr h1 {
+  font-size: 2em;
+  margin: 10px 0 10px 0;
+  border-bottom: 1px solid gray;
+}
+.gdpr h2 {
+  font-size: 1.5em;
+  margin: 10px 0 10px 0;
+  border-bottom: 1px solid gray;
+}
+.gdpr ul li {
+  margin-left: 40px;
+  list-style: circle;
+}
+
+.gdpr a {
+  color: #fda5d5
+}
+.gdpr a:hover {
+  text-decoration: underline;
+}

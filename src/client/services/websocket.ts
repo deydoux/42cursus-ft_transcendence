@@ -60,6 +60,7 @@ export class Socket {
   }
 
   private initializeHandlers() {
+    this.eventHandlers.clear();
     setupChatHandlers();
     setupGameHandlers();
     setupTournamentHandlers();

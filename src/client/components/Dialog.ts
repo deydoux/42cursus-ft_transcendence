@@ -2,15 +2,22 @@ import {DOMUtils} from '../utils/dom';
 
 export const createDialog = (id: string, onClose?: () => void) => {
   const dialog = DOMUtils.createElement('dialog', {
-    className:
-      'max-w-[100vw] max-h-[100vh] w-screen h-screen bg-black/10 backdrop-blur-sm',
+    className: `max-w-[100vw] max-h-[100vh] w-screen h-screen bg-black/10 backdrop-blur-sm`,
     attributes: {
       id: id,
     },
   }) as HTMLDialogElement;
 
-  document.getElementById('root')?.appendChild(dialog);
-  const showModal = () => dialog.showModal();
+  const root = document.getElementById('root');
+  if (!root) throw new Error('Could not find root when creating dialog');
+
+  root.appendChild(dialog);
+  const showModal = () => {
+    if (!dialog.isConnected) {
+      root.appendChild(dialog);
+    }
+    dialog.showModal();
+  };
   const close = () => {
     dialog.close();
     onClose?.();
