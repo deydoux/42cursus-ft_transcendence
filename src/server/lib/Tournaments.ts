@@ -21,10 +21,10 @@ export default class Tournaments {
     }
 
     name = name.trim();
-    if (name.length < 3 || name.length > 64)
+    if (name.length < 3 || name.length > 20)
       return Clients.sendClient(owner, {
         type: 'error',
-        message: 'Tournament name must be between 3 and 64 characters',
+        message: 'Tournament name must be between 3 and 20 characters',
       });
 
     this.id++;
