@@ -187,37 +187,37 @@ export interface AppState {
   }[];
   streaks: {
     total: {
-      wins: 1;
-      losses: 1;
-      totalMatches: 2;
-      winRate: 0.5;
+      wins: number;
+      losses: number;
+      totalMatches: number;
+      winRate: number;
     };
     pong: {
-      wins: 1;
-      losses: 1;
-      totalMatches: 2;
-      winRate: 0.5;
+      wins: number;
+      losses: number;
+      totalMatches: number;
+      winRate: number;
       casual: {
-        current: 0;
-        best: 0;
+        current: number;
+        best: number;
       };
       ranked: {
-        current: 1;
-        best: 1;
+        current: number;
+        best: number;
       };
     };
     race: {
-      wins: 0;
-      losses: 0;
-      totalMatches: 0;
-      winRate: 0;
+      wins: number;
+      losses: number;
+      totalMatches: number;
+      winRate: number;
       casual: {
-        current: 0;
-        best: 0;
+        current: number;
+        best: number;
       };
       ranked: {
-        current: 0;
-        best: 0;
+        current: number;
+        best: number;
       };
     };
   };

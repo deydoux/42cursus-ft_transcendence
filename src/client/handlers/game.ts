@@ -362,5 +362,4 @@ export const setupGameHandlers = () => {
   websocket.on('updateGrowth', handleUpdateGrowth);
   websocket.on('updateSlowdown', handleUpdateSlowdown);
   websocket.on('gameInvite', handleGameInvite);
-  // websocket.on('paddleSync', handlePaddleSync);
 };
