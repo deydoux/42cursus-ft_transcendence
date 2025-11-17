@@ -164,10 +164,10 @@ export class PongGameUI extends BaseComponent {
       <h2 class="text-3xl font-bold mb-6 ${isWinner ? 'text-green-400' : 'text-red-400'}">
         ${isWinner ? 'Victory!' : 'Defeat!'}
       </h2>
-      
+
       <div class="flex justify-between items-center mb-6">
         <div class="flex flex-col items-center">
-          <img class="w-20 h-20 rounded-full mb-2 border-2 ${isWinner ? 'border-green-400' : 'border-red-400'}" 
+          <img class="w-20 h-20 rounded-full mb-2 border-2 ${isWinner ? 'border-green-400' : 'border-red-400'}"
                src="${user.avatar || unknow_avatar}" alt="${user.username}">
           <div class="font-bold text-white">${user.username}</div>
           ${!pongCanvas.pong.isLocal && isRanked ? `<div class="text-sm text-black mb-2">ELO: ${user.elo}</div>` : ''}
@@ -179,21 +179,21 @@ export class PongGameUI extends BaseComponent {
           : ''
       }
         </div>
-        
+
         <div class="text-4xl font-bold text-white">
           ${userScore} - ${opponentScore}
         </div>
-        
+
         <div class="flex flex-col items-center">
-          <img class="w-20 h-20 rounded-full mb-2 border-2 ${!isWinner ? 'border-green-400' : 'border-red-400'}" 
+          <img class="w-20 h-20 rounded-full mb-2 border-2 ${!isWinner ? 'border-green-400' : 'border-red-400'}"
                src="${opponent?.avatar || unknow_avatar}" alt="${opponent?.username || 'Opponent'}">
           <div class="font-bold text-white">${opponent?.username || 'Opponent'}</div>
       ${!pongCanvas.pong.isLocal && isRanked ? `<div class="text-sm text-black mb-2">ELO: '0'</div>` : ''}
         </div>
       </div>
-      
+
       ${data.result ? `<div class="mb-6 text-gray-300">${data.result}</div>` : ''}
-      
+
       <div class="flex gap-4 justify-center">
         <button id="close-modal-btn" class="cursor-pointer bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2">
           <svg class="w-5 h-5" fill="#fda5d5" viewBox="0 0 495.398 495.398">
@@ -203,10 +203,10 @@ export class PongGameUI extends BaseComponent {
       Home
       </button>
       <button id="rematch-btn" class="cursor-pointer bg-gray-500 hover:bg-grey-600 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2">
-        <svg class="w-6 h-6" version="1.1" id="Icons" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32" xml:space="preserve" fill="#fda5d5"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <style type="text/css"> .st0{fill:none;stroke:#fda5d5;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;} </style> 
-        <path class="st0" d="M27,6.5v7c0,0.8-0.7,1.5-1.5,1.5h0c-0.8,0-1.5-0.7-1.5-1.5v-7C24,5.7,24.7,5,25.5,5h0C26.3,5,27,5.7,27,6.5z"></path> 
+        <svg class="w-6 h-6" version="1.1" id="Icons" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32" xml:space="preserve" fill="#fda5d5"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <style type="text/css"> .st0{fill:none;stroke:#fda5d5;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;} </style>
+        <path class="st0" d="M27,6.5v7c0,0.8-0.7,1.5-1.5,1.5h0c-0.8,0-1.5-0.7-1.5-1.5v-7C24,5.7,24.7,5,25.5,5h0C26.3,5,27,5.7,27,6.5z"></path>
         <path class="st0" d="M8,18.5v7C8,26.3,7.3,27,6.5,27h0C5.7,27,5,26.3,5,25.5v-7C5,17.7,5.7,17,6.5,17h0C7.3,17,8,17.7,8,18.5z"></path> <circle class="st0" cx="15" cy="18" r="2"></circle> <path class="st0" d="M26,30H6c-2.2,0-4-1.8-4-4V6c0-2.2,1.8-4,4-4h20c2.2,0,4,1.8,4,4v20C30,28.2,28.2,30,26,30z"></path> <line class="st0" x1="16" y1="16" x2="16" y2="2"></line> <line class="st0" x1="16" y1="30" x2="16" y2="20"></line> </g>
-        </svg>  
+        </svg>
         Rematch
         </button>
       </div>
@@ -314,25 +314,6 @@ export class PongGameUI extends BaseComponent {
     // Get container dimensions
     const container = canvas.parentElement;
     if (!container) throw new Error('container not found');
-    const containerRect = container.getBoundingClientRect();
-
-    // Calculate scale to fit container while maintaining aspect ratio
-    const scaleX = containerRect.width / 1920;
-    const scaleY = containerRect.height / 1080;
-    const scale = Math.min(scaleX, scaleY);
-
-    const canvasWidth = 1920 * scale;
-    const canvasHeight = 1080 * scale;
-
-    // Set canvas display size
-    canvas.style.width = `${canvasWidth}px`;
-    canvas.style.height = `${canvasHeight}px`;
-
-    // Set header width to match canvas
-    const header = document.getElementById('game-header');
-    if (header) {
-      header.style.width = `${canvasWidth}px`;
-    }
 
     canvas.width = 1920;
     canvas.height = 1080;
