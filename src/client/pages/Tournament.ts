@@ -63,7 +63,7 @@ export class Tournament extends BaseComponent {
           placeholder: 'Tournament name...',
           name: 'name',
           minLength: '3',
-          maxLength: '64',
+          maxLength: '20',
         },
       }),
     );

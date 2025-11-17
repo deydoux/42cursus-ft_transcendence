@@ -218,7 +218,7 @@ export class LandingPage extends BaseComponent {
 
       const suggestedUsername = payload.email
         .split('@')[0]
-        .substring(0, 16)
+        .substring(0, 10)
         .replace(/[^a-zA-Z0-9_]/g, '_');
 
       this.authDialogContent.innerHTML = '';
