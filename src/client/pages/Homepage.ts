@@ -143,11 +143,11 @@ export class Homepage extends BaseComponent {
         }),
       );
 
-      if (typeof elo === 'number') {
+      if (elo) {
         button.appendChild(
           createElement('span', {
             className:
-              'absolute top-2 right-2 z-10 rounded-full bg-black/60 backdrop-blur px-3 py-1 text-xs font-semibold text-white shadow-lg border border-white/30',
+              'absolute top-2 right-2 z-10 rounded-full bg-black/60 backdrop-blur-sm px-3 py-1 text-xs font-semibold text-white shadow-lg border border-white/30',
             textContent: `ELO ${elo}`,
             onclick: onclick as EventListener,
           }),
