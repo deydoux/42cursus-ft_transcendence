@@ -93,9 +93,8 @@ export const blockUser = async (userID: number, username: string) => {
     store.setState({chatView: {label: 'chatsList'}});
     Toastify.success(`You blocked ${username}`);
   } catch (error) {
-    Toastify.error(
-      `An error occured while closing relationship with ${username}`,
-    );
+    Toastify.error(error.message);
+    store.setState({chatView: {label: 'chatsList'}});
     console.error(error);
   }
 };
@@ -108,6 +107,11 @@ export const acceptFriendRequest = async (
   const store = Store.getInstance();
   try {
     const response = await api.patch(`relationships/${relationshipID}`, {});
+
+    if (response.status === 404) {
+      Toastify.error('This friend request no longer exists');
+      return;
+    }
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -166,7 +170,7 @@ export const closeRequest = async (
   try {
     const response = await api.delete(`relationships/${relationshipID}`, {});
 
-    if (!response.ok) {
+    if (!response.ok || response.status !== 404) {
       const errorData = await response.json();
       throw new Error(errorData.message);
     }
@@ -174,10 +178,10 @@ export const closeRequest = async (
     const {friendRequests, sentFriendRequests} = store.getState();
     store.setState({
       friendRequests: friendRequests.filter(
-        request => request.username !== username,
+        request => request.relationshipID !== relationshipID,
       ),
       sentFriendRequests: sentFriendRequests.filter(
-        request => request.username !== username,
+        request => request.relationshipID !== relationshipID,
       ),
     });
     Toastify.success(`Closed request`);
@@ -196,7 +200,7 @@ export const unfriendUser = async (
   try {
     const response = await api.delete(`relationships/${relationshipID}`, {});
 
-    if (!response.ok) {
+    if (!response.ok || response.status !== 404) {
       const errorData = await response.json();
       throw new Error(errorData.message);
     }
@@ -219,7 +223,7 @@ export const unblockUser = async (relationshipID: number) => {
   try {
     const response = await api.delete(`relationships/${relationshipID}`, {});
 
-    if (!response.ok) {
+    if (!response.ok || response.status !== 404) {
       const errorData = await response.json();
       throw new Error(errorData.message);
     }
