@@ -289,7 +289,7 @@ export class RaceGame extends BaseComponent {
     const gameElement = this.raceGameUI.render();
     container.appendChild(gameElement);
 
-    const chat = new Chat().render();
+    const chat = new Chat().render(true);
     if (chat) container.appendChild(chat);
 
     requestAnimationFrame(() => {

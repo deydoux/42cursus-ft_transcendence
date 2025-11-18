@@ -239,11 +239,8 @@ export class PongGame extends BaseComponent {
     const gameElement = this.pongGameUI.render();
     container.appendChild(gameElement);
 
-    const chat = new Chat().render();
-    if (chat) {
-      chat.classList.add('hidden', 'lg:block');
-      container.appendChild(chat);
-    }
+    const chat = new Chat().render(true);
+    if (chat) container.appendChild(chat);
 
     requestAnimationFrame(() => {
       this.renderGameCanvas();

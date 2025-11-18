@@ -65,7 +65,7 @@ export class PasswordManager extends BaseComponent {
       const {user} = this.store.getState();
       passwordsWrapper.innerHTML = '';
 
-      ['Old Password', 'New Password', 'New Password Again'].forEach(label => {
+      ['Old Password', 'New Password', 'Confirm Password'].forEach(label => {
         const password = createElement('div', {
           className: 'flex-1',
         });
