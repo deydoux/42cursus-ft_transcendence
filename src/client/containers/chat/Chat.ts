@@ -111,10 +111,12 @@ export class Chat extends BaseComponent {
     return container;
   }
 
-  render(): HTMLElement {
+  render(isGame = false): HTMLElement {
     const {dialogContent, showModal} = createDialog('gdpr');
     const container = createElement('div', {
-      className: `flex-none w-[400px] max-h-[100%] h-full overflow-hidden flex-none flex flex-col gap-4`,
+      className: `flex-none w-[400px] max-h-[100%] h-full overflow-hidden flex-col gap-4 ${
+        isGame ? 'hidden xl:flex' : 'flex'
+      }`,
     });
 
     // User card
