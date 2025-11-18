@@ -57,9 +57,14 @@ export class UserProfile extends BaseComponent {
       }),
     );
 
-    form.appendChild(
+    const buttons = createElement('div', {
+      className: 'ml-4 flex gap-2 flex-col xl:flex-row',
+    });
+    form.appendChild(buttons);
+
+    buttons.appendChild(
       createElement('button', {
-        className: `ml-4 flex-none bg-background border border-pink-300 text-sm rounded-lg h-full px-4 py-2 hover:bg-pink-300/20 duration-200 cursor-pointer`,
+        className: `flex-none bg-background border border-pink-300 text-sm rounded-lg h-full px-4 py-2 hover:bg-pink-300/20 duration-200 cursor-pointer`,
         textContent: 'Change',
         attributes: {
           type: 'submit',
@@ -68,7 +73,7 @@ export class UserProfile extends BaseComponent {
     );
 
     if (user.hasAvatar) {
-      form.appendChild(
+      buttons.appendChild(
         createElement('button', {
           className: `border border-white/20 rounded-lg text-sm px-4 py-2 cursor-pointer`,
           textContent: 'Remove',
