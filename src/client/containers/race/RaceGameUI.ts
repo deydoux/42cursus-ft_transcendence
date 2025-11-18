@@ -191,7 +191,6 @@ export class RaceGameUI extends BaseComponent {
       <img class="w-20 h-20 rounded-full mb-3 border-2 ${isTie ? 'border-gray-400' : !isWinner ? 'border-green-400' : 'border-red-400'}" 
            src="${opponent?.avatar || unknow_avatar}" alt="${opponent?.username || 'Opponent'}">
       <div class="font-bold text-white text-lg">${opponent?.username || 'Opponent'}</div>
-      ${!raceCanvas.race.isLocal && isRanked ? `<div class="text-sm text-black mb-2">ELO: '0'</div>` : ''}
     </div>
   </div>
   
