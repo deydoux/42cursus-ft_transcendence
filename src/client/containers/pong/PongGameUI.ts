@@ -54,12 +54,12 @@ export class PongGameUI extends BaseComponent {
 
     // Left player info
     const leftPlayer = DOMUtils.createElement('div', {
-      className: 'flex items-start gap-4 lg:items-center',
+      className: 'flex items-start gap-4 md:items-center',
     });
 
     leftPlayer.innerHTML = `
-      <img id="left_pic" class="w-16 h-16 rounded-full self-start lg:self-center" src="" alt="Player">
-      <div class="flex flex-col justify-start lg:justify-center">
+      <img id="left_pic" class="w-16 h-16 rounded-full self-start md:self-center" src="" alt="Player">
+      <div class="flex flex-col justify-start md:justify-center">
       <div id="left_name" class="text-xl font-bold text-white"></div>
       </div>
     `;
@@ -67,21 +67,21 @@ export class PongGameUI extends BaseComponent {
     // Score display
     const scoreDisplay = DOMUtils.createElement('div', {
       className:
-        'flex h-full self-stretch items-end md:items-center justify-center gap-6 text-3xl md:text-4xl font-bold text-white',
+        'flex h-full self-stretch items-end md:items-center justify-center gap-6 text-3xl md:text-4xl font-bold',
     });
     scoreDisplay.innerHTML = `
       <span id="left_score">0</span>
-      <span class="text-gray-500">-</span>
+      <span class="text-gray-500">|</span>
       <span id="right_score">0</span>
     `;
 
     // Right player info
     const rightPlayer = DOMUtils.createElement('div', {
-      className: 'flex items-start gap-4 flex-row-reverse lg:items-center',
+      className: 'flex items-start gap-4 flex-row-reverse md:items-center',
     });
     rightPlayer.innerHTML = `
-      <img id="right_pic" class="w-16 h-16 rounded-full self-start lg:self-center" src="" alt="Player">
-      <div class="flex flex-col justify-start lg:justify-center text-right">
+      <img id="right_pic" class="w-16 h-16 rounded-full self-start md:self-center" src="" alt="Player">
+      <div class="flex flex-col justify-start md:justify-center text-right">
       <div id="right_name" class="text-xl font-bold text-white"></div>
       </div>
     `;

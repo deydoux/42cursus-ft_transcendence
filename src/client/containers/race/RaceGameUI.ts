@@ -65,10 +65,10 @@ export class RaceGameUI extends BaseComponent {
 
     const timeDisplay = DOMUtils.createElement('div', {
       className:
-        'flex flex-col items-center gap-2 text-white h-full justify-end self-end scale-90 lg:self-auto min-[1150px]:scale-100 min-[1150px]:justify-center',
+        'flex flex-col items-center gap-2 text-white h-full justify-end self-end text-3xl md:text-4xl md:self-auto md:justify-center',
     });
     timeDisplay.innerHTML = `
-      <div id="race_timer" class="text-3xl font-bold">00:00</div>
+      <div id="race_timer" class="text-3xl  font-bold">00:00</div>
     `;
 
     // Right player info
