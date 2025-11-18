@@ -114,7 +114,7 @@ const handleMatchStart = (data: {
     const {user} = store.getState();
     const opponent = data.players.find(player => player.id !== user?.id);
     if (opponent)
-      lobbyText.innerHTML = `Match found! Starting game with <span class="text-pink-300">${opponent.username}</span>...`;
+      lobbyText.innerHTML = `Match found! Starting game with <span class="text-pink-300 font-bold">${opponent.username}</span>...`;
   }
 
   setTimeout(() => {
