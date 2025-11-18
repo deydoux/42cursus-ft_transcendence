@@ -136,7 +136,7 @@ export class UserProfile extends BaseComponent {
 
       const button = createElement('button', {
         className: `bg-background flex-none border border-pink-300 text-sm rounded-lg h-full px-4 hover:bg-pink-300/20 duration-200 cursor-pointer`,
-        textContent: 'Change username',
+        textContent: 'Change',
         onclick: renderEditMode,
         attributes: {
           type: 'button',
