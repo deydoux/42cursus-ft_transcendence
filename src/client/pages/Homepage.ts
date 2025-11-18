@@ -38,10 +38,10 @@ export class Homepage extends BaseComponent {
             if (mode === 'play local') {
               if (Store.getInstance().getState().joinedTournament) {
                 Toastify.error('You are already in a tournament');
-                return;
+              } else {
+                sessionStorage.setItem('validGameAccess', 'true');
+                this.router.navigate(`/${game}`);
               }
-              sessionStorage.setItem('validGameAccess', 'true');
-              this.router.navigate(`/${game}`);
             } else if (mode === 'play remote') {
               this.websocket.send({
                 type: 'joinMatchmaking',
