@@ -92,7 +92,7 @@ export class RaceGame extends BaseComponent {
       };
 
       const op = isLocal
-        ? {id: 0, username: 'Unknown', avatar: ''}
+        ? {id: 0, username: 'Guest', avatar: '/static/guest.webp'}
         : user.id === players[0]?.id
           ? players[1]
           : players[0];
@@ -100,7 +100,7 @@ export class RaceGame extends BaseComponent {
       const opponent: IPlayer = {
         id: op.id,
         username: isOpponentBlocked ? 'Unknown' : op.username,
-        avatar: isOpponentBlocked ? '' : op.avatar,
+        avatar: isOpponentBlocked ? '/static/guest.webp' : op.avatar,
         score: 0,
         paddle: null,
         car: new Car(ctx, opponentCarX, opponentCarY, '#ffff00', carOpponent),
