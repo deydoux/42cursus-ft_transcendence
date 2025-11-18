@@ -95,13 +95,14 @@ export class PongGameUI extends BaseComponent {
 
   private renderGameArea(): HTMLElement {
     const gameArea = DOMUtils.createElement('div', {
-      className: 'flex-1 flex justify-center items-center overflow-hidden',
+      className:
+        'min-h-0 h-full flex-1 flex justify-center items-center overflow-hidden',
     });
 
     const canvas = DOMUtils.createElement('canvas', {
       attributes: {id: 'pong'},
       className:
-        'w-full h-auto bg-linear-to-br from-pink-200 to-pink-300 shadow-lg shadow-pink-300/30 rounded-lg',
+        'max-w-full max-h-full bg-linear-to-br from-pink-200 to-pink-300 shadow-lg shadow-pink-300/30 rounded-lg',
     }) as HTMLCanvasElement;
 
     gameArea.appendChild(canvas);
