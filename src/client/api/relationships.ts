@@ -170,7 +170,7 @@ export const closeRequest = async (
   try {
     const response = await api.delete(`relationships/${relationshipID}`, {});
 
-    if (!response.ok || response.status !== 404) {
+    if (!response.ok && response.status !== 404) {
       const errorData = await response.json();
       throw new Error(errorData.message);
     }
@@ -200,7 +200,7 @@ export const unfriendUser = async (
   try {
     const response = await api.delete(`relationships/${relationshipID}`, {});
 
-    if (!response.ok || response.status !== 404) {
+    if (!response.ok && response.status !== 404) {
       const errorData = await response.json();
       throw new Error(errorData.message);
     }
@@ -223,7 +223,7 @@ export const unblockUser = async (relationshipID: number) => {
   try {
     const response = await api.delete(`relationships/${relationshipID}`, {});
 
-    if (!response.ok || response.status !== 404) {
+    if (!response.ok && response.status !== 404) {
       const errorData = await response.json();
       throw new Error(errorData.message);
     }
