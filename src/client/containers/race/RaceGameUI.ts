@@ -92,13 +92,14 @@ export class RaceGameUI extends BaseComponent {
 
   private renderGameArea(): HTMLElement {
     const gameArea = DOMUtils.createElement('div', {
-      className: 'flex-1 flex justify-center items-center rounded-md',
+      className:
+        'flex-1 min-h-0 w-full flex justify-center items-center rounded-md',
     });
 
     const canvas = DOMUtils.createElement('canvas', {
       attributes: {id: 'race'},
       className:
-        'w-full h-auto bg-linear-to-br from-pink-500 to-pink-600 shadow-lg shadow-pink-500/30 rounded-lg border-4 border-pink-300',
+        'max-w-full max-h-full bg-linear-to-br from-pink-500 to-pink-600 shadow-lg shadow-pink-500/30 rounded-lg border-4 border-pink-300',
     }) as HTMLCanvasElement;
 
     gameArea.appendChild(canvas);
