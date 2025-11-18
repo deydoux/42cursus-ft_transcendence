@@ -86,7 +86,14 @@ export class Chat extends BaseComponent {
 
     const homepageButton = createElement('button', {
       className: `rounded-full flex items-center p-2 justify-center border border-pink-300/10 disabled:text-white/30 hover:text-pink-300 hover:bg-pink-300/10 cursor-pointer  transition-all `,
-      onclick: () => this.router.navigate('/homepage'),
+      onclick: () => {
+        const currentPath = window.location.pathname;
+        if (currentPath == '/pong' || currentPath == '/race')
+          this.websocket.send({
+            type: 'leaveMatchmaking',
+          });
+        this.router.navigate('/homepage');
+      },
     });
     homepageButton.appendChild(
       createElement('i', {
@@ -97,7 +104,14 @@ export class Chat extends BaseComponent {
 
     const settingsButton = createElement('button', {
       className: `rounded-full flex items-center p-2 justify-center border border-pink-300/10 disabled:text-white/30  hover:text-pink-300 hover:bg-pink-300/10 cursor-pointer  transition-all `,
-      onclick: () => this.router.navigate('/settings'),
+      onclick: () => {
+        const currentPath = window.location.pathname;
+        if (currentPath == '/pong' || currentPath == '/race')
+          this.websocket.send({
+            type: 'leaveMatchmaking',
+          });
+        this.router.navigate('/settings');
+      },
     });
     settingsButton.appendChild(
       createElement('i', {

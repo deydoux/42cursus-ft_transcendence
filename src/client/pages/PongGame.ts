@@ -128,7 +128,6 @@ export class PongGame extends BaseComponent {
     console.log('PongGame cleaned up');
   }
 
-  // Add destroy method for completeness
   public destroy(): void {
     this.cleanup();
   }
@@ -150,7 +149,8 @@ export class PongGame extends BaseComponent {
         activeElement?.tagName === 'INPUT' ||
         activeElement?.tagName === 'TEXTAREA' ||
         isContentEditable ||
-        activeElement?.closest('.chat-input') !== null
+        activeElement?.closest('.chat-input') !== null ||
+        activeElement?.closest('.search-input') !== null
       );
     };
 
@@ -240,7 +240,10 @@ export class PongGame extends BaseComponent {
     container.appendChild(gameElement);
 
     const chat = new Chat().render();
-    if (chat) container.appendChild(chat);
+    if (chat) {
+      chat.classList.add('hidden', 'lg:block');
+      container.appendChild(chat);
+    }
 
     requestAnimationFrame(() => {
       this.renderGameCanvas();

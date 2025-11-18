@@ -37,8 +37,10 @@ export interface StatisticsData {
     wins: number;
     losses: number;
     winRate: number;
-    bestStreak: number;
-    currentStreak: number;
+    casualBestStreak: number;
+    casualCurrentStreak: number;
+    rankedBestStreak: number;
+    rankedCurrentStreak: number;
     eloHistory: {value: number; createdAt: string}[];
     currentElo?: number;
   };
@@ -71,8 +73,10 @@ export interface StatisticsData {
     wins: number;
     losses: number;
     winRate: number;
-    bestStreak: number;
-    currentStreak: number;
+    casualBestStreak: number;
+    casualCurrentStreak: number;
+    rankedBestStreak: number;
+    rankedCurrentStreak: number;
     eloHistory: {value: number; createdAt: string}[];
     currentElo?: number;
   };
