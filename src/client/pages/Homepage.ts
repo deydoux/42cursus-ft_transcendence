@@ -157,7 +157,7 @@ export class Homepage extends BaseComponent {
     );
     firstRow.appendChild(
       renderButton(
-        'Play race cars',
+        'Play race',
         evt => this.renderGameModeMenu(evt, 'race'),
         racesticker,
       ),
