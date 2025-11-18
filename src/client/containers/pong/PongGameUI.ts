@@ -67,7 +67,7 @@ export class PongGameUI extends BaseComponent {
     // Score display
     const scoreDisplay = DOMUtils.createElement('div', {
       className:
-        'flex h-full self-stretch items-end lg:items-center justify-center gap-6 text-3xl lg:text-4xl font-bold text-white',
+        'flex h-full self-stretch items-end md:items-center justify-center gap-6 text-3xl md:text-4xl font-bold text-white',
     });
     scoreDisplay.innerHTML = `
       <span id="left_score">0</span>
