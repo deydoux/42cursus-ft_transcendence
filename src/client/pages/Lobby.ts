@@ -108,7 +108,6 @@ export class Lobby extends BaseComponent {
         textContent: 'Quit lobby',
         className: `border border-red-500/80 bg-red-500/10 text-red-500/80 hover:border-red-500 py-2 px-4 rounded-lg hover:text-red-500 hover:bg-red-500/20 cursor-pointer duration-100`,
         onclick: () => {
-          this.store.setState({game: undefined});
           this.websocket.send({
             type: 'leaveMatchmaking',
           });

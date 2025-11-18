@@ -223,7 +223,8 @@ export class Discussion extends BaseComponent {
     });
 
     const messageInput = createElement('form', {
-      className: 'h-10 mx-6 my-6 flex-none relative flex items-center',
+      className:
+        'search-input h-10 mx-6 my-6 flex-none relative flex items-center',
     });
     messageInput.onsubmit = async evt => {
       evt.preventDefault();

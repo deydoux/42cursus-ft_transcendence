@@ -34,32 +34,38 @@ const defaultValues = {
   },
   raceWalls: [],
   streak: {
+    total: {
+      wins: 1,
+      losses: 1,
+      totalMatches: 2,
+      winRate: 0.5,
+    },
     pong: {
+      wins: 1,
+      losses: 1,
+      totalMatches: 2,
+      winRate: 0.5,
       casual: {
         current: 0,
         best: 0,
-        winRate: 0,
-        totalMatches: 0,
       },
       ranked: {
-        current: 0,
-        best: 0,
-        winRate: 0,
-        totalMatches: 0,
+        current: 1,
+        best: 1,
       },
     },
     race: {
+      wins: 0,
+      losses: 0,
+      totalMatches: 0,
+      winRate: 0,
       casual: {
         current: 0,
         best: 0,
-        winRate: 0,
-        totalMatches: 0,
       },
       ranked: {
         current: 0,
         best: 0,
-        winRate: 0,
-        totalMatches: 0,
       },
     },
   },

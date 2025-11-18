@@ -233,11 +233,19 @@ export class StatisticsUI extends BaseComponent {
                         </div>
                         <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
                           <span class="text-gray-300">Current Streak:</span>
-                          <span class="text-white font-bold" id="pong-current-streak">0</span>
+                          <span class="text-white font-bold" id="pong-casual-current-streak">0</span>
                         </div>
                         <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
                           <span class="text-gray-300">Best Streak:</span>
-                          <span class="text-white font-bold" id="pong-best-streak">0:00</span>
+                          <span class="text-white font-bold" id="pong-casual-best-streak">0:00</span>
+                        </div>
+                        <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                          <span class="text-gray-300">(RANKED) Current Streak:</span>
+                          <span class="text-white font-bold" id="pong-ranked-current-streak">0</span>
+                        </div>
+                        <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                          <span class="text-gray-300">(RANKED) Best Streak:</span>
+                          <span class="text-white font-bold" id="pong-ranked-best-streak">0:00</span>
                         </div>
                       </div>
                     </div>
@@ -323,13 +331,21 @@ export class StatisticsUI extends BaseComponent {
                             <span class="text-white font-bold" id="race-winrate">0%</span>
                           </div>
                           <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
-                            <span class="text-gray-300">Current Streak:</span>
-                            <span class="text-white font-bold" id="race-current-streak">0</span>
-                          </div>
-                          <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
-                            <span class="text-gray-300">Best Streak:</span>
-                            <span class="text-white font-bold" id="race-best-streak">0:00</span>
-                          </div>
+                          <span class="text-gray-300">Current Streak:</span>
+                          <span class="text-white font-bold" id="race-casual-current-streak">0</span>
+                        </div>
+                        <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                          <span class="text-gray-300">Best Streak:</span>
+                          <span class="text-white font-bold" id="race-casual-best-streak">0:00</span>
+                        </div>
+                        <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                          <span class="text-gray-300">(RANKED) Current Streak:</span>
+                          <span class="text-white font-bold" id="race-ranked-current-streak">0</span>
+                        </div>
+                        <div class="flex justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                          <span class="text-gray-300">(RANKED) Best Streak:</span>
+                          <span class="text-white font-bold" id="race-ranked-best-streak">0:00</span>
+                        </div>
                         </div>
                       </div>
                     </div>
@@ -618,10 +634,9 @@ export class StatisticsUI extends BaseComponent {
       <div class="flex justify-between items-center p-2 bg-white/5 rounded border border-white/10">
         <div class="flex items-center gap-2">
           <span class="text-sm ${match.winner.id === user?.id ? 'text-green-400' : 'text-red-400'}">
-            ${match.winner.id === user?.id ? '✓' : '✗'}
+            ${match.result === 'tie' ? '-' : match.winner.id === user?.id ? '✓' : '✗'}
           </span>
-          <span class="text-white text-sm">played against ${match.winner.id === user?.id ? match.loser.username : match.winner.username}</span>
-        </div>
+          <span class="text-white text-sm">${match.result === 'forfeit' ? 'Winned by forfeit' : match.result === 'tie' ? 'Tie' : match.winner.id === user?.id ? 'Won ' : 'Lost'} against ${match.winner.id === user?.id ? match.loser.username : match.winner.username}</span>
         <div class="text-xs text-gray-400">
           ${match.winner.score} | ${match.loser.score} • ${new Date(match.createdAt).toLocaleDateString()}
         </div>
@@ -756,13 +771,23 @@ export class StatisticsUI extends BaseComponent {
     );
     this.updateElement(
       container,
-      '#pong-best-streak',
-      data.pongStats.bestStreak.toString(),
+      '#pong-casual-best-streak',
+      data.pongStats.casualBestStreak.toString(),
     );
     this.updateElement(
       container,
-      '#pong-current-streak',
-      data.pongStats.currentStreak.toString(),
+      '#pong-casual-current-streak',
+      data.pongStats.casualCurrentStreak.toString(),
+    );
+    this.updateElement(
+      container,
+      '#pong-ranked-best-streak',
+      data.pongStats.rankedBestStreak.toString(),
+    );
+    this.updateElement(
+      container,
+      '#pong-ranked-current-streak',
+      data.pongStats.rankedCurrentStreak.toString(),
     );
     this.updateElement(
       container,
@@ -785,13 +810,23 @@ export class StatisticsUI extends BaseComponent {
     );
     this.updateElement(
       container,
-      '#race-best-streak',
-      data.raceStats.bestStreak.toString(),
+      '#race-casual-best-streak',
+      data.raceStats.casualBestStreak.toString(),
     );
     this.updateElement(
       container,
-      '#race-current-streak',
-      data.raceStats.currentStreak.toString(),
+      '#race-casual-current-streak',
+      data.raceStats.casualCurrentStreak.toString(),
+    );
+    this.updateElement(
+      container,
+      '#race-ranked-best-streak',
+      data.raceStats.rankedBestStreak.toString(),
+    );
+    this.updateElement(
+      container,
+      '#race-ranked-current-streak',
+      data.raceStats.rankedCurrentStreak.toString(),
     );
     this.updateElement(
       container,
@@ -961,80 +996,6 @@ export class StatisticsUI extends BaseComponent {
       },
     });
   }
-
-  // Replace the drawGameModeChart method with this:
-
-  /*   private drawGameModeChart(gameModeDistribution: {
-    pong: {casual: number; ranked: number};
-    race: {casual: number; ranked: number};
-  }): void {
-    const canvas = document.getElementById(
-      'game-mode-chart',
-    ) as HTMLCanvasElement;
-    if (!canvas) return;
-
-    // Destroy existing chart if it exists
-    const existingChart = Chart.getChart(canvas);
-    if (existingChart) {
-      existingChart.destroy();
-    }
-
-    const data = [
-      gameModeDistribution.pong.casual + gameModeDistribution.pong.ranked,
-      gameModeDistribution.race.casual + gameModeDistribution.race.ranked,
-    ];
-
-    const total = data.reduce((sum, value) => sum + value, 0);
-    if (total === 0) return;
-
-    new Chart(canvas, {
-      type: 'doughnut',
-      data: {
-        labels: ['Pong', 'Race'],
-        datasets: [
-          {
-            data: data,
-            backgroundColor: [
-              '#f472b6', // Pink for Pong
-              '#4ade80', // Green for Race
-            ],
-            borderColor: ['#f472b6', '#4ade80'],
-            borderWidth: 2,
-            hoverBorderWidth: 3,
-            hoverBorderColor: '#ffffff',
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false, // We have custom legend below
-          },
-          tooltip: {
-            backgroundColor: 'rgba(0, 0, 0, 0.9)',
-            titleColor: '#ffffff',
-            bodyColor: '#ffffff',
-            borderColor: '#666666',
-            borderWidth: 1,
-            cornerRadius: 8,
-            callbacks: {
-              label: context => {
-                const percentage = ((context.parsed / total) * 100).toFixed(1);
-                return `${context.label}: ${context.parsed} games (${percentage}%)`;
-              },
-            },
-          },
-        },
-        animation: {
-          animateRotate: true,
-          animateScale: true,
-          duration: 1000,
-        },
-      },
-    });
-  } */
 
   private drawGameModeChart(gameModeDistribution: {
     pong: {casual: number; ranked: number};
