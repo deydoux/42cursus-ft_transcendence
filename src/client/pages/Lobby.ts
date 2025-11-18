@@ -1,5 +1,4 @@
 import {BaseComponent} from '../components/BaseComponent';
-import {Toastify} from '../utils/toastify';
 import {createElement} from '../utils/dom';
 
 export class Lobby extends BaseComponent {
@@ -80,6 +79,7 @@ export class Lobby extends BaseComponent {
     });
     const text = createElement('p', {
       textContent: 'Looking for other players...',
+      attributes: {id: 'lobby-text'},
     });
 
     const renderLobbyText = () => {
