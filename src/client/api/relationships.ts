@@ -108,8 +108,16 @@ export const acceptFriendRequest = async (
   try {
     const response = await api.patch(`relationships/${relationshipID}`, {});
 
+    const {friendRequests} = store.getState();
+
     if (response.status === 404) {
       Toastify.error('This friend request no longer exists');
+
+      const filteredRequests = friendRequests.filter(request => {
+        return request.relationshipID !== relationshipID;
+      });
+      store.setState({friendRequests: filteredRequests});
+
       return;
     }
 
@@ -117,8 +125,6 @@ export const acceptFriendRequest = async (
       const errorData = await response.json();
       throw new Error(errorData.message);
     }
-
-    const {friendRequests} = store.getState();
 
     const user = friendRequests.find(r => r.id === userID);
     if (!user) {
