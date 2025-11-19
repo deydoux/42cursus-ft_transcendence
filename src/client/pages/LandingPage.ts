@@ -624,7 +624,7 @@ export class LandingPage extends BaseComponent {
     );
     valueContainer.appendChild(
       createElement('p', {
-        className: `text-[40px] -mt-2 font-bold ${darkMode ? 'text-pink-300' : 'text-black'}`,
+        className: `${value.length > 7 ? 'text-[32px]' : 'text-[40px]'} -mt-2 font-bold ${darkMode ? 'text-pink-300' : 'text-black'}`,
         textContent: value,
       }),
     );

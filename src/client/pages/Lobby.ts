@@ -1,5 +1,4 @@
 import {BaseComponent} from '../components/BaseComponent';
-import {Toastify} from '../utils/toastify';
 import {createElement} from '../utils/dom';
 
 export class Lobby extends BaseComponent {
@@ -64,9 +63,6 @@ export class Lobby extends BaseComponent {
   render(): HTMLElement {
     const state = this.store.getState();
     if (!state.isWaitingForMatchmaking) {
-      Toastify.error(
-        'You need to subscribe to the matchmaking queue before entering the lobby',
-      );
       this.router.navigate('/homepage');
       return createElement('div');
     }
@@ -83,6 +79,7 @@ export class Lobby extends BaseComponent {
     });
     const text = createElement('p', {
       textContent: 'Looking for other players...',
+      attributes: {id: 'lobby-text'},
     });
 
     const renderLobbyText = () => {
@@ -90,8 +87,8 @@ export class Lobby extends BaseComponent {
       lobby.innerHTML = '';
 
       if (matchmakingTargetUser) {
-        text.innerHTML = `Waiting for 
-          <span class="text-pink-300">${matchmakingTargetUser.username}</span> 
+        text.innerHTML = `Waiting for
+          <span class="text-pink-300">${matchmakingTargetUser.username}</span>
         to accept your invite`;
       } else {
         text.textContent = 'Looking for other players...';

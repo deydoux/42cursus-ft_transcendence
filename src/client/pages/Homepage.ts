@@ -119,6 +119,7 @@ export class Homepage extends BaseComponent {
       name: string,
       onclick?: (evt: PointerEvent) => void,
       sticker?: string,
+      elo?: number,
     ) => {
       const button = createElement('button', {
         className: `group relative flex items-center justify-center overflow-hidden uppercase cursor-pointer font-bold flex-1 h-full bg-gradient-to-br from-background to-white/5 hover:to-pink-300/20 hover:border-pink-300 border border-white/50 rounded-lg duration-200`,
@@ -142,6 +143,17 @@ export class Homepage extends BaseComponent {
         }),
       );
 
+      if (elo) {
+        button.appendChild(
+          createElement('span', {
+            className:
+              'absolute top-2 right-2 z-10 rounded-full bg-black/60 backdrop-blur-sm px-3 py-1 text-xs font-semibold text-white shadow-lg border border-white/30',
+            textContent: `ELO ${elo}`,
+            onclick: onclick as EventListener,
+          }),
+        );
+      }
+
       return button;
     };
 
@@ -153,13 +165,15 @@ export class Homepage extends BaseComponent {
         'Play Pong',
         evt => this.renderGameModeMenu(evt, 'pong'),
         pongsticker,
+        this.store.getState().user?.elo.pong,
       ),
     );
     firstRow.appendChild(
       renderButton(
-        'Play race cars',
+        'Play Race',
         evt => this.renderGameModeMenu(evt, 'race'),
         racesticker,
+        this.store.getState().user?.elo.race,
       ),
     );
     buttons.appendChild(firstRow);

@@ -13,6 +13,7 @@ export interface IPlayer {
   id: number;
   username: string;
   avatar: string;
+  elo?: number;
   score: number;
   paddle: Paddle | null;
   car: Car | null;

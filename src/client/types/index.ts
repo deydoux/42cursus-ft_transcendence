@@ -29,8 +29,10 @@ export interface AppState {
     totp: boolean; // 2FA
     hasAvatar: boolean;
     avatar: string;
-    elo: number;
-    raceElo: number;
+    elo: {
+      pong: number;
+      race: number;
+    };
   };
 
   loading: string[];

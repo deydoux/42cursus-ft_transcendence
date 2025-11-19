@@ -47,33 +47,11 @@ export class Chat extends BaseComponent {
       });
       userStats.appendChild(
         createElement('span', {
-          textContent: `${directChats.length} friend${directChats.length === 1 ? '' : 's'} • ${user.elo ?? 300} `,
-        }),
-      );
-      userStats.appendChild(
-        createElement('i', {
-          className: 'w-3 h-3 ml-0.5',
-          icon: 'sparkles',
-        }),
-      );
-
-      const elos = createElement('div', {
-        className: `absolute opacity-0 duration-100 peer-hover:opacity-100 top-10 py-2 px-4 w-30 text-center text-xs bg-background border border-white/20 rounded`,
-      });
-
-      elos.appendChild(
-        createElement('p', {
-          textContent: `Pong elo: ${user.elo}`,
-        }),
-      );
-      elos.appendChild(
-        createElement('p', {
-          textContent: `Race elo: ${user.raceElo}`,
+          textContent: `${directChats.length} friend${directChats.length === 1 ? '' : 's'}`,
         }),
       );
 
       userInfos.appendChild(userStats);
-      userInfos.appendChild(elos);
     };
 
     leftPart.appendChild(userInfos);
