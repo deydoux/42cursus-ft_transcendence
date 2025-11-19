@@ -173,7 +173,7 @@ export class PongGameUI extends BaseComponent {
           <img class="w-20 h-20 rounded-full mb-2 border-2 ${isWinner ? 'border-green-400' : 'border-red-400'}"
                src="${user.avatar || unknow_avatar}" alt="${user.username}">
           <div class="font-bold text-white">${user.username}</div>
-          ${!pongCanvas.pong.isLocal && isRanked ? `<div class="text-sm text-black mb-2">ELO: ${user.elo}</div>` : ''}
+          ${!pongCanvas.pong.isLocal && isRanked ? `<div class="text-sm text-black mb-2">ELO: ${user.elo.pong}</div>` : ''}
       ${
         data.eloChange && !pongCanvas.pong.isLocal && isRanked
           ? `<div class="text-sm ${isWinner ? 'text-green-400' : 'text-red-400'} font-bold">

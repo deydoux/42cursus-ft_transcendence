@@ -165,7 +165,7 @@ export class Homepage extends BaseComponent {
         'Play Pong',
         evt => this.renderGameModeMenu(evt, 'pong'),
         pongsticker,
-        this.store.getState()?.user?.elo,
+        this.store.getState().user?.elo.pong,
       ),
     );
     firstRow.appendChild(
@@ -173,7 +173,7 @@ export class Homepage extends BaseComponent {
         'Play Race',
         evt => this.renderGameModeMenu(evt, 'race'),
         racesticker,
-        this.store.getState()?.user?.raceElo,
+        this.store.getState().user?.elo.race,
       ),
     );
     buttons.appendChild(firstRow);
