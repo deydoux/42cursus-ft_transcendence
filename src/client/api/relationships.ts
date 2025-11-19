@@ -93,9 +93,8 @@ export const blockUser = async (userID: number, username: string) => {
     store.setState({chatView: {label: 'chatsList'}});
     Toastify.success(`You blocked ${username}`);
   } catch (error) {
-    Toastify.error(
-      `An error occured while closing relationship with ${username}`,
-    );
+    Toastify.error(error.message);
+    store.setState({chatView: {label: 'chatsList'}});
     console.error(error);
   }
 };
@@ -109,12 +108,23 @@ export const acceptFriendRequest = async (
   try {
     const response = await api.patch(`relationships/${relationshipID}`, {});
 
+    const {friendRequests} = store.getState();
+
+    if (response.status === 404) {
+      Toastify.error('This friend request no longer exists');
+
+      const filteredRequests = friendRequests.filter(request => {
+        return request.relationshipID !== relationshipID;
+      });
+      store.setState({friendRequests: filteredRequests});
+
+      return;
+    }
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message);
     }
-
-    const {friendRequests} = store.getState();
 
     const user = friendRequests.find(r => r.id === userID);
     if (!user) {
@@ -166,7 +176,7 @@ export const closeRequest = async (
   try {
     const response = await api.delete(`relationships/${relationshipID}`, {});
 
-    if (!response.ok) {
+    if (!response.ok && response.status !== 404) {
       const errorData = await response.json();
       throw new Error(errorData.message);
     }
@@ -174,10 +184,10 @@ export const closeRequest = async (
     const {friendRequests, sentFriendRequests} = store.getState();
     store.setState({
       friendRequests: friendRequests.filter(
-        request => request.username !== username,
+        request => request.relationshipID !== relationshipID,
       ),
       sentFriendRequests: sentFriendRequests.filter(
-        request => request.username !== username,
+        request => request.relationshipID !== relationshipID,
       ),
     });
     Toastify.success(`Closed request`);
@@ -196,7 +206,7 @@ export const unfriendUser = async (
   try {
     const response = await api.delete(`relationships/${relationshipID}`, {});
 
-    if (!response.ok) {
+    if (!response.ok && response.status !== 404) {
       const errorData = await response.json();
       throw new Error(errorData.message);
     }
@@ -219,7 +229,7 @@ export const unblockUser = async (relationshipID: number) => {
   try {
     const response = await api.delete(`relationships/${relationshipID}`, {});
 
-    if (!response.ok) {
+    if (!response.ok && response.status !== 404) {
       const errorData = await response.json();
       throw new Error(errorData.message);
     }

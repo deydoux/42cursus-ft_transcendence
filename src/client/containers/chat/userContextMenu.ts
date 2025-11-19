@@ -73,7 +73,7 @@ export const renderUserContextMenu = (
   });
   const inviteRaceButton = createElement('div', {
     className: `block cursor-pointer w-full text-left px-2 py-1 rounded hover:bg-white/10`,
-    textContent: `Invite to play race cars`,
+    textContent: `Invite to play race`,
     onclick: () => inviteToGame('race'),
   });
 

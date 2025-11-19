@@ -5,7 +5,6 @@ import {
 } from '../utils/content';
 import {Checkpoint} from '../containers/race/checkpoint';
 import {Growpoint} from '../containers/race/growpoint';
-// import {Lobby} from '../pages/Lobby';
 import {Router} from '../services/router';
 import {Slowpoint} from '../containers/race/slowpoint';
 import {Socket} from '../services/websocket';
@@ -110,11 +109,13 @@ const handleMatchStart = (data: {
     raceWalls: data.walls,
   });
 
-  // setTimeout(() => {
-  //   const {user} = store.getState();
-  //   const opponent = user && data.players.find(player => player.id !== user.id);
-  //   if (opponent) Lobby.renderFoundOpponent(opponent);
-  // }, 50);
+  const lobbyText = document.getElementById('lobby-text');
+  if (lobbyText) {
+    const {user} = store.getState();
+    const opponent = data.players.find(player => player.id !== user?.id);
+    if (opponent)
+      lobbyText.innerHTML = `Match found! Starting game with <span class="text-pink-300 font-bold">${opponent.username}</span>...`;
+  }
 
   setTimeout(() => {
     store.setState({isWaitingForMatchmaking: false});

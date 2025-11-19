@@ -156,7 +156,9 @@ const handleTournamentMatchEnd = (data: {
     if (round.id === data.nextRoundID) {
       return {
         ...round,
-        participants: winner ? [...round.participants, winner] : [],
+        participants: winner
+          ? [...round.participants, {...winner, score: undefined}]
+          : [],
         rounds:
           round.rounds?.map(r => updateRoundImmutably(r, data) || r) ?? [],
       };

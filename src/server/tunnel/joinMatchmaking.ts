@@ -60,20 +60,24 @@ export default async function joinMatchmaking(
             )
           `);
 
-          if (relationship) {
-            const user = await server.db.get(SQL`
-              SELECT id, username, has_avatar, avatar_version
-              FROM users
-              WHERE id = ${client.userID}
-            `);
-            serializeUserAvatar(user);
-
-            server.clients.sendUser(message.targetID, {
-              type: 'gameInvite',
-              game: message.game,
-              user,
+          if (!relationship)
+            return Clients.sendClient(client, {
+              type: 'error',
+              message: 'You can only invite friends to a game',
             });
-          }
+
+          const user = await server.db.get(SQL`
+            SELECT id, username, has_avatar, avatar_version
+            FROM users
+            WHERE id = ${client.userID}
+          `);
+          serializeUserAvatar(user);
+
+          server.clients.sendUser(message.targetID, {
+            type: 'gameInvite',
+            game: message.game,
+            user,
+          });
 
           break;
         }

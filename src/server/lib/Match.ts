@@ -33,6 +33,8 @@ export default abstract class Match {
   private readonly createdAt = Math.floor(Date.now() / 1000);
   private readonly lock;
 
+  protected readonly scorePoint: number = 1;
+
   protected players;
   protected result?: 'cancel' | 'forfeit' | 'tie';
   protected unlock = () => undefined;
@@ -251,7 +253,7 @@ export default abstract class Match {
     clearTimeout(this.scoring.timeout);
     this.scoring = undefined;
 
-    scorer.score++;
+    scorer.score += this.scorePoint;
 
     this.handleRound(scorer);
   }

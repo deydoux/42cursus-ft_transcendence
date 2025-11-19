@@ -95,13 +95,14 @@ export class PongGameUI extends BaseComponent {
 
   private renderGameArea(): HTMLElement {
     const gameArea = DOMUtils.createElement('div', {
-      className: 'flex-1 flex justify-center items-center overflow-hidden',
+      className:
+        'min-h-0 h-full flex-1 flex justify-center items-center overflow-hidden',
     });
 
     const canvas = DOMUtils.createElement('canvas', {
       attributes: {id: 'pong'},
       className:
-        'w-full h-auto bg-linear-to-br from-pink-200 to-pink-300 shadow-lg shadow-pink-300/30 rounded-lg',
+        'max-w-full max-h-full bg-linear-to-br from-pink-200 to-pink-300 shadow-lg shadow-pink-300/30 rounded-lg',
     }) as HTMLCanvasElement;
 
     gameArea.appendChild(canvas);
@@ -172,14 +173,14 @@ export class PongGameUI extends BaseComponent {
           <img class="w-20 h-20 rounded-full mb-2 border-2 ${isWinner ? 'border-green-400' : 'border-red-400'}"
                src="${user.avatar || unknow_avatar}" alt="${user.username}">
           <div class="font-bold text-white">${user.username}</div>
-          ${!pongCanvas.pong.isLocal && isRanked ? `<div class="text-sm text-black mb-2">ELO: ${user.elo}</div>` : ''}
-      ${
-        data.eloChange && !pongCanvas.pong.isLocal && isRanked
-          ? `<div class="text-sm ${isWinner ? 'text-green-400' : 'text-red-400'} font-bold">
-        ${isWinner ? '+' : '-'}${data.eloChange}
-          </div>`
-          : ''
-      }
+          ${isRanked ? `<div class="text-sm text-black mb-2">ELO ${user.elo.pong}</div>` : ''}
+          ${
+            data.eloChange
+              ? `<div class="text-sm ${isWinner ? 'text-green-400' : 'text-red-400'} font-bold">
+                  ${isWinner ? '+' : '-'}${data.eloChange}
+                </div>`
+              : ''
+          }
         </div>
 
         <div class="text-4xl font-bold text-white">
@@ -190,6 +191,14 @@ export class PongGameUI extends BaseComponent {
           <img class="w-20 h-20 rounded-full mb-2 border-2 ${!isWinner ? 'border-green-400' : 'border-red-400'}"
                src="${opponent?.avatar || unknow_avatar}" alt="${opponent?.username || 'Opponent'}">
           <div class="font-bold text-white">${opponent?.username || 'Opponent'}</div>
+          ${opponent?.elo ? `<div class="text-sm text-black mb-2">ELO ${opponent.elo}</div>` : ''}
+          ${
+            data.eloChange
+              ? `<div class="text-sm ${!isWinner ? 'text-green-400' : 'text-red-400'} font-bold">
+                  ${!isWinner ? '+' : '-'}${data.eloChange}
+                </div>`
+              : ''
+          }
         </div>
       </div>
 
