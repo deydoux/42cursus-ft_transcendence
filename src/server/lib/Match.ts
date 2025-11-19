@@ -298,7 +298,7 @@ export default abstract class Match {
         avatar: player.avatar,
         elo: player.elo,
       })),
-      time: Date.now() + 1000,
+      time: Date.now() + 4 * 1000, // 4 seconds
       ...this.initialState(),
     });
 
