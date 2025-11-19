@@ -5,7 +5,7 @@ import {createElement} from '../../utils/dom';
 
 export class UserProfile extends BaseComponent {
   avatarAcceptedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-  avatarMaxSize = 5; // Mb
+  avatarMaxSize = 5 * 1024 * 1024; // MB
 
   private renderEditAvatar(form: HTMLFormElement) {
     const {user} = this.store.getState();
@@ -33,7 +33,7 @@ export class UserProfile extends BaseComponent {
         return;
       }
 
-      if (file.size > this.avatarMaxSize * 1024 * 1024) {
+      if (file.size > this.avatarMaxSize) {
         Toastify.error(`File size must be less than ${this.avatarMaxSize}MB`);
         return;
       }

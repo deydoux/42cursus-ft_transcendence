@@ -1,9 +1,9 @@
 import {acceptFriendRequest, closeRequest} from '../api/relationships';
+import {fetchDiscussion, markMessagesAsRead} from '../api/chats';
 import {Socket} from '../services/websocket';
 import {Store} from '../services/store';
 import {Toastify} from '../utils/toastify';
 import {createElement} from '../utils/dom';
-import {fetchDiscussion, markMessagesAsRead} from '../api/chats';
 
 const toastMessageNotification = (
   user: {

@@ -64,9 +64,6 @@ export class Lobby extends BaseComponent {
   render(): HTMLElement {
     const state = this.store.getState();
     if (!state.isWaitingForMatchmaking) {
-      Toastify.error(
-        'You need to subscribe to the matchmaking queue before entering the lobby',
-      );
       this.router.navigate('/homepage');
       return createElement('div');
     }
