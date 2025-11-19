@@ -250,7 +250,7 @@ export class RaceCanvas {
     console.log('isLOcal', isLocal);
 
     this.race.player.car?.move(
-      this.race.keys.w || (!isLocal && this.race.keys.ArrowDown)
+      this.race.keys.w || (!isLocal && this.race.keys.ArrowUp)
         ? true
         : this.race.keys.s || (!isLocal && this.race.keys.ArrowDown)
           ? false
