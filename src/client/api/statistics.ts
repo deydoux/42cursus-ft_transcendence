@@ -53,21 +53,17 @@ export const statisticsApi = {
       const pongElo = elo.filter(elo => elo.game === 'pong');
       const raceElo = elo.filter(elo => elo.game === 'race');
 
-      // Calculate user-specific stats from matches
-      const userPongStats = this.calculateUserStats(pongMatches, user.id);
-      const userRaceStats = this.calculateUserStats(raceMatches, user.id);
-
       const monthlyActivity = this.calculateMonthlyActivity(matches);
-
+      console.log(matches);
       // Get game mode distribution from streaks
       const gameModeDistribution = {
         pong: {
-          casual: streaks.pong.casual.current + streaks.pong.casual.best,
-          ranked: streaks.pong.ranked.current + streaks.pong.ranked.best,
+          casual: this.calculateGameNumber(matches, user.id, 'pong').casual,
+          ranked: this.calculateGameNumber(matches, user.id, 'pong').ranked,
         },
         race: {
-          casual: streaks.race.casual.current + streaks.race.casual.best,
-          ranked: streaks.race.ranked.current + streaks.race.ranked.best,
+          casual: this.calculateGameNumber(matches, user.id, 'race').casual,
+          ranked: this.calculateGameNumber(matches, user.id, 'race').ranked,
         },
       };
 
@@ -85,8 +81,8 @@ export const statisticsApi = {
         pongStats: {
           matches: pongMatches,
           gamesPlayed: streaks.pong.totalMatches,
-          wins: userPongStats.wins,
-          losses: userPongStats.losses,
+          wins: streaks.pong.wins,
+          losses: streaks.pong.losses,
           winRate: this.calculateGameWinRate(streaks.pong.winRate),
           casualCurrentStreak: streaks.pong.casual.current,
           casualBestStreak: streaks.pong.casual.best,
@@ -104,8 +100,8 @@ export const statisticsApi = {
         raceStats: {
           matches: raceMatches,
           gamesPlayed: streaks.race.totalMatches,
-          wins: userRaceStats.wins,
-          losses: userRaceStats.losses,
+          wins: streaks.race.wins,
+          losses: streaks.race.losses,
           winRate: this.calculateGameWinRate(streaks.race.winRate),
           casualCurrentStreak: streaks.race.casual.current,
           casualBestStreak: streaks.race.casual.best,
@@ -114,7 +110,7 @@ export const statisticsApi = {
           eloHistory: raceElo.sort(
             (a, b) =>
               new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-          ), // Add this
+          ),
           currentElo:
             raceElo.length > 0 ? raceElo[raceElo.length - 1].value : undefined,
         },
@@ -127,31 +123,23 @@ export const statisticsApi = {
     }
   },
 
-  // Helper method to calculate user-specific stats from matches
-  calculateUserStats(matches: AppState['matches'], userId: number) {
-    let wins = 0;
-    let losses = 0;
-    let totalScore = 0;
+  calculateGameNumber(
+    matches: AppState['matches'],
+    userId: number,
+    game: string,
+  ) {
+    let casual = 0,
+      ranked = 0;
 
     matches.forEach(match => {
-      if (match.winner.id === userId) {
-        wins++;
-        totalScore += match.winner.score;
-      } else if (match.loser.id === userId) {
-        losses++;
-        totalScore += match.loser.score;
+      if (match.game === game) {
+        if (match.mode == 'ranked') ranked++;
+        if (match.mode == 'casual') casual++;
       }
     });
-
-    return {
-      wins,
-      losses,
-      totalGames: wins + losses,
-      totalScore,
-    };
+    return {casual, ranked};
   },
 
-  // Helper method to calculate win rate from streak data (convert 0-1 to percentage)
   calculateGameWinRate(winRate: number): number {
     return Math.round(winRate * 100 * 10) / 10; // Round to 1 decimal place
   },
