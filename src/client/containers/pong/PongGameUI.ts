@@ -173,14 +173,14 @@ export class PongGameUI extends BaseComponent {
           <img class="w-20 h-20 rounded-full mb-2 border-2 ${isWinner ? 'border-green-400' : 'border-red-400'}"
                src="${user.avatar || unknow_avatar}" alt="${user.username}">
           <div class="font-bold text-white">${user.username}</div>
-          ${!pongCanvas.pong.isLocal && isRanked ? `<div class="text-sm text-black mb-2">ELO: ${user.elo.pong}</div>` : ''}
-      ${
-        data.eloChange && !pongCanvas.pong.isLocal && isRanked
-          ? `<div class="text-sm ${isWinner ? 'text-green-400' : 'text-red-400'} font-bold">
-        ${isWinner ? '+' : '-'}${data.eloChange}
-          </div>`
-          : ''
-      }
+          ${!pongCanvas.pong.isLocal && isRanked ? `<div class="text-sm text-black mb-2">ELO ${user.elo.pong}</div>` : ''}
+          ${
+            data.eloChange && !pongCanvas.pong.isLocal && isRanked
+              ? `<div class="text-sm ${isWinner ? 'text-green-400' : 'text-red-400'} font-bold">
+            ${isWinner ? '+' : '-'}${data.eloChange}
+              </div>`
+              : ''
+          }
         </div>
 
         <div class="text-4xl font-bold text-white">
@@ -191,6 +191,14 @@ export class PongGameUI extends BaseComponent {
           <img class="w-20 h-20 rounded-full mb-2 border-2 ${!isWinner ? 'border-green-400' : 'border-red-400'}"
                src="${opponent?.avatar || unknow_avatar}" alt="${opponent?.username || 'Opponent'}">
           <div class="font-bold text-white">${opponent?.username || 'Opponent'}</div>
+          ${!pongCanvas.pong.isLocal && isRanked && opponent?.elo ? `<div class="text-sm text-black mb-2">ELO ${opponent.elo}</div>` : ''}
+          ${
+            data.eloChange && !pongCanvas.pong.isLocal && isRanked
+              ? `<div class="text-sm ${!isWinner ? 'text-green-400' : 'text-red-400'} font-bold">
+            ${!isWinner ? '+' : '-'}${data.eloChange}
+              </div>`
+              : ''
+          }
         </div>
       </div>
 
