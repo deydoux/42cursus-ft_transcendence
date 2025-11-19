@@ -246,22 +246,19 @@ export class RaceCanvas {
       speed: this.race.player.car?.speed || 0,
     };
 
-    if (this.race.player.side == 'right') {
-      this.race.player.car?.move(
-        this.race.keys.ArrowUp ? true : this.race.keys.ArrowDown ? false : null,
-        (this.race.keys.ArrowRight ? 1 : 0) -
-          (this.race.keys.ArrowLeft ? 1 : 0),
-        this.race.wall,
-      );
-    }
+    const isLocal = this.race.isLocal;
+    console.log('isLOcal', isLocal);
 
-    if (this.race.player.side == 'left') {
-      this.race.player.car?.move(
-        this.race.keys.w ? true : this.race.keys.s ? false : null,
-        (this.race.keys.d ? 1 : 0) - (this.race.keys.a ? 1 : 0),
-        this.race.wall,
-      );
-    }
+    this.race.player.car?.move(
+      this.race.keys.w || (!isLocal && this.race.keys.ArrowDown)
+        ? true
+        : this.race.keys.s || (!isLocal && this.race.keys.ArrowDown)
+          ? false
+          : null,
+      (this.race.keys.d || (!isLocal && this.race.keys.ArrowRight) ? 1 : 0) -
+        (this.race.keys.a || (!isLocal && this.race.keys.ArrowLeft) ? 1 : 0),
+      this.race.wall,
+    );
 
     // Check if player car actually moved
     if (

@@ -114,7 +114,7 @@ export class RaceGameUI extends BaseComponent {
 
     const content = DOMUtils.createElement('div', {
       className:
-        'bg-pink-300 rounded-lg p-8 max-w-xl w-full mx-4 text-center text-shadow-lg/30',
+        'bg-pink-200 rounded-lg p-8 max-w-xl w-full mx-4 text-center text-shadow-lg/30',
     });
 
     modal.appendChild(content);
@@ -171,11 +171,11 @@ export class RaceGameUI extends BaseComponent {
       <img class="w-20 h-20 rounded-full mb-3 border-2 ${isTie ? 'border-gray-400' : isWinner ? 'border-green-400' : 'border-red-400'}"
            src="${user.avatar || unknow_avatar}" alt="${user.username}">
       <div class="font-bold text-white text-lg">${user.username}</div>
-      ${!raceCanvas.race.isLocal && isRanked ? `<div class="text-sm text-black mb-2">ELO: ${user.elo}</div>` : ''}
+      ${isRanked ? `<div class="text-sm text-black mb-2">ELO: ${user.elo}</div>` : ''}
       ${
-        data.eloChange && !raceCanvas.race.isLocal
+        data.eloChange
           ? `<div class="text-sm ${isTie ? 'text-gray-400' : isWinner ? 'text-green-400' : 'text-red-400'} font-bold">
-        ${!isRanked ? ' ' : isTie ? '' : isWinner ? '+' : '-'}${data.eloChange}
+        ${isTie ? '' : isWinner ? '+' : '-'}${data.eloChange}
       </div>`
           : ''
       }
@@ -220,7 +220,7 @@ export class RaceGameUI extends BaseComponent {
     this.gameEndModal.classList.remove('hidden');
 
     // Start celebration only if user is the winner
-    if (isWinner || isTie) startWinnerCelebration();
+    if (isWinner && !isTie) startWinnerCelebration();
 
     // Add event listeners
     this.setupModalEventListeners();

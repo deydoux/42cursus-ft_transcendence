@@ -117,7 +117,7 @@ export class PongGameUI extends BaseComponent {
 
     const content = DOMUtils.createElement('div', {
       className:
-        'bg-pink-300 rounded-lg p-8 max-w-xl w-full mx-4 text-center text-shadow-lg/30',
+        'bg-pink-200 rounded-lg p-8 max-w-xl w-full mx-4 text-center text-shadow-lg/30',
     });
 
     // Modal content will be populated dynamically in showGameEndModal
@@ -216,7 +216,7 @@ export class PongGameUI extends BaseComponent {
     // Show modal
     this.gameEndModal.classList.remove('hidden');
 
-    if (isWinner) startWinnerCelebration();
+    if (isWinner && data.result !== 'tie') startWinnerCelebration();
 
     // Add event listeners
     this.setupModalEventListeners();
