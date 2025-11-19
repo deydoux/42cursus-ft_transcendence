@@ -45,7 +45,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       serializeUserAvatar(match);
 
       const isUserWinner = match.winner_id === user.id;
-      user.score = isUserWinner ? match.winner_score : match.loser_score;
+      const matchUser = {
+        ...user,
+        score: isUserWinner ? match.winner_score : match.loser_score,
+      };
+
       const other: Record<string, unknown> = {
         id: isUserWinner ? match.loser_id : match.winner_id,
         username: match.username || 'Deleted user',
@@ -54,12 +58,12 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       };
 
       if (match.mode === 'ranked') {
-        user.elo = isUserWinner ? match.winner_elo : match.loser_elo;
+        matchUser.elo = isUserWinner ? match.winner_elo : match.loser_elo;
         other.elo = isUserWinner ? match.loser_elo : match.winner_elo;
       } else delete match.eloChange;
 
-      match.winner = isUserWinner ? user : other;
-      match.loser = isUserWinner ? other : user;
+      match.winner = isUserWinner ? matchUser : other;
+      match.loser = isUserWinner ? other : matchUser;
 
       match.createdAt = new Date(match.createdAt * 1000);
       match.updatedAt = new Date(match.updatedAt * 1000);

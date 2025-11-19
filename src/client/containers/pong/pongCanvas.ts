@@ -113,8 +113,6 @@ export class PongCanvas {
     if (this.touchEndHandler) {
       canvas.removeEventListener('touchend', this.touchEndHandler);
     }
-
-    console.log(`PongCanvas cleaned up (gameId: ${this.gameId})`);
   }
 
   public startGame(): void {
@@ -410,26 +408,17 @@ export class PongCanvas {
     let currentState: 'idle' | 'up' | 'down' = 'idle';
     let direction = 0;
 
-    if (this.pong.player.side == 'right') {
-      if (this.pong.keys.ArrowUp) {
-        this.pong.player.paddle?.move(-paddleSpeed);
-        direction = -1;
-        currentState = 'up';
-      } else if (this.pong.keys.ArrowDown) {
-        this.pong.player.paddle?.move(paddleSpeed);
-        direction = 1;
-        currentState = 'down';
-      }
-    } else if (this.pong.player.side == 'left') {
-      if (this.pong.keys.w) {
-        this.pong.player.paddle?.move(-paddleSpeed);
-        direction = -1;
-        currentState = 'up';
-      } else if (this.pong.keys.s) {
-        this.pong.player.paddle?.move(paddleSpeed);
-        direction = 1;
-        currentState = 'down';
-      }
+    if (this.pong.keys.w || (!this.pong.isLocal && this.pong.keys.ArrowUp)) {
+      this.pong.player.paddle?.move(-paddleSpeed);
+      direction = -1;
+      currentState = 'up';
+    } else if (
+      this.pong.keys.s ||
+      (!this.pong.isLocal && this.pong.keys.ArrowDown)
+    ) {
+      this.pong.player.paddle?.move(paddleSpeed);
+      direction = 1;
+      currentState = 'down';
     }
 
     if (this.pong.isLocal) {

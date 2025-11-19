@@ -115,7 +115,7 @@ export class RaceGameUI extends BaseComponent {
 
     const content = DOMUtils.createElement('div', {
       className:
-        'bg-pink-300 rounded-lg p-8 max-w-xl w-full mx-4 text-center text-shadow-lg/30',
+        'bg-pink-200 rounded-lg p-8 max-w-xl w-full mx-4 text-center text-shadow-lg/30',
     });
 
     modal.appendChild(content);
@@ -229,7 +229,7 @@ export class RaceGameUI extends BaseComponent {
     this.gameEndModal.classList.remove('hidden');
 
     // Start celebration only if user is the winner
-    if (isWinner || isTie) startWinnerCelebration();
+    if (isWinner && !isTie) startWinnerCelebration();
 
     // Add event listeners
     this.setupModalEventListeners();
