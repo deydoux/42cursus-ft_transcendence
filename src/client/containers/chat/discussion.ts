@@ -44,7 +44,7 @@ export class Discussion extends BaseComponent {
     });
 
     const messageContainer = createElement('div', {
-      className: `peer my-1 mx-6 px-4 py-2 rounded-md ${isReceived ? 'border border-pink-300 rounded-bl-none' : 'bg-pink-300 rounded-br-none text-background'} duration-100 leading-tight overflow-x-auto`,
+      className: `break-all peer my-1 mx-6 px-4 py-2 rounded-md ${isReceived ? 'border border-pink-300 rounded-bl-none' : 'bg-pink-300 rounded-br-none text-background'} duration-100 leading-tight overflow-x-auto`,
       textContent: message.content,
     });
     const blankSpace = createElement('div', {

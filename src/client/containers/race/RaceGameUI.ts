@@ -225,6 +225,11 @@ export class RaceGameUI extends BaseComponent {
   </div>
 `;
 
+    if (data.eloChange) {
+      user.elo.race += isWinner ? data.eloChange : -data.eloChange;
+      this.store.setState({user});
+    }
+
     // Show modal
     this.gameEndModal.classList.remove('hidden');
 

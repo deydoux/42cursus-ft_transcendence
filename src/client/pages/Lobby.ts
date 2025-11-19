@@ -96,7 +96,6 @@ export class Lobby extends BaseComponent {
     };
 
     renderLobbyText();
-    this.subscribeToPath('matchmakingTargetUser', renderLobbyText);
 
     lobby.appendChild(text);
 
