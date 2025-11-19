@@ -9,7 +9,7 @@ export default function serializeUserAvatar(user: {
   delete user.has_avatar;
   delete user.avatar_version;
 
-  user.avatar = `/api/users/${id}/avatar?v=${hasAvatar ? version : 0}`;
+  user.avatar = `/api/users/${id}/avatar/${hasAvatar ? version : 0}`;
 
   return user;
 }

@@ -61,7 +61,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
     handleError(request, reply, 302),
   );
 
-  server.get('/', {schema}, async (request, reply) => {
+  server.get('/*', {schema}, async (request, reply) => {
     const {id} = request.params;
     return reply.sendFile(`${id}.webp`, server.paths.avatars);
   });
