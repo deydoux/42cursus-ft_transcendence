@@ -88,7 +88,7 @@ export class Settings extends BaseComponent {
     settings.appendChild(this.renderBanner());
 
     const row1 = createElement('div', {
-      className: 'flex gap-8 flex-wrap',
+      className: 'flex flex-col xl:flex-row gap-8',
     });
 
     // User Profile
@@ -114,7 +114,7 @@ export class Settings extends BaseComponent {
     settings.appendChild(changePassword);
 
     const row2 = createElement('div', {
-      className: 'flex gap-8',
+      className: 'flex flex-col xl:flex-row gap-8',
     });
 
     // Blocked users
