@@ -410,7 +410,7 @@ export class Discussion extends BaseComponent {
       className: 'bg-pink-300 flex items-center justify-between',
     });
     const renderDuelBanner = () => {
-      const {discussion} = this.store.getState();
+      const {discussion, isWaitingForMatchmaking} = this.store.getState();
       if (!discussion) return;
       duelBanner.innerHTML = '';
       if (!discussion.invite) return;
@@ -420,31 +420,33 @@ export class Discussion extends BaseComponent {
       });
       text.innerHTML = `This user invites you to play <span class="font-semibold">${discussion.invite}</span> with them`;
       duelBanner.appendChild(text);
-      duelBanner.appendChild(
-        createElement('button', {
-          textContent: `Join`,
-          className: `text-white bg-background rounded mr-2 py-1 text-xs px-3 cursor-pointer`,
-          onclick: () => {
-            this.websocket.send({
-              type: 'joinMatchmaking',
-              game: discussion.invite,
-              mode: 'casual',
-              targetID: discussion.user.id,
-            });
-            this.store.setState({
-              discussion: {
-                ...discussion,
-                invite: null,
-              },
-            });
-          },
-        }),
-      );
+
+      const joinButton = createElement('button', {
+        textContent: `Join`,
+        className: `text-white bg-background rounded mr-2 py-1 text-xs px-3 cursor-pointer disabled:cursor-not-allowed disabled:bg-background/20 disabled:text-background/50`,
+        onclick: () => {
+          this.websocket.send({
+            type: 'joinMatchmaking',
+            game: discussion.invite,
+            mode: 'casual',
+            targetID: discussion.user.id,
+          });
+          this.store.setState({
+            discussion: {
+              ...discussion,
+              invite: null,
+            },
+          });
+        },
+      });
+      joinButton.disabled = isWaitingForMatchmaking;
+      duelBanner.appendChild(joinButton);
     };
 
     renderDuelBanner();
     container.appendChild(duelBanner);
     this.subscribeToPath('discussion.invite', renderDuelBanner);
+    this.subscribeToPath('isWaitingForMatchmaking', renderDuelBanner);
 
     return container;
   }

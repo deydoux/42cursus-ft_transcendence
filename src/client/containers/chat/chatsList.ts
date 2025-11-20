@@ -234,6 +234,13 @@ export class ChatsList extends BaseComponent {
           }),
         );
 
+        const updateDuelButtonState = () => {
+          const {isWaitingForMatchmaking} = this.store.getState();
+          duelButton.disabled = isWaitingForMatchmaking;
+        };
+        updateDuelButtonState();
+        this.subscribeToPath('isWaitingForMatchmaking', updateDuelButtonState);
+
         rightContent.appendChild(duelButton);
       } else if (chat.unread) {
         rightContent.appendChild(
