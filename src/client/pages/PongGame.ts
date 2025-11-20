@@ -215,18 +215,8 @@ export class PongGame extends BaseComponent {
       pong.ball.setDirection(matchStartBallData.dx, matchStartBallData.dy);
 
     pong.gameStarted = true;
-    if (!game.isLocal) {
-      const gameStartTime = game.startTime;
-      const currentTime = Date.now();
-      if (currentTime >= gameStartTime) {
-        this.pongCanvas.startGame();
-      } else {
-        const delay = gameStartTime - currentTime;
-        setTimeout(() => {
-          this.pongCanvas?.startGame();
-        }, delay);
-      }
-    } else this.pongCanvas.startGame();
+    if (!game.isLocal) this.pongCanvas.startGame(game.startTime);
+    else this.pongCanvas.startGame();
   }
 
   render(): HTMLElement {

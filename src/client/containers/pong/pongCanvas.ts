@@ -118,11 +118,13 @@ export class PongCanvas {
     }
   }
 
-  public startGame(): void {
+  public startGame(startTime = 0): void {
     this.gameRunning = true;
-    this.pong.timer.startCountdown();
-    this.lastFrame = performance.now();
-    this.gameLoop();
+    setTimeout(() => {
+      this.pong.timer.startCountdown();
+      this.lastFrame = performance.now();
+      this.gameLoop(startTime);
+    }, startTime - Date.now());
   }
 
   public stopGame(): void {
