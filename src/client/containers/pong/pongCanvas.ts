@@ -120,11 +120,16 @@ export class PongCanvas {
 
   public startGame(startTime = 0): void {
     this.gameRunning = true;
-    setTimeout(() => {
-      this.pong.timer.startCountdown();
-      this.lastFrame = performance.now();
-      this.gameLoop();
-    }, startTime - Date.now());
+
+    const delay = startTime - Date.now();
+    setTimeout(
+      () => {
+        this.pong.timer.startCountdown();
+        this.lastFrame = performance.now();
+        this.gameLoop();
+      },
+      delay > 0 ? delay : 0,
+    );
   }
 
   public stopGame(): void {
