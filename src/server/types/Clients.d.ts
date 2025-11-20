@@ -106,7 +106,6 @@ type ServerTunnelMessage =
     }
   | {
       type: 'round';
-      time: number;
       dx?: number;
       dy?: number;
     }
