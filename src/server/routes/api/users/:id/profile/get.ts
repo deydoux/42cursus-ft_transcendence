@@ -22,7 +22,13 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async server => {
       elo[game] = row.value;
     }
 
-    return reply.send(elo);
+    const totalMatches = await server.db.get(SQL`
+      SELECT COUNT(*) as count
+      FROM matches
+      WHERE winner_id = ${id} OR loser_id = ${id}
+    `);
+
+    return reply.send({elo, totalMatches: totalMatches.count});
   });
 };
 
