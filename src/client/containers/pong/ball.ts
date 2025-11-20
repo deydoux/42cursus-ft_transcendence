@@ -87,11 +87,11 @@ export class Ball {
     }
   }
 
-  update(pong: IPongGame) {
+  update(pong: IPongGame, frames: number) {
     if (this.isScoring) return;
 
-    this.y += this.vy;
-    this.x += this.vx;
+    this.y += this.vy * frames;
+    this.x += this.vx * frames;
 
     // Wall collision (simplified)
     if (
