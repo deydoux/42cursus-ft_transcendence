@@ -224,7 +224,7 @@ export class Discussion extends BaseComponent {
 
     const messageInput = createElement('form', {
       className:
-        'search-input h-10 mx-6 my-6 flex-none relative flex items-center',
+        'search-input h-10 m-4 xl:m-6 flex-none relative flex items-center',
     });
     messageInput.onsubmit = async evt => {
       evt.preventDefault();
@@ -458,7 +458,7 @@ export class Discussion extends BaseComponent {
     container.appendChild(this.renderPrivateDiscussionHeader());
 
     const messagesList = createElement('div', {
-      className: 'flex flex-col-reverse gap-2 overflow-y-auto flex-1 pt-6',
+      className: 'flex flex-col-reverse gap-2 overflow-y-auto flex-1 pt-1',
     });
 
     this.renderMessages(messagesList, 'discussion');
@@ -528,7 +528,7 @@ export class Discussion extends BaseComponent {
 
     const messagesList = createElement('div', {
       className:
-        'flex flex-col-reverse overflow-y-auto overflow-x-hidden flex-1 pt-6',
+        'flex flex-col-reverse overflow-y-auto overflow-x-hidden flex-1 pt-1',
     });
 
     this.subscribeToPath('generalDiscussion.messages', () =>
