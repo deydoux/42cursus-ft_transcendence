@@ -27,7 +27,7 @@ export class Ball {
     this.radius = ctx.canvas.width * 0.013;
     this.color = 'black';
     this.speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy) * 1.03;
-    this.maxSpeed = Math.max(ctx.canvas.width, ctx.canvas.height) * 0.02;
+    this.maxSpeed = Math.max(ctx.canvas.width, ctx.canvas.height) * 0.012;
     this.isScoring = false;
   }
 
