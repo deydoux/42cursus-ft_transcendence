@@ -34,7 +34,7 @@ export class UserProfile extends BaseComponent {
       }
 
       if (file.size > this.avatarMaxSize) {
-        Toastify.error(`File size must be less than ${this.avatarMaxSize}MB`);
+        Toastify.error(`File size must be less than ${this.avatarMaxSize / 1024 / 1024}MB`);
         return;
       }
 
