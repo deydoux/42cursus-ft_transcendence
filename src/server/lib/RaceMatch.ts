@@ -136,6 +136,7 @@ export default class RaceMatch extends Match {
 
   protected initialState() {
     return {
+      time: Date.now() + 1000, // 1 second
       walls: this.walls,
     };
   }

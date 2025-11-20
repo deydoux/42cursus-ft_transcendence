@@ -17,6 +17,9 @@ export class PongCanvas {
   private gameId: string | null = null;
   private lastPaddleState: 'idle' | 'up' | 'down' = 'idle';
   private opponentPaddleState: 'idle' | 'up' | 'down' = 'idle';
+  private lastFrame: number;
+
+  private static timePerFrame = 1000 / 60;
 
   private constructor(pong: IPongGame, gameId?: string) {
     this.websocket = Socket.getInstance();
@@ -115,10 +118,18 @@ export class PongCanvas {
     }
   }
 
-  public startGame(): void {
+  public startGame(startTime = 0): void {
     this.gameRunning = true;
-    this.pong.timer.startCountdown();
-    this.gameLoop();
+
+    const delay = startTime - Date.now();
+    setTimeout(
+      () => {
+        this.pong.timer.startCountdown();
+        this.lastFrame = performance.now();
+        this.gameLoop();
+      },
+      delay > 0 ? delay : 0,
+    );
   }
 
   public stopGame(): void {
@@ -130,6 +141,10 @@ export class PongCanvas {
   }
 
   public gameLoop() {
+    const now = performance.now();
+    const frames = (now - this.lastFrame) / PongCanvas.timePerFrame;
+    this.lastFrame = now;
+
     if (!this.gameRunning) return;
     if (!this.pong.gameStarted) return;
 
@@ -145,9 +160,9 @@ export class PongCanvas {
     this.pong.player.paddle?.draw();
     this.pong.opponent.paddle?.draw();
     if (!isCountdownActive) {
-      this.handlePaddleMovement();
+      this.handlePaddleMovement(frames);
       this.pong.ball.draw();
-      this.pong.ball.update(this.pong);
+      this.pong.ball.update(this.pong, frames);
     }
 
     if (
@@ -401,9 +416,9 @@ export class PongCanvas {
     ctx.restore();
   }
 
-  public handlePaddleMovement() {
+  public handlePaddleMovement(frames: number): void {
     if (this.pong.isScoring) return;
-    const paddleSpeed = this.ctx.canvas.height * 0.01;
+    const paddleSpeed = this.ctx.canvas.height * 0.01 * frames;
 
     let currentState: 'idle' | 'up' | 'down' = 'idle';
     let direction = 0;
