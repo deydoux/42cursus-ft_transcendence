@@ -222,7 +222,7 @@ export class PongGame extends BaseComponent {
   render(): HTMLElement {
     const container = DOMUtils.createElement('div', {
       className:
-        'w-screen h-screen flex items-center gap-10 py-16 overflow-hidden',
+        'w-screen h-screen flex items-center gap-10 py-8 xl:py-16 overflow-hidden',
     });
 
     this.pongGameUI = new PongGameUI();
