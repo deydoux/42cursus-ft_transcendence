@@ -29,8 +29,10 @@ export interface AppState {
     totp: boolean; // 2FA
     hasAvatar: boolean;
     avatar: string;
-    elo: number;
-    raceElo: number;
+    elo: {
+      pong: number;
+      race: number;
+    };
   };
 
   loading: string[];
@@ -186,32 +188,38 @@ export interface AppState {
     createdAt: string;
   }[];
   streaks: {
+    total: {
+      wins: number;
+      losses: number;
+      totalMatches: number;
+      winRate: number;
+    };
     pong: {
+      wins: number;
+      losses: number;
+      totalMatches: number;
+      winRate: number;
       casual: {
         current: number;
         best: number;
-        winRate: number;
-        totalMatches: number;
       };
       ranked: {
         current: number;
         best: number;
-        winRate: number;
-        totalMatches: number;
       };
     };
     race: {
+      wins: number;
+      losses: number;
+      totalMatches: number;
+      winRate: number;
       casual: {
         current: number;
         best: number;
-        winRate: number;
-        totalMatches: number;
       };
       ranked: {
         current: number;
         best: number;
-        winRate: number;
-        totalMatches: number;
       };
     };
   };

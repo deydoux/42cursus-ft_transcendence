@@ -23,7 +23,6 @@ export default class PongMatch extends Match {
 
     this.send({
       type: 'round',
-      time: Date.now() + 1000,
       ...this.initialState(),
     });
   }

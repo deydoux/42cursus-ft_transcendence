@@ -1,5 +1,4 @@
 import {BaseComponent} from '../components/BaseComponent';
-import {Toastify} from '../utils/toastify';
 import {createElement} from '../utils/dom';
 
 export class Lobby extends BaseComponent {
@@ -80,6 +79,7 @@ export class Lobby extends BaseComponent {
     });
     const text = createElement('p', {
       textContent: 'Looking for other players...',
+      attributes: {id: 'lobby-text'},
     });
 
     const renderLobbyText = () => {
@@ -87,8 +87,8 @@ export class Lobby extends BaseComponent {
       lobby.innerHTML = '';
 
       if (matchmakingTargetUser) {
-        text.innerHTML = `Waiting for 
-          <span class="text-pink-300">${matchmakingTargetUser.username}</span> 
+        text.innerHTML = `Waiting for
+          <span class="text-pink-300">${matchmakingTargetUser.username}</span>
         to accept your invite`;
       } else {
         text.textContent = 'Looking for other players...';
@@ -96,7 +96,6 @@ export class Lobby extends BaseComponent {
     };
 
     renderLobbyText();
-    this.subscribeToPath('matchmakingTargetUser', renderLobbyText);
 
     lobby.appendChild(text);
 
@@ -105,7 +104,6 @@ export class Lobby extends BaseComponent {
         textContent: 'Quit lobby',
         className: `border border-red-500/80 bg-red-500/10 text-red-500/80 hover:border-red-500 py-2 px-4 rounded-lg hover:text-red-500 hover:bg-red-500/20 cursor-pointer duration-100`,
         onclick: () => {
-          this.store.setState({game: undefined});
           this.websocket.send({
             type: 'leaveMatchmaking',
           });

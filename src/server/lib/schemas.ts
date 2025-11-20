@@ -18,6 +18,6 @@ export const password = {
 export const username = {
   type: 'string',
   minLength: 3,
-  maxLength: 16,
+  maxLength: 10,
   pattern: '^[a-zA-Z0-9_]+$',
 } as const;

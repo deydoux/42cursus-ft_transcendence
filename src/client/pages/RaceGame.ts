@@ -92,7 +92,7 @@ export class RaceGame extends BaseComponent {
       };
 
       const op = isLocal
-        ? {id: 0, username: 'Unknown', avatar: ''}
+        ? {id: 0, username: 'Guest', avatar: '/static/guest.webp'}
         : user.id === players[0]?.id
           ? players[1]
           : players[0];
@@ -100,7 +100,7 @@ export class RaceGame extends BaseComponent {
       const opponent: IPlayer = {
         id: op.id,
         username: isOpponentBlocked ? 'Unknown' : op.username,
-        avatar: isOpponentBlocked ? '' : op.avatar,
+        avatar: isOpponentBlocked ? '/static/guest.webp' : op.avatar,
         score: 0,
         paddle: null,
         car: new Car(ctx, opponentCarX, opponentCarY, '#ffff00', carOpponent),
@@ -167,7 +167,8 @@ export class RaceGame extends BaseComponent {
         activeElement?.tagName === 'INPUT' ||
         activeElement?.tagName === 'TEXTAREA' ||
         isContentEditable ||
-        activeElement?.closest('.chat-input') !== null
+        activeElement?.closest('.chat-input') !== null ||
+        activeElement?.closest('.search-input') !== null
       );
     };
 
@@ -281,14 +282,14 @@ export class RaceGame extends BaseComponent {
 
   render(): HTMLElement {
     const container = DOMUtils.createElement('div', {
-      className: 'w-screen h-screen flex items-center gap-10 py-16',
+      className: 'w-screen h-screen flex items-center gap-10 py-8 xl:py-16',
     });
 
     this.raceGameUI = new RaceGameUI();
     const gameElement = this.raceGameUI.render();
     container.appendChild(gameElement);
 
-    const chat = new Chat().render();
+    const chat = new Chat().render(true);
     if (chat) container.appendChild(chat);
 
     requestAnimationFrame(() => {

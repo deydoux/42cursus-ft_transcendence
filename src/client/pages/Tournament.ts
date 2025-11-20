@@ -41,6 +41,8 @@ export class Tournament extends BaseComponent {
         name: formdata.get('name'),
       });
       close();
+
+      nameField.value = '';
     };
 
     createTournament.appendChild(
@@ -55,18 +57,19 @@ export class Tournament extends BaseComponent {
         className: 'text-white/50 max-w-[400px] leading-tight mb-4',
       }),
     );
-    createTournament.appendChild(
-      createElement('input', {
-        textContent: 'Create a new tournament',
-        className: `px-4 py-2 border border-pink-300/50 focus:border-white outline-none w-full mb-4 rounded-lg`,
-        attributes: {
-          placeholder: 'Tournament name...',
-          name: 'name',
-          minLength: '3',
-          maxLength: '64',
-        },
-      }),
-    );
+
+    const nameField = createElement('input', {
+      textContent: 'Create a new tournament',
+      className: `px-4 py-2 border border-pink-300/50 focus:border-white outline-none w-full mb-4 rounded-lg`,
+      attributes: {
+        placeholder: 'Tournament name...',
+        name: 'name',
+        minLength: '3',
+        maxLength: '20',
+      },
+    });
+    createTournament.appendChild(nameField);
+
     createTournament.appendChild(
       createElement('button', {
         textContent: 'Create',

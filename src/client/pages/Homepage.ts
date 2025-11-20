@@ -1,13 +1,15 @@
 import {Popup, createPopupContainer} from '../components/Popup';
 import {BaseComponent} from '../components/BaseComponent';
+import {Store} from '../services/store';
+import {Toastify} from '../utils/toastify';
 import {createElement} from '../utils/dom';
-import pongsticker from '../assets/fuck3.png';
-import racesticker from '../assets/fuck2.png';
-import settingssticker from '../assets/fuck1.png';
-import statisticssticker from '../assets/stats.png';
+import pongsticker from '../assets/home/pong.png';
+import racesticker from '../assets/home/race.png';
+import settingssticker from '../assets/home/settings.png';
+import statisticssticker from '../assets/home/stats.png';
 import sticker from '../assets/sticker.png';
 import textIMG from '../assets/kittypong.png';
-import tournamentsticker from '../assets/fuck4.png';
+import tournamentsticker from '../assets/home/tournament.png';
 
 export class Homepage extends BaseComponent {
   private gameModeMenu: Popup | null = null;
@@ -34,8 +36,12 @@ export class Homepage extends BaseComponent {
             });
 
             if (mode === 'play local') {
-              sessionStorage.setItem('validGameAccess', 'true');
-              this.router.navigate(`/${game}`);
+              if (Store.getInstance().getState().joinedTournament) {
+                Toastify.error('You are already in a tournament');
+              } else {
+                sessionStorage.setItem('validGameAccess', 'true');
+                this.router.navigate(`/${game}`);
+              }
             } else if (mode === 'play remote') {
               this.websocket.send({
                 type: 'joinMatchmaking',
@@ -87,7 +93,8 @@ export class Homepage extends BaseComponent {
     );
     container.appendChild(
       createElement('img', {
-        className: 'absolute w-65 rotate-5 -right-5 -top-10 animate-wiggle',
+        className:
+          'absolute rotate-5 -right-5 -bottom-5 animate-wiggle w-30 lg:40 xl:w-60 2xl:w-65',
         attributes: {src: sticker},
       }),
     );
@@ -112,6 +119,7 @@ export class Homepage extends BaseComponent {
       name: string,
       onclick?: (evt: PointerEvent) => void,
       sticker?: string,
+      elo?: number,
     ) => {
       const button = createElement('button', {
         className: `group relative flex items-center justify-center overflow-hidden uppercase cursor-pointer font-bold flex-1 h-full bg-gradient-to-br from-background to-white/5 hover:to-pink-300/20 hover:border-pink-300 border border-white/50 rounded-lg duration-200`,
@@ -120,7 +128,7 @@ export class Homepage extends BaseComponent {
       if (sticker) {
         button.appendChild(
           createElement('img', {
-            className: `absolute h-12/10 z-0 grayscale opacity-10 group-hover:grayscale-0 group-hover:scale-115 duration-200 group-hover:opacity-100 group-hover:rotate-3`,
+            className: `absolute z-0 max-h-[120%] h-auto w-auto object-contain grayscale opacity-10 group-hover:grayscale-0 group-hover:scale-115 duration-200 group-hover:opacity-100 group-hover:rotate-3`,
             attributes: {src: sticker},
             onclick: onclick as EventListener,
           }),
@@ -135,6 +143,17 @@ export class Homepage extends BaseComponent {
         }),
       );
 
+      if (elo) {
+        button.appendChild(
+          createElement('span', {
+            className:
+              'absolute top-2 right-2 z-10 rounded-full bg-black/60 backdrop-blur-sm px-3 py-1 text-xs font-semibold text-white shadow-lg border border-white/30',
+            textContent: `ELO ${elo}`,
+            onclick: onclick as EventListener,
+          }),
+        );
+      }
+
       return button;
     };
 
@@ -146,13 +165,15 @@ export class Homepage extends BaseComponent {
         'Play Pong',
         evt => this.renderGameModeMenu(evt, 'pong'),
         pongsticker,
+        this.store.getState().user?.elo.pong,
       ),
     );
     firstRow.appendChild(
       renderButton(
-        'Play race cars',
+        'Play Race',
         evt => this.renderGameModeMenu(evt, 'race'),
         racesticker,
+        this.store.getState().user?.elo.race,
       ),
     );
     buttons.appendChild(firstRow);

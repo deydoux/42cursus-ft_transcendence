@@ -128,7 +128,6 @@ export class PongGame extends BaseComponent {
     console.log('PongGame cleaned up');
   }
 
-  // Add destroy method for completeness
   public destroy(): void {
     this.cleanup();
   }
@@ -150,7 +149,8 @@ export class PongGame extends BaseComponent {
         activeElement?.tagName === 'INPUT' ||
         activeElement?.tagName === 'TEXTAREA' ||
         isContentEditable ||
-        activeElement?.closest('.chat-input') !== null
+        activeElement?.closest('.chat-input') !== null ||
+        activeElement?.closest('.search-input') !== null
       );
     };
 
@@ -215,31 +215,21 @@ export class PongGame extends BaseComponent {
       pong.ball.setDirection(matchStartBallData.dx, matchStartBallData.dy);
 
     pong.gameStarted = true;
-    if (!game.isLocal) {
-      const gameStartTime = game.startTime;
-      const currentTime = Date.now();
-      if (currentTime >= gameStartTime) {
-        this.pongCanvas.startGame();
-      } else {
-        const delay = gameStartTime - currentTime;
-        setTimeout(() => {
-          this.pongCanvas?.startGame();
-        }, delay);
-      }
-    } else this.pongCanvas.startGame();
+    if (!game.isLocal) this.pongCanvas.startGame(game.startTime);
+    else this.pongCanvas.startGame();
   }
 
   render(): HTMLElement {
     const container = DOMUtils.createElement('div', {
       className:
-        'w-screen h-screen flex items-center gap-10 py-16 overflow-hidden',
+        'w-screen h-screen flex items-center gap-10 py-8 xl:py-16 overflow-hidden',
     });
 
     this.pongGameUI = new PongGameUI();
     const gameElement = this.pongGameUI.render();
     container.appendChild(gameElement);
 
-    const chat = new Chat().render();
+    const chat = new Chat().render(true);
     if (chat) container.appendChild(chat);
 
     requestAnimationFrame(() => {

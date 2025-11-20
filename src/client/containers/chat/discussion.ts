@@ -44,7 +44,7 @@ export class Discussion extends BaseComponent {
     });
 
     const messageContainer = createElement('div', {
-      className: `peer my-1 mx-6 px-4 py-2 rounded-md ${isReceived ? 'border border-pink-300 rounded-bl-none' : 'bg-pink-300 rounded-br-none text-background'} duration-100 leading-tight overflow-x-auto`,
+      className: `break-all peer my-1 mx-6 px-4 py-2 rounded-md ${isReceived ? 'border border-pink-300 rounded-bl-none' : 'bg-pink-300 rounded-br-none text-background'} duration-100 leading-tight overflow-x-auto`,
       textContent: message.content,
     });
     const blankSpace = createElement('div', {
@@ -223,7 +223,8 @@ export class Discussion extends BaseComponent {
     });
 
     const messageInput = createElement('form', {
-      className: 'h-10 mx-6 my-6 flex-none relative flex items-center',
+      className:
+        'search-input h-10 m-4 xl:m-6 flex-none relative flex items-center',
     });
     messageInput.onsubmit = async evt => {
       evt.preventDefault();
@@ -409,7 +410,7 @@ export class Discussion extends BaseComponent {
       className: 'bg-pink-300 flex items-center justify-between',
     });
     const renderDuelBanner = () => {
-      const {discussion} = this.store.getState();
+      const {discussion, isWaitingForMatchmaking} = this.store.getState();
       if (!discussion) return;
       duelBanner.innerHTML = '';
       if (!discussion.invite) return;
@@ -419,31 +420,33 @@ export class Discussion extends BaseComponent {
       });
       text.innerHTML = `This user invites you to play <span class="font-semibold">${discussion.invite}</span> with them`;
       duelBanner.appendChild(text);
-      duelBanner.appendChild(
-        createElement('button', {
-          textContent: `Join`,
-          className: `text-white bg-background rounded mr-2 py-1 text-xs px-3 cursor-pointer`,
-          onclick: () => {
-            this.websocket.send({
-              type: 'joinMatchmaking',
-              game: discussion.invite,
-              mode: 'casual',
-              targetID: discussion.user.id,
-            });
-            this.store.setState({
-              discussion: {
-                ...discussion,
-                invite: null,
-              },
-            });
-          },
-        }),
-      );
+
+      const joinButton = createElement('button', {
+        textContent: `Join`,
+        className: `text-white bg-background rounded mr-2 py-1 text-xs px-3 cursor-pointer disabled:cursor-not-allowed disabled:bg-background/20 disabled:text-background/50`,
+        onclick: () => {
+          this.websocket.send({
+            type: 'joinMatchmaking',
+            game: discussion.invite,
+            mode: 'casual',
+            targetID: discussion.user.id,
+          });
+          this.store.setState({
+            discussion: {
+              ...discussion,
+              invite: null,
+            },
+          });
+        },
+      });
+      joinButton.disabled = isWaitingForMatchmaking;
+      duelBanner.appendChild(joinButton);
     };
 
     renderDuelBanner();
     container.appendChild(duelBanner);
     this.subscribeToPath('discussion.invite', renderDuelBanner);
+    this.subscribeToPath('isWaitingForMatchmaking', renderDuelBanner);
 
     return container;
   }
@@ -455,7 +458,7 @@ export class Discussion extends BaseComponent {
     container.appendChild(this.renderPrivateDiscussionHeader());
 
     const messagesList = createElement('div', {
-      className: 'flex flex-col-reverse gap-2 overflow-y-auto flex-1 pt-6',
+      className: 'flex flex-col-reverse gap-2 overflow-y-auto flex-1 pt-1',
     });
 
     this.renderMessages(messagesList, 'discussion');
@@ -525,7 +528,7 @@ export class Discussion extends BaseComponent {
 
     const messagesList = createElement('div', {
       className:
-        'flex flex-col-reverse overflow-y-auto overflow-x-hidden flex-1 pt-6',
+        'flex flex-col-reverse overflow-y-auto overflow-x-hidden flex-1 pt-1',
     });
 
     this.subscribeToPath('generalDiscussion.messages', () =>

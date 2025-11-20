@@ -25,7 +25,7 @@ const plugin: FastifyPluginAsync = async server => {
     server.log.trace(
       `Resizing avatar from ${width}x${height} to ${size}x${size}`,
     );
-    avatar.resize(size, size);
+    avatar.autoOrient().resize(size, size);
 
     const cacheFile = join(server.paths.cache, `avatar_${++it}.webp`);
     const avatarFile = join(server.paths.avatars, `${id}.webp`);

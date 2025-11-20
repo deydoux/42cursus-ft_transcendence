@@ -1,7 +1,7 @@
 import Match, {Player} from '#lib/Match';
 import {FastifyInstance} from 'fastify';
 
-const RACE_TIMEOUT = 2 * 60 * 1000; // 2 minute
+const RACE_TIMEOUT = 2 * 60 * 1000 + 6 * 1000; // 2 minutes + 6 seconds
 const BONUSES: ('growpoint' | 'slowpoint')[] = ['growpoint', 'slowpoint'];
 const BONUS_INTERVAL = 20 * 1000; // 20 seconds
 const CHECKPOINT_INTERVAL = 5 * 1000; // 5 seconds
@@ -12,6 +12,8 @@ export default class RaceMatch extends Match {
   private checkpoints: {x: number; y: number}[] = [];
   private timeouts: NodeJS.Timeout[] = [];
   private walls = RaceMatch.generateWalls();
+
+  protected readonly scorePoint = 2;
 
   constructor(server: FastifyInstance, players: [Player, Player]) {
     super(server, players, 'race');
@@ -134,6 +136,7 @@ export default class RaceMatch extends Match {
 
   protected initialState() {
     return {
+      time: Date.now() + 1000, // 1 second
       walls: this.walls,
     };
   }
