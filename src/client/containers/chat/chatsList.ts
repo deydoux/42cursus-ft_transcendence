@@ -194,7 +194,7 @@ export class ChatsList extends BaseComponent {
       );
 
       const prefix = chat.isGeneral ? chat.user.username + ': ' : '';
-      const content = truncateString(prefix + chat.content || '', 32);
+      const content = truncateString(prefix + chat.content || '', 30);
       const timeDelta = getTimeElapsed(chat.updatedAt);
       text.appendChild(
         createElement('p', {
