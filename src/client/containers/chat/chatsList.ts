@@ -112,7 +112,7 @@ export class ChatsList extends BaseComponent {
 
     filteredChats.forEach(chat => {
       const line = createElement('div', {
-        className: `overflow-hidden flex items-center justify-between gap-4 hover:bg-white/5 py-2 px-6 cursor-pointer`,
+        className: `h-full flex items-center justify-between gap-4 hover:bg-white/5 py-2 px-6 cursor-pointer`,
       });
       line.onclick = async () => {
         if (chat.isGeneral) {
@@ -194,7 +194,7 @@ export class ChatsList extends BaseComponent {
       );
 
       const prefix = chat.isGeneral ? chat.user.username + ': ' : '';
-      const content = truncateString(prefix + chat.content || '', 35);
+      const content = truncateString(prefix + chat.content || '', 32);
       const timeDelta = getTimeElapsed(chat.updatedAt);
       text.appendChild(
         createElement('p', {

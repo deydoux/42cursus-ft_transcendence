@@ -112,10 +112,10 @@ export class RaceCanvas {
       gps.some(gp => [12, 13, 14, 15].map(i => gp.buttons[i]));
 
     if (this.gpPressedLeft) {
-      this.race.keys.w = gps.some(gp => gp.buttons[12].pressed);
-      this.race.keys.a = gps.some(gp => gp.buttons[14].pressed);
-      this.race.keys.s = gps.some(gp => gp.buttons[13].pressed);
-      this.race.keys.d = gps.some(gp => gp.buttons[15].pressed);
+      this.race.keys.w = gps.some(gp => gp.buttons[15].pressed);
+      this.race.keys.a = gps.some(gp => gp.buttons[12].pressed);
+      this.race.keys.s = gps.some(gp => gp.buttons[14].pressed);
+      this.race.keys.d = gps.some(gp => gp.buttons[13].pressed);
     }
 
     this.gpPressedRight =
@@ -124,8 +124,8 @@ export class RaceCanvas {
 
     if (this.gpPressedRight) {
       this.race.keys.ArrowUp = gps.some(gp => gp.buttons[3].pressed);
-      this.race.keys.ArrowLeft = gps.some(gp => gp.buttons[0].pressed);
-      this.race.keys.ArrowDown = gps.some(gp => gp.buttons[1].pressed);
+      this.race.keys.ArrowLeft = gps.some(gp => gp.buttons[1].pressed);
+      this.race.keys.ArrowDown = gps.some(gp => gp.buttons[0].pressed);
       this.race.keys.ArrowRight = gps.some(gp => gp.buttons[2].pressed);
     }
   }
