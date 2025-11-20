@@ -112,7 +112,7 @@ export class ChatsList extends BaseComponent {
 
     filteredChats.forEach(chat => {
       const line = createElement('div', {
-        className: `overflow-x-hidden flex items-center justify-between gap-4 hover:bg-white/5 py-2 px-6 cursor-pointer`,
+        className: `overflow-hidden flex items-center justify-between gap-4 hover:bg-white/5 py-2 px-6 cursor-pointer`,
       });
       line.onclick = async () => {
         if (chat.isGeneral) {
