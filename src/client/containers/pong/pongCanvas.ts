@@ -123,7 +123,7 @@ export class PongCanvas {
     setTimeout(() => {
       this.pong.timer.startCountdown();
       this.lastFrame = performance.now();
-      this.gameLoop(startTime);
+      this.gameLoop();
     }, startTime - Date.now());
   }
 
