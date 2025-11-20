@@ -6,7 +6,7 @@ import {Toastify} from '../utils/toastify';
 const api = Api.getInstance();
 const websocket = Socket.getInstance();
 
-export const logout = async () => {
+export const logout = async (redirect = true) => {
   const router = Router.getInstance();
 
   try {
@@ -19,7 +19,7 @@ export const logout = async () => {
 
     localStorage.removeItem('accessToken');
     websocket.disconnect();
-    router.navigate('/');
+    if (redirect) router.navigate('/');
   } catch (error) {
     Toastify.error('An error occurred while fetching user account');
     console.error(error);
