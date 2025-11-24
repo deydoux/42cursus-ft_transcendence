@@ -50,8 +50,8 @@ export class Discussion extends BaseComponent {
       attributes: {src: user.avatar},
     });
     const c = getAverageRGB(avatarImageElement);
-    banner.style.borderColor = `rgb(${c.r},${c.g},${c.g})`;
-    banner.style.background = `linear-gradient(to bottom right, rgb(${c.r} ${c.g} ${c.g} / 0.05), rgb(${c.r} ${c.g} ${c.g} / 0.40))`;
+    banner.style.borderColor = `rgb(${c.r},${c.g},${c.b})`;
+    banner.style.background = `linear-gradient(to bottom right, rgb(${c.r} ${c.g} ${c.b} / 0.05), rgb(${c.r} ${c.g} ${c.b} / 0.40))`;
 
     const actionButtons = createElement('div', {
       className: 'flex items-center justify-end gap-2 px-2 mt-2',
