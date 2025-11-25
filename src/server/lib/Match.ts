@@ -14,6 +14,7 @@ export interface Player extends Client {
 export const kFactor = 32;
 let it = 0;
 
+const COUNTDOWN_TIME = 4 * 1000; // 4 seconds
 const SCORE_TIMEOUT = 1000; // 1 second
 
 export default abstract class Match {
@@ -30,7 +31,8 @@ export default abstract class Match {
     timeout: NodeJS.Timeout;
   };
 
-  private readonly createdAt = Math.floor(Date.now() / 1000);
+  private readonly createdAt = Date.now();
+  private readonly countdown = this.createdAt + COUNTDOWN_TIME;
   private readonly lock;
 
   protected readonly scorePoint: number = 1;
@@ -105,7 +107,8 @@ export default abstract class Match {
       INSERT INTO matches(game, mode, winner_id, loser_id, winner_score,
                          loser_score, result, created_at)
       VALUES(${this._game}, ${mode}, ${winner.userID}, ${loser.userID},
-            ${winner.score}, ${loser.score}, ${this.result}, ${this.createdAt})
+            ${winner.score}, ${loser.score}, ${this.result},
+            ${Math.floor(this.createdAt / 1000)})
     `);
     if (!id) throw new Error('Failed to create match');
 
@@ -178,7 +181,7 @@ export default abstract class Match {
   private forfeits(winner: Player) {
     this.result = 'forfeit';
     this.winner = winner;
-    this.unlock();
+    setTimeout(() => this.unlock(), this.countdown - Date.now());
   }
 
   public get game() {
@@ -298,7 +301,7 @@ export default abstract class Match {
         avatar: player.avatar,
         elo: player.elo,
       })),
-      time: Date.now() + 4 * 1000, // 4 seconds
+      time: this.countdown, // 4 seconds
       ...this.initialState(),
     });
 
