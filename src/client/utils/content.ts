@@ -140,3 +140,21 @@ export const getRaceCanvasInstance = (gameId?: string) => {
     throw new Error(`raceCanvas instance not found for gameId: ${id}`);
   return raceCanvas;
 };
+
+export const getAverageRGB = (imgEl: HTMLImageElement) => {
+  const context = document.createElement('canvas').getContext('2d');
+  if (!context) throw context;
+
+  //draw the image to one pixel and let the browser find the dominant color
+  context.drawImage(imgEl, 0, 0, 1, 1);
+
+  //get pixel color
+  const i = context.getImageData(0, 0, 1, 1).data;
+
+  return {
+    r: i[0],
+    g: i[1],
+    b: i[2],
+    a: i[3],
+  };
+};

@@ -74,7 +74,7 @@ export default class Round {
         id: participant.userID,
         username: participant.username,
         avatar: participant.avatar,
-        score: participant.score,
+        score: result === 'empty' ? undefined : participant.score,
       })),
       result: result,
     });
