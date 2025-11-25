@@ -140,7 +140,7 @@ export class Discussion extends BaseComponent {
     profileInformations.append(
       createElement('p', {
         className: 'text-xs text-white/50',
-        textContent: `Pong elo: ${stats.elo.pong} • Race elo: ${stats.elo.race}`,
+        textContent: `Pong ELO ${stats.elo.pong} • Race ELO ${stats.elo.race}`,
       }),
     );
 
