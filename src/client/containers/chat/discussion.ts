@@ -1,4 +1,11 @@
+import {Popup, createPopupContainer} from '../../components/Popup';
 import {
+  blockUser,
+  sendFriendRequest,
+  unfriendUser,
+} from '../../api/relationships';
+import {
+  fetchDiscussion,
   fetchGeneralDiscussion,
   loadMoreMessages,
   sendGeneralMessage,
@@ -6,12 +13,198 @@ import {
 } from '../../api/chats';
 import {getRelativeTime, getTimeElapsed} from '../../utils/string';
 import {BaseComponent} from '../../components/BaseComponent';
+import {Toastify} from '../../utils/toastify';
 import {createElement} from '../../utils/dom';
+import {fetchUserProfile} from '../../api/users';
+import {getAverageRGB} from '../../utils/content';
 import {loadIcons} from '../../utils/icons';
 import {renderUserContextMenu} from './userContextMenu';
+import {user} from '../../types';
 
 export class Discussion extends BaseComponent {
   private lastMessageSentIndex?: number;
+  private userProfile: Popup | null = null;
+
+  private renderUserProfile(
+    user: user,
+    isFriend: boolean,
+    position: {x: number; y: number},
+    stats: {
+      elo: {
+        pong: number;
+        race: number;
+      };
+      totalMatches: number;
+    },
+  ) {
+    if (this.userProfile) this.userProfile.destroy();
+
+    const container = createElement('div', {
+      className: 'flex flex-col',
+    });
+
+    const banner = createElement('div', {
+      className: `rounded-t-xl w-full h-12 border border-b-0`,
+    });
+    const avatarImageElement = createElement('img', {
+      attributes: {src: user.avatar},
+    });
+    const c = getAverageRGB(avatarImageElement);
+    banner.style.borderColor = `rgb(${c.r},${c.g},${c.b})`;
+    banner.style.background = `linear-gradient(to bottom right, rgb(${c.r} ${c.g} ${c.b} / 0.05), rgb(${c.r} ${c.g} ${c.b} / 0.40))`;
+
+    const actionButtons = createElement('div', {
+      className: 'flex items-center justify-end gap-2 px-2 mt-2',
+    });
+
+    const renderButton = (icon: string, onclick: () => void) => {
+      const btn = createElement('button', {
+        className: `rounded-full bg-background/50 text-white p-2 cursor-pointer hover:bg-background duration-100 ${icon === 'noSymbol' ? 'hover:bg-red-500/10 hover:text-red-500' : ''}`,
+        onclick: onclick,
+      });
+
+      btn.appendChild(
+        createElement('i', {
+          className: 'w-4 h-4',
+          icon: icon,
+        }),
+      );
+
+      return btn;
+    };
+
+    const sendFriendRequestButton = renderButton('userPlus', async () => {
+      await sendFriendRequest(user.username);
+      if (this.userProfile) this.userProfile.destroy();
+    });
+    const unfriendButton = renderButton('userMinus', async () => {
+      const {directChats} = this.store.getState();
+      const relationshipID = directChats.find(
+        chat => chat.user.id === user.id,
+      )?.relationshipID;
+      await unfriendUser(relationshipID ?? 0, user.username);
+      if (this.userProfile) this.userProfile.destroy();
+    });
+    const goToChatButton = renderButton('chatBubbleLeft', async () => {
+      if (this.userProfile) this.userProfile.destroy();
+      await fetchDiscussion(user.id);
+      this.store.setState({
+        chatView: {label: user.username, id: user.id},
+      });
+    });
+    const blockButton = renderButton('noSymbol', async () => {
+      await blockUser(user.id, user.username);
+      if (this.userProfile) this.userProfile.destroy();
+    });
+
+    if (isFriend)
+      actionButtons.append(unfriendButton, goToChatButton, blockButton);
+    else actionButtons.append(sendFriendRequestButton, blockButton);
+
+    banner.appendChild(actionButtons);
+
+    const profileInformations = createElement('div', {
+      className: 'border px-4 rounded-b-xl pb-4',
+    });
+
+    const avatar = createElement('img', {
+      className: 'relative rounded-full object-cover border -mt-7 h-14 w-14',
+      attributes: {
+        src: user.avatar,
+      },
+    });
+    profileInformations.appendChild(avatar);
+
+    const {directChats} = this.store.getState();
+    if (directChats.find(c => c.user.id === user.id)?.user.status) {
+      profileInformations.appendChild(
+        createElement('div', {
+          className: `absolute top-15 left-15 w-4 h-4 rounded-full bg-emerald-500 border-2 border-background`,
+        }),
+      );
+    }
+
+    profileInformations.appendChild(
+      createElement('p', {
+        className: 'font-bold mt-2',
+        textContent: user.username,
+      }),
+    );
+
+    profileInformations.append(
+      createElement('p', {
+        className: 'text-xs text-white/50',
+        textContent: `${stats.totalMatches} matches played`,
+      }),
+    );
+    profileInformations.append(
+      createElement('p', {
+        className: 'text-xs text-white/50',
+        textContent: `Pong elo: ${stats.elo.pong} • Race elo: ${stats.elo.race}`,
+      }),
+    );
+
+    const messageInput = createElement('form', {
+      className: 'flex items-center w-full relative mt-4',
+    });
+    messageInput.onsubmit = async evt => {
+      evt.preventDefault();
+      evt.stopPropagation();
+
+      const formData = new FormData(evt.target as HTMLFormElement);
+      const message = formData.get('message')?.toString() ?? '';
+
+      await sendPrivateMessage(user.id, message);
+      Toastify.success('Message sent');
+      if (this.userProfile) this.userProfile.destroy();
+    };
+
+    const input = createElement('input', {
+      className: `peer border border-white/50 pr-10 rounded-md text-sm px-3 py-2 outline-none w-full focus:border-white`,
+      attributes: {
+        placeholder: `Chat with ${user.username}...`,
+        name: 'message',
+      },
+    });
+    messageInput.append(input);
+    messageInput.append(
+      createElement('i', {
+        className: `w-4 h-4 absolute -mt-1 right-3 -rotate-35 text-white/50 peer-focus:text-white cursor-pointer`,
+        icon: 'paperAirplane',
+        attributes: {
+          type: 'submit',
+        },
+      }),
+    );
+
+    const friendRequestButton = createElement('button', {
+      className: `mt-4 rounded-md w-full py-2 text-sm border border-white/50 hover:border-white hover:bg-white/10 cursor-pointer`,
+      textContent: 'Send friend request',
+      onclick: async () => {
+        await sendFriendRequest(user.username);
+        if (this.userProfile) this.userProfile.destroy();
+      },
+    });
+
+    profileInformations.appendChild(
+      isFriend ? messageInput : friendRequestButton,
+    );
+
+    container.appendChild(banner);
+    container.appendChild(profileInformations);
+
+    this.userProfile = createPopupContainer({
+      x: position.x + 20,
+      y: position.y - 50,
+      className: `absolute z-50 min-w-60 bg-background rounded-xl shadow-xl shadow-white/5`,
+      content: container,
+      onClose: () => (this.userProfile = null),
+    });
+
+    this.userProfile.show();
+    input?.focus();
+    loadIcons();
+  }
 
   private renderNoChatPlaceholder(username?: string) {
     const noChat = createElement('div', {
@@ -77,17 +270,26 @@ export class Discussion extends BaseComponent {
       return directChats.find(chat => sender.id === chat.user.id);
     };
 
+    const renderUserProfileOnClick = async evt => {
+      evt.preventDefault();
+      const stats = await fetchUserProfile(sender.id);
+      if (!stats) return;
+
+      this.renderUserProfile(
+        sender,
+        isSenderFriend() ? true : false,
+        {
+          x: evt.pageX,
+          y: evt.pageY,
+        },
+        stats,
+      );
+    };
+
     const messageContainer = createElement('div', {
       className: `flex items-end gap-2 ${isReceived ? (message.mention ? 'pl-5' : 'pl-6') : 'pr-6'} ${message.mention ? 'py-2 border-l-4 pl-2 border-pink-300' : 'py-1'}`,
     });
-    messageContainer.oncontextmenu = evt => {
-      evt.preventDefault();
-      renderUserContextMenu(
-        sender,
-        [isSenderFriend() ? 'unfriend' : 'friend', 'block'],
-        [evt.pageX, evt.pageY],
-      );
-    };
+    messageContainer.oncontextmenu = renderUserProfileOnClick;
 
     if (isReceived) {
       const profilePicture = createElement('img', {
@@ -96,12 +298,7 @@ export class Discussion extends BaseComponent {
           src: sender.avatar,
         },
       });
-      profilePicture.onclick = evt =>
-        renderUserContextMenu(
-          sender,
-          [isSenderFriend() ? 'unfriend' : 'friend', 'block'],
-          [evt.pageX, evt.pageY],
-        );
+      profilePicture.onclick = renderUserProfileOnClick;
       messageContainer.appendChild(profilePicture);
     }
 
@@ -113,12 +310,7 @@ export class Discussion extends BaseComponent {
         className: `text-pink-300/50 text-sm cursor-pointer hover:underline hover:text-pink-300`,
         textContent: sender.username,
       });
-      usernameButton.onclick = evt =>
-        renderUserContextMenu(
-          sender,
-          [isSenderFriend() ? 'unfriend' : 'friend', 'block'],
-          [evt.pageX, evt.pageY],
-        );
+      usernameButton.onclick = renderUserProfileOnClick;
       text.appendChild(usernameButton);
     }
 
