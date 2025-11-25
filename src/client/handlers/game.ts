@@ -144,6 +144,9 @@ const handleSuccess = (data: {origin: string}) => {
     store.setState({
       isWaitingForMatchmaking: false,
       matchmakingTargetUser: undefined,
+      game: undefined,
+      matchStartBallData: undefined,
+      raceWalls: [],
     });
     router.navigate('/homepage');
   }
@@ -175,15 +178,35 @@ const handlePaddleMove = (data: {
 
 const handleMatchCancel = (data: {cause: string}) => {
   const router = Router.getInstance();
-  const game = getCurrentGame();
-
-  if (game.name == 'pong') {
-    const pongCanvas = getPongCanvasInstance();
-    pongCanvas?.resetPongGame();
-  } else if (game.name == 'race') {
-    const raceCanvas = getRaceCanvasInstance();
-    raceCanvas.resetCarGame();
+  const store = Store.getInstance();
+  try {
+    const game = getCurrentGame();
+    if (game) {
+      if (game.name === 'pong') {
+        const pongCanvas = getPongCanvasInstance();
+        if (pongCanvas) {
+          pongCanvas.resetPongGame();
+        }
+      } else if (game.name === 'race') {
+        const raceCanvas = getRaceCanvasInstance();
+        if (raceCanvas) {
+          raceCanvas.resetCarGame();
+        }
+      }
+    }
+  } catch (error) {
+    // Game hasn't started yet (still in countdown), nothing to cleanup
+    console.log('No game to cleanup');
   }
+
+  store.setState({
+    isWaitingForMatchmaking: false,
+    matchmakingTargetUser: undefined,
+    game: undefined,
+    matchStartBallData: undefined,
+    raceWalls: [],
+  });
+
   Toastify.error(data.cause);
   router.navigate('/homepage');
 };

@@ -247,7 +247,6 @@ export class RaceCanvas {
     };
 
     const isLocal = this.race.isLocal;
-    console.log('isLOcal', isLocal);
 
     this.race.player.car?.move(
       this.race.keys.w || (!isLocal && this.race.keys.ArrowUp)
