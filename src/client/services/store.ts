@@ -22,7 +22,6 @@ const defaultValues = {
     totalGames: 0,
     bestPlayer: 'hkitty',
   },
-  players: [undefined, undefined],
   isOpponentBlocked: false,
   game: {
     isRanked: false,
