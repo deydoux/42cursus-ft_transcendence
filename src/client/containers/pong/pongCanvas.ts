@@ -418,7 +418,7 @@ export class PongCanvas {
 
   public handlePaddleMovement(frames: number): void {
     if (this.pong.isScoring) return;
-    const paddleSpeed = this.ctx.canvas.height * 0.01 * frames;
+    const paddleSpeed = this.ctx.canvas.height * 0.008 * frames;
 
     let currentState: 'idle' | 'up' | 'down' = 'idle';
     let direction = 0;

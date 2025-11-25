@@ -1,5 +1,5 @@
 import '../styles/main.css';
-import {register, verifyTOTP} from '../api/authentication';
+import {logout, register, verifyTOTP} from '../api/authentication';
 import {BaseComponent} from '../components/BaseComponent';
 import {GDPR} from '../components/GDPR';
 import {Toastify} from '../utils/toastify';
@@ -348,6 +348,8 @@ export class LandingPage extends BaseComponent {
         errorMessage.textContent = 'Blank field';
         return;
       }
+
+      if (mode === 'signup') await logout(false);
 
       this.store.toggleLoading('authentication');
       const result = await register(mode, body);
