@@ -181,7 +181,9 @@ export default abstract class Match {
   private forfeits(winner: Player) {
     this.result = 'forfeit';
     this.winner = winner;
-    setTimeout(() => this.unlock(), this.countdown - Date.now());
+
+    const delay = this.countdown - Date.now();
+    setTimeout(() => this.unlock(), delay > 0 ? delay : 0);
   }
 
   public get game() {
