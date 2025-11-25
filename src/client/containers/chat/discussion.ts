@@ -273,6 +273,8 @@ export class Discussion extends BaseComponent {
     const renderUserProfileOnClick = async evt => {
       evt.preventDefault();
       const stats = await fetchUserProfile(sender.id);
+      if (!stats) return;
+
       this.renderUserProfile(
         sender,
         isSenderFriend() ? true : false,
