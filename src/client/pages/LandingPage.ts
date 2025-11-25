@@ -349,7 +349,8 @@ export class LandingPage extends BaseComponent {
         return;
       }
 
-      if (mode === 'signup') await logout(false);
+      if (mode === 'signup' && localStorage.getItem('accessToken'))
+        await logout(false);
 
       this.store.toggleLoading('authentication');
       const result = await register(mode, body);
