@@ -13,7 +13,7 @@ export class PasswordManager extends BaseComponent {
           const formDataObj = {
             oldpassword: '',
             newpassword: '',
-            newpasswordagain: '',
+            confirmpassword: '',
           };
           formData.forEach((value, key) => (formDataObj[key] = value));
 
@@ -21,7 +21,7 @@ export class PasswordManager extends BaseComponent {
             'p#password-error-message',
           ) as HTMLParagraphElement;
           errorField.textContent = '';
-          if (formDataObj.newpassword !== formDataObj.newpasswordagain) {
+          if (formDataObj.newpassword !== formDataObj.confirmpassword) {
             errorField.textContent = 'The two passwords must be the same';
             return;
           }
