@@ -241,7 +241,7 @@ const handleBallState = (data: {
   y: number;
   vx: number;
   vy: number;
-  // speed: number;
+  speed: number;
   timestamp: number;
   side: 'left' | 'right';
 }) => {
