@@ -81,14 +81,7 @@ export class PongCanvas {
   }
 
   public cleanup(): void {
-    // Stop animation loop
-    if (this.animationId) {
-      cancelAnimationFrame(this.animationId);
-      this.animationId = null;
-    }
-
-    // Stop game
-    this.gameRunning = false;
+    this.stopGame();
 
     // Clear canvas
     if (this.pong.ctx) {
