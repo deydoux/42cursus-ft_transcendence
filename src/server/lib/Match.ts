@@ -307,10 +307,7 @@ export default abstract class Match {
       ...this.initialState(),
     });
 
-    const tick = setInterval(() => this.send({type: 'matchTick'}), 750);
     await this.lock;
-
-    clearInterval(tick);
     await this.destroy(this.winner);
 
     return {winner: this.winner, result: this.result};
