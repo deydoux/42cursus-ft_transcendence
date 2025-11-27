@@ -85,7 +85,6 @@ type ServerTunnelMessage =
       dx?: number;
       dy?: number;
     }
-  | {type: 'matchTick'}
   | {
       type: 'newTournament';
       tournament: unknown;

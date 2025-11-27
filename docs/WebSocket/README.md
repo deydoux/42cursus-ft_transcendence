@@ -257,16 +257,6 @@ Received when a match is starting
 }
 ```
 
-### `matchTick`
-Received periodically during a match to indicate a tick event
-
-*Example:*
-```json
-{
-  "type": "matchTick"
-}
-```
-
 ### `move`
 Received when opponent makes a move in a match
 
