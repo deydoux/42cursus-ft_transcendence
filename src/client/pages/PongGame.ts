@@ -124,8 +124,6 @@ export class PongGame extends BaseComponent {
 
     // Remove key handlers
     this.removeKeyHandlers();
-
-    console.log('PongGame cleaned up');
   }
 
   public destroy(): void {

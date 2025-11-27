@@ -213,10 +213,6 @@ export class PongCanvas {
       const touchX = touchXDisplay * scaleX;
       const touchY = touchYDisplay * scaleY;
 
-      console.log(
-        `Touch at: X=${touchX.toFixed(0)}, Y=${touchY.toFixed(0)}, Canvas: ${canvas.width}x${canvas.height}`,
-      );
-
       // Determine which corner was touched
       const isTopLeft = touchX < zoneWidth && touchY < zoneHeight;
       const isBottomLeft =
@@ -227,10 +223,6 @@ export class PongCanvas {
         touchX > canvas.width - zoneWidth &&
         touchY > canvas.height - zoneHeight;
 
-      console.log(
-        `Corners: TL=${isTopLeft}, BL=${isBottomLeft}, TR=${isTopRight}, BR=${isBottomRight}`,
-      );
-
       if (this.pong.isLocal) {
         // Reset all keys first
         this.pong.keys.w = false;
@@ -239,19 +231,10 @@ export class PongCanvas {
         this.pong.keys.ArrowDown = false;
 
         // Local mode: corners control respective paddles
-        if (isTopLeft) {
-          this.pong.keys.w = true;
-          console.log('LEFT PADDLE UP');
-        } else if (isBottomLeft) {
-          this.pong.keys.s = true;
-          console.log('LEFT PADDLE DOWN');
-        } else if (isTopRight) {
-          this.pong.keys.ArrowUp = true;
-          console.log('RIGHT PADDLE UP');
-        } else if (isBottomRight) {
-          this.pong.keys.ArrowDown = true;
-          console.log('RIGHT PADDLE DOWN');
-        }
+        if (isTopLeft) this.pong.keys.w = true;
+        else if (isBottomLeft) this.pong.keys.s = true;
+        else if (isTopRight) this.pong.keys.ArrowUp = true;
+        else if (isBottomRight) this.pong.keys.ArrowDown = true;
       } else {
         // Online mode: corners based on player side
         if (this.pong.player.side === 'left') {

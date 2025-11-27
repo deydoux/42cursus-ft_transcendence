@@ -236,8 +236,6 @@ export class RaceGame extends BaseComponent {
 
     // Remove key handlers
     this.removeKeyHandlers();
-
-    console.log('RaceGame cleaned up');
   }
 
   public destroy(): void {
@@ -262,7 +260,7 @@ export class RaceGame extends BaseComponent {
 
     const race = this.initializeGame(ctx, game.isLocal); // Initialize game state
     this.raceCanvas = RaceCanvas.createInstance(race, game.id?.toString()); // Create canvas controller
-    this.handleInput(race); //Binds click events to the keyboard events for car controls
+    this.handleInput(race); //Binds click events to the keyboard events for car controls01
     this.raceGameUI?.initializePlayerInfo();
 
     race.gameStarted = true;

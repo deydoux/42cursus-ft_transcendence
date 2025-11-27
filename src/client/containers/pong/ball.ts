@@ -93,7 +93,7 @@ export class Ball {
     this.y += this.vy * frames;
     this.x += this.vx * frames;
 
-    // Wall collision (simplified)
+    // Wall collision
     if (
       this.y - this.radius < 0 ||
       this.y + this.radius > this.ctx.canvas.height
@@ -185,6 +185,8 @@ export class Ball {
     const minHorizontalRatio = 0.5; // 50% minimum horizontal velocity
     const direction = isLeftPaddle ? 1 : -1;
 
+    this.increaseSpeed();
+
     // Calculate velocities
     let vx = direction * this.speed * Math.cos(bounceAngle);
     let vy = this.speed * Math.sin(bounceAngle);
@@ -212,31 +214,9 @@ export class Ball {
     this.x = isLeftPaddle
       ? paddle.x + paddle.width + this.radius
       : paddle.x - this.radius;
-
-    this.increaseSpeed();
-
-    // FIXED: Only send ball state if this is MY paddle collision
-    // Don't send on opponent's paddle collisions to prevent sync conflicts
   }
 
-  // Add method to handle YOUR paddle collision
-  public handleMyPaddleCollision(
-    paddle: Paddle,
-    isLeftPaddle: boolean,
-    pong: IPongGame,
-  ) {
-    // Check if this is actually my paddle
-    const isMyPaddle =
-      (isLeftPaddle && pong.player.side === 'left') ||
-      (!isLeftPaddle && pong.player.side === 'right');
-
-    if (isMyPaddle) {
-      this.handlePaddleCollision(paddle, isLeftPaddle);
-      if (!pong.isLocal) this.sendBallState(isLeftPaddle); // Only send when I hit the ball && game in remote
-    }
-  }
-
-  // NEW: Method to send ball state after collision
+  // Method to send ball state after collision
   private sendBallState(isLeftPaddle: boolean) {
     this.websocket.send({
       type: 'ballState',
@@ -252,7 +232,7 @@ export class Ball {
     });
   }
 
-  // NEW: Method to receive and apply ball state from opponent
+  // Method to receive and apply ball state from opponent
   public receiveBallState(data: {
     x: number;
     y: number;

@@ -81,8 +81,6 @@ export class RaceCanvas {
     if (this.race.timer) {
       this.race.timer.stop();
     }
-
-    console.log(`RaceCanvas cleaned up (gameId: ${this.gameId})`);
   }
 
   public startGame(): void {
