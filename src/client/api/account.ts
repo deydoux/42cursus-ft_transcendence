@@ -111,13 +111,9 @@ export const updateAvatar = async (file: File) => {
     const formData = new FormData();
     formData.append('avatar', file, file.name);
 
-    const accessToken = localStorage.getItem('accessToken');
     const response = await api.customFetch('/api/account/avatar', {
       method: 'PUT',
       body: formData,
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
     });
 
     if (!response.ok) {
