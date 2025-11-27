@@ -54,7 +54,6 @@ export const statisticsApi = {
       const raceElo = elo.filter(elo => elo.game === 'race');
 
       const monthlyActivity = this.calculateMonthlyActivity(matches);
-      console.log(matches);
       // Get game mode distribution from streaks
       const gameModeDistribution = {
         pong: {

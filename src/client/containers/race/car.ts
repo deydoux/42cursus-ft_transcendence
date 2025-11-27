@@ -178,53 +178,6 @@ export class Car {
     }
   }
 
-  /* public applyCarGrowth(): void {
-    // Check if growing would cause collision with walls
-    const testRatio = this.ratioGrowth + this.growthFactor;
-    const testSize =
-      Math.min(this.ctx.canvas.width, this.ctx.canvas.height) *
-      (0.06 + testRatio);
-
-    let testWidth, testHeight;
-    if (this.carImage) {
-      const imageRatio = this.carImage.width / this.carImage.height;
-      if (this.carImage.width > this.carImage.height) {
-        testWidth = testSize;
-        testHeight = testSize / imageRatio;
-      } else {
-        testHeight = testSize;
-        testWidth = testSize * imageRatio;
-      }
-    } else {
-      testWidth = testSize;
-      testHeight = testSize * 0.6;
-    }
-
-    const testPosition = {
-      x: this.x - testWidth / 2,
-      y: this.y - testHeight / 2,
-      width: testWidth,
-      height: testHeight,
-    };
-
-    // Get wall instance to check collision
-    const gameID = getCurrentGame().id.toString() || '';
-    const raceCanvas = getRaceCanvasInstance(gameID);
-
-    // Only grow if it won't cause a collision
-    if (!raceCanvas.race.wall.isCarColliding(testPosition)) {
-      this.isBigger = true;
-      this.growthEndTime = Date.now() + this.growthDuration;
-      if (this.carImage) {
-        this.setCarDimensionsFromImage(this.growthFactor);
-      } else {
-        this.setDefaultCarDimensions(this.growthFactor);
-      }
-    } else {
-      console.log('Growth prevented due to wall collision');
-    }
-  } */
-
   /**
    * Resets the car's growth status and dimensions
    */

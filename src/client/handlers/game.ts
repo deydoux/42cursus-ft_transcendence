@@ -144,7 +144,6 @@ const handleSuccess = (data: {origin: string}) => {
     store.setState({
       isWaitingForMatchmaking: false,
       matchmakingTargetUser: undefined,
-      game: undefined,
       matchStartBallData: undefined,
       raceWalls: [],
     });
@@ -196,13 +195,12 @@ const handleMatchCancel = (data: {cause: string}) => {
     }
   } catch (error) {
     // Game hasn't started yet (still in countdown), nothing to cleanup
-    console.log('No game to cleanup');
+    console.error('No game to cleanup');
   }
 
   store.setState({
     isWaitingForMatchmaking: false,
     matchmakingTargetUser: undefined,
-    game: undefined,
     matchStartBallData: undefined,
     raceWalls: [],
   });
@@ -243,7 +241,7 @@ const handleBallState = (data: {
   y: number;
   vx: number;
   vy: number;
-  speed: number;
+  // speed: number;
   timestamp: number;
   side: 'left' | 'right';
 }) => {
