@@ -142,7 +142,7 @@ export class RaceCanvas {
    * If the time is up, it ends the game and stops the timer.
    * This method is called recursively using requestAnimationFrame to create a smooth animation loop.
    */
-  public gameLoop(): void {
+  private gameLoop(): void {
     if (!this.race.gameStarted || !this.gameRunning) return;
 
     this.gamePadhandler();
