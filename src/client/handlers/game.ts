@@ -368,6 +368,27 @@ const handleGameInvite = (data: {
   }
 };
 
+const handleMatchTick = (data: {}) => {
+  if (!document.hidden) return;
+
+  let game;
+  try {
+    game = getCurrentGame();
+  } catch {
+    return;
+  }
+
+  console.log('Received matchTick update', game.name);
+
+  if (game.name === 'pong') {
+    const pongCanvas = getPongCanvasInstance();
+    pongCanvas.gameLoop();
+  } else if (game.name === 'race') {
+    const raceCanvas = getRaceCanvasInstance();
+    raceCanvas.gameLoop();
+  }
+};
+
 export const setupGameHandlers = () => {
   const websocket = Socket.getInstance();
   websocket.on('matchStart', handleMatchStart);
@@ -386,4 +407,5 @@ export const setupGameHandlers = () => {
   websocket.on('updateGrowth', handleUpdateGrowth);
   websocket.on('updateSlowdown', handleUpdateSlowdown);
   websocket.on('gameInvite', handleGameInvite);
+  websocket.on('matchTick', handleMatchTick);
 };
