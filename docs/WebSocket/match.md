@@ -11,11 +11,6 @@ sequenceDiagram
   s -->>- m: success
   Note left of s: {origin: 'joinMatchmaking'}
 
-  m ->>+ s: joinMatchmaking
-  Note right of m: {game: 'race', mode: 'ranked'}
-  s --x- m: error
-  Note left of s: {message: 'Already in queue'}
-
   q ->>+ s: joinMatchmaking
   Note left of q: {game: 'pong', mode: 'casual'}
   s -->> q: success
@@ -24,10 +19,6 @@ sequenceDiagram
   s ->> m: matchStart
   s ->>- q: matchStart
   Note over s: {game: 'pong', ranked: false, block: false, players: [...], dx: 0.94, dy: 0.34}<br><br> players:<br>{id: 1, username: 'mapale', avatar: '/api/users/1/avatar?v=1'}<br>{id: 2, username: 'quteriss', avatar: '/api/users/2/avatar?v=1'}
-
-  q ->>+ s: joinMatchmaking
-  s -->>- q: error
-  Note right of s: {message: 'Already in game'}
 
   loop Client to client
     m ->>+ s: move
